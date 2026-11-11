@@ -70,11 +70,11 @@
 <li class="toctree-l4"><a class="reference internal" href="#suppported-models">suppported models</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#mesh">mesh</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#vertical-grid">vertical grid</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#initial-conditions">initial conditions</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ocean-geostrophic-init">initial conditions</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#forcing">forcing</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#time-step-and-run-duration">time step and run duration</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#analysis">analysis</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#config-options">config options</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ocean-geostrophic-config">config options</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#cores">cores</a></li>
 </ul>
 </li>
@@ -96,7 +96,7 @@
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../framework/index.html">Framework</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../suites.html">Suites</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../suites.html#nightly-suite">nightly suite</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../suites.html#ocean-suite-nightly">nightly suite</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../suites.html#omega-pr-suite">omega_pr suite</a></li>
 </ul>
 </li>
@@ -163,8 +163,8 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section class="tex2jax_ignore mathjax_ignore" id="geostrophic">
-<span id="ocean-geostrophic"></span><h1>geostrophic<a class="headerlink" href="#geostrophic" title="Link to this heading"></a></h1>
+  <section class="tex2jax_ignore mathjax_ignore" id="ocean-geostrophic">
+<span id="geostrophic"></span><h1>geostrophic<a class="headerlink" href="#ocean-geostrophic" title="Link to this heading"></a></h1>
 <section id="description">
 <h2>description<a class="headerlink" href="#description" title="Link to this heading"></a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">geostrophic</span></code> tasks implement the “Global Steady
@@ -203,22 +203,18 @@ number of vertical levels may be used. The bottom depth is constant and the
 results should be insensitive to the choice of <code class="docutils literal notranslate"><span class="pre">bottom_depth</span></code>.  See cosine
 bell’s <a class="reference internal" href="cosine_bell.html#ocean-cosine-bell-vertical"><span class="std std-ref">vertical grid</span></a> section for the config options.</p>
 </section>
-<section id="initial-conditions">
-<span id="ocean-geostrophic-init"></span><h2>initial conditions<a class="headerlink" href="#initial-conditions" title="Link to this heading"></a></h2>
+<section id="ocean-geostrophic-init">
+<span id="initial-conditions"></span><h2>initial conditions<a class="headerlink" href="#ocean-geostrophic-init" title="Link to this heading"></a></h2>
 <p>The steady-state fields are given by the following equations:</p>
 <div class="math notranslate nohighlight">
-\[\begin{split}
-u &amp; = u_0 (\cos\theta \cos\alpha + \cos\lambda \sin\theta \sin\alpha)\\
+\[\begin{split}u &amp; = u_0 (\cos\theta \cos\alpha + \cos\lambda \sin\theta \sin\alpha)\\
 v &amp; = -u_0 \sin\lambda \sin\alpha\\
-h &amp; = h_0 - 1/g (a \Omega u_0 + u_0^2/2)(-\cos\lambda \cos\theta \sin\alpha + \sin\theta \cos\alpha)^2
-\end{split}\]</div>
+h &amp; = h_0 - 1/g (a \Omega u_0 + u_0^2/2)(-\cos\lambda \cos\theta \sin\alpha + \sin\theta \cos\alpha)^2\end{split}\]</div>
 <p>where</p>
 <div class="math notranslate nohighlight">
-\[\begin{split}
-u_0 &amp; = 2 \pi a/(12 \textrm{ days})\\
+\[\begin{split}u_0 &amp; = 2 \pi a/(12 \textrm{ days})\\
 h_0 &amp; = (1/g) \, 2.94 \times 10^{4} \textrm{m}^2/\textrm{s}^2 \\
-\alpha &amp; = 0
-\end{split}\]</div>
+\alpha &amp; = 0\end{split}\]</div>
 <a class="reference internal image-reference" href="../../../_images/geostrophic_h.png"><img alt="../../../_images/geostrophic_h.png" class="align-center" src="../../../_images/geostrophic_h.png" style="width: 500px;" />
 </a>
 <a class="reference internal image-reference" href="../../../_images/geostrophic_u.png"><img alt="../../../_images/geostrophic_u.png" class="align-center" src="../../../_images/geostrophic_u.png" style="width: 500px;" />
@@ -229,14 +225,10 @@ and the simulation should not diverge significantly from those values.</p>
 given for <code class="docutils literal notranslate"><span class="pre">bottomDepth</span></code> and <code class="docutils literal notranslate"><span class="pre">ssh</span></code> such that <code class="docutils literal notranslate"><span class="pre">h</span> <span class="pre">=</span> <span class="pre">bottomDepth</span> <span class="pre">+</span> <span class="pre">ssh</span></code>.</p>
 <p>The initial conditions also includes the coriolis parameter, given as:</p>
 <div class="math notranslate nohighlight">
-\[
-f = 2 \Omega (-\cos\lambda \cos\theta \sin\alpha + \sin\theta \cos\alpha)
-\]</div>
+\[f = 2 \Omega (-\cos\lambda \cos\theta \sin\alpha + \sin\theta \cos\alpha)\]</div>
 <p>In future work, alpha may be varied to test the sensitivity to orientation:</p>
 <div class="math notranslate nohighlight">
-\[
-\alpha = [0, 0.05, \pi/2 - 0.05, \pi/2]
-\]</div>
+\[\alpha = [0, 0.05, \pi/2 - 0.05, \pi/2]\]</div>
 </section>
 <section id="forcing">
 <h2>forcing<a class="headerlink" href="#forcing" title="Link to this heading"></a></h2>
@@ -289,8 +281,8 @@ velocity relative to the steady-state solutions given above.</p>
 <p>Then, mesh convergence is examined by plotting the <span class="math notranslate nohighlight">\(l_2\)</span> and <span class="math notranslate nohighlight">\(l_{\inf}\)</span> norms
 at day 5 vs resolution.</p>
 </section>
-<section id="config-options">
-<span id="ocean-geostrophic-config"></span><h2>config options<a class="headerlink" href="#config-options" title="Link to this heading"></a></h2>
+<section id="ocean-geostrophic-config">
+<span id="config-options"></span><h2>config options<a class="headerlink" href="#ocean-geostrophic-config" title="Link to this heading"></a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">geostrophic</span></code> config options include:</p>
 <div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="c1"># options for geostrophic convergence test case</span>
 <span class="k">[geostrophic]</span>

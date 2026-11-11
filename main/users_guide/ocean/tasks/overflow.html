@@ -97,7 +97,7 @@
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../framework/index.html">Framework</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../suites.html">Suites</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../suites.html#nightly-suite">nightly suite</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../suites.html#ocean-suite-nightly">nightly suite</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../suites.html#omega-pr-suite">omega_pr suite</a></li>
 </ul>
 </li>
@@ -164,8 +164,8 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section class="tex2jax_ignore mathjax_ignore" id="overflow">
-<span id="ocean-overflow"></span><h1>overflow<a class="headerlink" href="#overflow" title="Link to this heading"></a></h1>
+  <section class="tex2jax_ignore mathjax_ignore" id="ocean-overflow">
+<span id="overflow"></span><h1>overflow<a class="headerlink" href="#ocean-overflow" title="Link to this heading"></a></h1>
 <p>The <code class="docutils literal notranslate"><span class="pre">ocean/overflow</span></code> test group induces a density current flowing down a
 continental slope and includes the following test cases:</p>
 <ol class="arabic simple">
@@ -235,9 +235,7 @@ boundaries.</p>
 <h2>vertical grid<a class="headerlink" href="#vertical-grid" title="Link to this heading"></a></h2>
 <p>The topography includes a continental slope defined by</p>
 <div class="math notranslate nohighlight">
-\[
-z_{bed} = z_{shelf} + \frac{1}{2} (z_{floor} - z_{shelf}) (1 + \tanh((x - x_{slope})/L_{slope})
-\]</div>
+\[z_{bed} = z_{shelf} + \frac{1}{2} (z_{floor} - z_{shelf}) (1 + \tanh((x - x_{slope})/L_{slope})\]</div>
 <p>where <span class="math notranslate nohighlight">\(z_{shelf}\)</span> corresponds to config option <code class="docutils literal notranslate"><span class="pre">overflow:shelf_depth</span></code>,
 <span class="math notranslate nohighlight">\(z_{floor}\)</span> to <code class="docutils literal notranslate"><span class="pre">overflow:max_bottom_depth</span></code>, <span class="math notranslate nohighlight">\(x_{slope}\)</span> to <code class="docutils literal notranslate"><span class="pre">overflow:x_slope</span></code>
 and <span class="math notranslate nohighlight">\(L_{slope}\)</span> to <code class="docutils literal notranslate"><span class="pre">overflow:L_slope</span></code>.</p>
@@ -422,7 +420,7 @@ Jackett-McDougall for MPAS-Ocean).</p>
 <code class="docutils literal notranslate"><span class="pre">max_cells_per_core</span></code> in the <code class="docutils literal notranslate"><span class="pre">ocean</span></code> section of the config file.</p>
 </section>
 <section id="smoke-test">
-<h2>smoke_test<a class="headerlink" href="#smoke-test" title="Link to this heading"></a></h2>
+<span id="smoke_test"></span><h2>smoke_test<a class="headerlink" href="#smoke-test" title="Link to this heading"></a></h2>
 <section id="id1">
 <h3>description<a class="headerlink" href="#id1" title="Link to this heading"></a></h3>
 <p>There are three smoke test cases corresponding to horizontal advection orders

@@ -74,10 +74,10 @@
 <li class="toctree-l3"><a class="reference internal" href="internal_wave.html">internal wave</a></li>
 <li class="toctree-l3 current"><a class="current reference internal" href="#">manufactured solution</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#suppported-models">suppported models</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#default">default</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#del2">del2</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#del4">del4</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#rk4">rk4</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ocean-manufactured-solution-default">default</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ocean-manufactured-solution-del2">del2</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ocean-manufactured-solution-del4">del4</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ocean-manufactured-solution-rk4">rk4</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="merry_go_round.html">merry-go-round</a></li>
@@ -91,7 +91,7 @@
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../framework/index.html">Framework</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../suites.html">Suites</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../suites.html#nightly-suite">nightly suite</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../suites.html#ocean-suite-nightly">nightly suite</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../suites.html#omega-pr-suite">omega_pr suite</a></li>
 </ul>
 </li>
@@ -158,8 +158,8 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section class="tex2jax_ignore mathjax_ignore" id="manufactured-solution">
-<span id="ocean-manufactured-solution"></span><h1>manufactured solution<a class="headerlink" href="#manufactured-solution" title="Link to this heading"></a></h1>
+  <section class="tex2jax_ignore mathjax_ignore" id="ocean-manufactured-solution">
+<span id="manufactured-solution"></span><h1>manufactured solution<a class="headerlink" href="#ocean-manufactured-solution" title="Link to this heading"></a></h1>
 <p>The manufactured solution tasks implement configurations for surface wave
 propagation with the rotating, nonlinear shallow water equations on a doubly
 periodic domain. These tasks are intended to utilize tendency terms embedded
@@ -172,8 +172,8 @@ the discretized nonlinear momentum equation.</p>
 <h2>suppported models<a class="headerlink" href="#suppported-models" title="Link to this heading"></a></h2>
 <p>These tasks support both MPAS-Ocean and Omega.</p>
 </section>
-<section id="default">
-<span id="ocean-manufactured-solution-default"></span><h2>default<a class="headerlink" href="#default" title="Link to this heading"></a></h2>
+<section id="ocean-manufactured-solution-default">
+<span id="default"></span><h2>default<a class="headerlink" href="#ocean-manufactured-solution-default" title="Link to this heading"></a></h2>
 <section id="description">
 <h3>description<a class="headerlink" href="#description" title="Link to this heading"></a></h3>
 <p>There are 3 versions of the convergence test case, <code class="docutils literal notranslate"><span class="pre">convergence_space</span></code>,
@@ -230,11 +230,9 @@ single layer configuration.</p>
 <h3>initial conditions<a class="headerlink" href="#initial-conditions" title="Link to this heading"></a></h3>
 <p>The initial conditions are set to the following:
 <div class="math notranslate nohighlight">
-\[\begin{split}
-\eta = \eta_0 \sin(k_x x + k_y y - \omega t)\\
+\[\begin{split}\eta = \eta_0 \sin(k_x x + k_y y - \omega t)\\
 u = \eta_0 \cos(k_x x + k_y y - \omega t)\\
-v = u
-\end{split}\]</div>
+v = u\end{split}\]</div>
 </p>
 </section>
 <section id="forcing">
@@ -318,16 +316,16 @@ unsplit schemes and will not meet the default <code class="docutils literal notr
 <code class="docutils literal notranslate"><span class="pre">max_cells_per_core</span></code> and <code class="docutils literal notranslate"><span class="pre">goal_cells_per_core</span></code>.</p>
 </section>
 </section>
-<section id="del2">
-<span id="ocean-manufactured-solution-del2"></span><h2>del2<a class="headerlink" href="#del2" title="Link to this heading"></a></h2>
+<section id="ocean-manufactured-solution-del2">
+<span id="del2"></span><h2>del2<a class="headerlink" href="#ocean-manufactured-solution-del2" title="Link to this heading"></a></h2>
 <section id="id1">
 <h3>description<a class="headerlink" href="#id1" title="Link to this heading"></a></h3>
 <p>All settings are the same as the <a class="reference internal" href="#ocean-manufactured-solution-default"><span class="std std-ref">default</span></a> case
 except laplacian viscosity is turned on.</p>
 </section>
 </section>
-<section id="del4">
-<span id="ocean-manufactured-solution-del4"></span><h2>del4<a class="headerlink" href="#del4" title="Link to this heading"></a></h2>
+<section id="ocean-manufactured-solution-del4">
+<span id="del4"></span><h2>del4<a class="headerlink" href="#ocean-manufactured-solution-del4" title="Link to this heading"></a></h2>
 <section id="id2">
 <h3>description<a class="headerlink" href="#id2" title="Link to this heading"></a></h3>
 <p>All settings are the same as the <a class="reference internal" href="#ocean-manufactured-solution-default"><span class="std std-ref">default</span></a> case
@@ -335,8 +333,8 @@ except hyperviscosity is turned on. The expected convergence should not be
 significantly different from the <a class="reference internal" href="#ocean-manufactured-solution-default"><span class="std std-ref">default</span></a> case.</p>
 </section>
 </section>
-<section id="rk4">
-<span id="ocean-manufactured-solution-rk4"></span><h2>rk4<a class="headerlink" href="#rk4" title="Link to this heading"></a></h2>
+<section id="ocean-manufactured-solution-rk4">
+<span id="rk4"></span><h2>rk4<a class="headerlink" href="#ocean-manufactured-solution-rk4" title="Link to this heading"></a></h2>
 <section id="id3">
 <h3>description<a class="headerlink" href="#id3" title="Link to this heading"></a></h3>
 <p>The <code class="docutils literal notranslate"><span class="pre">rk4/convergence_both/default</span></code> task is the same as <code class="docutils literal notranslate"><span class="pre">convergence_both</span></code> in

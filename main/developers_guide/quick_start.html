@@ -59,10 +59,10 @@
 <p class="caption" role="heading"><span class="caption-text">Developer's guide</span></p>
 <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Quick Start for Developers</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#unix-shell">Unix Shell</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#set-up-a-polaris-repository-for-beginners">Set up a polaris repository: for beginners</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#polaris-pixi-and-spack-environments-compilers-and-system-modules">Polaris pixi and spack environments, compilers and system modules</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#keeping-pixi-off-your-home-quota">Keeping pixi off your home quota</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#dev-shell">Unix Shell</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#dev-polaris-repo">Set up a polaris repository: for beginners</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#dev-conda-env">Polaris pixi and spack environments, compilers and system modules</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#dev-pixi-cache">Keeping pixi off your home quota</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#supported-machines">Supported machines</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#unknown-machines">Unknown machines</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#what-the-script-does">What the script does</a></li>
@@ -72,25 +72,25 @@
 <li class="toctree-l3"><a class="reference internal" href="#troubleshooting">Troubleshooting</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#creating-updating-only-the-polaris-environment">Creating/updating only the polaris environment</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#building-e3sm-components">Building E3SM components</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#dev-creating-only-env">Creating/updating only the polaris environment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#dev-build-components">Building E3SM components</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#specifying-a-component-path-p-or-f">Specifying a component path (<code class="docutils literal notranslate"><span class="pre">-p</span></code> or <code class="docutils literal notranslate"><span class="pre">-f</span></code>)</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#mpas-ocean-or-mpas-seaice">MPAS-Ocean or MPAS-Seaice</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#dev-mpas-build">MPAS-Ocean or MPAS-Seaice</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#recommended-default-automated-build-from-polaris-setup-polaris-suite">Recommended default: automated build from <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">setup</span></code>/<code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">suite</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#manual-build-advanced-optional">Manual build (advanced/optional)</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="#omega">Omega</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#dev-omega-build">Omega</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#id1">Recommended default: automated build from <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">setup</span></code>/<code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">suite</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#id2">Manual build (advanced/optional)</a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#running-polaris-from-the-repo">Running polaris from the repo</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#code-style-for-polaris">Code style for polaris</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#ai-coding-assistant-instructions">AI coding assistant instructions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#set-up-a-polaris-repository-with-worktrees-for-advanced-users">Set up a polaris repository with worktrees: for advanced users</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#dev-working-with-polaris">Running polaris from the repo</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#dev-polaris-style">Code style for polaris</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#dev-polaris-ai-instructions">AI coding assistant instructions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#dev-polaris-repo-advanced">Set up a polaris repository with worktrees: for advanced users</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="overview.html">Overview</a></li>
@@ -148,18 +148,18 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section class="tex2jax_ignore mathjax_ignore" id="quick-start-for-developers">
-<span id="dev-quick-start"></span><h1>Quick Start for Developers<a class="headerlink" href="#quick-start-for-developers" title="Link to this heading"></a></h1>
-<section id="unix-shell">
-<span id="dev-shell"></span><h2>Unix Shell<a class="headerlink" href="#unix-shell" title="Link to this heading"></a></h2>
+  <section class="tex2jax_ignore mathjax_ignore" id="dev-quick-start">
+<span id="quick-start-for-developers"></span><h1>Quick Start for Developers<a class="headerlink" href="#dev-quick-start" title="Link to this heading"></a></h1>
+<section id="dev-shell">
+<span id="unix-shell"></span><h2>Unix Shell<a class="headerlink" href="#dev-shell" title="Link to this heading"></a></h2>
 <p>Currently, polaris only supports <code class="docutils literal notranslate"><span class="pre">bash</span></code> and related unix shells (such as
 <code class="docutils literal notranslate"><span class="pre">ksh</span></code> on the Mac).  We do not support <code class="docutils literal notranslate"><span class="pre">csh</span></code>, <code class="docutils literal notranslate"><span class="pre">tcsh</span></code> or other variants of
 <code class="docutils literal notranslate"><span class="pre">csh</span></code>.  An activation script for those shells will not be created.</p>
 <p>If you normally use <code class="docutils literal notranslate"><span class="pre">csh</span></code>, <code class="docutils literal notranslate"><span class="pre">tcsh</span></code> or similar, you will need to temporarily
 switch to bash by calling <code class="docutils literal notranslate"><span class="pre">/bin/bash</span></code> each time you want to use polaris.</p>
 </section>
-<section id="set-up-a-polaris-repository-for-beginners">
-<span id="dev-polaris-repo"></span><h2>Set up a polaris repository: for beginners<a class="headerlink" href="#set-up-a-polaris-repository-for-beginners" title="Link to this heading"></a></h2>
+<section id="dev-polaris-repo">
+<span id="set-up-a-polaris-repository-for-beginners"></span><h2>Set up a polaris repository: for beginners<a class="headerlink" href="#dev-polaris-repo" title="Link to this heading"></a></h2>
 <p>To begin, obtain the main branch of the
 <a class="reference external" href="https://github.com/E3SM-Project/polaris">polaris repository</a> with:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>clone<span class="w"> </span>git@github.com:E3SM-Project/polaris.git
@@ -172,8 +172,8 @@ MPAS-Ocean, <code class="docutils literal notranslate"><span class="pre">FAnSSIE
 for Omega and <code class="docutils literal notranslate"><span class="pre">MALI-Dev</span></code> for MALI) in a <code class="docutils literal notranslate"><span class="pre">e3sm_submodules</span></code> directory of the
 polaris repository.</p>
 </section>
-<section id="polaris-pixi-and-spack-environments-compilers-and-system-modules">
-<span id="dev-conda-env"></span><h2>Polaris pixi and spack environments, compilers and system modules<a class="headerlink" href="#polaris-pixi-and-spack-environments-compilers-and-system-modules" title="Link to this heading"></a></h2>
+<section id="dev-conda-env">
+<span id="polaris-pixi-and-spack-environments-compilers-and-system-modules"></span><h2>Polaris pixi and spack environments, compilers and system modules<a class="headerlink" href="#dev-conda-env" title="Link to this heading"></a></h2>
 <p>Polaris now uses <code class="docutils literal notranslate"><span class="pre">mache.deploy</span></code> for deployment. In this repository, the
 deployment entry point is <code class="docutils literal notranslate"><span class="pre">./deploy.py</span></code>.</p>
 <p>For background on this workflow, see:</p>
@@ -191,8 +191,8 @@ existing files in <code class="docutils literal notranslate"><span class="pre">p
 <p>Miniforge, Micromamba, and Miniconda are no longer required for Polaris
 deployment. If pixi is not already installed, <code class="docutils literal notranslate"><span class="pre">./deploy.py</span></code> can install it.</p>
 </div>
-<section id="keeping-pixi-off-your-home-quota">
-<span id="dev-pixi-cache"></span><h3>Keeping pixi off your home quota<a class="headerlink" href="#keeping-pixi-off-your-home-quota" title="Link to this heading"></a></h3>
+<section id="dev-pixi-cache">
+<span id="keeping-pixi-off-your-home-quota"></span><h3>Keeping pixi off your home quota<a class="headerlink" href="#dev-pixi-cache" title="Link to this heading"></a></h3>
 <p>Before you run <code class="docutils literal notranslate"><span class="pre">./deploy.py</span></code> for the first time on an HPC machine, decide
 where pixi will keep its packages.</p>
 <p>Pixi downloads each package once into a package cache, and then hardlinks the
@@ -410,8 +410,8 @@ can run:</p>
 scratch.  This takes just a little extra time.</p>
 </section>
 </section>
-<section id="creating-updating-only-the-polaris-environment">
-<span id="dev-creating-only-env"></span><h2>Creating/updating only the polaris environment<a class="headerlink" href="#creating-updating-only-the-polaris-environment" title="Link to this heading"></a></h2>
+<section id="dev-creating-only-env">
+<span id="creating-updating-only-the-polaris-environment"></span><span id="creatingupdating-only-the-polaris-environment"></span><h2>Creating/updating only the polaris environment<a class="headerlink" href="#dev-creating-only-env" title="Link to this heading"></a></h2>
 <p>For some workflows (e.g. for MALI development with the Albany library when the
 MALI build environment has been created outside of <code class="docutils literal notranslate"><span class="pre">polaris</span></code>, for example,
 on an unsupported machine), you may only want to create the pixi environment
@@ -455,8 +455,8 @@ not up-to-date.  Since dependencies change fairly rarely, this will usually
 be safe.</p>
 </div>
 </section>
-<section id="building-e3sm-components">
-<span id="dev-build-components"></span><h2>Building E3SM components<a class="headerlink" href="#building-e3sm-components" title="Link to this heading"></a></h2>
+<section id="dev-build-components">
+<span id="building-e3sm-components"></span><h2>Building E3SM components<a class="headerlink" href="#dev-build-components" title="Link to this heading"></a></h2>
 <p>There are 4 E3SM submodules within the polaris repository, but the MALI-Dev
 submodule is not yet used.  The FAnSSIE submodule is only for ocean–ice-sheet
 coupling work (see <a class="reference internal" href="ocean/index.html#dev-ocean-fanssie"><span class="std std-ref">FAnSSIE</span></a>).</p>
@@ -520,8 +520,8 @@ is reused.  If not, Polaris builds it automatically at that location.</p>
 <p>Use <code class="docutils literal notranslate"><span class="pre">-f</span></code> when you want a reusable config for multiple commands, and <code class="docutils literal notranslate"><span class="pre">-p</span></code> for
 one-off setup commands.</p>
 </section>
-<section id="mpas-ocean-or-mpas-seaice">
-<span id="dev-mpas-build"></span><h3>MPAS-Ocean or MPAS-Seaice<a class="headerlink" href="#mpas-ocean-or-mpas-seaice" title="Link to this heading"></a></h3>
+<section id="dev-mpas-build">
+<span id="mpas-ocean-or-mpas-seaice"></span><h3>MPAS-Ocean or MPAS-Seaice<a class="headerlink" href="#dev-mpas-build" title="Link to this heading"></a></h3>
 <section id="recommended-default-automated-build-from-polaris-setup-polaris-suite">
 <h4>Recommended default: automated build from <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">setup</span></code>/<code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">suite</span></code><a class="headerlink" href="#recommended-default-automated-build-from-polaris-setup-polaris-suite" title="Link to this heading"></a></h4>
 <p>For MPAS-Ocean, Polaris builds automatically during setup and places the
@@ -554,8 +554,8 @@ provided, MPAS-Ocean is usually detected automatically; otherwise, provide
 <code class="docutils literal notranslate"><span class="pre">--model</span> <span class="pre">mpas-ocean</span></code>.</p>
 </section>
 </section>
-<section id="omega">
-<span id="dev-omega-build"></span><h3>Omega<a class="headerlink" href="#omega" title="Link to this heading"></a></h3>
+<section id="dev-omega-build">
+<span id="omega"></span><h3>Omega<a class="headerlink" href="#dev-omega-build" title="Link to this heading"></a></h3>
 <p>See the table in <a class="reference internal" href="machines/index.html#dev-supported-machines"><span class="std std-ref">Supported Machines</span></a> for a list of supported
 machines.</p>
 <p>If you simply wish to run the CTests from Omega, you likely want to use the
@@ -614,8 +614,8 @@ automatically; otherwise, provide <code class="docutils literal notranslate"><sp
 </section>
 </section>
 </section>
-<section id="running-polaris-from-the-repo">
-<span id="dev-working-with-polaris"></span><h2>Running polaris from the repo<a class="headerlink" href="#running-polaris-from-the-repo" title="Link to this heading"></a></h2>
+<section id="dev-working-with-polaris">
+<span id="running-polaris-from-the-repo"></span><h2>Running polaris from the repo<a class="headerlink" href="#dev-working-with-polaris" title="Link to this heading"></a></h2>
 <p>If you follow the procedure above, you can run polaris with the <code class="docutils literal notranslate"><span class="pre">polaris</span></code>
 command-line tool exactly like described in the <a class="reference internal" href="../users_guide/quick_start.html#quick-start"><span class="std std-ref">Quick Start for Users</span></a>
 and as detailed in <a class="reference internal" href="command_line.html#dev-command-line"><span class="std std-ref">Command-line interface</span></a>.</p>
@@ -652,8 +652,8 @@ polaris<span class="w"> </span>serial
 up the suite or task (<code class="docutils literal notranslate"><span class="pre">load_polaris_env.sh</span></code> is just a symlink to that
 activation script you sourced before setting up the suite or task).</p>
 </section>
-<section id="code-style-for-polaris">
-<span id="dev-polaris-style"></span><h2>Code style for polaris<a class="headerlink" href="#code-style-for-polaris" title="Link to this heading"></a></h2>
+<section id="dev-polaris-style">
+<span id="code-style-for-polaris"></span><h2>Code style for polaris<a class="headerlink" href="#dev-polaris-style" title="Link to this heading"></a></h2>
 <p>Polaris complies with the coding conventions of
 <a class="reference external" href="https://peps.python.org/pep-0008/">PEP8</a>. Rather than memorize all the
 guidelines, the easiest way to stay in compliance as a developer writing new
@@ -679,8 +679,8 @@ for some tips on checking code style in VS Code.</p>
 <p>Once you open a pull request for your feature, there is an additional PEP8
 style check at this stage (again using pre-commit).</p>
 </section>
-<section id="ai-coding-assistant-instructions">
-<span id="dev-polaris-ai-instructions"></span><h2>AI coding assistant instructions<a class="headerlink" href="#ai-coding-assistant-instructions" title="Link to this heading"></a></h2>
+<section id="dev-polaris-ai-instructions">
+<span id="ai-coding-assistant-instructions"></span><h2>AI coding assistant instructions<a class="headerlink" href="#dev-polaris-ai-instructions" title="Link to this heading"></a></h2>
 <p>Polaris also includes repository-level instructions for AI coding assistants:</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">AGENTS.md</span></code> provides instructions for Codex and other agent-style tools that
@@ -714,8 +714,8 @@ should win.</p></li>
 <p>When you add or change a style preference, update these three files in the same
 pull request so they stay aligned.</p>
 </section>
-<section id="set-up-a-polaris-repository-with-worktrees-for-advanced-users">
-<span id="dev-polaris-repo-advanced"></span><h2>Set up a polaris repository with worktrees: for advanced users<a class="headerlink" href="#set-up-a-polaris-repository-with-worktrees-for-advanced-users" title="Link to this heading"></a></h2>
+<section id="dev-polaris-repo-advanced">
+<span id="set-up-a-polaris-repository-with-worktrees-for-advanced-users"></span><h2>Set up a polaris repository with worktrees: for advanced users<a class="headerlink" href="#dev-polaris-repo-advanced" title="Link to this heading"></a></h2>
 <p>This section uses <code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">worktree</span></code>, which provides more flexibility but is more
 complicated. See the beginner section above for the simpler version. In the
 worktree version, you will have many unix directories, and each corresponds to

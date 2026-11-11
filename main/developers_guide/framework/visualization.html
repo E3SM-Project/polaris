@@ -82,16 +82,16 @@
 <li class="toctree-l2"><a class="reference internal" href="task_parallelism.html">Writing task-parallel-safe steps</a></li>
 <li class="toctree-l2"><a class="reference internal" href="validation.html">Validation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="validation.html#property-checks">Property checks</a></li>
-<li class="toctree-l2"><a class="reference internal" href="validation.html#cf-compliance-checks">CF compliance checks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="validation.html#dev-cf-check">CF compliance checks</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Visualization</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#common-matplotlib-style">common matplotlib style</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#horizontal-fields-from-planar-meshes">horizontal fields from planar meshes</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#global-lat-lon-plots">global lat/lon plots</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#dev-visualization-style">common matplotlib style</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#dev-visualization-planar">horizontal fields from planar meshes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#dev-visualization-global">global lat/lon plots</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#plotting-from-spherical-mpas-meshes">plotting from spherical MPAS meshes</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#plotting-from-lat-lon-grids">plotting from lat/lon grids</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="#latitude-elevation-plots">latitude-elevation plots</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#dev-visualization-lat-elevation">latitude-elevation plots</a></li>
 </ul>
 </li>
 </ul>
@@ -144,8 +144,8 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section class="tex2jax_ignore mathjax_ignore" id="visualization">
-<span id="dev-visualization"></span><h1>Visualization<a class="headerlink" href="#visualization" title="Link to this heading"></a></h1>
+  <section class="tex2jax_ignore mathjax_ignore" id="dev-visualization">
+<span id="visualization"></span><h1>Visualization<a class="headerlink" href="#dev-visualization" title="Link to this heading"></a></h1>
 <p>Visualization is an optional, but desirable aspect of tasks. Often,
 visualization is an optional step of a task but can also be included
 as part of other steps such as <code class="docutils literal notranslate"><span class="pre">init</span></code> or <code class="docutils literal notranslate"><span class="pre">analysis</span></code>.</p>
@@ -153,8 +153,8 @@ as part of other steps such as <code class="docutils literal notranslate"><span 
 <a class="reference external" href="https://docs.e3sm.org/mosaic/"><code class="docutils literal notranslate"><span class="pre">mosaic</span></code></a>. While developers can write their
 own visualization scripts associated with individual tasks, the following
 shared visualization routines are provided in <code class="docutils literal notranslate"><span class="pre">polaris.viz</span></code>:</p>
-<section id="common-matplotlib-style">
-<span id="dev-visualization-style"></span><h2>common matplotlib style<a class="headerlink" href="#common-matplotlib-style" title="Link to this heading"></a></h2>
+<section id="dev-visualization-style">
+<span id="common-matplotlib-style"></span><h2>common matplotlib style<a class="headerlink" href="#dev-visualization-style" title="Link to this heading"></a></h2>
 <p>The context manager <a class="reference internal" href="../generated/polaris.viz.mplstyle_context.html#polaris.viz.mplstyle_context" title="polaris.viz.mplstyle_context"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.viz.mplstyle_context()</span></code></a> applies a common
 <a class="reference external" href="https://matplotlib.org/stable/users/explain/customizing.html#customizing-with-style-sheets">matplotlib style sheet</a>
 that makes font sizes and other plotting options more consistent across
@@ -178,8 +178,8 @@ setting <code class="docutils literal notranslate"><span class="pre">rcParams['s
 for the other properties a step needs in order to plot safely alongside other
 steps.</p>
 </section>
-<section id="horizontal-fields-from-planar-meshes">
-<span id="dev-visualization-planar"></span><h2>horizontal fields from planar meshes<a class="headerlink" href="#horizontal-fields-from-planar-meshes" title="Link to this heading"></a></h2>
+<section id="dev-visualization-planar">
+<span id="horizontal-fields-from-planar-meshes"></span><h2>horizontal fields from planar meshes<a class="headerlink" href="#dev-visualization-planar" title="Link to this heading"></a></h2>
 <p><a class="reference internal" href="../generated/polaris.viz.plot_horiz_field.html#polaris.viz.plot_horiz_field" title="polaris.viz.plot_horiz_field"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.viz.plot_horiz_field()</span></code></a> produces a visualization of
 horizontal fields at their native mesh location (i.e. cells, edges, or
 vertices) at a single vertical level and a single time step. The image file
@@ -230,8 +230,8 @@ subsequent calls; assuming you are plotting with the same mesh.</p>
 </pre></div>
 </div>
 </section>
-<section id="global-lat-lon-plots">
-<span id="dev-visualization-global"></span><h2>global lat/lon plots<a class="headerlink" href="#global-lat-lon-plots" title="Link to this heading"></a></h2>
+<section id="dev-visualization-global">
+<span id="global-lat-lon-plots"></span><span id="global-latlon-plots"></span><h2>global lat/lon plots<a class="headerlink" href="#dev-visualization-global" title="Link to this heading"></a></h2>
 <section id="plotting-from-spherical-mpas-meshes">
 <h3>plotting from spherical MPAS meshes<a class="headerlink" href="#plotting-from-spherical-mpas-meshes" title="Link to this heading"></a></h3>
 <p>You can use <a class="reference internal" href="../generated/polaris.viz.plot_global_mpas_field.html#polaris.viz.plot_global_mpas_field" title="polaris.viz.plot_global_mpas_field"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.viz.plot_global_mpas_field()</span></code></a> to plot a field on
@@ -345,8 +345,8 @@ is used  to enable or disable continents overlain on top of the data:</p>
 the map by <code class="docutils literal notranslate"><span class="pre">fig_width</span></code> or <code class="docutils literal notranslate"><span class="pre">fig_height</span></code> in the same way.</p>
 </section>
 </section>
-<section id="latitude-elevation-plots">
-<span id="dev-visualization-lat-elevation"></span><h2>latitude-elevation plots<a class="headerlink" href="#latitude-elevation-plots" title="Link to this heading"></a></h2>
+<section id="dev-visualization-lat-elevation">
+<span id="latitude-elevation-plots"></span><h2>latitude-elevation plots<a class="headerlink" href="#dev-visualization-lat-elevation" title="Link to this heading"></a></h2>
 <p><a class="reference internal" href="../generated/polaris.viz.plot_lat_elevation_field.html#polaris.viz.plot_lat_elevation_field" title="polaris.viz.plot_lat_elevation_field"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.viz.plot_lat_elevation_field()</span></code></a> plots a two-dimensional
 field against latitude and elevation as filled contours with contour lines
 over them. The meridional overturning streamfunction is the first of these,

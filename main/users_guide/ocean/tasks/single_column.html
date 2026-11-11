@@ -89,22 +89,22 @@
 <li class="toctree-l4"><a class="reference internal" href="#id1">config options</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#time-step-and-run-duration">time step and run duration</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#cores">cores</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#vmix-stable">vmix stable</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ocean-single-column-vmix">vmix stable</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#id4">vertical grid</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#ekman">ekman</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ocean-single-column-ekman">ekman</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#ocean-single-column-ideal-age">ideal age</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#inertial">inertial</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#kpp-regimes">KPP regimes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ocean-single-column-inertial">inertial</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ocean-single-column-kpp">KPP regimes</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#frazil">frazil</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#thermo">thermo</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#shortwave-pen">shortwave_pen</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ocean-single-column-shortwave-pen">shortwave_pen</a></li>
 </ul>
 </li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../framework/index.html">Framework</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../suites.html">Suites</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../suites.html#nightly-suite">nightly suite</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../suites.html#ocean-suite-nightly">nightly suite</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../suites.html#omega-pr-suite">omega_pr suite</a></li>
 </ul>
 </li>
@@ -171,8 +171,8 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section class="tex2jax_ignore mathjax_ignore" id="single-column">
-<span id="ocean-single-column"></span><h1>single column<a class="headerlink" href="#single-column" title="Link to this heading"></a></h1>
+  <section class="tex2jax_ignore mathjax_ignore" id="ocean-single-column">
+<span id="single-column"></span><h1>single column<a class="headerlink" href="#ocean-single-column" title="Link to this heading"></a></h1>
 <section id="description">
 <h2>description<a class="headerlink" href="#description" title="Link to this heading"></a></h2>
 <p>The single column tests in <code class="docutils literal notranslate"><span class="pre">polaris.tasks.ocean.single_column</span></code> exercise
@@ -313,7 +313,7 @@ surface restoring on.</p>
 </section>
 </section>
 <section id="id1">
-<h2>config options<a class="headerlink" href="#id1" title="Link to this heading"></a></h2>
+<span id="config-options-1"></span><h2>config options<a class="headerlink" href="#id1" title="Link to this heading"></a></h2>
 <div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="c1"># config options for single column testcases</span>
 <span class="k">[single_column]</span>
 
@@ -371,8 +371,8 @@ test case. Both can be changed after set-up by modifying the namelist file.</p>
 <p>Both default and minimum number of cores are hard-coded as 1 given that the
 domain is only 16 cells.</p>
 </section>
-<section id="vmix-stable">
-<span id="ocean-single-column-vmix"></span><h2>vmix stable<a class="headerlink" href="#vmix-stable" title="Link to this heading"></a></h2>
+<section id="ocean-single-column-vmix">
+<span id="vmix-stable"></span><h2>vmix stable<a class="headerlink" href="#ocean-single-column-vmix" title="Link to this heading"></a></h2>
 <section id="id2">
 <h3>description<a class="headerlink" href="#id2" title="Link to this heading"></a></h3>
 <p>The <code class="docutils literal notranslate"><span class="pre">vmix_stable</span></code> test runs a series of forward steps with different namelist
@@ -390,21 +390,19 @@ stratification. The analysis step then compares the boundary layer depth for the
 </section>
 </section>
 <section id="id4">
-<h2>vertical grid<a class="headerlink" href="#id4" title="Link to this heading"></a></h2>
+<span id="vertical-grid-1"></span><h2>vertical grid<a class="headerlink" href="#id4" title="Link to this heading"></a></h2>
 <p>See <a class="reference internal" href="#ocean-single-column"><span class="std std-ref">single column</span></a>.</p>
 <section id="ocean-single-column-stable">
 <span id="id5"></span><h3>initial conditions<a class="headerlink" href="#ocean-single-column-stable" title="Link to this heading"></a></h3>
 <p>The temperature and salinity profiles are defined using the following equations:</p>
 <div class="math notranslate nohighlight">
-\[\begin{split}
-\Phi(z) = \begin{cases}
+\[\begin{split}\Phi(z) = \begin{cases}
     \Phi_0 &amp;\text{ if } z = z[0]\\
     \Phi_0 + {d\Phi/dz}_{ML} z &amp;
     \text{ if } z &gt; z_{MLD}\\
     (\Phi_0 + {\Delta\Phi}_{ML}) + {d\Phi/dz}_{int} (z - z_{MLD}) &amp;
     \text{ if } z \le z_{MLD}
-\end{cases}
-\end{split}\]</div>
+\end{cases}\end{split}\]</div>
 <p>where <span class="math notranslate nohighlight">\(\Phi_0 = \)</span><code class="docutils literal notranslate"><span class="pre">surface_X</span></code>, <span class="math notranslate nohighlight">\({d\Phi/dz}_{ML} = \)</span><code class="docutils literal notranslate"><span class="pre">X_gradient_mixed_layer</span></code>,
 <span class="math notranslate nohighlight">\(z_{MLD} = -\)</span><code class="docutils literal notranslate"><span class="pre">mixed_layer_depth_X</span></code>, <span class="math notranslate nohighlight">\({\Delta\Phi}_{ML} = \)</span>
 <code class="docutils literal notranslate"><span class="pre">X_difference_across_mixed_layer</span></code>, and <span class="math notranslate nohighlight">\({d\Phi/dz}_{int} = \)</span>
@@ -472,8 +470,8 @@ the config options given in <a class="reference internal" href="#ocean-single-co
 <p>See <a class="reference internal" href="#ocean-single-column"><span class="std std-ref">single column</span></a>.</p>
 </section>
 </section>
-<section id="ekman">
-<span id="ocean-single-column-ekman"></span><h2>ekman<a class="headerlink" href="#ekman" title="Link to this heading"></a></h2>
+<section id="ocean-single-column-ekman">
+<span id="ekman"></span><h2>ekman<a class="headerlink" href="#ocean-single-column-ekman" title="Link to this heading"></a></h2>
 <section id="id10">
 <h3>description<a class="headerlink" href="#id10" title="Link to this heading"></a></h3>
 <p>The <code class="docutils literal notranslate"><span class="pre">ekman</span></code> test compares the modeled Ekman boundary layer with a wind-forced
@@ -580,8 +578,8 @@ shared framework.</p>
 <p>See <a class="reference internal" href="#ocean-single-column"><span class="std std-ref">single column</span></a>.</p>
 </section>
 </section>
-<section id="inertial">
-<span id="ocean-single-column-inertial"></span><h2>inertial<a class="headerlink" href="#inertial" title="Link to this heading"></a></h2>
+<section id="ocean-single-column-inertial">
+<span id="inertial"></span><h2>inertial<a class="headerlink" href="#ocean-single-column-inertial" title="Link to this heading"></a></h2>
 <section id="id26">
 <h3>description<a class="headerlink" href="#id26" title="Link to this heading"></a></h3>
 <p>The <code class="docutils literal notranslate"><span class="pre">inertial</span></code> test compares the modeled inertial frequency with the
@@ -639,8 +637,8 @@ line shows the theoretical solution.</p>
 <p>See <a class="reference internal" href="#ocean-single-column"><span class="std std-ref">single column</span></a>.</p>
 </section>
 </section>
-<section id="kpp-regimes">
-<span id="ocean-single-column-kpp"></span><h2>KPP regimes<a class="headerlink" href="#kpp-regimes" title="Link to this heading"></a></h2>
+<section id="ocean-single-column-kpp">
+<span id="kpp-regimes"></span><h2>KPP regimes<a class="headerlink" href="#ocean-single-column-kpp" title="Link to this heading"></a></h2>
 <section id="id34">
 <h3>description<a class="headerlink" href="#id34" title="Link to this heading"></a></h3>
 <p>The nine <code class="docutils literal notranslate"><span class="pre">kpp_*</span></code> tasks exercise boundary-layer depth (BLD), vertical mixing
@@ -756,8 +754,8 @@ well as task status; a completed task alone is not evidence of matching
 physics. Implementation and validation details are in
 <a class="reference internal" href="../../../developers_guide/ocean/tasks/single_column.html#dev-ocean-single-column-kpp"><span class="std std-ref">KPP regimes</span></a>.</p>
 </section>
-<section id="kpp-wind">
-<span id="ocean-single-column-kpp-wind"></span><h3>kpp_wind<a class="headerlink" href="#kpp-wind" title="Link to this heading"></a></h3>
+<section id="ocean-single-column-kpp-wind">
+<span id="kpp-wind"></span><h3>kpp_wind<a class="headerlink" href="#ocean-single-column-kpp-wind" title="Link to this heading"></a></h3>
 <p><strong>Description:</strong> wind-only boundary-layer evolution, based on the WNF
 (wind without Coriolis) experiment in Van Roekel et al. (2018).</p>
 <p><strong>Initial conditions:</strong> <code class="docutils literal notranslate"><span class="pre">temperature_gradient_interior</span> <span class="pre">=</span> <span class="pre">0.05</span></code> degrees
@@ -770,8 +768,8 @@ wind-driven scaling using diagnosed stratification. Uniform salinity
 should remain uniform apart from numerical error.</p>
 <p><strong>Mesh, vertical grid, timestep, duration, cores:</strong> shared KPP settings above.</p>
 </section>
-<section id="kpp-convection-cooling">
-<span id="ocean-single-column-kpp-cooling"></span><h3>kpp_convection_cooling<a class="headerlink" href="#kpp-convection-cooling" title="Link to this heading"></a></h3>
+<section id="ocean-single-column-kpp-cooling">
+<span id="kpp-convection-cooling"></span><h3>kpp_convection_cooling<a class="headerlink" href="#ocean-single-column-kpp-cooling" title="Link to this heading"></a></h3>
 <p><strong>Description:</strong> free convection under cooling (FC), using the weak
 temperature-stratified profile A from Van Roekel et al. (2018).</p>
 <p><strong>Initial conditions:</strong> <code class="docutils literal notranslate"><span class="pre">temperature_gradient_interior</span> <span class="pre">=</span> <span class="pre">0.01</span></code>; uniform
@@ -782,8 +780,8 @@ transport. Analysis reports the F11 free-convection trajectory comparison;
 this is a diagnostic rather than a required error tolerance.</p>
 <p><strong>Mesh, vertical grid, timestep, duration, cores:</strong> shared KPP settings above.</p>
 </section>
-<section id="kpp-combined">
-<span id="ocean-single-column-kpp-combined"></span><h3>kpp_combined<a class="headerlink" href="#kpp-combined" title="Link to this heading"></a></h3>
+<section id="ocean-single-column-kpp-combined">
+<span id="kpp-combined"></span><h3>kpp_combined<a class="headerlink" href="#ocean-single-column-kpp-combined" title="Link to this heading"></a></h3>
 <p><strong>Description:</strong> combined cooling, evaporation and wind (CEW) forcing,
 adapted from Van Roekel et al. (2018).</p>
 <p><strong>Initial conditions:</strong> <code class="docutils literal notranslate"><span class="pre">temperature_gradient_interior</span> <span class="pre">=</span> <span class="pre">0.01</span></code>; uniform
@@ -796,8 +794,8 @@ than every wind-only case, whose stratification and Coriolis differ.
 The forward property checks cover mass and salt, but not energy.</p>
 <p><strong>Mesh, vertical grid, timestep, duration, cores:</strong> shared KPP settings above.</p>
 </section>
-<section id="kpp-non-local-flux-suppression">
-<span id="ocean-single-column-kpp-suppression"></span><h3>kpp_non_local_flux_suppression<a class="headerlink" href="#kpp-non-local-flux-suppression" title="Link to this heading"></a></h3>
+<section id="ocean-single-column-kpp-suppression">
+<span id="kpp-non-local-flux-suppression"></span><h3>kpp_non_local_flux_suppression<a class="headerlink" href="#ocean-single-column-kpp-suppression" title="Link to this heading"></a></h3>
 <p><strong>Description:</strong> regression test that stabilizing surface buoyancy forcing
 suppresses non-local transport without disabling background diffusion.</p>
 <p><strong>Initial conditions:</strong> <code class="docutils literal notranslate"><span class="pre">temperature_gradient_interior</span> <span class="pre">=</span> <span class="pre">0.05</span></code>; uniform
@@ -811,8 +809,8 @@ allowed: suppression does not require a perfectly constant BLD.
 The forward property checks currently cover mass and salt only.</p>
 <p><strong>Mesh, vertical grid, timestep, duration, cores:</strong> shared KPP settings above.</p>
 </section>
-<section id="kpp-langmuir">
-<span id="ocean-single-column-kpp-langmuir"></span><h3>kpp_langmuir<a class="headerlink" href="#kpp-langmuir" title="Link to this heading"></a></h3>
+<section id="ocean-single-column-kpp-langmuir">
+<span id="kpp-langmuir"></span><h3>kpp_langmuir<a class="headerlink" href="#ocean-single-column-kpp-langmuir" title="Link to this heading"></a></h3>
 <p><strong>Description:</strong> paired runs isolating Langmuir enhancement from otherwise
 identical wind and cooling forcing.</p>
 <p><strong>Initial conditions:</strong> <code class="docutils literal notranslate"><span class="pre">temperature_gradient_interior</span> <span class="pre">=</span> <span class="pre">0.05</span></code>; uniform
@@ -827,8 +825,8 @@ both options are <code class="docutils literal notranslate"><span class="pre">NO
 <code class="docutils literal notranslate"><span class="pre">UseLangmuirTurbulence</span></code>. Both runs use <code class="docutils literal notranslate"><span class="pre">SimpleShapes</span></code>.</p>
 <p><strong>Mesh, vertical grid, timestep, duration, cores:</strong> shared KPP settings above.</p>
 </section>
-<section id="kpp-sea-ice">
-<span id="ocean-single-column-kpp-sea-ice"></span><h3>kpp_sea_ice<a class="headerlink" href="#kpp-sea-ice" title="Link to this heading"></a></h3>
+<section id="ocean-single-column-kpp-sea-ice">
+<span id="kpp-sea-ice"></span><h3>kpp_sea_ice<a class="headerlink" href="#ocean-single-column-kpp-sea-ice" title="Link to this heading"></a></h3>
 <p><strong>Description:</strong> exercise the minimum boundary-layer depth under a
 prescribed sea-ice fraction. No evolving sea-ice model is involved.</p>
 <p><strong>Initial conditions:</strong> <code class="docutils literal notranslate"><span class="pre">temperature_gradient_interior</span> <span class="pre">=</span> <span class="pre">0.05</span></code>; uniform
@@ -841,8 +839,8 @@ is disabled in both matching variants; this case alone does not isolate
 the ice-dependent Langmuir suppression switch.</p>
 <p><strong>Mesh, vertical grid, timestep, duration, cores:</strong> shared KPP settings above.</p>
 </section>
-<section id="kpp-convection-evaporation">
-<span id="ocean-single-column-kpp-evaporation"></span><h3>kpp_convection_evaporation<a class="headerlink" href="#kpp-convection-evaporation" title="Link to this heading"></a></h3>
+<section id="ocean-single-column-kpp-evaporation">
+<span id="kpp-convection-evaporation"></span><h3>kpp_convection_evaporation<a class="headerlink" href="#ocean-single-column-kpp-evaporation" title="Link to this heading"></a></h3>
 <p><strong>Description:</strong> salinity-driven convection, using profile B from
 Van Roekel et al. (2018).</p>
 <p><strong>Initial conditions:</strong> uniform temperature,
@@ -854,8 +852,8 @@ uses temperature stratification only, so its zero-stratification result
 is not a valid analytic reference for this case.</p>
 <p><strong>Mesh, vertical grid, timestep, duration, cores:</strong> shared KPP settings above.</p>
 </section>
-<section id="kpp-cooling-with-mixedlayer">
-<span id="ocean-single-column-kpp-mixedlayer"></span><h3>kpp_cooling_with_mixedlayer<a class="headerlink" href="#kpp-cooling-with-mixedlayer" title="Link to this heading"></a></h3>
+<section id="ocean-single-column-kpp-mixedlayer">
+<span id="kpp-cooling-with-mixedlayer"></span><h3>kpp_cooling_with_mixedlayer<a class="headerlink" href="#ocean-single-column-kpp-mixedlayer" title="Link to this heading"></a></h3>
 <p><strong>Description:</strong> cooling an existing mixed layer (FCML), approximating
 profile C from Van Roekel et al. (2018).</p>
 <p><strong>Initial conditions:</strong> both mixed-layer depths are 25 m. Below them,
@@ -868,8 +866,8 @@ interior, with non-local transport. The zero-initial-mixed-layer F11
 formula is not an exact solution for this configuration.</p>
 <p><strong>Mesh, vertical grid, timestep, duration, cores:</strong> shared KPP settings above.</p>
 </section>
-<section id="kpp-strong-convection-cooling">
-<span id="ocean-single-column-kpp-strong-cooling"></span><h3>kpp_strong_convection_cooling<a class="headerlink" href="#kpp-strong-convection-cooling" title="Link to this heading"></a></h3>
+<section id="ocean-single-column-kpp-strong-cooling">
+<span id="kpp-strong-convection-cooling"></span><h3>kpp_strong_convection_cooling<a class="headerlink" href="#ocean-single-column-kpp-strong-cooling" title="Link to this heading"></a></h3>
 <p><strong>Description:</strong> strongly forced, short free-convection experiment,
 motivated by the KPP profile behavior discussed by Wagner et al. (2024).</p>
 <p><strong>Initial conditions:</strong> <code class="docutils literal notranslate"><span class="pre">temperature_gradient_interior</span> <span class="pre">=</span> <span class="pre">0.01</span></code>; uniform
@@ -1062,8 +1060,8 @@ only supported option for MPAS-Ocean.</p>
 <h3>cores<a class="headerlink" href="#id49" title="Link to this heading"></a></h3>
 <p>See <a class="reference internal" href="#ocean-single-column"><span class="std std-ref">single column</span></a>.</p>
 </section>
-<section id="freezing-1layer">
-<span id="ocean-single-column-frazil-one-layer"></span><h3>freezing_1layer<a class="headerlink" href="#freezing-1layer" title="Link to this heading"></a></h3>
+<section id="ocean-single-column-frazil-one-layer">
+<span id="freezing-1layer"></span><h3>freezing_1layer<a class="headerlink" href="#ocean-single-column-frazil-one-layer" title="Link to this heading"></a></h3>
 <section id="id50">
 <h4>description<a class="headerlink" href="#id50" title="Link to this heading"></a></h4>
 <p>The <code class="docutils literal notranslate"><span class="pre">frazil/freezing_1layer_baseline</span></code> task isolates the interaction between
@@ -1123,8 +1121,8 @@ series; MPAS-Ocean uses geometric layer thickness. For Omega,
 The two frazil diagnostic plots are not produced for MPAS-Ocean.</p>
 </section>
 </section>
-<section id="melting-short">
-<span id="ocean-single-column-frazil-melting-short"></span><h3>melting_short<a class="headerlink" href="#melting-short" title="Link to this heading"></a></h3>
+<section id="ocean-single-column-frazil-melting-short">
+<span id="melting-short"></span><h3>melting_short<a class="headerlink" href="#ocean-single-column-frazil-melting-short" title="Link to this heading"></a></h3>
 <section id="id55">
 <h4>description<a class="headerlink" href="#id55" title="Link to this heading"></a></h4>
 <p>The <code class="docutils literal notranslate"><span class="pre">frazil/melting_short/warm</span></code>, <code class="docutils literal notranslate"><span class="pre">frazil/melting_short/cold</span></code> and
@@ -1251,8 +1249,8 @@ override the defaults in <a class="reference internal" href="#ocean-single-colum
 <p>See <a class="reference internal" href="#ocean-single-column"><span class="std std-ref">single column</span></a>.</p>
 </section>
 </section>
-<section id="shortwave-pen">
-<span id="ocean-single-column-shortwave-pen"></span><h2>shortwave_pen<a class="headerlink" href="#shortwave-pen" title="Link to this heading"></a></h2>
+<section id="ocean-single-column-shortwave-pen">
+<span id="shortwave-pen"></span><span id="shortwave_pen"></span><h2>shortwave_pen<a class="headerlink" href="#ocean-single-column-shortwave-pen" title="Link to this heading"></a></h2>
 <section id="id68">
 <h3>description<a class="headerlink" href="#id68" title="Link to this heading"></a></h3>
 <p>The <code class="docutils literal notranslate"><span class="pre">shortwave_pen</span></code> task runs three-hour forward simulations for the selected

@@ -57,13 +57,13 @@
 <li class="toctree-l1 current"><a class="reference internal" href="../index.html">Ocean component</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="index.html">Tasks</a><ul class="current">
 <li class="toctree-l3 current"><a class="current reference internal" href="#">analysis</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#supported-models">supported models</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#pointing-the-analysis-at-a-simulation">pointing the analysis at a simulation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ocean-analysis-supported-models">supported models</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ocean-analysis-config">pointing the analysis at a simulation</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#running-the-analysis">running the analysis</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#where-the-results-go">where the results go</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#the-published-gallery">the published gallery</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ocean-analysis-gallery">the published gallery</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#analyzing-the-same-simulation-more-than-once">analyzing the same simulation more than once</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#products">products</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ocean-analysis-products">products</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#troubleshooting">troubleshooting</a></li>
 </ul>
 </li>
@@ -94,7 +94,7 @@
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../framework/index.html">Framework</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../suites.html">Suites</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../suites.html#nightly-suite">nightly suite</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../suites.html#ocean-suite-nightly">nightly suite</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../suites.html#omega-pr-suite">omega_pr suite</a></li>
 </ul>
 </li>
@@ -161,8 +161,8 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section class="tex2jax_ignore mathjax_ignore" id="analysis">
-<span id="ocean-analysis"></span><h1>analysis<a class="headerlink" href="#analysis" title="Link to this heading"></a></h1>
+  <section class="tex2jax_ignore mathjax_ignore" id="ocean-analysis">
+<span id="analysis"></span><h1>analysis<a class="headerlink" href="#ocean-analysis" title="Link to this heading"></a></h1>
 <p>The <code class="docutils literal notranslate"><span class="pre">analysis</span></code> task group analyzes a simulation that has <strong>already been run</strong>,
 rather than running one.  Its tasks are pointed at a completed Omega
 simulation through a config file and produce plots and the netCDF data behind
@@ -173,8 +173,8 @@ because no model is run: everything the analysis needs it reads from the
 simulation’s own output.</p>
 <p>Analysis products are added over time; <a class="reference internal" href="#ocean-analysis-products"><span class="std std-ref">products</span></a> lists
 what is available so far.</p>
-<section id="supported-models">
-<span id="ocean-analysis-supported-models"></span><h2>supported models<a class="headerlink" href="#supported-models" title="Link to this heading"></a></h2>
+<section id="ocean-analysis-supported-models">
+<span id="supported-models"></span><h2>supported models<a class="headerlink" href="#ocean-analysis-supported-models" title="Link to this heading"></a></h2>
 <p><strong>Omega only.</strong>  The analysis locates a simulation’s output by reading the
 simulation’s own Omega configuration file, which is also how it learns the
 mesh, the vertical coordinate and the output streams.  MPAS-Ocean describes
@@ -183,8 +183,8 @@ require a translator into the same form, which does not exist.  A setup with
 <code class="docutils literal notranslate"><span class="pre">[ocean]</span> <span class="pre">model</span></code> set to <code class="docutils literal notranslate"><span class="pre">mpas-ocean</span></code> reports that rather than failing later.</p>
 <p>Neither an Omega nor an MPAS-Ocean build is needed, since no model is run.</p>
 </section>
-<section id="pointing-the-analysis-at-a-simulation">
-<span id="ocean-analysis-config"></span><h2>pointing the analysis at a simulation<a class="headerlink" href="#pointing-the-analysis-at-a-simulation" title="Link to this heading"></a></h2>
+<section id="ocean-analysis-config">
+<span id="pointing-the-analysis-at-a-simulation"></span><h2>pointing the analysis at a simulation<a class="headerlink" href="#ocean-analysis-config" title="Link to this heading"></a></h2>
 <p>The user supplies a config file describing the simulation to analyze.  In the
 common case it needs three things: where the simulation is, and the two ranges
 of simulation years to analyze.</p>
@@ -312,8 +312,8 @@ tree without being able to read the work directory.  Running <code class="docuti
 copies only what has changed.  The netCDF files stay in the work directory
 either way.</p>
 </section>
-<section id="the-published-gallery">
-<span id="ocean-analysis-gallery"></span><h2>the published gallery<a class="headerlink" href="#the-published-gallery" title="Link to this heading"></a></h2>
+<section id="ocean-analysis-gallery">
+<span id="the-published-gallery"></span><h2>the published gallery<a class="headerlink" href="#ocean-analysis-gallery" title="Link to this heading"></a></h2>
 <p>The suite’s last step, <code class="docutils literal notranslate"><span class="pre">publish</span></code>, collects what every other step made,
 publishes it into the staging tree, renders a thumbnail for each plot and
 generates a static gallery over the result.  Open <code class="docutils literal notranslate"><span class="pre">index.html</span></code> in a browser,
@@ -381,8 +381,8 @@ already did instead of reading those monthly means again.  Extending a
 twenty-year series to forty therefore costs twenty years, and re-running a
 sub-range of one already analyzed costs nothing.</p></li>
 </ul>
-<section id="what-may-be-inherited-and-what-may-not">
-<span id="ocean-analysis-inheritance"></span><h3>what may be inherited, and what may not<a class="headerlink" href="#what-may-be-inherited-and-what-may-not" title="Link to this heading"></a></h3>
+<section id="ocean-analysis-inheritance">
+<span id="what-may-be-inherited-and-what-may-not"></span><h3>what may be inherited, and what may not<a class="headerlink" href="#ocean-analysis-inheritance" title="Link to this heading"></a></h3>
 <p>Inheriting numbers that were computed from something else is the one way this
 could go quietly wrong, so what a cache has to agree with before it is used is
 deliberately narrow:</p>
@@ -417,8 +417,8 @@ which is what makes re-analyzing an earlier range nearly free.  It is worth
 knowing about on a filesystem with a quota; the climatology files dominate.</p>
 </section>
 </section>
-<section id="products">
-<span id="ocean-analysis-products"></span><h2>products<a class="headerlink" href="#products" title="Link to this heading"></a></h2>
+<section id="ocean-analysis-products">
+<span id="products"></span><h2>products<a class="headerlink" href="#ocean-analysis-products" title="Link to this heading"></a></h2>
 <p>The suite is being built up product by product.  What exists so far:</p>
 <table class="docutils align-default">
 <thead>
@@ -452,8 +452,8 @@ knowing about on a filesystem with a quota; the climatology files dominate.</p>
 </table>
 <p>In the case of a simulation without MOC output, the step reports that no MOC
 output was written and produces nothing, rather than failing the suite.</p>
-<section id="climatology-maps">
-<span id="ocean-analysis-climatology-maps"></span><h3>climatology maps<a class="headerlink" href="#climatology-maps" title="Link to this heading"></a></h3>
+<section id="ocean-analysis-climatology-maps">
+<span id="climatology-maps"></span><h3>climatology maps<a class="headerlink" href="#ocean-analysis-climatology-maps" title="Link to this heading"></a></h3>
 <p>The <code class="docutils literal notranslate"><span class="pre">climatology_maps</span></code> task computes a climatology of the simulation’s
 monthly-mean output and plots global maps from it, on the native MPAS mesh.
 Nothing is remapped anywhere in the analysis.</p>
@@ -555,8 +555,8 @@ the climatology of the reconstructed velocity.  It needs <code class="docutils l
 the simulation’s <code class="docutils literal notranslate"><span class="pre">MonthlyAverages</span></code> group; a simulation that writes the
 components themselves has those plotted instead.</p>
 </section>
-<section id="ocean-heat-content">
-<span id="ocean-analysis-heat-content-maps"></span><h4>ocean heat content<a class="headerlink" href="#ocean-heat-content" title="Link to this heading"></a></h4>
+<section id="ocean-analysis-heat-content-maps">
+<span id="ocean-heat-content"></span><h4>ocean heat content<a class="headerlink" href="#ocean-analysis-heat-content-maps" title="Link to this heading"></a></h4>
 <p>The <code class="docutils literal notranslate"><span class="pre">heat_content</span></code> field group is the one group that derives its field rather
 than reading it.  It is always present, whatever <code class="docutils literal notranslate"><span class="pre">fields</span></code> asks for, since it
 is a diagnostic Polaris computes rather than a variable a simulation writes.</p>
@@ -614,8 +614,8 @@ Omega does not compute yet, so its maps are reported as skipped in the step’s
 log rather than silently dropped.</p>
 </section>
 </section>
-<section id="global-statistics-time-series">
-<span id="ocean-analysis-global-stats"></span><h3>global statistics time series<a class="headerlink" href="#global-statistics-time-series" title="Link to this heading"></a></h3>
+<section id="ocean-analysis-global-stats">
+<span id="global-statistics-time-series"></span><h3>global statistics time series<a class="headerlink" href="#ocean-analysis-global-stats" title="Link to this heading"></a></h3>
 <p>Omega’s <code class="docutils literal notranslate"><span class="pre">GlobalStats</span></code> analysis group reduces each field it is given to a
 handful of numbers per output time — the global mean, minimum, maximum and
 standard deviation.  The <code class="docutils literal notranslate"><span class="pre">global_stats</span></code> task plots those against time, which
@@ -659,8 +659,8 @@ period it is configured with, and it names the variables differently in the
 two cases.  Polaris reads the simulation’s Omega configuration to find out
 which it wrote, so this needs no option of its own.</p>
 </section>
-<section id="ocean-heat-content-time-series">
-<span id="ocean-analysis-heat-content-series"></span><h3>ocean heat content time series<a class="headerlink" href="#ocean-heat-content-time-series" title="Link to this heading"></a></h3>
+<section id="ocean-analysis-heat-content-series">
+<span id="ocean-heat-content-time-series"></span><h3>ocean heat content time series<a class="headerlink" href="#ocean-analysis-heat-content-series" title="Link to this heading"></a></h3>
 <p>The <code class="docutils literal notranslate"><span class="pre">heat_content_series</span></code> task reduces every month of the simulation to the
 globally integrated ocean heat content of each elevation range and plots the
 series.  Heat content drift is what a long coupled simulation is judged on.</p>
@@ -697,8 +697,8 @@ one month is held at a time, so the memory this step needs does not grow with
 the length of the record.  A first run over several decades at high
 resolution is the expensive one, and every run after it is nearly free.</p>
 </section>
-<section id="meridional-overturning-circulation">
-<span id="ocean-analysis-moc"></span><h3>meridional overturning circulation<a class="headerlink" href="#meridional-overturning-circulation" title="Link to this heading"></a></h3>
+<section id="ocean-analysis-moc">
+<span id="meridional-overturning-circulation"></span><h3>meridional overturning circulation<a class="headerlink" href="#ocean-analysis-moc" title="Link to this heading"></a></h3>
 <p>The <code class="docutils literal notranslate"><span class="pre">moc</span></code> task plots the annual climatology of the global meridional
 overturning streamfunction against latitude and elevation over the climatology
 years.</p>

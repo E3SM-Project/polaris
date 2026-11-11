@@ -79,7 +79,7 @@
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Updating Deployment Dependencies</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#where-to-update-dependencies">Where to Update Dependencies</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#recommended-workflow">Recommended Workflow</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#testing-a-dependency-from-a-branch">Testing a Dependency from a Branch</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#dev-dependency-branch">Testing a Dependency from a Branch</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#notes">Notes</a></li>
 </ul>
 </li>
@@ -120,8 +120,8 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section class="tex2jax_ignore mathjax_ignore" id="updating-deployment-dependencies">
-<span id="dev-updating-conda"></span><h1>Updating Deployment Dependencies<a class="headerlink" href="#updating-deployment-dependencies" title="Link to this heading"></a></h1>
+  <section class="tex2jax_ignore mathjax_ignore" id="dev-updating-conda">
+<span id="updating-deployment-dependencies"></span><h1>Updating Deployment Dependencies<a class="headerlink" href="#dev-updating-conda" title="Link to this heading"></a></h1>
 <p>Polaris now deploys environments through <code class="docutils literal notranslate"><span class="pre">./deploy.py</span></code> and <code class="docutils literal notranslate"><span class="pre">mache.deploy</span></code>.
 This means dependency updates are handled through deployment templates and
 configuration, not through the old standalone conda setup workflow.</p>
@@ -164,8 +164,8 @@ described in
 <p>If Spack dependencies changed in a way that affects shared machine deployments,
 follow the full workflow in <a class="reference internal" href="updating_spack/index.html#dev-updating-spack"><span class="std std-ref">Updating Shared Spack Environments</span></a>.</p>
 </section>
-<section id="testing-a-dependency-from-a-branch">
-<span id="dev-dependency-branch"></span><h2>Testing a Dependency from a Branch<a class="headerlink" href="#testing-a-dependency-from-a-branch" title="Link to this heading"></a></h2>
+<section id="dev-dependency-branch">
+<span id="testing-a-dependency-from-a-branch"></span><h2>Testing a Dependency from a Branch<a class="headerlink" href="#dev-dependency-branch" title="Link to this heading"></a></h2>
 <p>To test a branch of one of polaris’ python dependencies, such as
 <code class="docutils literal notranslate"><span class="pre">geometric_features</span></code>, <code class="docutils literal notranslate"><span class="pre">mpas_tools</span></code> or <code class="docutils literal notranslate"><span class="pre">mosaic</span></code>, before it is released, deploy
 polaris as usual and then install the branch into the polaris environment:</p>

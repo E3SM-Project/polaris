@@ -99,7 +99,7 @@
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../framework/index.html">Framework</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../suites.html">Suites</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../suites.html#nightly-suite">nightly suite</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../suites.html#ocean-suite-nightly">nightly suite</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../suites.html#omega-pr-suite">omega_pr suite</a></li>
 </ul>
 </li>
@@ -166,8 +166,8 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section class="tex2jax_ignore mathjax_ignore" id="baroclinic-channel">
-<span id="ocean-baroclinic-channel"></span><h1>baroclinic channel<a class="headerlink" href="#baroclinic-channel" title="Link to this heading"></a></h1>
+  <section class="tex2jax_ignore mathjax_ignore" id="ocean-baroclinic-channel">
+<span id="baroclinic-channel"></span><h1>baroclinic channel<a class="headerlink" href="#ocean-baroclinic-channel" title="Link to this heading"></a></h1>
 <section id="description">
 <h2>description<a class="headerlink" href="#description" title="Link to this heading"></a></h2>
 <p>Baroclinic channel tasks implements variants of the Baroclinic Eddies test case
@@ -231,10 +231,8 @@ with a gradient between the two halves that is sinusoidally perturbed in the
 meridional direction.</p>
 <p>First the temperature in the depth dimension is defined:
 <div class="math notranslate nohighlight">
-\[\begin{split}
-T_0(z) = T_b + (T_s - T_b)(z - z_b)/z_b\\
-y_{perturb}(x) = \Delta y_{perturb} \sin(6 \pi x/l_x)\\
-\end{split}\]</div>
+\[\begin{split}T_0(z) = T_b + (T_s - T_b)(z - z_b)/z_b\\
+y_{perturb}(x) = \Delta y_{perturb} \sin(6 \pi x/l_x)\\\end{split}\]</div>
 
 where <span class="math notranslate nohighlight">\(y_{perturb}\)</span> corresponds to the config option <code class="docutils literal notranslate"><span class="pre">perturb_width</span></code>, <span class="math notranslate nohighlight">\(T_s\)</span> to
 <code class="docutils literal notranslate"><span class="pre">surface_temperature</span> <span class="pre">and</span> </code><span class="math notranslate nohighlight">\(T_b\)</span> to <code class="docutils literal notranslate"><span class="pre">bottom_temperature</span></code>. The surface
@@ -242,14 +240,12 @@ temperature is warmer than at depth. <span class="math notranslate nohighlight">
 <p>A fraction is defined to scale the horizontal temperature perturbations, which
 are uniform with depth:
 <div class="math notranslate nohighlight">
-\[\begin{split}
-f(y) = \begin{cases}
+\[\begin{split}f(y) = \begin{cases}
     1 &amp;\text{ if } y &lt; y_{mid} - y_{perturb}\\
     1 - (y - (y_{mid} - y{perturb}))/\Delta y_{perturb} &amp;
     \text{ if } y \ge y_{mid} - y_{perturb}\\
     0 &amp; \text{otherwise}
-\end{cases}
-\end{split}\]</div>
+\end{cases}\end{split}\]</div>
 
 where <span class="math notranslate nohighlight">\(\Delta y_{perturb}\)</span> corresponds to the perturbation width in the
 y-dimension defined by <code class="docutils literal notranslate"><span class="pre">gradient_width_dist</span></code> or <code class="docutils literal notranslate"><span class="pre">gradient_width_fraction</span></code> *
@@ -258,24 +254,20 @@ y-dimension defined by <code class="docutils literal notranslate"><span class="p
 <code class="docutils literal notranslate"><span class="pre">temperature_difference</span></code>, <span class="math notranslate nohighlight">\(\Delta T\)</span>, and a fraction of <span class="math notranslate nohighlight">\(\Delta T_{crest}\)</span>,
 hard-coded as 0.3, applied over a more limited x-extent.
 <div class="math notranslate nohighlight">
-\[\begin{split}
-T_0(y) = \begin{cases}
+\[\begin{split}T_0(y) = \begin{cases}
     T_0(z) - \Delta T \: f(y) + \Delta T_{crest} \:
     (1-(y - (y_{mid} - y_{crest}(x))/\frac{1}{2} \Delta y_{perturb}) &amp;
     \text{ if } y_{min}(x) \le y \le y_{max}(x);
     \frac{4}{6} l_x \le x \le \frac{5}{6} l_x \\
     T_0(z) - \Delta T \: f(y) &amp; \text{otherwise}
-\end{cases}
-\end{split}\]</div>
+\end{cases}\end{split}\]</div>
 
 where
 <div class="math notranslate nohighlight">
-\[\begin{split}
-y_{crest}(x) = ~ &amp; \frac{1}{2} \Delta y_{perturb}
+\[\begin{split}y_{crest}(x) = ~ &amp; \frac{1}{2} \Delta y_{perturb}
                \sin\left[\pi (x - \frac{4}{6} l_x)/(\frac{1}{6} l_x)\right], \\
 y_{min}(x) = ~ &amp; y_{mid} - y_{crest}(x) - \frac{1}{2}\Delta y_{perturb}, \\
-y_{max}(x) = ~ &amp; y_{mid} - y_{crest}(x) + \frac{1}{2}\Delta y_{perturb}.
-\end{split}\]</div>
+y_{max}(x) = ~ &amp; y_{mid} - y_{crest}(x) + \frac{1}{2}\Delta y_{perturb}.\end{split}\]</div>
 </p>
 <a class="reference internal image-reference" href="../../../_images/baroclinic_channel.png"><img alt="../../../_images/baroclinic_channel.png" class="align-center" src="../../../_images/baroclinic_channel.png" style="width: 500px;" />
 </a>

@@ -65,7 +65,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../e3sm/init/index.html">E3SM initial condition (e3sm/init) component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../mesh/index.html">Mesh component</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../index.html">Ocean component</a><ul class="current">
-<li class="toctree-l2 current"><a class="reference internal" href="../index.html#fanssie">FAnSSIE</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="../index.html#dev-ocean-fanssie">FAnSSIE</a><ul class="current">
 <li class="toctree-l3 current"><a class="reference internal" href="index.html">Tasks</a><ul class="current">
 <li class="toctree-l4"><a class="reference internal" href="baroclinic_channel.html">baroclinic_channel</a></li>
 <li class="toctree-l4"><a class="reference internal" href="barotropic_channel.html">barotropic_channel</a></li>
@@ -150,8 +150,8 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section class="tex2jax_ignore mathjax_ignore" id="seamount">
-<span id="dev-ocean-seamount"></span><h1>seamount<a class="headerlink" href="#seamount" title="Link to this heading"></a></h1>
+  <section class="tex2jax_ignore mathjax_ignore" id="dev-ocean-seamount">
+<span id="seamount"></span><h1>seamount<a class="headerlink" href="#dev-ocean-seamount" title="Link to this heading"></a></h1>
 <p>The seamount task group is comprised of a <code class="docutils literal notranslate"><span class="pre">default</span></code> task and a <code class="docutils literal notranslate"><span class="pre">short</span></code> task
 in each of eight task trees,
 <code class="docutils literal notranslate"><span class="pre">planar/seamount/{eos}/{stratification}/{coord}</span></code>, or in full
@@ -356,8 +356,8 @@ single-run quick look which also works in the <code class="docutils literal notr
 puts every scheme on shared axes.</p>
 </section>
 </section>
-<section id="default">
-<span id="dev-ocean-seamount-default"></span><h2>default<a class="headerlink" href="#default" title="Link to this heading"></a></h2>
+<section id="dev-ocean-seamount-default">
+<span id="default"></span><h2>default<a class="headerlink" href="#dev-ocean-seamount-default" title="Link to this heading"></a></h2>
 <p>The <a class="reference internal" href="../generated/polaris.tasks.ocean.seamount.default.Default.html#polaris.tasks.ocean.seamount.default.Default" title="polaris.tasks.ocean.seamount.default.Default"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.seamount.default.Default</span></code></a>
 test runs the <code class="docutils literal notranslate"><span class="pre">init</span></code> step, a 6 day <code class="docutils literal notranslate"><span class="pre">forward_centered</span></code> step, the matching
 <code class="docutils literal notranslate"><span class="pre">viz_centered</span></code> step and the <code class="docutils literal notranslate"><span class="pre">analysis</span></code> step.  It is added once per tree, so
@@ -375,8 +375,8 @@ MPAS-Ocean, which has no such scheme.  The <code class="docutils literal notrans
 and given whichever schemes were actually configured, so that it stays last
 in <code class="docutils literal notranslate"><span class="pre">steps_to_run</span></code> and depends only on forward steps that exist.</p>
 </section>
-<section id="short">
-<span id="dev-ocean-seamount-short"></span><h2>short<a class="headerlink" href="#short" title="Link to this heading"></a></h2>
+<section id="dev-ocean-seamount-short">
+<span id="short"></span><h2>short<a class="headerlink" href="#dev-ocean-seamount-short" title="Link to this heading"></a></h2>
 <p>The <a class="reference internal" href="../generated/polaris.tasks.ocean.seamount.short.Short.html#polaris.tasks.ocean.seamount.short.Short" title="polaris.tasks.ocean.seamount.short.Short"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.seamount.short.Short</span></code></a> test is the same
 task with a 1 hour <code class="docutils literal notranslate"><span class="pre">forward_centered</span></code> step, and it too is added once per
 tree.  It exists as a regression test rather than a measurement: an hour is

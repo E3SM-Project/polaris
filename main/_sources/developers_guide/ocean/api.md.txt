@@ -1138,6 +1138,7 @@
    :toctree: generated/
 
    IceShelfTask
+   IceShelfTask.configure
    IceShelfTask.setup_ssh_adjustment_steps
 
    SshAdjustment

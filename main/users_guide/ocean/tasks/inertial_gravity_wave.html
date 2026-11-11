@@ -95,7 +95,7 @@
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../framework/index.html">Framework</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../suites.html">Suites</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../suites.html#nightly-suite">nightly suite</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../suites.html#ocean-suite-nightly">nightly suite</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../suites.html#omega-pr-suite">omega_pr suite</a></li>
 </ul>
 </li>
@@ -162,8 +162,8 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section class="tex2jax_ignore mathjax_ignore" id="inertial-gravity-wave">
-<span id="ocean-inertial-gravity-wave"></span><h1>inertial gravity wave<a class="headerlink" href="#inertial-gravity-wave" title="Link to this heading"></a></h1>
+  <section class="tex2jax_ignore mathjax_ignore" id="ocean-inertial-gravity-wave">
+<span id="inertial-gravity-wave"></span><h1>inertial gravity wave<a class="headerlink" href="#ocean-inertial-gravity-wave" title="Link to this heading"></a></h1>
 <p>The inertial gravity wave task implements a test of surface wave
 propagation with the rotating, linear shallow water equations on a doubly
 periodic domain. This test has an exact solution which is used to
@@ -237,11 +237,9 @@ single layer configuration.</p>
 <h2>initial conditions<a class="headerlink" href="#initial-conditions" title="Link to this heading"></a></h2>
 <p>The initial conditions are set to the exact solution at time <span class="math notranslate nohighlight">\(t=0\)</span>:
 <div class="math notranslate nohighlight">
-\[\begin{split}
-\eta &amp;= \cos(k_x x + k_y y + \omega t) \\
+\[\begin{split}\eta &amp;= \cos(k_x x + k_y y + \omega t) \\
 u &amp;= \frac{g}{\omega^2 - f^2} [\omega k_x \cos(k_x x + k_y y - \omega t) - f k_y \sin(k_x x + k_y y - \omega t)]\\
-v &amp;= \frac{g}{\omega^2 - f^2} [\omega k_y \cos(k_x x + k_y y - \omega t) - f k_x \sin(k_x x + k_y y - \omega t)]
-\end{split}\]</div>
+v &amp;= \frac{g}{\omega^2 - f^2} [\omega k_y \cos(k_x x + k_y y - \omega t) - f k_x \sin(k_x x + k_y y - \omega t)]\end{split}\]</div>
 </p>
 </section>
 <section id="forcing">

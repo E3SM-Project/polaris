@@ -65,7 +65,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../e3sm/init/index.html">E3SM initial condition (e3sm/init) component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../mesh/index.html">Mesh component</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../index.html">Ocean component</a><ul class="current">
-<li class="toctree-l2 current"><a class="reference internal" href="../index.html#fanssie">FAnSSIE</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="../index.html#dev-ocean-fanssie">FAnSSIE</a><ul class="current">
 <li class="toctree-l3 current"><a class="reference internal" href="index.html">Tasks</a><ul class="current">
 <li class="toctree-l4"><a class="reference internal" href="baroclinic_channel.html">baroclinic_channel</a></li>
 <li class="toctree-l4"><a class="reference internal" href="barotropic_channel.html">barotropic_channel</a></li>
@@ -150,8 +150,8 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section class="tex2jax_ignore mathjax_ignore" id="overflow">
-<span id="dev-ocean-overflow"></span><h1>overflow<a class="headerlink" href="#overflow" title="Link to this heading"></a></h1>
+  <section class="tex2jax_ignore mathjax_ignore" id="dev-ocean-overflow">
+<span id="overflow"></span><h1>overflow<a class="headerlink" href="#dev-ocean-overflow" title="Link to this heading"></a></h1>
 <p>The overflow task group is comprised of seven <code class="docutils literal notranslate"><span class="pre">smoke_test</span></code> tasks for quick
 testing (one for each horizontal advection order, 2, 3, and 4, each with
 and without del4 viscosity enabled, plus an additional order-3 task with
@@ -291,8 +291,8 @@ MPAS-Ocean and Omega plots mean the same thing (see
 <a class="reference internal" href="../framework.html#dev-ocean-framework-tracer-conventions-on-read"><span class="std std-ref">Tracer conventions on read</span></a>).</p>
 </section>
 </section>
-<section id="smoke-test">
-<span id="dev-ocean-overflow-smoke-test"></span><h2>smoke_test<a class="headerlink" href="#smoke-test" title="Link to this heading"></a></h2>
+<section id="dev-ocean-overflow-smoke-test">
+<span id="smoke-test"></span><span id="smoke_test"></span><h2>smoke_test<a class="headerlink" href="#dev-ocean-overflow-smoke-test" title="Link to this heading"></a></h2>
 <p>The <a class="reference internal" href="../generated/polaris.tasks.ocean.overflow.smoke_test.SmokeTest.html#polaris.tasks.ocean.overflow.smoke_test.SmokeTest" title="polaris.tasks.ocean.overflow.smoke_test.SmokeTest"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.overflow.smoke_test.SmokeTest</span></code></a>
 task runs the <code class="docutils literal notranslate"><span class="pre">init</span></code> step, a short <code class="docutils literal notranslate"><span class="pre">forward</span></code> step, and (optionally, not run
 by default) the <code class="docutils literal notranslate"><span class="pre">viz</span></code> step. In each task tree, six instances are created,

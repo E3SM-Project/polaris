@@ -65,13 +65,13 @@
 <li class="toctree-l3"><a class="reference internal" href="customizable_viz.html">customizable viz</a></li>
 <li class="toctree-l3 current"><a class="current reference internal" href="#">external gravity wave</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#supported-models">supported models</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#mesh">mesh</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#vertical-grid">vertical grid</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ocean-external-gravity-wave-mesh">mesh</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ocean-external-gravity-wave-vertical">vertical grid</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#initial-conditions">initial conditions</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#forcing">forcing</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#time-step-and-run-duration">time step and run duration</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ocean-external-graivty-wave-time-step">time step and run duration</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#config-options">config options</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#cores">cores</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ocean-external-graivty-wave-cores">cores</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="feature_masks.html">Feature Masks</a></li>
@@ -94,7 +94,7 @@
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../framework/index.html">Framework</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../suites.html">Suites</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../suites.html#nightly-suite">nightly suite</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../suites.html#ocean-suite-nightly">nightly suite</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../suites.html#omega-pr-suite">omega_pr suite</a></li>
 </ul>
 </li>
@@ -161,8 +161,8 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section class="tex2jax_ignore mathjax_ignore" id="external-gravity-wave">
-<span id="ocean-external-gravity-wave"></span><h1>external gravity wave<a class="headerlink" href="#external-gravity-wave" title="Link to this heading"></a></h1>
+  <section class="tex2jax_ignore mathjax_ignore" id="ocean-external-gravity-wave">
+<span id="external-gravity-wave"></span><h1>external gravity wave<a class="headerlink" href="#ocean-external-gravity-wave" title="Link to this heading"></a></h1>
 <p>The <code class="docutils literal notranslate"><span class="pre">external_graivty_wave_*_time_step/convergence_time</span></code> tasks implement a
 simple external gravity wave test case evaluate the time-convergence of
 time-stepping schemes in the simplest possible model configuration.</p>
@@ -171,12 +171,10 @@ While the standard, non-linear shallow water thickness equation
 has been left alone, all tendencies in the  momentum equation have been turned
 off, save the pressure gradient term. The resulting equations are given by
 <div class="math notranslate nohighlight">
-\[\begin{split}
-\begin{align}
+\[\begin{split}\begin{align}
     &amp;\partial_t \mathbf{u} = -g \nabla h \\
     &amp;\partial_t h + \nabla \cdot (h\mathbf{u}) = 0 \,.
-\end{align}
-\end{split}\]</div>
+\end{align}\end{split}\]</div>
 </p>
 <p>In particular, this task is used to  test the convergence of local
 time-stepping schemes (<code class="docutils literal notranslate"><span class="pre">LTS</span></code> and <code class="docutils literal notranslate"><span class="pre">FB_LTS</span></code>) that employ a operator splitting
@@ -194,8 +192,8 @@ as a function of the cell size and/or the time step:</p>
 <h2>supported models<a class="headerlink" href="#supported-models" title="Link to this heading"></a></h2>
 <p>These tasks currently only support MPAS-Ocean.</p>
 </section>
-<section id="mesh">
-<span id="ocean-external-gravity-wave-mesh"></span><h2>mesh<a class="headerlink" href="#mesh" title="Link to this heading"></a></h2>
+<section id="ocean-external-gravity-wave-mesh">
+<span id="mesh"></span><h2>mesh<a class="headerlink" href="#ocean-external-gravity-wave-mesh" title="Link to this heading"></a></h2>
 <p>Two global mesh variants are tested, quasi-uniform (QU) and icosohydral. In
 addition, the tests can be set up to use either local or global time-stepping
 methods. Thus, there are 4 variants of the task:</p>
@@ -247,8 +245,8 @@ directories like:</p>
 </pre></div>
 </div>
 </section>
-<section id="vertical-grid">
-<span id="ocean-external-gravity-wave-vertical"></span><h2>vertical grid<a class="headerlink" href="#vertical-grid" title="Link to this heading"></a></h2>
+<section id="ocean-external-gravity-wave-vertical">
+<span id="vertical-grid"></span><h2>vertical grid<a class="headerlink" href="#ocean-external-gravity-wave-vertical" title="Link to this heading"></a></h2>
 <p>For this task, only a single vertical level may be used. The bottom depth
 is constant and the results should be insensitive to the choice of
 <code class="docutils literal notranslate"><span class="pre">bottom_depth</span></code>.</p>
@@ -280,9 +278,7 @@ is constant and the results should be insensitive to the choice of
 <p>The fluid velocity is initialized to zero, and the layer thickness is given as
 a simple Gaussian bump</p>
 <div class="math notranslate nohighlight">
-\[
-h = e^{-100 \left( \left(\phi - \phi_0\right)^2 + \left(\theta - \theta_0\right)^2 \right)}
-\]</div>
+\[h = e^{-100 \left( \left(\phi - \phi_0\right)^2 + \left(\theta - \theta_0\right)^2 \right)}\]</div>
 <p>where <span class="math notranslate nohighlight">\(\phi\)</span> is latitude, <span class="math notranslate nohighlight">\(\theta\)</span> is longitude, <span class="math notranslate nohighlight">\(\phi_0 = 0\)</span>, and
 <span class="math notranslate nohighlight">\(\theta_0 = \pi / 2\)</span>. Here, <span class="math notranslate nohighlight">\(\phi_0\)</span> and <span class="math notranslate nohighlight">\(\theta_0\)</span> can be set by <code class="docutils literal notranslate"><span class="pre">lat_center</span></code>
 and <code class="docutils literal notranslate"><span class="pre">lon_center</span></code> as config options.</p>
@@ -291,8 +287,8 @@ and <code class="docutils literal notranslate"><span class="pre">lon_center</spa
 <h2>forcing<a class="headerlink" href="#forcing" title="Link to this heading"></a></h2>
 <p>N/A</p>
 </section>
-<section id="time-step-and-run-duration">
-<span id="ocean-external-graivty-wave-time-step"></span><h2>time step and run duration<a class="headerlink" href="#time-step-and-run-duration" title="Link to this heading"></a></h2>
+<section id="ocean-external-graivty-wave-time-step">
+<span id="time-step-and-run-duration"></span><h2>time step and run duration<a class="headerlink" href="#ocean-external-graivty-wave-time-step" title="Link to this heading"></a></h2>
 <p>With any given time-stepping scheme, the time step for forward integration is
 determined by multiplying the resolution by a config option, <code class="docutils literal notranslate"><span class="pre">rk4_dt_per_km</span></code>,
 so that coarser meshes have longer time steps. You can alter this before setup
@@ -363,8 +359,8 @@ the user can configure the time-integrator used. For the <code class="docutils l
 </pre></div>
 </div>
 </section>
-<section id="cores">
-<span id="ocean-external-graivty-wave-cores"></span><h2>cores<a class="headerlink" href="#cores" title="Link to this heading"></a></h2>
+<section id="ocean-external-graivty-wave-cores">
+<span id="cores"></span><h2>cores<a class="headerlink" href="#ocean-external-graivty-wave-cores" title="Link to this heading"></a></h2>
 <p>The target and minimum number of cores are determined by <code class="docutils literal notranslate"><span class="pre">goal_cells_per_core</span></code>
 and <code class="docutils literal notranslate"><span class="pre">max_cells_per_core</span></code> from the <code class="docutils literal notranslate"><span class="pre">ocean</span></code> section of the config file,
 respectively. This ensures that the number of cells per core is roughly

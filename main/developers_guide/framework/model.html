@@ -76,7 +76,7 @@
 <li class="toctree-l2"><a class="reference internal" href="mpas.html">MPAS</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Model</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#running-an-e3sm-component">Running an E3SM component</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#adding-yaml-namelist-and-streams-files">Adding yaml, namelist and streams files</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#dev-model-yaml-namelists-and-streams">Adding yaml, namelist and streams files</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#adding-e3sm-component-as-an-input">Adding E3SM component as an input</a></li>
 </ul>
 </li>
@@ -98,7 +98,7 @@
 <li class="toctree-l2"><a class="reference internal" href="task_parallelism.html">Writing task-parallel-safe steps</a></li>
 <li class="toctree-l2"><a class="reference internal" href="validation.html">Validation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="validation.html#property-checks">Property checks</a></li>
-<li class="toctree-l2"><a class="reference internal" href="validation.html#cf-compliance-checks">CF compliance checks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="validation.html#dev-cf-check">CF compliance checks</a></li>
 <li class="toctree-l2"><a class="reference internal" href="visualization.html">Visualization</a></li>
 </ul>
 </li>
@@ -150,8 +150,8 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section class="tex2jax_ignore mathjax_ignore" id="model">
-<span id="dev-model"></span><h1>Model<a class="headerlink" href="#model" title="Link to this heading"></a></h1>
+  <section class="tex2jax_ignore mathjax_ignore" id="dev-model">
+<span id="model"></span><h1>Model<a class="headerlink" href="#dev-model" title="Link to this heading"></a></h1>
 <section id="running-an-e3sm-component">
 <h2>Running an E3SM component<a class="headerlink" href="#running-an-e3sm-component" title="Link to this heading"></a></h2>
 <p>Steps that run a standalone build of an E3SM component should descend from the
@@ -171,8 +171,8 @@ method,  you can set number of tasks, threads, etc. determined from the
 in the  <a class="reference internal" href="../organization/steps.html#dev-step-setup"><span class="std std-ref">setup()</span></a> method (i.e. before calling <a class="reference internal" href="../organization/steps.html#dev-step-run"><span class="std std-ref">run()</span></a>)
 so that  the polaris framework  can ensure that the required resources are
 available.</p>
-<section id="adding-yaml-namelist-and-streams-files">
-<span id="dev-model-yaml-namelists-and-streams"></span><h3>Adding yaml, namelist and streams files<a class="headerlink" href="#adding-yaml-namelist-and-streams-files" title="Link to this heading"></a></h3>
+<section id="dev-model-yaml-namelists-and-streams">
+<span id="adding-yaml-namelist-and-streams-files"></span><h3>Adding yaml, namelist and streams files<a class="headerlink" href="#dev-model-yaml-namelists-and-streams" title="Link to this heading"></a></h3>
 <p>Components and tasks can provide yaml config options,
 namelist and streams files that are used to replace default model config
 options  and streams definitions before the E3SM component gets run.  Namelist
@@ -188,8 +188,8 @@ how yaml, namelist and streams file should be built up by modifying the
 defaults for the  E3SM component.  The yaml, namelists and streams files
 themselves  are generated  automatically (which of these depends on the E3SM
 component in question) as part of setting up the task.</p>
-<section id="adding-a-yaml-file">
-<span id="dev-model-add-yaml-file"></span><h4>Adding a yaml file<a class="headerlink" href="#adding-a-yaml-file" title="Link to this heading"></a></h4>
+<section id="dev-model-add-yaml-file">
+<span id="adding-a-yaml-file"></span><h4>Adding a yaml file<a class="headerlink" href="#dev-model-add-yaml-file" title="Link to this heading"></a></h4>
 <p>Typically, a step that runs an E3SM component will include one or more calls
 to  <a class="reference internal" href="../generated/polaris.ModelStep.add_namelist_file.html#polaris.ModelStep.add_namelist_file" title="polaris.ModelStep.add_namelist_file"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ModelStep.add_namelist_file()</span></code></a> or
 <a class="reference internal" href="../generated/polaris.ModelStep.add_yaml_file.html#polaris.ModelStep.add_yaml_file" title="polaris.ModelStep.add_yaml_file"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ModelStep.add_yaml_file()</span></code></a> within the <a class="reference internal" href="../organization/steps.html#dev-step-init"><span class="std std-ref">constructor</span></a>
@@ -251,8 +251,8 @@ sequence they are given.  This way, you can add the model config substitutions
 common to related tasks first, and then override those with the replacements
 specific to the task or step.</p>
 </section>
-<section id="adding-a-namelist-file">
-<span id="dev-model-add-namelists-file"></span><h4>Adding a namelist file<a class="headerlink" href="#adding-a-namelist-file" title="Link to this heading"></a></h4>
+<section id="dev-model-add-namelists-file">
+<span id="adding-a-namelist-file"></span><h4>Adding a namelist file<a class="headerlink" href="#dev-model-add-namelists-file" title="Link to this heading"></a></h4>
 <p>Typically, a step that runs the E3SM component will include one or more calls
 to  <a class="reference internal" href="../generated/polaris.ModelStep.add_namelist_file.html#polaris.ModelStep.add_namelist_file" title="polaris.ModelStep.add_namelist_file"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ModelStep.add_namelist_file()</span></code></a> or
 <a class="reference internal" href="../generated/polaris.ModelStep.add_yaml_file.html#polaris.ModelStep.add_yaml_file" title="polaris.ModelStep.add_yaml_file"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ModelStep.add_yaml_file()</span></code></a> within the <a class="reference internal" href="../organization/steps.html#dev-step-init"><span class="std std-ref">constructor</span></a>
@@ -285,8 +285,8 @@ sequence they are given.  This way, you can add the namelist substitutions for
 that are common to related tasks first, and then override those with the
 replacements that are specific to the task or step.</p>
 </section>
-<section id="adding-model-config-options">
-<span id="dev-model-add-model-config-options"></span><h4>Adding model config options<a class="headerlink" href="#adding-model-config-options" title="Link to this heading"></a></h4>
+<section id="dev-model-add-model-config-options">
+<span id="adding-model-config-options"></span><h4>Adding model config options<a class="headerlink" href="#dev-model-add-model-config-options" title="Link to this heading"></a></h4>
 <p>Sometimes, it is easier to replace yaml or namelist options (together referred
 to as model config options)  using a dictionary within  the code, rather than
 a yaml or namelist file.  This is appropriate when there are only 1 or 2
@@ -322,8 +322,8 @@ and are automatically converted to the appropriate type in the yaml or namelist
 file.</p>
 </div>
 </section>
-<section id="dynamic-model-config-options">
-<span id="dev-model-dynamic-model-config-options"></span><h4>Dynamic model config options<a class="headerlink" href="#dynamic-model-config-options" title="Link to this heading"></a></h4>
+<section id="dev-model-dynamic-model-config-options">
+<span id="dynamic-model-config-options"></span><h4>Dynamic model config options<a class="headerlink" href="#dev-model-dynamic-model-config-options" title="Link to this heading"></a></h4>
 <p>It is sometimes useful to have model config options that are based on Polaris
 config options and/or algorithms.  In such cases, the model config options
 need to be computed once at setup and again (possibly based on updated
@@ -372,8 +372,8 @@ config options) at runtime.  A step needs to override the
 </pre></div>
 </div>
 </section>
-<section id="adding-a-streams-file">
-<span id="dev-model-add-streams-file"></span><h4>Adding a streams file<a class="headerlink" href="#adding-a-streams-file" title="Link to this heading"></a></h4>
+<section id="dev-model-add-streams-file">
+<span id="adding-a-streams-file"></span><h4>Adding a streams file<a class="headerlink" href="#dev-model-add-streams-file" title="Link to this heading"></a></h4>
 <p>Streams files are a bit more complicated than namelist files because
 streams files are XML documents, requiring some slightly more sophisticated
 parsing.</p>
@@ -431,8 +431,8 @@ file is located and the name of the input streams file within that package:</p>
 argument.   If <code class="docutils literal notranslate"><span class="pre">init</span></code> mode is desired, rather than the default, <code class="docutils literal notranslate"><span class="pre">forward</span></code>
 mode, this can also be specified.</p>
 </section>
-<section id="adding-a-template-streams-file">
-<span id="dev-model-add-streams-file-template"></span><h4>Adding a template streams file<a class="headerlink" href="#adding-a-template-streams-file" title="Link to this heading"></a></h4>
+<section id="dev-model-add-streams-file-template">
+<span id="adding-a-template-streams-file"></span><h4>Adding a template streams file<a class="headerlink" href="#dev-model-add-streams-file-template" title="Link to this heading"></a></h4>
 <p>The main difference between namelists and streams files is that there is no
 direct equivalent for streams of <a class="reference internal" href="../generated/polaris.ModelStep.add_model_config_options.html#polaris.ModelStep.add_model_config_options" title="polaris.ModelStep.add_model_config_options"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ModelStep.add_model_config_options()</span></code></a>.
 It is simply too confusing to try to define streams within the code.</p>
@@ -544,7 +544,7 @@ on cells in the mesh file that gives different weight to different cells
 (<code class="docutils literal notranslate"><span class="pre">weight_field</span></code>) in the partitioning process.</p>
 </section>
 <section id="detailed-documentation-polaris-namelist-polaris-streams-and-polaris-yaml">
-<h2>Detailed Documentation: polaris.namelist, polaris.streams, and polaris.yaml<a class="headerlink" href="#detailed-documentation-polaris-namelist-polaris-streams-and-polaris-yaml" title="Link to this heading"></a></h2>
+<span id="detailed-documentation-polarisnamelist-polarisstreams-and-polarisyaml"></span><h2>Detailed Documentation: polaris.namelist, polaris.streams, and polaris.yaml<a class="headerlink" href="#detailed-documentation-polaris-namelist-polaris-streams-and-polaris-yaml" title="Link to this heading"></a></h2>
 <section id="polaris-namelist">
 <h3><code class="docutils literal notranslate"><span class="pre">polaris.namelist</span></code><a class="headerlink" href="#polaris-namelist" title="Link to this heading"></a></h3>
 <p>This module provides utilities for reading, parsing, updating, and writing

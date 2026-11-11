@@ -82,7 +82,7 @@
 <li class="toctree-l2"><a class="reference internal" href="task_parallelism.html">Writing task-parallel-safe steps</a></li>
 <li class="toctree-l2"><a class="reference internal" href="validation.html">Validation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="validation.html#property-checks">Property checks</a></li>
-<li class="toctree-l2"><a class="reference internal" href="validation.html#cf-compliance-checks">CF compliance checks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="validation.html#dev-cf-check">CF compliance checks</a></li>
 <li class="toctree-l2"><a class="reference internal" href="visualization.html">Visualization</a></li>
 </ul>
 </li>
@@ -134,8 +134,8 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section class="tex2jax_ignore mathjax_ignore" id="logging">
-<span id="dev-logging"></span><h1>Logging<a class="headerlink" href="#logging" title="Link to this heading"></a></h1>
+  <section class="tex2jax_ignore mathjax_ignore" id="dev-logging">
+<span id="logging"></span><h1>Logging<a class="headerlink" href="#dev-logging" title="Link to this heading"></a></h1>
 <p>polaris does not have its own module for logging, instead making use of
 <code class="docutils literal notranslate"><span class="pre">mpas_tools.logging</span></code>.  This is because a common strategy for logging to
 either stdout/stderr or to a log file is needed between polaris and

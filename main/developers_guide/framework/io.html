@@ -72,8 +72,8 @@
 <li class="toctree-l2"><a class="reference internal" href="coriolis.html">Coriolis</a></li>
 <li class="toctree-l2"><a class="reference internal" href="logging.html">Logging</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">IO</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#symlinks">Symlinks</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#download">Download</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#dev-io-symlink">Symlinks</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#dev-io-download">Download</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#permissions">Permissions</a></li>
 </ul>
 </li>
@@ -87,7 +87,7 @@
 <li class="toctree-l2"><a class="reference internal" href="task_parallelism.html">Writing task-parallel-safe steps</a></li>
 <li class="toctree-l2"><a class="reference internal" href="validation.html">Validation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="validation.html#property-checks">Property checks</a></li>
-<li class="toctree-l2"><a class="reference internal" href="validation.html#cf-compliance-checks">CF compliance checks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="validation.html#dev-cf-check">CF compliance checks</a></li>
 <li class="toctree-l2"><a class="reference internal" href="visualization.html">Visualization</a></li>
 </ul>
 </li>
@@ -139,13 +139,13 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section class="tex2jax_ignore mathjax_ignore" id="io">
-<span id="dev-io"></span><h1>IO<a class="headerlink" href="#io" title="Link to this heading"></a></h1>
+  <section class="tex2jax_ignore mathjax_ignore" id="dev-io">
+<span id="io"></span><h1>IO<a class="headerlink" href="#dev-io" title="Link to this heading"></a></h1>
 <p>A lot of I/O related tasks are handled internally in the step class
 <a class="reference internal" href="../generated/polaris.Step.html#polaris.Step" title="polaris.Step"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.Step</span></code></a>.  Some of the lower level functions can be called
 directly if need be.</p>
-<section id="symlinks">
-<span id="dev-io-symlink"></span><h2>Symlinks<a class="headerlink" href="#symlinks" title="Link to this heading"></a></h2>
+<section id="dev-io-symlink">
+<span id="symlinks"></span><h2>Symlinks<a class="headerlink" href="#dev-io-symlink" title="Link to this heading"></a></h2>
 <p>You can create your own symlinks that aren’t input files (e.g. for a
 README file that the user might want to have available) using
 <a class="reference internal" href="../generated/polaris.io.symlink.html#polaris.io.symlink" title="polaris.io.symlink"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.io.symlink()</span></code></a>:</p>
@@ -171,8 +171,8 @@ must do this in <code class="docutils literal notranslate"><span class="pre">con
 know if the task will be set up at all (or in what work directory) during
 <code class="docutils literal notranslate"><span class="pre">collect()</span></code>.</p>
 </section>
-<section id="download">
-<span id="dev-io-download"></span><h2>Download<a class="headerlink" href="#download" title="Link to this heading"></a></h2>
+<section id="dev-io-download">
+<span id="download"></span><h2>Download<a class="headerlink" href="#dev-io-download" title="Link to this heading"></a></h2>
 <p>You can download files more directly if you need to using
 <a class="reference internal" href="../generated/polaris.io.download.html#polaris.io.download" title="polaris.io.download"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.io.download()</span></code></a>, though we recommend using
 <a class="reference internal" href="../generated/polaris.Step.add_input_file.html#polaris.Step.add_input_file" title="polaris.Step.add_input_file"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.add_input_file()</span></code></a> whenever possible because it is more

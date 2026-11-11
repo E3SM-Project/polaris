@@ -67,19 +67,19 @@
 <li class="toctree-l1"><a class="reference internal" href="../e3sm/init/index.html">E3SM initial condition (e3sm/init) component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../mesh/index.html">Mesh component</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">Ocean component</a><ul class="current">
-<li class="toctree-l2 current"><a class="reference internal" href="index.html#fanssie">FAnSSIE</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="index.html#dev-ocean-fanssie">FAnSSIE</a><ul class="current">
 <li class="toctree-l3"><a class="reference internal" href="tasks/index.html">Tasks</a></li>
 <li class="toctree-l3 current"><a class="current reference internal" href="#">Ocean framework</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#model">Model</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#model-config-options-and-streams">Model config options and streams</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#equations-of-state-eos">Equations of state (EOS)</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#quasi-uniform-and-icosahedral-spherical-meshes">Quasi-uniform and Icosahedral Spherical Meshes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#convergence-tests">Convergence Tests</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#ice-shelf-tasks">Ice Shelf Tasks</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#vertical-coordinate">Vertical coordinate</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#reference-resting-potential-energy-rpe">reference (resting) potential energy (RPE)</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#overturning-across-lines">Overturning across lines</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#analysis-of-completed-simulations">Analysis of completed simulations</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#dev-ocean-model">Model</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#dev-ocean-framework-config">Model config options and streams</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#dev-ocean-framework-eos">Equations of state (EOS)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#dev-ocean-spherical-meshes">Quasi-uniform and Icosahedral Spherical Meshes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#dev-ocean-convergence">Convergence Tests</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#dev-ocean-framework-ice-shelf">Ice Shelf Tasks</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#dev-ocean-framework-vertical">Vertical coordinate</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#dev-ocean-rpe">reference (resting) potential energy (RPE)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#dev-ocean-overturning">Overturning across lines</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#dev-ocean-analysis">Analysis of completed simulations</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="models/index.html">Models</a></li>
@@ -138,11 +138,11 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section class="tex2jax_ignore mathjax_ignore" id="ocean-framework">
-<span id="dev-ocean-framework"></span><h1>Ocean framework<a class="headerlink" href="#ocean-framework" title="Link to this heading"></a></h1>
+  <section class="tex2jax_ignore mathjax_ignore" id="dev-ocean-framework">
+<span id="ocean-framework"></span><h1>Ocean framework<a class="headerlink" href="#dev-ocean-framework" title="Link to this heading"></a></h1>
 <p>The <code class="docutils literal notranslate"><span class="pre">ocean</span></code> component contains an ever expanding set of shared framework code.</p>
-<section id="model">
-<span id="dev-ocean-model"></span><h2>Model<a class="headerlink" href="#model" title="Link to this heading"></a></h2>
+<section id="dev-ocean-model">
+<span id="model"></span><h2>Model<a class="headerlink" href="#dev-ocean-model" title="Link to this heading"></a></h2>
 <section id="input-and-output-from-an-e3sm-component">
 <h3>Input and output from an E3SM component<a class="headerlink" href="#input-and-output-from-an-e3sm-component" title="Link to this heading"></a></h3>
 <p>Steps that write input files for or read output files from either Omega or
@@ -213,8 +213,8 @@ Omega.</p>
 <p>For standalone conversion of an existing MPAS-Ocean initial-condition file to
 Omega format outside a Polaris task, see
 <a class="reference internal" href="convert_mpaso_ic_to_omega.html#dev-ocean-convert-mpaso-ic-to-omega"><span class="std std-ref">convert_mpaso_ic_to_omega.py</span></a>.</p>
-<section id="cf-metadata">
-<span id="dev-ocean-framework-cf-metadata"></span><h4>CF metadata<a class="headerlink" href="#cf-metadata" title="Link to this heading"></a></h4>
+<section id="dev-ocean-framework-cf-metadata">
+<span id="cf-metadata"></span><h4>CF metadata<a class="headerlink" href="#dev-ocean-framework-cf-metadata" title="Link to this heading"></a></h4>
 <p>Every file these write methods produce passes the CF checker, and the methods
 take care of the metadata themselves, so an init step does not normally need
 to.  They add <code class="docutils literal notranslate"><span class="pre">CF-1.8</span></code> to the <code class="docutils literal notranslate"><span class="pre">Conventions</span></code> attribute (keeping the <code class="docutils literal notranslate"><span class="pre">MPAS</span></code>
@@ -495,15 +495,15 @@ file:</p>
 </div>
 </section>
 </section>
-<section id="model-config-options-and-streams">
-<span id="dev-ocean-framework-config"></span><h2>Model config options and streams<a class="headerlink" href="#model-config-options-and-streams" title="Link to this heading"></a></h2>
+<section id="dev-ocean-framework-config">
+<span id="model-config-options-and-streams"></span><h2>Model config options and streams<a class="headerlink" href="#dev-ocean-framework-config" title="Link to this heading"></a></h2>
 <p>The module <code class="docutils literal notranslate"><span class="pre">polaris.ocean.config</span></code> contains yaml files for setting model
 config options and configuring streams.  These include things like setting
 output to double precision, adjusting sea surface height in ice-shelf cavities,
 and outputting variables related to frazil ice and land-ice fluxes.</p>
 </section>
-<section id="equations-of-state-eos">
-<span id="dev-ocean-framework-eos"></span><h2>Equations of state (EOS)<a class="headerlink" href="#equations-of-state-eos" title="Link to this heading"></a></h2>
+<section id="dev-ocean-framework-eos">
+<span id="equations-of-state-eos"></span><h2>Equations of state (EOS)<a class="headerlink" href="#dev-ocean-framework-eos" title="Link to this heading"></a></h2>
 <p>Polaris ocean tasks use EOS utilities from the <code class="docutils literal notranslate"><span class="pre">polaris.ocean.eos</span></code> package.</p>
 <p>The high-level APIs are <a class="reference internal" href="generated/polaris.ocean.eos.compute_density.html#polaris.ocean.eos.compute_density" title="polaris.ocean.eos.compute_density"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.ocean.eos.compute_density()</span></code></a> and
 <a class="reference internal" href="generated/polaris.ocean.eos.compute_specvol.html#polaris.ocean.eos.compute_specvol" title="polaris.ocean.eos.compute_specvol"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.ocean.eos.compute_specvol()</span></code></a>.  These functions dispatch
@@ -566,8 +566,8 @@ and <code class="docutils literal notranslate"><span class="pre">salinity</span>
 <code class="docutils literal notranslate"><span class="pre">tracer_convention='mpas-ocean'</span></code>, along with <code class="docutils literal notranslate"><span class="pre">lon</span></code> and <code class="docutils literal notranslate"><span class="pre">lat</span></code>, for tracers
 straight out of MPAS-Ocean.</p>
 </section>
-<section id="quasi-uniform-and-icosahedral-spherical-meshes">
-<span id="dev-ocean-spherical-meshes"></span><h2>Quasi-uniform and Icosahedral Spherical Meshes<a class="headerlink" href="#quasi-uniform-and-icosahedral-spherical-meshes" title="Link to this heading"></a></h2>
+<section id="dev-ocean-spherical-meshes">
+<span id="quasi-uniform-and-icosahedral-spherical-meshes"></span><h2>Quasi-uniform and Icosahedral Spherical Meshes<a class="headerlink" href="#dev-ocean-spherical-meshes" title="Link to this heading"></a></h2>
 <p>Many ocean tasks support two types of meshes: <code class="docutils literal notranslate"><span class="pre">qu</span></code> meshes created with the
 <a class="reference internal" href="../generated/polaris.mesh.QuasiUniformSphericalMeshStep.html#polaris.mesh.QuasiUniformSphericalMeshStep" title="polaris.mesh.QuasiUniformSphericalMeshStep"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.mesh.QuasiUniformSphericalMeshStep</span></code></a> step and <code class="docutils literal notranslate"><span class="pre">icos</span></code> meshes
 created with <a class="reference internal" href="../generated/polaris.mesh.IcosahedralMeshStep.html#polaris.mesh.IcosahedralMeshStep" title="polaris.mesh.IcosahedralMeshStep"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.mesh.IcosahedralMeshStep</span></code></a>.  In general, the
@@ -578,8 +578,8 @@ created with <a class="reference internal" href="../generated/polaris.mesh.Icosa
 returns a step for for a spherical <code class="docutils literal notranslate"><span class="pre">qu</span></code> or <code class="docutils literal notranslate"><span class="pre">icos</span></code> mesh of a given resolution
 (in km).  The step can be shared between tasks.</p>
 </section>
-<section id="convergence-tests">
-<span id="dev-ocean-convergence"></span><h2>Convergence Tests<a class="headerlink" href="#convergence-tests" title="Link to this heading"></a></h2>
+<section id="dev-ocean-convergence">
+<span id="convergence-tests"></span><h2>Convergence Tests<a class="headerlink" href="#dev-ocean-convergence" title="Link to this heading"></a></h2>
 <p>Several tests that are in Polaris or which we plan to add are convergence
 tests on <a class="reference internal" href="#dev-ocean-spherical-meshes"><span class="std std-ref">Quasi-uniform and Icosahedral Spherical Meshes</span></a> and planar meshes.
 The ocean framework includes shared config options and base classes for
@@ -855,13 +855,22 @@ rather needs to be computed.  The default behavior is to read the requested
 variable (the value associate the <code class="docutils literal notranslate"><span class="pre">'name'</span></code> key) at the time index closest to
 the evaluation time specified by the <code class="docutils literal notranslate"><span class="pre">convergence_eval_time</span></code> config option.</p>
 </section>
-<section id="ice-shelf-tasks">
-<span id="dev-ocean-framework-ice-shelf"></span><h2>Ice Shelf Tasks<a class="headerlink" href="#ice-shelf-tasks" title="Link to this heading"></a></h2>
+<section id="dev-ocean-framework-ice-shelf">
+<span id="ice-shelf-tasks"></span><h2>Ice Shelf Tasks<a class="headerlink" href="#dev-ocean-framework-ice-shelf" title="Link to this heading"></a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">polaris.ocean.ice_shelf</span></code> module provides support for ice shelf tasks.</p>
-<p>The <code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.ice_shelf.IceShelf</span></code> class can serve as a parent
-class for ice shelf tests, such as
-<code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.ice_shelf_2d.IceShelf2d</span></code>.</p>
-<p>The <code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ocean.ice_shelf.IceShelf.setup_ssh_adjustment_steps()</span></code>
+<p>The <a class="reference internal" href="generated/polaris.ocean.ice_shelf.IceShelfTask.html#polaris.ocean.ice_shelf.IceShelfTask" title="polaris.ocean.ice_shelf.IceShelfTask"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.ice_shelf.IceShelfTask</span></code></a> class can serve as a
+parent class for ice shelf tests, such as
+<a class="reference internal" href="generated/polaris.tasks.ocean.ice_shelf_2d.default.Default.html#polaris.tasks.ocean.ice_shelf_2d.default.Default" title="polaris.tasks.ocean.ice_shelf_2d.default.Default"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.ice_shelf_2d.default.Default</span></code></a>.</p>
+<p><a class="reference internal" href="generated/polaris.ocean.ice_shelf.IceShelfTask.configure.html#polaris.ocean.ice_shelf.IceShelfTask.configure" title="polaris.ocean.ice_shelf.IceShelfTask.configure"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ocean.ice_shelf.IceShelfTask.configure()</span></code></a> refuses to set up
+the task if MPAS-Ocean has no <code class="docutils literal notranslate"><span class="pre">config_use_land_ice_pressure</span></code> option, which
+comes from
+<a class="reference external" href="https://github.com/E3SM-Project/E3SM/pull/8047">E3SM-Project/E3SM#8047</a> and
+is on the FAnSSIE branch but not yet in E3SM-Project (see
+<a class="reference internal" href="index.html#dev-ocean-fanssie"><span class="std std-ref">FAnSSIE</span></a>).  Without the option, MPAS-Ocean would ignore the
+land-ice pressure with only a printed warning and then abort on an unknown
+land-ice flux mode.  A task that overrides <code class="docutils literal notranslate"><span class="pre">configure()</span></code> must call
+<code class="docutils literal notranslate"><span class="pre">super().configure()</span></code> to keep this check.</p>
+<p>The <a class="reference internal" href="generated/polaris.ocean.ice_shelf.IceShelfTask.setup_ssh_adjustment_steps.html#polaris.ocean.ice_shelf.IceShelfTask.setup_ssh_adjustment_steps" title="polaris.ocean.ice_shelf.IceShelfTask.setup_ssh_adjustment_steps"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ocean.ice_shelf.IceShelfTask.setup_ssh_adjustment_steps()</span></code></a>
 sets up <code class="docutils literal notranslate"><span class="pre">ssh_forward</span></code> and <code class="docutils literal notranslate"><span class="pre">ssh_adjustment</span></code> steps from the classes
 <a class="reference internal" href="generated/polaris.ocean.ice_shelf.SshForward.html#polaris.ocean.ice_shelf.SshForward" title="polaris.ocean.ice_shelf.ssh_forward.SshForward"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.ice_shelf.ssh_forward.SshForward</span></code></a>
 <a class="reference internal" href="generated/polaris.ocean.ice_shelf.SshAdjustment.html#polaris.ocean.ice_shelf.SshAdjustment" title="polaris.ocean.ice_shelf.ssh_adjustment.SshAdjustment"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.ice_shelf.ssh_adjustment.SshAdjustment</span></code></a>.
@@ -870,8 +879,8 @@ steps, as described in <a class="reference internal" href="../../users_guide/oce
 <code class="docutils literal notranslate"><span class="pre">ssh_adjustment</span></code> step, which is typically used as the
 initial state for subsequent forward steps.</p>
 </section>
-<section id="vertical-coordinate">
-<span id="dev-ocean-framework-vertical"></span><h2>Vertical coordinate<a class="headerlink" href="#vertical-coordinate" title="Link to this heading"></a></h2>
+<section id="dev-ocean-framework-vertical">
+<span id="vertical-coordinate"></span><h2>Vertical coordinate<a class="headerlink" href="#dev-ocean-framework-vertical" title="Link to this heading"></a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">polaris.ocean.vertical</span></code> module provides support for computing general
 vertical coordinates for MPAS-Ocean tasks.</p>
 <p>The <code class="docutils literal notranslate"><span class="pre">polaris.ocean.vertical.grid_1d</span></code> module provides 1D vertical
@@ -989,8 +998,8 @@ is deeper than all of its neighbors.
 <a class="reference internal" href="generated/polaris.tasks.ocean.realistic_global.init.pstar_init.RealisticPStarInitStep.html#polaris.tasks.ocean.realistic_global.init.pstar_init.RealisticPStarInitStep" title="polaris.tasks.ocean.realistic_global.init.pstar_init.RealisticPStarInitStep"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.realistic_global.init.pstar_init.RealisticPStarInitStep</span></code></a>
 uses it after each solve, capping each hole’s seafloor at the converged bottom
 of the new level and solving again.</p>
-<section id="initial-state">
-<span id="dev-ocean-framework-init-state"></span><h3>Initial state<a class="headerlink" href="#initial-state" title="Link to this heading"></a></h3>
+<section id="dev-ocean-framework-init-state">
+<span id="initial-state"></span><h3>Initial state<a class="headerlink" href="#dev-ocean-framework-init-state" title="Link to this heading"></a></h3>
 <p>The <code class="docutils literal notranslate"><span class="pre">polaris.ocean.init_state</span></code> package provides general helpers for
 building the initial-state fields the ocean models read (for example
 from a converged p-star dataset):</p>
@@ -1052,8 +1061,8 @@ is an error rather than a fallback.  On a planar mesh, whose
 instead.</p></li>
 </ul>
 </section>
-<section id="tracer-conventions-on-read">
-<span id="dev-ocean-framework-tracer-conventions-on-read"></span><h4>Tracer conventions on read<a class="headerlink" href="#tracer-conventions-on-read" title="Link to this heading"></a></h4>
+<section id="dev-ocean-framework-tracer-conventions-on-read">
+<span id="tracer-conventions-on-read"></span><h4>Tracer conventions on read<a class="headerlink" href="#dev-ocean-framework-tracer-conventions-on-read" title="Link to this heading"></a></h4>
 <p><a class="reference internal" href="generated/polaris.ocean.model.OceanIOStep.open_model_dataset.html#polaris.ocean.model.OceanIOStep.open_model_dataset" title="polaris.ocean.model.OceanIOStep.open_model_dataset"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.ocean.model.OceanIOStep.open_model_dataset()</span></code></a> takes the
 same <code class="docutils literal notranslate"><span class="pre">tracer_convention</span></code> argument, so that visualization and analysis
 can work in one convention no matter which model ran.  In both cases the
@@ -1079,23 +1088,21 @@ calls it on Omega output should open the dataset without a
 </section>
 </section>
 </section>
-<section id="reference-resting-potential-energy-rpe">
-<span id="dev-ocean-rpe"></span><h2>reference (resting) potential energy (RPE)<a class="headerlink" href="#reference-resting-potential-energy-rpe" title="Link to this heading"></a></h2>
+<section id="dev-ocean-rpe">
+<span id="reference-resting-potential-energy-rpe"></span><h2>reference (resting) potential energy (RPE)<a class="headerlink" href="#dev-ocean-rpe" title="Link to this heading"></a></h2>
 <p>The module <code class="docutils literal notranslate"><span class="pre">polaris.ocean.rpe</span></code> is used to compute the reference (or
 resting) potential energy for an entire model domain.  The RPE as given in
 <a class="reference external" href="https://doi.org/10.1016/j.ocemod.2014.12.004">Petersen et al. 2015</a> is:</p>
 <div class="math notranslate nohighlight">
-\[
-RPE = g \int_\Omega z \rho^*\left(z\right) dV
-\]</div>
+\[RPE = g \int_\Omega z \rho^*\left(z\right) dV\]</div>
 <p>where <span class="math notranslate nohighlight">\(\Omega\)</span> is the domain and <span class="math notranslate nohighlight">\(\rho^*\left(z\right)\)</span> is the sorted
 density, which is horizontally constant and increases with depth.</p>
 <p>The <a class="reference internal" href="generated/polaris.ocean.rpe.compute_rpe.html#polaris.ocean.rpe.compute_rpe" title="polaris.ocean.rpe.compute_rpe"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.ocean.rpe.compute_rpe()</span></code></a> is used to compute the RPE as
 a function of time in a series of one or more output files.  The RPE is stored
 in <code class="docutils literal notranslate"><span class="pre">rpe.csv</span></code> and also returned as a numpy array for plotting and analysis.</p>
 </section>
-<section id="overturning-across-lines">
-<span id="dev-ocean-overturning"></span><h2>Overturning across lines<a class="headerlink" href="#overturning-across-lines" title="Link to this heading"></a></h2>
+<section id="dev-ocean-overturning">
+<span id="overturning-across-lines"></span><h2>Overturning across lines<a class="headerlink" href="#dev-ocean-overturning" title="Link to this heading"></a></h2>
 <p>The module <code class="docutils literal notranslate"><span class="pre">polaris.ocean.overturning</span></code> computes overturning across a line of
 constant x or y on a planar MPAS mesh.  A line is the set of edges whose two
 cells lie on opposite sides of it, found by
@@ -1117,8 +1124,8 @@ the transport and thickness on each edge into tracer classes, for
 overturning in density coordinates.  The mixed-layer eddies tasks
 (<a class="reference internal" href="tasks/mixed_layer_eddies.html#dev-ocean-mixed-layer-eddies"><span class="std std-ref">mixed_layer_eddies</span></a>) use these for their eddy overturning.</p>
 </section>
-<section id="analysis-of-completed-simulations">
-<span id="dev-ocean-analysis"></span><h2>Analysis of completed simulations<a class="headerlink" href="#analysis-of-completed-simulations" title="Link to this heading"></a></h2>
+<section id="dev-ocean-analysis">
+<span id="analysis-of-completed-simulations"></span><h2>Analysis of completed simulations<a class="headerlink" href="#dev-ocean-analysis" title="Link to this heading"></a></h2>
 <p>The package <code class="docutils literal notranslate"><span class="pre">polaris.tasks.ocean.analysis</span></code> contains the tasks of the
 <code class="docutils literal notranslate"><span class="pre">omega_analysis</span></code> suite, which analyze a simulation that has already been run
 rather than running one.  <a class="reference internal" href="../../users_guide/ocean/tasks/analysis.html#ocean-analysis"><span class="std std-ref">analysis</span></a> describes the suite from a

@@ -214,9 +214,7 @@ be retained as a backup optimization path if runtime performance of the all-LSQ
 approach proves insufficient.</p>
 <p>The design treats the reconstructed field as the sum of:</p>
 <div class="math notranslate nohighlight">
-\[
-\mathbf{u} = \mathbf{u}_t + w \hat{\mathbf{r}},
-\]</div>
+\[\mathbf{u} = \mathbf{u}_t + w \hat{\mathbf{r}},\]</div>
 <p>where <span class="math notranslate nohighlight">\(\mathbf{u}_t\)</span> is tangent to the sphere and reconstructed from edge-normal
 components, and <span class="math notranslate nohighlight">\(w \hat{\mathbf{r}}\)</span> is an optional radial contribution aligned
 with the local vertical unit vector. For velocity reconstruction,
@@ -358,9 +356,7 @@ cell center:</p>
 <p>In the least-squares approach, a linear tangential vector field is fit in
 tangent coordinates:</p>
 <div class="math notranslate nohighlight">
-\[
-\mathbf{u}_t(\boldsymbol{\xi}) = \mathbf{a}_0 + A \boldsymbol{\xi},
-\]</div>
+\[\mathbf{u}_t(\boldsymbol{\xi}) = \mathbf{a}_0 + A \boldsymbol{\xi},\]</div>
 <p>subject to the observed edge-normal constraints over a two-ring stencil. The
 value at the cell center is then <span class="math notranslate nohighlight">\(\mathbf{a}_0\)</span>. As in the paper, the least
 squares system should be solved in a weighted form to improve conditioning.</p>
@@ -380,10 +376,8 @@ secondary implementation path can adopt the paper’s hybrid strategy. In that
 case, Perot’s method would be applied on well-aligned cells and least-squares
 would be retained on the remaining cells. The Perot formula is:</p>
 <div class="math notranslate nohighlight">
-\[
-\mathbf{u}_{t,c}^{P} \approx
-\frac{1}{A_c}\sum_{e \in c} l_e \, \mathbf{r}_e \, u_e,
-\]</div>
+\[\mathbf{u}_{t,c}^{P} \approx
+\frac{1}{A_c}\sum_{e \in c} l_e \, \mathbf{r}_e \, u_e,\]</div>
 <p>where <span class="math notranslate nohighlight">\(A_c\)</span> is the cell area in the local projected plane, <span class="math notranslate nohighlight">\(l_e\)</span> is edge
 length, and <span class="math notranslate nohighlight">\(\mathbf{r}_e\)</span> is the projected vector from the reconstruction
 point to the midpoint of edge <span class="math notranslate nohighlight">\(e\)</span>. If this optimization path is pursued, the
@@ -402,26 +396,20 @@ of the performance study rather than being fixed in the first implementation.</p
 <p>The generic reconstruction produces only the tangential part of the vector. A
 full 3D vector at layer midpoint <span class="math notranslate nohighlight">\(k\)</span> should be constructed as:</p>
 <div class="math notranslate nohighlight">
-\[
-\mathbf{u}_{c,k} =
-\mathbf{u}_{t,c,k} + w_{c,k} \hat{\mathbf{r}}_c,
-\]</div>
+\[\mathbf{u}_{c,k} =
+\mathbf{u}_{t,c,k} + w_{c,k} \hat{\mathbf{r}}_c,\]</div>
 <p>where <span class="math notranslate nohighlight">\(\hat{\mathbf{r}}_c\)</span> is the local vertical unit vector at the cell center.</p>
 <p>If a radial interface field is provided on <code class="docutils literal notranslate"><span class="pre">nVertLevelsP1</span></code>, the midpoint radial
 component should be formed by averaging adjacent interface values:</p>
 <div class="math notranslate nohighlight">
-\[
-w_{c,k} = \frac{1}{2}\left(w^\mathrm{top}_{c,k} +
-w^\mathrm{top}_{c,k+1}\right).
-\]</div>
+\[w_{c,k} = \frac{1}{2}\left(w^\mathrm{top}_{c,k} +
+w^\mathrm{top}_{c,k+1}\right).\]</div>
 <p>This yields a 3D vector defined at cell centers and layer midpoints. For
 velocity, this is the expected target location for reconstructed 3D velocity in
 MPAS-O analysis workflows.</p>
 <p>If no radial interface field is supplied, then:</p>
 <div class="math notranslate nohighlight">
-\[
-w_{c,k} = 0.
-\]</div>
+\[w_{c,k} = 0.\]</div>
 <p>The tangential reconstruction is first returned in 3D Cartesian components
 <span class="math notranslate nohighlight">\((u_x, u_y, u_z)\)</span> even when the vector lies entirely in the tangent plane. If a
 radial component is supplied, it is added in Cartesian form before any basis
@@ -432,19 +420,13 @@ meridional, and radial components. Using longitude <span class="math notranslate
 the Cartesian vector onto the local eastward, northward, and vertical
 directions used in the MPAS framework:</p>
 <div class="math notranslate nohighlight">
-\[
-u_\mathrm{zonal} = -u_x \sin\lambda + u_y \cos\lambda,
-\]</div>
+\[u_\mathrm{zonal} = -u_x \sin\lambda + u_y \cos\lambda,\]</div>
 <div class="math notranslate nohighlight">
-\[
-u_\mathrm{meridional} =
--(u_x \cos\lambda + u_y \sin\lambda)\sin\theta + u_z \cos\theta.
-\]</div>
+\[u_\mathrm{meridional} =
+-(u_x \cos\lambda + u_y \sin\lambda)\sin\theta + u_z \cos\theta.\]</div>
 <div class="math notranslate nohighlight">
-\[
-u_\mathrm{radial} =
-(u_x \cos\lambda + u_y \sin\lambda)\cos\theta + u_z \sin\theta.
-\]</div>
+\[u_\mathrm{radial} =
+(u_x \cos\lambda + u_y \sin\lambda)\cos\theta + u_z \sin\theta.\]</div>
 <p>These formulas are appropriate both for tangential-only reconstruction and for
 the full vector after radial composition. For a tangential-only reconstruction,
 <span class="math notranslate nohighlight">\(u_\mathrm{radial}\)</span> should be zero up to truncation error. When a radial

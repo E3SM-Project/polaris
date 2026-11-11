@@ -69,7 +69,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../tasks/index.html">Tasks</a></li>
 <li class="toctree-l2 current"><a class="reference internal" href="index.html">Mesh Framework</a><ul class="current">
 <li class="toctree-l3 current"><a class="current reference internal" href="#">Spherical Meshes</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#jigsaw-mesh-optimization">JIGSAW mesh optimization</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#dev-spherical-jigsaw-optimization">JIGSAW mesh optimization</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#reconstruction-weights">Reconstruction weights</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#cell-polygon-quality-checks">Cell-polygon quality checks</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#supported-base-mesh-steps">Supported Base Mesh Steps</a></li>
@@ -140,8 +140,8 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section class="tex2jax_ignore mathjax_ignore" id="spherical-meshes">
-<span id="dev-spherical-meshes"></span><h1>Spherical Meshes<a class="headerlink" href="#spherical-meshes" title="Link to this heading"></a></h1>
+  <section class="tex2jax_ignore mathjax_ignore" id="dev-spherical-meshes">
+<span id="spherical-meshes"></span><h1>Spherical Meshes<a class="headerlink" href="#dev-spherical-meshes" title="Link to this heading"></a></h1>
 <p>The spherical meshes that have broad support accross tasks can be created with
 the shared helper function
 <a class="reference internal" href="../../generated/polaris.mesh.base.add_spherical_base_mesh_step.html#polaris.mesh.base.add_spherical_base_mesh_step" title="polaris.mesh.base.add_spherical_base_mesh_step"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.mesh.base.add_spherical_base_mesh_step()</span></code></a>.  Each mesh is
@@ -276,8 +276,8 @@ methods.</p>
 <span class="na">max_bad_cells_to_report</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">1</span>
 </pre></div>
 </div>
-<section id="jigsaw-mesh-optimization">
-<span id="dev-spherical-jigsaw-optimization"></span><h2>JIGSAW mesh optimization<a class="headerlink" href="#jigsaw-mesh-optimization" title="Link to this heading"></a></h2>
+<section id="dev-spherical-jigsaw-optimization">
+<span id="jigsaw-mesh-optimization"></span><h2>JIGSAW mesh optimization<a class="headerlink" href="#dev-spherical-jigsaw-optimization" title="Link to this heading"></a></h2>
 <p><code class="docutils literal notranslate"><span class="pre">jigsaw_optm_kern</span></code>, <code class="docutils literal notranslate"><span class="pre">jigsaw_optm_iter</span></code>, <code class="docutils literal notranslate"><span class="pre">jigsaw_optm_qtol</span></code> and
 <code class="docutils literal notranslate"><span class="pre">jigsaw_optm_qlim</span></code> are passed through to JIGSAW by
 <a class="reference internal" href="../../generated/polaris.mesh.QuasiUniformSphericalMeshStep.html#polaris.mesh.QuasiUniformSphericalMeshStep" title="polaris.mesh.QuasiUniformSphericalMeshStep"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.mesh.QuasiUniformSphericalMeshStep</span></code></a>. The defaults are

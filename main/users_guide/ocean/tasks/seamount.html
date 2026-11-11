@@ -78,9 +78,9 @@
 <li class="toctree-l3"><a class="reference internal" href="rotation_2d.html">rotation 2-d</a></li>
 <li class="toctree-l3 current"><a class="current reference internal" href="#">seamount</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#supported-models">supported models</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#variants">variants</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#default-task">default task</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#short-task">short task</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ocean-seamount-variants">variants</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ocean-seamount-default">default task</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ocean-seamount-short">short task</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="single_column.html">single column</a></li>
@@ -88,7 +88,7 @@
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../framework/index.html">Framework</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../suites.html">Suites</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../suites.html#nightly-suite">nightly suite</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../suites.html#ocean-suite-nightly">nightly suite</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../suites.html#omega-pr-suite">omega_pr suite</a></li>
 </ul>
 </li>
@@ -155,8 +155,8 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section class="tex2jax_ignore mathjax_ignore" id="seamount">
-<span id="ocean-seamount"></span><h1>seamount<a class="headerlink" href="#seamount" title="Link to this heading"></a></h1>
+  <section class="tex2jax_ignore mathjax_ignore" id="ocean-seamount">
+<span id="seamount"></span><h1>seamount<a class="headerlink" href="#ocean-seamount" title="Link to this heading"></a></h1>
 <p>The <code class="docutils literal notranslate"><span class="pre">ocean/seamount</span></code> test is a standard sigma coordinate test problem, which is documented in
 <a class="reference external" href="https://journals.ametsoc.org/view/journals/phoc/23/8/1520-0485_1993_023_1736_nsofaa_2_0_co_2.xml">Beckmann and Haidvogel (1993)</a>, <a class="reference external" href="https://journals.ametsoc.org/view/journals/phoc/23/11/1520-0485_1993_023_2373_nsofaa_2_0_co_2.xml">Haidvogel et al. (1993)</a> and <a class="reference external" href="https://agupubs.onlinelibrary.wiley.com/doi/10.1029/2001JC001047">Shchepetkin and McWilliams (2003)</a>.
 This case tests the error due to pressure gradients in tilted layers.</p>
@@ -178,8 +178,8 @@ instead.</p>
 with the same baroclinic and barotropic steps, <code class="docutils literal notranslate"><span class="pre">dt_per_km</span></code> and
 <code class="docutils literal notranslate"><span class="pre">btr_dt_per_km</span></code>, so the two runs stay comparable.</p>
 </section>
-<section id="variants">
-<span id="ocean-seamount-variants"></span><h2>variants<a class="headerlink" href="#variants" title="Link to this heading"></a></h2>
+<section id="ocean-seamount-variants">
+<span id="variants"></span><h2>variants<a class="headerlink" href="#ocean-seamount-variants" title="Link to this heading"></a></h2>
 <p>Each task exists in eight trees, combining the equation of state, the
 stratification and the vertical coordinate used for the initial condition:
 <code class="docutils literal notranslate"><span class="pre">planar/seamount/{eos}/{stratification}/{coord}</span></code>, or in full
@@ -253,8 +253,8 @@ models are only expected to agree qualitatively in the <code class="docutils lit
 In the <code class="docutils literal notranslate"><span class="pre">linear</span></code> trees they solve the same equation of state and can be
 compared directly.</p>
 </section>
-<section id="default-task">
-<span id="ocean-seamount-default"></span><h2>default task<a class="headerlink" href="#default-task" title="Link to this heading"></a></h2>
+<section id="ocean-seamount-default">
+<span id="default-task"></span><h2>default task<a class="headerlink" href="#ocean-seamount-default" title="Link to this heading"></a></h2>
 <section id="description">
 <h3>description<a class="headerlink" href="#description" title="Link to this heading"></a></h3>
 <p>The test case begins with a zero velocity field and is unforced, so the exact solution is to remain motionless.
@@ -266,8 +266,8 @@ In a pure z-level vertical coordinate without partial bottom cells (<code class=
 </a>
 <a class="reference internal image-reference" href="../../../_images/seamount_final_normalVelocity.png"><img alt="../../../_images/seamount_final_normalVelocity.png" class="align-center" src="../../../_images/seamount_final_normalVelocity.png" style="width: 400px;" />
 </a>
-<section id="pressure-gradient-schemes">
-<span id="ocean-seamount-schemes"></span><h4>pressure-gradient schemes<a class="headerlink" href="#pressure-gradient-schemes" title="Link to this heading"></a></h4>
+<section id="ocean-seamount-schemes">
+<span id="pressure-gradient-schemes"></span><h4>pressure-gradient schemes<a class="headerlink" href="#ocean-seamount-schemes" title="Link to this heading"></a></h4>
 <p>Under Omega the task performs a second forward run, <code class="docutils literal notranslate"><span class="pre">forward_finite_volume</span></code>,
 with <code class="docutils literal notranslate"><span class="pre">PressureGradType:</span> <span class="pre">FiniteVolume</span></code> instead of the centered scheme
 <code class="docutils literal notranslate"><span class="pre">forward_centered</span></code> uses.  Both start from the same <code class="docutils literal notranslate"><span class="pre">init</span></code> step, so the two
@@ -285,8 +285,8 @@ default, for the same reason.</p>
 <code class="docutils literal notranslate"><span class="pre">viz_finite_volume</span></code> — and an <code class="docutils literal notranslate"><span class="pre">analysis</span></code> step compares whichever schemes were
 run.</p>
 </section>
-<section id="spurious-circulation-metrics">
-<span id="ocean-seamount-metrics"></span><h4>spurious-circulation metrics<a class="headerlink" href="#spurious-circulation-metrics" title="Link to this heading"></a></h4>
+<section id="ocean-seamount-metrics">
+<span id="spurious-circulation-metrics"></span><h4>spurious-circulation metrics<a class="headerlink" href="#ocean-seamount-metrics" title="Link to this heading"></a></h4>
 <p>The exact solution is a resting ocean, so every velocity in this task is
 error.  The <code class="docutils literal notranslate"><span class="pre">analysis</span></code> step writes <code class="docutils literal notranslate"><span class="pre">metrics.csv</span></code> and <code class="docutils literal notranslate"><span class="pre">spurious_velocity_t.png</span></code>
 with, for each scheme and output time:</p>
@@ -396,8 +396,8 @@ produce bottom cells only centimetres thick.</p>
 </pre></div>
 </div>
 </section>
-<section id="initial-conditions">
-<span id="ocean-seamount-init"></span><h3>initial conditions<a class="headerlink" href="#initial-conditions" title="Link to this heading"></a></h3>
+<section id="ocean-seamount-init">
+<span id="initial-conditions"></span><h3>initial conditions<a class="headerlink" href="#ocean-seamount-init" title="Link to this heading"></a></h3>
 <p>Salinity is constant throughout the domain at the value given by the config
 option <code class="docutils literal notranslate"><span class="pre">constant_salinity</span></code> (35 by default), read as practical salinity in
 the <code class="docutils literal notranslate"><span class="pre">linear</span></code> trees and as absolute salinity in the <code class="docutils literal notranslate"><span class="pre">nonlinear</span></code> ones.  The
@@ -429,8 +429,8 @@ MPAS-Ocean the <code class="docutils literal notranslate"><span class="pre">nonl
 practical salinity at a nominal lon/lat location (config options
 <code class="docutils literal notranslate"><span class="pre">ocean:nominal_lon</span></code> and <code class="docutils literal notranslate"><span class="pre">ocean:nominal_lat</span></code>, both defaulting to 0 degrees)
 since the planar mesh has no geographic location.</p>
-<section id="a-stratification-linear-in-pressure">
-<span id="ocean-seamount-linear-in-pressure"></span><h4>a stratification linear in pressure<a class="headerlink" href="#a-stratification-linear-in-pressure" title="Link to this heading"></a></h4>
+<section id="ocean-seamount-linear-in-pressure">
+<span id="a-stratification-linear-in-pressure"></span><h4>a stratification linear in pressure<a class="headerlink" href="#ocean-seamount-linear-in-pressure" title="Link to this heading"></a></h4>
 <p><code class="docutils literal notranslate"><span class="pre">seamount_stratification_type</span> <span class="pre">=</span> <span class="pre">linear_pressure</span></code> replaces the Beckmann and
 Haidvogel profile with one prescribed on temperature rather than on density:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">T</span> <span class="o">=</span> <span class="n">seamount_temperature_coef_linear_pressure</span>
@@ -658,8 +658,8 @@ for MPAS-Ocean.</p>
 <code class="docutils literal notranslate"><span class="pre">max_cells_per_core</span></code> in the <code class="docutils literal notranslate"><span class="pre">ocean</span></code> section of the config file.</p>
 </section>
 </section>
-<section id="short-task">
-<span id="ocean-seamount-short"></span><h2>short task<a class="headerlink" href="#short-task" title="Link to this heading"></a></h2>
+<section id="ocean-seamount-short">
+<span id="short-task"></span><h2>short task<a class="headerlink" href="#ocean-seamount-short" title="Link to this heading"></a></h2>
 <section id="id1">
 <h3>description<a class="headerlink" href="#id1" title="Link to this heading"></a></h3>
 <p>The <code class="docutils literal notranslate"><span class="pre">short</span></code> task is the <code class="docutils literal notranslate"><span class="pre">default</span></code> task run for 1 hour instead of 6 days.  It

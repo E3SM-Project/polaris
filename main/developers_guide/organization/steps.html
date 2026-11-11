@@ -67,27 +67,27 @@
 <li class="toctree-l2"><a class="reference internal" href="categories_of_tasks.html">Categories of tasks</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tasks.html">Tasks</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Steps</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#shared-steps">Shared steps</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#step-attributes">Step attributes</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#constructor">constructor</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#setup">setup()</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#constrain-resources">constrain_resources()</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#runtime-setup">runtime_setup()</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#run">run()</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#paths-within-run">paths within run()</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#dev-shared-steps">Shared steps</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#dev-step-attributes">Step attributes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#dev-step-init">constructor</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#dev-step-setup">setup()</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#dev-step-constrain-resources">constrain_resources()</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#dev-step-runtime-setup">runtime_setup()</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#dev-step-run">run()</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#dev-step-work-path">paths within run()</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="#inputs-and-outputs">inputs and outputs</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#input-files">Input files</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#symlinks-to-input-files">Symlinks to input files</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#symlink-to-input-files-from-polaris">Symlink to input files from polaris</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#downloading-and-symlinking-input-files">Downloading and symlinking input files</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#copying-input-files">Copying input files</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#output-files">Output files</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#cached-output-files">Cached output files</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#automatic-cache-use-with-default-cached-and-free-running-steps">Automatic cache use with <code class="docutils literal notranslate"><span class="pre">default_cached</span></code> and <code class="docutils literal notranslate"><span class="pre">free_running_steps</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#steps-that-only-cached-steps-use">Steps that only cached steps use</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#adding-other-steps-as-dependencies">Adding other steps as dependencies</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#dev-step-inputs-outputs">inputs and outputs</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#dev-step-input">Input files</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#dev-step-input-symlinks">Symlinks to input files</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#dev-step-input-polaris">Symlink to input files from polaris</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#dev-step-input-download">Downloading and symlinking input files</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#dev-step-input-copy">Copying input files</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#dev-step-output">Output files</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#dev-step-cached-output">Cached output files</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#dev-step-default-cached">Automatic cache use with <code class="docutils literal notranslate"><span class="pre">default_cached</span></code> and <code class="docutils literal notranslate"><span class="pre">free_running_steps</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#dev-step-skipped-with-cache">Steps that only cached steps use</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#dev-step-dependencies">Adding other steps as dependencies</a></li>
 </ul>
 </li>
 </ul>
@@ -148,8 +148,8 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section class="tex2jax_ignore mathjax_ignore" id="steps">
-<span id="dev-steps"></span><h1>Steps<a class="headerlink" href="#steps" title="Link to this heading"></a></h1>
+  <section class="tex2jax_ignore mathjax_ignore" id="dev-steps">
+<span id="steps"></span><h1>Steps<a class="headerlink" href="#dev-steps" title="Link to this heading"></a></h1>
 <p>Steps are the smallest units of work that can be executed on their own in
 polaris.  All tasks are made up of 1 or more steps, and all steps
 are set up into subdirectories inside of the work directory for the component.
@@ -159,8 +159,8 @@ task should be inside of that task’s work directory. Typically, a user will ru
 all steps in a task but certain tasks may prefer to have steps that are not run
 by default (e.g. a long forward simulation or optional visualization) but which
 are available for a user to manually alter and then run on their own.</p>
-<section id="shared-steps">
-<span id="dev-shared-steps"></span><h2>Shared steps<a class="headerlink" href="#shared-steps" title="Link to this heading"></a></h2>
+<section id="dev-shared-steps">
+<span id="shared-steps"></span><h2>Shared steps<a class="headerlink" href="#dev-shared-steps" title="Link to this heading"></a></h2>
 <p>Some steps are shared between multiple tasks to avoid redundant computation and
 to ensure consistency of results. Shared steps are created at the highest
 directory level common to all tasks that use them. To facilitate this, the
@@ -227,8 +227,8 @@ The child class must override the constructor and must also either override the
 sometimes also wish to override the <a class="reference internal" href="../generated/polaris.Step.setup.html#polaris.Step.setup" title="polaris.Step.setup"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.setup()</span></code></a> method,
 described below.</p>
 </section>
-<section id="step-attributes">
-<span id="dev-step-attributes"></span><h2>Step attributes<a class="headerlink" href="#step-attributes" title="Link to this heading"></a></h2>
+<section id="dev-step-attributes">
+<span id="step-attributes"></span><h2>Step attributes<a class="headerlink" href="#dev-step-attributes" title="Link to this heading"></a></h2>
 <p>As was the case for tasks, the base class <a class="reference internal" href="../generated/polaris.Step.html#polaris.Step" title="polaris.Step"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.Step</span></code></a> has a
 large number of attributes that are useful at different stages (init, setup and
 run) of the step.</p>
@@ -411,8 +411,8 @@ mesh type as an attribute:</p>
 </pre></div>
 </div>
 </section>
-<section id="constructor">
-<span id="dev-step-init"></span><h2>constructor<a class="headerlink" href="#constructor" title="Link to this heading"></a></h2>
+<section id="dev-step-init">
+<span id="constructor"></span><h2>constructor<a class="headerlink" href="#dev-step-init" title="Link to this heading"></a></h2>
 <p>The step’s constructor (<code class="docutils literal notranslate"><span class="pre">__init__()</span></code> method) should call the base class’
 constructor with <code class="docutils literal notranslate"><span class="pre">super().__init__()</span></code>, passing the name of the step, the
 task it belongs to, and possibly several optional arguments: the
@@ -553,8 +553,8 @@ these 4 variables in the <code class="docutils literal notranslate"><span class=
 performed after the step has run if a baseline was provided as part of the call
 to <a class="reference internal" href="../command_line.html#dev-polaris-setup"><span class="std std-ref">polaris setup</span></a>.</p>
 </section>
-<section id="setup">
-<span id="dev-step-setup"></span><h2>setup()<a class="headerlink" href="#setup" title="Link to this heading"></a></h2>
+<section id="dev-step-setup">
+<span id="setup"></span><h2>setup()<a class="headerlink" href="#dev-step-setup" title="Link to this heading"></a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">setup()</span></code> method is called when a user is setting up the step either
 as part of a call to <a class="reference internal" href="../command_line.html#dev-polaris-setup"><span class="std std-ref">polaris setup</span></a> or <a class="reference internal" href="../command_line.html#dev-polaris-suite"><span class="std std-ref">polaris suite</span></a>.
 As in <a class="reference internal" href="#dev-step-init"><span class="std std-ref">constructor</span></a>, you can add input, output, streams and namelist
@@ -598,8 +598,8 @@ section, so the output is added in <code class="docutils literal notranslate"><s
 available, rather than in the constructor.</p>
 <p>The <code class="docutils literal notranslate"><span class="pre">work_dir_target</span></code> paths point to outputs from upstream shared steps.</p>
 </section>
-<section id="constrain-resources">
-<span id="dev-step-constrain-resources"></span><h2>constrain_resources()<a class="headerlink" href="#constrain-resources" title="Link to this heading"></a></h2>
+<section id="dev-step-constrain-resources">
+<span id="constrain-resources"></span><span id="constrain_resources"></span><h2>constrain_resources()<a class="headerlink" href="#dev-step-constrain-resources" title="Link to this heading"></a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">constrain_resources()</span></code> method is used to update the <code class="docutils literal notranslate"><span class="pre">ntasks</span></code>,
 <code class="docutils literal notranslate"><span class="pre">min_tasks</span></code>, <code class="docutils literal notranslate"><span class="pre">cpus_per_task</span></code>, and <code class="docutils literal notranslate"><span class="pre">min_cpus_per_task</span></code> attributes prior to
 running the step, in case the user has modified these in the config options.
@@ -639,8 +639,8 @@ will fail with an error message.</p>
 </dd>
 </dl>
 </section>
-<section id="runtime-setup">
-<span id="dev-step-runtime-setup"></span><h2>runtime_setup()<a class="headerlink" href="#runtime-setup" title="Link to this heading"></a></h2>
+<section id="dev-step-runtime-setup">
+<span id="runtime-setup"></span><span id="runtime_setup"></span><h2>runtime_setup()<a class="headerlink" href="#dev-step-runtime-setup" title="Link to this heading"></a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">runtime_setup()</span></code> method is used to modify any behaviors of the step at
 runtime. This includes things like partitioning an MPAS mesh across processors
 and computing a times step based on config options that might have been
@@ -654,8 +654,8 @@ of python code before launching an command, often using MPI parallelism.
 Larger work the launch needs belongs in a step of its own (see
 <a class="reference internal" href="../framework/task_parallelism.html#dev-step-launch-rule"><span class="std std-ref">Launch only through the step’s command</span></a>).</p>
 </section>
-<section id="run">
-<span id="dev-step-run"></span><h2>run()<a class="headerlink" href="#run" title="Link to this heading"></a></h2>
+<section id="dev-step-run">
+<span id="run"></span><h2>run()<a class="headerlink" href="#dev-step-run" title="Link to this heading"></a></h2>
 <p>This method defines how the step will run. The contents of <code class="docutils literal notranslate"><span class="pre">run()</span></code> can vary
 quite a lot between steps.</p>
 <p>In the baroclinic channel’s <code class="docutils literal notranslate"><span class="pre">Init</span></code> step, the <code class="docutils literal notranslate"><span class="pre">run()</span></code> method,
@@ -812,8 +812,8 @@ MPI, threading and memory resources.  A <code class="docutils literal notranslat
 parallel work itself (see <a class="reference internal" href="../framework/task_parallelism.html#dev-step-launch-rule"><span class="std std-ref">Launch only through the step’s command</span></a>).</p>
 <p>To get a feel for different types of <code class="docutils literal notranslate"><span class="pre">run()</span></code> methods, it may be best to
 explore different steps that are already implemented in Polaris.</p>
-<section id="paths-within-run">
-<span id="dev-step-work-path"></span><h3>paths within run()<a class="headerlink" href="#paths-within-run" title="Link to this heading"></a></h3>
+<section id="dev-step-work-path">
+<span id="paths-within-run"></span><h3>paths within run()<a class="headerlink" href="#dev-step-work-path" title="Link to this heading"></a></h3>
 <p>Polaris changes the process working directory to the step’s work directory
 before calling <code class="docutils literal notranslate"><span class="pre">run()</span></code>, so a bare relative filename like <code class="docutils literal notranslate"><span class="pre">'output.nc'</span></code> works
 today.  That will not remain true once steps can run concurrently in one
@@ -835,8 +835,8 @@ already resolves them to absolute paths in <code class="docutils literal notrans
 in order to run concurrently with other steps.</p>
 </section>
 </section>
-<section id="inputs-and-outputs">
-<span id="dev-step-inputs-outputs"></span><h2>inputs and outputs<a class="headerlink" href="#inputs-and-outputs" title="Link to this heading"></a></h2>
+<section id="dev-step-inputs-outputs">
+<span id="inputs-and-outputs"></span><h2>inputs and outputs<a class="headerlink" href="#dev-step-inputs-outputs" title="Link to this heading"></a></h2>
 <p>Currently, steps run in sequence in the order they are added to the task
 (or in the order they appear in the task’s <code class="docutils literal notranslate"><span class="pre">steps_to_run</span></code> attribute).
 There are plans to allow tasks and their steps to run in parallel in the
@@ -883,8 +883,8 @@ filenames from that dependency rather than hard-coding output names during
 setup.</p>
 <p><a class="reference internal" href="../generated/polaris.Step.html#polaris.Step" title="polaris.Step"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.Step</span></code></a> includes several methods for adding input, output,
 namelist and streams files:</p>
-<section id="input-files">
-<span id="dev-step-input"></span><h3>Input files<a class="headerlink" href="#input-files" title="Link to this heading"></a></h3>
+<section id="dev-step-input">
+<span id="input-files"></span><h3>Input files<a class="headerlink" href="#dev-step-input" title="Link to this heading"></a></h3>
 <p>Typically, a step will add input files with
 <a class="reference internal" href="../generated/polaris.Step.add_input_file.html#polaris.Step.add_input_file" title="polaris.Step.add_input_file"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.add_input_file()</span></code></a> during init or in its <code class="docutils literal notranslate"><span class="pre">setup()</span></code>
 method.  It is also possible to add inputs in the task’s
@@ -901,8 +901,8 @@ respect to the step’s work directory:</p>
 <p>This is not typically how <code class="docutils literal notranslate"><span class="pre">add_input_file()</span></code> is used because input files are
 usually not directly in the step’s work directory.</p>
 </section>
-<section id="symlinks-to-input-files">
-<span id="dev-step-input-symlinks"></span><h3>Symlinks to input files<a class="headerlink" href="#symlinks-to-input-files" title="Link to this heading"></a></h3>
+<section id="dev-step-input-symlinks">
+<span id="symlinks-to-input-files"></span><h3>Symlinks to input files<a class="headerlink" href="#dev-step-input-symlinks" title="Link to this heading"></a></h3>
 <p>The most common type of input file is the output from another step. Rather than
 just giving the file name directly, as in the example above, the preference is
 to place a symbolic link in the work directory.  This makes it much easier to
@@ -952,8 +952,8 @@ not yet known at init). Here is an example taken from
 </pre></div>
 </div>
 </section>
-<section id="symlink-to-input-files-from-polaris">
-<span id="dev-step-input-polaris"></span><h3>Symlink to input files from polaris<a class="headerlink" href="#symlink-to-input-files-from-polaris" title="Link to this heading"></a></h3>
+<section id="dev-step-input-polaris">
+<span id="symlink-to-input-files-from-polaris"></span><h3>Symlink to input files from polaris<a class="headerlink" href="#dev-step-input-polaris" title="Link to this heading"></a></h3>
 <p>Another common need is to symlink a data file from within the task or its
 shared framework:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">):</span>
@@ -966,8 +966,8 @@ shared framework:</p>
 <p>Here, we supply the name of the package that the file is in.  The polaris
 framework will take care of figuring out where the package is located.</p>
 </section>
-<section id="downloading-and-symlinking-input-files">
-<span id="dev-step-input-download"></span><h3>Downloading and symlinking input files<a class="headerlink" href="#downloading-and-symlinking-input-files" title="Link to this heading"></a></h3>
+<section id="dev-step-input-download">
+<span id="downloading-and-symlinking-input-files"></span><h3>Downloading and symlinking input files<a class="headerlink" href="#dev-step-input-download" title="Link to this heading"></a></h3>
 <p>Another type of input file is one that is downloaded and stored locally.
 Typically, to save ourselves the time of downloading large files and to reduce
 potential problems on systems with firewalls, we cache the downloaded files in
@@ -1017,8 +1017,8 @@ provide both <code class="docutils literal notranslate"><span class="pre">databa
 </pre></div>
 </div>
 </section>
-<section id="copying-input-files">
-<span id="dev-step-input-copy"></span><h3>Copying input files<a class="headerlink" href="#copying-input-files" title="Link to this heading"></a></h3>
+<section id="dev-step-input-copy">
+<span id="copying-input-files"></span><h3>Copying input files<a class="headerlink" href="#dev-step-input-copy" title="Link to this heading"></a></h3>
 <p>In nearly all the cases discussed above, a symlink is created to the input
 file, usually either from the <code class="docutils literal notranslate"><span class="pre">polaris</span></code> package or from one of the databases.
 If you wish to copy the file instead of symlinking it (e.g. so a user can make
@@ -1033,8 +1033,8 @@ to <code class="docutils literal notranslate"><span class="pre">self.add_input_f
 <p>In this case, a copy of <code class="docutils literal notranslate"><span class="pre">landice_grid.nc</span></code> will be made in the step’s work
 directory.</p>
 </section>
-<section id="output-files">
-<span id="dev-step-output"></span><h3>Output files<a class="headerlink" href="#output-files" title="Link to this heading"></a></h3>
+<section id="dev-step-output">
+<span id="output-files"></span><h3>Output files<a class="headerlink" href="#dev-step-output" title="Link to this heading"></a></h3>
 <p>We require that all steps provide a list of any output files that other steps
 are allowed to use as inputs.  This helps us keep track of dependencies and
 will be used in the future to enable steps to run in parallel as long as they
@@ -1060,8 +1060,8 @@ runs, the variables <code class="docutils literal notranslate"><span class="pre"
 <code class="docutils literal notranslate"><span class="pre">normalVelocity</span></code> in the file <code class="docutils literal notranslate"><span class="pre">output.nc</span></code> will be checked against the same
 variables in the same file in the baseline run to make sure they are identical.</p>
 </section>
-<section id="cached-output-files">
-<span id="dev-step-cached-output"></span><h3>Cached output files<a class="headerlink" href="#cached-output-files" title="Link to this heading"></a></h3>
+<section id="dev-step-cached-output">
+<span id="cached-output-files"></span><h3>Cached output files<a class="headerlink" href="#dev-step-cached-output" title="Link to this heading"></a></h3>
 <p>Many polaris tasks and steps are expensive enough that it can become
 time consuming to run full workflows to produce meshes and initial conditions
 in order to test simulations.  Therefore, polaris provides a mechanism for
@@ -1124,8 +1124,8 @@ before calling <code class="docutils literal notranslate"><span class="pre">pola
 LCRC server and the <code class="docutils literal notranslate"><span class="pre">cached_files.json</span></code> databases but this is not
 recommended.</p>
 </section>
-<section id="automatic-cache-use-with-default-cached-and-free-running-steps">
-<span id="dev-step-default-cached"></span><h3>Automatic cache use with <code class="docutils literal notranslate"><span class="pre">default_cached</span></code> and <code class="docutils literal notranslate"><span class="pre">free_running_steps</span></code><a class="headerlink" href="#automatic-cache-use-with-default-cached-and-free-running-steps" title="Link to this heading"></a></h3>
+<section id="dev-step-default-cached">
+<span id="automatic-cache-use-with-default-cached-and-free-running-steps"></span><h3>Automatic cache use with <code class="docutils literal notranslate"><span class="pre">default_cached</span></code> and <code class="docutils literal notranslate"><span class="pre">free_running_steps</span></code><a class="headerlink" href="#dev-step-default-cached" title="Link to this heading"></a></h3>
 <p>Expensive step classes can declare that their outputs should be treated as
 cached by default by setting <code class="docutils literal notranslate"><span class="pre">self.default_cached</span> <span class="pre">=</span> <span class="pre">True</span></code> in their
 <code class="docutils literal notranslate"><span class="pre">__init__</span></code>.  This lets downstream tasks consume prebuilt products without
@@ -1173,8 +1173,8 @@ modifying task code.  A step may not appear in both <code class="docutils litera
 and <a class="reference internal" href="../ocean/generated/polaris.tasks.ocean.realistic_global.hydrography.woa23.Woa23.html#polaris.tasks.ocean.realistic_global.hydrography.woa23.Woa23" title="polaris.tasks.ocean.realistic_global.hydrography.woa23.task.Woa23"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.realistic_global.hydrography.woa23.task.Woa23</span></code></a>
 for concrete examples.</p>
 </section>
-<section id="steps-that-only-cached-steps-use">
-<span id="dev-step-skipped-with-cache"></span><h3>Steps that only cached steps use<a class="headerlink" href="#steps-that-only-cached-steps-use" title="Link to this heading"></a></h3>
+<section id="dev-step-skipped-with-cache">
+<span id="steps-that-only-cached-steps-use"></span><h3>Steps that only cached steps use<a class="headerlink" href="#dev-step-skipped-with-cache" title="Link to this heading"></a></h3>
 <p>A step whose outputs are inputs only to cached steps has nothing to do, so
 setup leaves it out of every task, along with any step that in turn feeds only
 steps that are left out or cached.  Setup works this out from the inputs,
@@ -1187,8 +1187,8 @@ example to keep a launch in a step’s command (see
 <a class="reference internal" href="../framework/task_parallelism.html#dev-step-launch-rule"><span class="std std-ref">Launch only through the step’s command</span></a>), without the steps ahead of it running when it is
 cached.</p>
 </section>
-<section id="adding-other-steps-as-dependencies">
-<span id="dev-step-dependencies"></span><h3>Adding other steps as dependencies<a class="headerlink" href="#adding-other-steps-as-dependencies" title="Link to this heading"></a></h3>
+<section id="dev-step-dependencies">
+<span id="adding-other-steps-as-dependencies"></span><h3>Adding other steps as dependencies<a class="headerlink" href="#dev-step-dependencies" title="Link to this heading"></a></h3>
 <p>In some circumstances, it is not feasible to know the output filenames at
 when a step gets set up.  For example, the filename may depend on a
 config options that a user could change before running the step.  Or the filename

@@ -65,7 +65,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../e3sm/init/index.html">E3SM initial condition (e3sm/init) component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../mesh/index.html">Mesh component</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../index.html">Ocean component</a><ul class="current">
-<li class="toctree-l2 current"><a class="reference internal" href="../index.html#fanssie">FAnSSIE</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="../index.html#dev-ocean-fanssie">FAnSSIE</a><ul class="current">
 <li class="toctree-l3 current"><a class="reference internal" href="index.html">Tasks</a><ul class="current">
 <li class="toctree-l4"><a class="reference internal" href="baroclinic_channel.html">baroclinic_channel</a></li>
 <li class="toctree-l4 current"><a class="current reference internal" href="#">barotropic_channel</a></li>
@@ -150,8 +150,8 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section class="tex2jax_ignore mathjax_ignore" id="barotropic-channel">
-<span id="dev-ocean-barotropic-channel"></span><h1>barotropic_channel<a class="headerlink" href="#barotropic-channel" title="Link to this heading"></a></h1>
+  <section class="tex2jax_ignore mathjax_ignore" id="dev-ocean-barotropic-channel">
+<span id="barotropic-channel"></span><span id="barotropic_channel"></span><h1>barotropic_channel<a class="headerlink" href="#dev-ocean-barotropic-channel" title="Link to this heading"></a></h1>
 <p>The barotropic channel task group is comprised of a <code class="docutils literal notranslate"><span class="pre">default</span></code> task for quick
 testing of lateral boundary conditions and a <code class="docutils literal notranslate"><span class="pre">short</span></code> variant of it for the
 Omega regression suites.</p>
@@ -197,13 +197,13 @@ final velocity components, relative vorticity, and circulation at the bottommost
 vertical layer.</p>
 </section>
 </section>
-<section id="default">
-<span id="dev-ocean-barotropic-channel-default"></span><h2>default<a class="headerlink" href="#default" title="Link to this heading"></a></h2>
+<section id="dev-ocean-barotropic-channel-default">
+<span id="default"></span><h2>default<a class="headerlink" href="#dev-ocean-barotropic-channel-default" title="Link to this heading"></a></h2>
 <p>The <a class="reference internal" href="../generated/polaris.tasks.ocean.barotropic_channel.default.Default.html#polaris.tasks.ocean.barotropic_channel.default.Default" title="polaris.tasks.ocean.barotropic_channel.default.Default"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.barotropic_channel.default.Default</span></code></a>
 test runs the <code class="docutils literal notranslate"><span class="pre">init</span></code> step, a 2 day <code class="docutils literal notranslate"><span class="pre">forward</span></code> step, and the <code class="docutils literal notranslate"><span class="pre">viz</span></code> step.</p>
 </section>
-<section id="short">
-<span id="dev-ocean-barotropic-channel-short"></span><h2>short<a class="headerlink" href="#short" title="Link to this heading"></a></h2>
+<section id="dev-ocean-barotropic-channel-short">
+<span id="short"></span><h2>short<a class="headerlink" href="#dev-ocean-barotropic-channel-short" title="Link to this heading"></a></h2>
 <p>The <a class="reference internal" href="../generated/polaris.tasks.ocean.barotropic_channel.short.Short.html#polaris.tasks.ocean.barotropic_channel.short.Short" title="polaris.tasks.ocean.barotropic_channel.short.Short"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.barotropic_channel.short.Short</span></code></a>
 test runs the same steps with a 2 hour <code class="docutils literal notranslate"><span class="pre">forward</span></code> step.  Omega takes an
 order of magnitude longer than MPAS-Ocean per time step on this mesh, so

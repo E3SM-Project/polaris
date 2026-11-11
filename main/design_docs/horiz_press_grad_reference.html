@@ -209,17 +209,13 @@ Omega’s momentum tendency must reproduce is, from the
 <a class="reference external" href="https://github.com/E3SM-Project/Omega">Omega V1 governing equations</a>
 (<code class="docutils literal notranslate"><span class="pre">OmegaV1GoverningEqns.md</span></code>),</p>
 <div class="math notranslate nohighlight">
-\[
-\mathbf{a}_\text{PGF} = -\left(\alpha\,\nabla p + \nabla \Phi\right),
-\]</div>
+\[\mathbf{a}_\text{PGF} = -\left(\alpha\,\nabla p + \nabla \Phi\right),\]</div>
 <p>where <span class="math notranslate nohighlight">\(\alpha = 1/\rho\)</span> is specific volume, <span class="math notranslate nohighlight">\(\Phi = g z\)</span> is the geopotential
 (neglecting tidal and self-attraction-and-loading terms), and <span class="math notranslate nohighlight">\(\nabla\)</span> is the
 <strong>along-layer</strong> horizontal gradient. Using the hydrostatic relation, Omega
 rewrites this through the Montgomery potential <span class="math notranslate nohighlight">\(M = \alpha p + g z\)</span> as</p>
 <div class="math notranslate nohighlight">
-\[
-\mathbf{a}_\text{PGF} = -\nabla M + p\,\nabla \alpha,
-\]</div>
+\[\mathbf{a}_\text{PGF} = -\nabla M + p\,\nabla \alpha,\]</div>
 <p>and discretizes it with a centered scheme in which <span class="math notranslate nohighlight">\(\alpha\)</span> is held constant
 within each layer, the Montgomery gradient is evaluated at layer interfaces and
 averaged to the layer midpoint, and the along-layer gradient is a two-cell
@@ -398,19 +394,15 @@ pressure, <span class="math notranslate nohighlight">\(p = -\rho_0 g\,\tilde z\)
 constant. Using the hydrostatic relation <span class="math notranslate nohighlight">\(\partial z/\partial \tilde z =
 \rho_0 \alpha\)</span>, the along-<span class="math notranslate nohighlight">\(\sigma\)</span> gradients of pressure and geometric height are</p>
 <div class="math notranslate nohighlight">
-\[\begin{split}
-\nabla_\sigma p &amp;= -\rho_0 g\,\left.\partial_x \tilde z\right|_\sigma, \\
+\[\begin{split}\nabla_\sigma p &amp;= -\rho_0 g\,\left.\partial_x \tilde z\right|_\sigma, \\
 \nabla_\sigma z &amp;= \left.\partial_x z\right|_{\tilde z}
-                  + \rho_0 \alpha\,\left.\partial_x \tilde z\right|_\sigma .
-\end{split}\]</div>
+                  + \rho_0 \alpha\,\left.\partial_x \tilde z\right|_\sigma .\end{split}\]</div>
 <p>Substituting into <span class="math notranslate nohighlight">\(\mathbf{a}_\text{PGF} = -(\alpha\,\nabla_\sigma p +
 g\,\nabla_\sigma z)\)</span>, the two terms proportional to the coordinate slope
 <span class="math notranslate nohighlight">\(\left.\partial_x\tilde z\right|_\sigma\)</span> carry the <strong>same</strong> <span class="math notranslate nohighlight">\(\alpha\)</span> at the same
 point and cancel exactly:</p>
 <div class="math notranslate nohighlight">
-\[
-\mathbf{a}_\text{PGF} = -g\,\left.\frac{\partial z}{\partial x}\right|_{\tilde z}.
-\]</div>
+\[\mathbf{a}_\text{PGF} = -g\,\left.\frac{\partial z}{\partial x}\right|_{\tilde z}.\]</div>
 <p>This is the standard statement that the pressure-gradient force does not depend
 on the coordinate used to compute it. Consequences for the design:</p>
 <ul class="simple">
@@ -434,11 +426,9 @@ high-order operator is intended to reduce.</p></li>
 <p>Geometric height as a function of pseudo-height in a single column is obtained by
 integrating the hydrostatic relation from the surface:</p>
 <div class="math notranslate nohighlight">
-\[
-z(\tilde z; x) = \eta(x) + \rho_0 \int_{\tilde z_s(x)}^{\tilde z}
+\[z(\tilde z; x) = \eta(x) + \rho_0 \int_{\tilde z_s(x)}^{\tilde z}
     \alpha\bigl(S_A(\tilde z', x),\,\Theta(\tilde z', x),\,p(\tilde z')\bigr)
-    \, d\tilde z' ,
-\]</div>
+    \, d\tilde z' ,\]</div>
 <p>where <span class="math notranslate nohighlight">\(\eta(x)\)</span> is the geometric sea-surface height, <span class="math notranslate nohighlight">\(\tilde z_s(x)\)</span> is the
 surface pseudo-height (<span class="math notranslate nohighlight">\(\tilde z_s = -p_s/(\rho_0 g)\)</span>, zero only when the surface
 pressure <span class="math notranslate nohighlight">\(p_s\)</span> is zero), and <span class="math notranslate nohighlight">\(p(\tilde z') = -\rho_0 g\,\tilde z'\)</span> depends only on
@@ -454,34 +444,28 @@ layer rather than a honoured geometric boundary — would reconstruct a differen
 <p>Differentiating with respect to <span class="math notranslate nohighlight">\(x\)</span> at fixed <span class="math notranslate nohighlight">\(\tilde z\)</span>, the lower integration
 limit depends on <span class="math notranslate nohighlight">\(x\)</span>, so the Leibniz rule contributes a boundary term:</p>
 <div class="math notranslate nohighlight">
-\[
-\left.\frac{\partial z}{\partial x}\right|_{\tilde z} =
+\[\left.\frac{\partial z}{\partial x}\right|_{\tilde z} =
    \eta'(x)
    - \rho_0\,\alpha(\tilde z_s)\,\tilde z_s'(x)
    + \rho_0 \int_{\tilde z_s}^{\tilde z}
-        \left.\frac{\partial \alpha}{\partial x}\right|_{\tilde z'} d\tilde z' .
-\]</div>
+        \left.\frac{\partial \alpha}{\partial x}\right|_{\tilde z'} d\tilde z' .\]</div>
 <p>Because <span class="math notranslate nohighlight">\(p\)</span> is fixed along constant <span class="math notranslate nohighlight">\(\tilde z'\)</span>, the integrand involves only the
 horizontal variation of the thermohaline state through the TEOS-10 specific
 volume:</p>
 <div class="math notranslate nohighlight">
-\[
-\left.\frac{\partial \alpha}{\partial x}\right|_{\tilde z'} =
+\[\left.\frac{\partial \alpha}{\partial x}\right|_{\tilde z'} =
    \alpha_{S_A}\,\left.\frac{\partial S_A}{\partial x}\right|_{\tilde z'}
- + \alpha_{\Theta}\,\left.\frac{\partial \Theta}{\partial x}\right|_{\tilde z'},
-\]</div>
+ + \alpha_{\Theta}\,\left.\frac{\partial \Theta}{\partial x}\right|_{\tilde z'},\]</div>
 <p>where <span class="math notranslate nohighlight">\(\alpha_{S_A} = \partial \alpha / \partial S_A\)</span> and
 <span class="math notranslate nohighlight">\(\alpha_{\Theta} = \partial \alpha / \partial \Theta\)</span> are the first derivatives of
 specific volume from the equation of state, evaluated at the central column’s
 <span class="math notranslate nohighlight">\((S_A, \Theta, p)\)</span>. The reference acceleration is then</p>
 <div class="math notranslate nohighlight">
-\[
-a(\tilde z) = -g\left.\frac{\partial z}{\partial x}\right|_{\tilde z} =
+\[a(\tilde z) = -g\left.\frac{\partial z}{\partial x}\right|_{\tilde z} =
    -g\left[\,\eta' - \rho_0\,\alpha(\tilde z_s)\,\tilde z_s'
    + \rho_0 \int_{\tilde z_s}^{\tilde z}
    \left(\alpha_{S_A}\,\partial_x S_A + \alpha_{\Theta}\,\partial_x \Theta\right)
-   d\tilde z'\right].
-\]</div>
+   d\tilde z'\right].\]</div>
 <p>Notable properties:</p>
 <ul class="simple">
 <li><p><strong>No geometric-height integration is required for the HPGA.</strong> Everything is
@@ -526,11 +510,9 @@ derivative is obtained by <strong>differencing the analytic input profiles</stro
 interpolant is constructed at <span class="math notranslate nohighlight">\(x = \pm\varepsilon\)</span> from the exactly known linear
 node functions and evaluated at <span class="math notranslate nohighlight">\(\tilde z'\)</span>, and a centered difference is taken,</p>
 <div class="math notranslate nohighlight">
-\[
-\left.\frac{\partial S_A}{\partial x}\right|_{\tilde z'} \approx
+\[\left.\frac{\partial S_A}{\partial x}\right|_{\tilde z'} \approx
    \frac{S_A(\tilde z'; +\varepsilon) - S_A(\tilde z'; -\varepsilon)}
-        {2\varepsilon},
-\]</div>
+        {2\varepsilon},\]</div>
 <p>and similarly for <span class="math notranslate nohighlight">\(\Theta\)</span>. Since the nodes are exactly linear in <span class="math notranslate nohighlight">\(x\)</span> and the
 interpolant is smooth in <span class="math notranslate nohighlight">\(x\)</span>, this is accurate to round-off for a suitably chosen
 <span class="math notranslate nohighlight">\(\varepsilon\)</span> (optionally refined by Richardson extrapolation). This single
@@ -547,13 +529,11 @@ p(\tilde z'))\)</span> — concretely, from <code class="docutils literal notran
 <p>The reference is needed as a layer mean over each model layer. Define the
 cumulative integral</p>
 <div class="math notranslate nohighlight">
-\[
-I(\tilde z) = \int_{\tilde z_s}^{\tilde z}
+\[I(\tilde z) = \int_{\tilde z_s}^{\tilde z}
    \left(\alpha_{S_A}\,\partial_x S_A + \alpha_{\Theta}\,\partial_x \Theta\right)
    d\tilde z', \qquad
 a(\tilde z) = -g\left[\,\eta' - \rho_0\,\alpha(\tilde z_s)\,\tilde z_s'
-   + \rho_0\,I(\tilde z)\right].
-\]</div>
+   + \rho_0\,I(\tilde z)\right].\]</div>
 <p>The integrand is smooth, so <span class="math notranslate nohighlight">\(I(\tilde z)\)</span> — and therefore <span class="math notranslate nohighlight">\(a(\tilde z)\)</span> — is
 evaluated with a high-order quadrature (the existing Gauss–Legendre / adaptive
 machinery; see Implementation). <span class="math notranslate nohighlight">\(a(\tilde z)\)</span> is thus available as an accurate
@@ -565,11 +545,9 @@ lies midway between the columns; for linearly varying inputs this average equals
 the central-column value). The reference target for layer <span class="math notranslate nohighlight">\(k\)</span> is the <strong>layer
 mean</strong></p>
 <div class="math notranslate nohighlight">
-\[
-\overline{a}_k = \frac{1}{\tilde z^{\text{top}}_k - \tilde z^{\text{bot}}_k}
+\[\overline{a}_k = \frac{1}{\tilde z^{\text{top}}_k - \tilde z^{\text{bot}}_k}
    \int_{\tilde z^{\text{bot}}_k}^{\tilde z^{\text{top}}_k}
-   a(\tilde z)\, d\tilde z ,
-\]</div>
+   a(\tilde z)\, d\tilde z ,\]</div>
 <p>evaluated by high-order quadrature within the layer. This compares the model’s
 layer-mean acceleration to the true layer-mean acceleration, so finite layer
 thickness and layer tilt are folded into the target rather than counted as error

@@ -64,13 +64,13 @@
 <li class="toctree-l3 current"><a class="current reference internal" href="#">cosine bell</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#description">description</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#suppported-models">suppported models</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#mesh">mesh</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#vertical-grid">vertical grid</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ocean-cosine-bell-mesh">mesh</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ocean-cosine-bell-vertical">vertical grid</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#initial-conditions">initial conditions</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#forcing">forcing</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#time-step-and-run-duration">time step and run duration</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ocean-cosine-bell-time-step">time step and run duration</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#config-options">config options</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#cores">cores</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ocean-cosine-bell-cores">cores</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="customizable_viz.html">customizable viz</a></li>
@@ -95,7 +95,7 @@
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../framework/index.html">Framework</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../suites.html">Suites</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../suites.html#nightly-suite">nightly suite</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../suites.html#ocean-suite-nightly">nightly suite</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../suites.html#omega-pr-suite">omega_pr suite</a></li>
 </ul>
 </li>
@@ -162,8 +162,8 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section class="tex2jax_ignore mathjax_ignore" id="cosine-bell">
-<span id="ocean-cosine-bell"></span><h1>cosine bell<a class="headerlink" href="#cosine-bell" title="Link to this heading"></a></h1>
+  <section class="tex2jax_ignore mathjax_ignore" id="ocean-cosine-bell">
+<span id="cosine-bell"></span><h1>cosine bell<a class="headerlink" href="#ocean-cosine-bell" title="Link to this heading"></a></h1>
 <section id="description">
 <h2>description<a class="headerlink" href="#description" title="Link to this heading"></a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">cosine_bell/convergence_*</span></code> and <code class="docutils literal notranslate"><span class="pre">cosine_bell/convergence_*/with_viz</span></code> tasks
@@ -197,8 +197,8 @@ advection.</p>
 <h2>suppported models<a class="headerlink" href="#suppported-models" title="Link to this heading"></a></h2>
 <p>These tasks support both MPAS-Ocean and Omega.</p>
 </section>
-<section id="mesh">
-<span id="ocean-cosine-bell-mesh"></span><h2>mesh<a class="headerlink" href="#mesh" title="Link to this heading"></a></h2>
+<section id="ocean-cosine-bell-mesh">
+<span id="mesh"></span><h2>mesh<a class="headerlink" href="#ocean-cosine-bell-mesh" title="Link to this heading"></a></h2>
 <p>Two global mesh variants are tested, quasi-uniform (QU) and icosohydral. There
 are also variants to test convergence in space, time, or both space and time
 as well as the restart test. In addition, the tests can be set up with or
@@ -275,8 +275,8 @@ the <code class="docutils literal notranslate"><span class="pre">cosine_bell</sp
 </pre></div>
 </div>
 </section>
-<section id="vertical-grid">
-<span id="ocean-cosine-bell-vertical"></span><h2>vertical grid<a class="headerlink" href="#vertical-grid" title="Link to this heading"></a></h2>
+<section id="ocean-cosine-bell-vertical">
+<span id="vertical-grid"></span><h2>vertical grid<a class="headerlink" href="#ocean-cosine-bell-vertical" title="Link to this heading"></a></h2>
 <p>This task only exercises the shallow water dynamics. As such, a single
 vertical level may be used. The bottom depth is constant and the
 results should be insensitive to the choice of <code class="docutils literal notranslate"><span class="pre">bottom_depth</span></code>.</p>
@@ -307,14 +307,12 @@ results should be insensitive to the choice of <code class="docutils literal not
 <h2>initial conditions<a class="headerlink" href="#initial-conditions" title="Link to this heading"></a></h2>
 <p>The initial bell is defined by any passive tracer <span class="math notranslate nohighlight">\(\psi\)</span>:</p>
 <div class="math notranslate nohighlight">
-\[\begin{split}
-\psi =
+\[\begin{split}\psi =
     \begin{cases}
         \left( \psi_0/2 \right) \left[ 1 + \cos(\pi r/R )\right] &amp;
             \text{if } r &lt; R \\
         0 &amp; \text{if } r \ge R
-    \end{cases}
-\end{split}\]</div>
+    \end{cases}\end{split}\]</div>
 <p>where <span class="math notranslate nohighlight">\(\psi_0 = 1\)</span>, the bell radius <span class="math notranslate nohighlight">\(R = a/3\)</span>, and <span class="math notranslate nohighlight">\(a\)</span> is the radius of the
 sphere. <code class="docutils literal notranslate"><span class="pre">psi_0</span></code> and <code class="docutils literal notranslate"><span class="pre">radius</span></code>, <span class="math notranslate nohighlight">\(R\)</span>, are given as config options and may be
 altered by the user. In the <code class="docutils literal notranslate"><span class="pre">init</span></code> step we assign <code class="docutils literal notranslate"><span class="pre">debug_tracers_1</span></code>
@@ -323,9 +321,7 @@ to <span class="math notranslate nohighlight">\(\psi\)</span>.</p>
 </a>
 <p>The initial velocity is equatorial:</p>
 <div class="math notranslate nohighlight">
-\[
-u_0 = 2 \pi a/ \tau
-\]</div>
+\[u_0 = 2 \pi a/ \tau\]</div>
 <p>Where <span class="math notranslate nohighlight">\(\tau\)</span> is the time it takes to transit the equator. The default is 24
 days, and can be altered by the user using the config option <code class="docutils literal notranslate"><span class="pre">vel_pd</span></code>.</p>
 <p>Temperature and salinity are not evolved in this task and are given
@@ -338,8 +334,8 @@ specified for a global mesh and are initialized as zeros.</p>
 <p>N/A. This case is run with all velocity tendencies disabled so the velocity
 field remains at the initial velocity <span class="math notranslate nohighlight">\(u_0\)</span>.</p>
 </section>
-<section id="time-step-and-run-duration">
-<span id="ocean-cosine-bell-time-step"></span><h2>time step and run duration<a class="headerlink" href="#time-step-and-run-duration" title="Link to this heading"></a></h2>
+<section id="ocean-cosine-bell-time-step">
+<span id="time-step-and-run-duration"></span><h2>time step and run duration<a class="headerlink" href="#ocean-cosine-bell-time-step" title="Link to this heading"></a></h2>
 <p>This task uses the Runge-Kutta 4th-order (RK4) time integrator. The time step
 for forward integration is determined by multiplying the resolution by a config
 option, <code class="docutils literal notranslate"><span class="pre">rk4_dt_per_km</span></code>, so that coarser meshes have longer time steps. You can
@@ -455,8 +451,8 @@ of these config options can be changed here:</p>
 </pre></div>
 </div>
 </section>
-<section id="cores">
-<span id="ocean-cosine-bell-cores"></span><h2>cores<a class="headerlink" href="#cores" title="Link to this heading"></a></h2>
+<section id="ocean-cosine-bell-cores">
+<span id="cores"></span><h2>cores<a class="headerlink" href="#ocean-cosine-bell-cores" title="Link to this heading"></a></h2>
 <p>The target and minimum number of cores are determined by <code class="docutils literal notranslate"><span class="pre">goal_cells_per_core</span></code>
 and <code class="docutils literal notranslate"><span class="pre">max_cells_per_core</span></code> from the <code class="docutils literal notranslate"><span class="pre">ocean</span></code> section of the config file,
 respectively. This ensures that the number of cells per core is roughly

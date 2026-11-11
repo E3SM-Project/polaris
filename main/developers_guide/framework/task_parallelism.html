@@ -87,17 +87,17 @@
 <li class="toctree-l4"><a class="reference internal" href="#use-the-object-oriented-figure-api">Use the object-oriented figure API</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#keep-temporary-files-in-the-step-s-work-directory">Keep temporary files in the step’s work directory</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#log-through-the-step-s-logger">Log through the step’s logger</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#launch-only-through-the-step-s-command">Launch only through the step’s command</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#dev-step-launch-rule">Launch only through the step’s command</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#declare-the-resources-you-need">Declare the resources you need</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#size-internal-parallelism-from-what-you-were-given">Size internal parallelism from what you were given</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="#current-status">Current status</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#dev-task-parallelism-status">Current status</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="validation.html">Validation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="validation.html#property-checks">Property checks</a></li>
-<li class="toctree-l2"><a class="reference internal" href="validation.html#cf-compliance-checks">CF compliance checks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="validation.html#dev-cf-check">CF compliance checks</a></li>
 <li class="toctree-l2"><a class="reference internal" href="visualization.html">Visualization</a></li>
 </ul>
 </li>
@@ -149,8 +149,8 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section class="tex2jax_ignore mathjax_ignore" id="writing-task-parallel-safe-steps">
-<span id="dev-task-parallelism"></span><h1>Writing task-parallel-safe steps<a class="headerlink" href="#writing-task-parallel-safe-steps" title="Link to this heading"></a></h1>
+  <section class="tex2jax_ignore mathjax_ignore" id="dev-task-parallelism">
+<span id="writing-task-parallel-safe-steps"></span><h1>Writing task-parallel-safe steps<a class="headerlink" href="#dev-task-parallelism" title="Link to this heading"></a></h1>
 <p>Polaris runs one step at a time today, and a step that changes the process
 working directory or mutates a module-level global is correct under that
 assumption.  It stops being correct as soon as two steps run concurrently in
@@ -256,8 +256,8 @@ several steps run at once, and the resulting log cannot be attributed to a
 step.  Pass <code class="docutils literal notranslate"><span class="pre">self.logger</span></code> to any helper function or subprocess that produces
 output; see <a class="reference internal" href="logging.html#dev-logging"><span class="std std-ref">Logging</span></a>.</p>
 </section>
-<section id="launch-only-through-the-step-s-command">
-<span id="dev-step-launch-rule"></span><h3>Launch only through the step’s command<a class="headerlink" href="#launch-only-through-the-step-s-command" title="Link to this heading"></a></h3>
+<section id="dev-step-launch-rule">
+<span id="launch-only-through-the-step-s-command"></span><h3>Launch only through the step’s command<a class="headerlink" href="#dev-step-launch-rule" title="Link to this heading"></a></h3>
 <p>A step launches at most one thing, and only through its command: the <code class="docutils literal notranslate"><span class="pre">args</span></code>
 attribute, which the framework launches with the step’s resources (see
 <a class="reference internal" href="../organization/steps.html#dev-step-attributes"><span class="std std-ref">Step attributes</span></a>).  Its <code class="docutils literal notranslate"><span class="pre">run()</span></code> method never launches anything.  It
@@ -307,8 +307,8 @@ it.  Use <code class="docutils literal notranslate"><span class="pre">self.cpus_
 </div>
 </section>
 </section>
-<section id="current-status">
-<span id="dev-task-parallelism-status"></span><h2>Current status<a class="headerlink" href="#current-status" title="Link to this heading"></a></h2>
+<section id="dev-task-parallelism-status">
+<span id="current-status"></span><h2>Current status<a class="headerlink" href="#dev-task-parallelism-status" title="Link to this heading"></a></h2>
 <p>The framework support exists – <a class="reference internal" href="../generated/polaris.Step.work_path.html#polaris.Step.work_path" title="polaris.Step.work_path"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.work_path()</span></code></a>,
 <a class="reference internal" href="../generated/polaris.viz.mplstyle_context.html#polaris.viz.mplstyle_context" title="polaris.viz.mplstyle_context"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.viz.mplstyle_context()</span></code></a>, and the object-oriented figure API
 in <code class="docutils literal notranslate"><span class="pre">polaris.viz</span></code> – and the shared building blocks have been converted:

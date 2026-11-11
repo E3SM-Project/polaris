@@ -67,7 +67,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../e3sm/init/index.html">E3SM initial condition (e3sm/init) component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../mesh/index.html">Mesh component</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../index.html">Ocean component</a><ul class="current">
-<li class="toctree-l2 current"><a class="reference internal" href="../index.html#fanssie">FAnSSIE</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="../index.html#dev-ocean-fanssie">FAnSSIE</a><ul class="current">
 <li class="toctree-l3 current"><a class="reference internal" href="index.html">Tasks</a><ul class="current">
 <li class="toctree-l4"><a class="reference internal" href="baroclinic_channel.html">baroclinic_channel</a></li>
 <li class="toctree-l4"><a class="reference internal" href="barotropic_channel.html">barotropic_channel</a></li>
@@ -152,8 +152,8 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section class="tex2jax_ignore mathjax_ignore" id="realistic-global">
-<span id="dev-ocean-realistic-global"></span><h1>realistic_global<a class="headerlink" href="#realistic-global" title="Link to this heading"></a></h1>
+  <section class="tex2jax_ignore mathjax_ignore" id="dev-ocean-realistic-global">
+<span id="realistic-global"></span><span id="realistic_global"></span><h1>realistic_global<a class="headerlink" href="#dev-ocean-realistic-global" title="Link to this heading"></a></h1>
 <p>The <code class="docutils literal notranslate"><span class="pre">realistic_global</span></code> tasks in <code class="docutils literal notranslate"><span class="pre">polaris.tasks.ocean.realistic_global</span></code> use
 realistic global ocean meshes, bathymetry and forcing.  They fall into seven
 groups:</p>
@@ -193,14 +193,14 @@ about a degree should also set fewer MOC latitude bins for its <code class="docu
 with Omega is opt-in, through the options in <code class="docutils literal notranslate"><span class="pre">forward/compare_with_omega.cfg</span></code>,
 which Polaris never reads on its own and a unit test keeps honest; see
 <a class="reference internal" href="../../../users_guide/ocean/tasks/realistic_global.html#ocean-realistic-global-forward-purposes"><span class="std std-ref">physics, and comparing with Omega</span></a> in the User’s Guide.</p>
-<section id="framework">
-<span id="dev-ocean-realistic-global-framework"></span><h2>framework<a class="headerlink" href="#framework" title="Link to this heading"></a></h2>
+<section id="dev-ocean-realistic-global-framework">
+<span id="framework"></span><h2>framework<a class="headerlink" href="#dev-ocean-realistic-global-framework" title="Link to this heading"></a></h2>
 <p>The config options for these tasks are described in
 <a class="reference internal" href="../../../users_guide/ocean/tasks/realistic_global.html#ocean-realistic-global"><span class="std std-ref">realistic_global</span></a> in the User’s Guide.  The shared colormap
 options for the <code class="docutils literal notranslate"><span class="pre">viz</span></code> step live in <code class="docutils literal notranslate"><span class="pre">realistic_global.cfg</span></code>.</p>
 </section>
-<section id="forward">
-<span id="dev-ocean-realistic-global-forward"></span><h2>forward<a class="headerlink" href="#forward" title="Link to this heading"></a></h2>
+<section id="dev-ocean-realistic-global-forward">
+<span id="forward"></span><h2>forward<a class="headerlink" href="#dev-ocean-realistic-global-forward" title="Link to this heading"></a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">realistic_global.forward</span></code> package holds one forward-run capability that
 both the <code class="docutils literal notranslate"><span class="pre">forward</span></code> and <code class="docutils literal notranslate"><span class="pre">cached_forward</span></code> tasks are built from.  They differ in
 one argument: the
@@ -410,8 +410,8 @@ apart.</p></li>
 </ul>
 </section>
 </section>
-<section id="analysis-output">
-<span id="dev-ocean-realistic-global-analysis-output"></span><h2>analysis_output<a class="headerlink" href="#analysis-output" title="Link to this heading"></a></h2>
+<section id="dev-ocean-realistic-global-analysis-output">
+<span id="analysis-output"></span><span id="analysis_output"></span><h2>analysis_output<a class="headerlink" href="#dev-ocean-realistic-global-analysis-output" title="Link to this heading"></a></h2>
 <p>The <a class="reference internal" href="../generated/polaris.tasks.ocean.realistic_global.analysis_output.AnalysisOutput.html#polaris.tasks.ocean.realistic_global.analysis_output.AnalysisOutput" title="polaris.tasks.ocean.realistic_global.analysis_output.AnalysisOutput"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.realistic_global.analysis_output.AnalysisOutput</span></code></a>
 task runs a year of Omega, writing what the ocean analysis reads.  It takes an
 initial condition and optional <code class="docutils literal notranslate"><span class="pre">init_steps</span></code> as <code class="docutils literal notranslate"><span class="pre">RealisticGlobalForward</span></code> does,
@@ -444,8 +444,8 @@ writes the files covering year 1 as <code class="docutils literal notranslate"><
 <code class="docutils literal notranslate"><span class="pre">get_monthly_filenames()</span></code> builds the names that way, and the snapshots, taken
 at those instants, are named the same way.</p>
 </section>
-<section id="restart">
-<span id="dev-ocean-realistic-global-restart"></span><h2>restart<a class="headerlink" href="#restart" title="Link to this heading"></a></h2>
+<section id="dev-ocean-realistic-global-restart">
+<span id="restart"></span><h2>restart<a class="headerlink" href="#dev-ocean-realistic-global-restart" title="Link to this heading"></a></h2>
 <p>The <a class="reference internal" href="../generated/polaris.tasks.ocean.realistic_global.restart.Restart.html#polaris.tasks.ocean.realistic_global.restart.Restart" title="polaris.tasks.ocean.realistic_global.restart.Restart"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.realistic_global.restart.Restart</span></code></a> task is
 shaped like CIME’s ERS (exact restart) test, since Omega’s restarts will be
 tested that way once Omega runs in E3SM.  A <code class="docutils literal notranslate"><span class="pre">full_run</span></code> covers the whole period
@@ -538,8 +538,8 @@ would have had nothing to append to, and the time-axis check would pass
 without testing anything.</p>
 </section>
 </section>
-<section id="dynamic-adjustment">
-<span id="dev-ocean-realistic-global-dynamic-adjustment"></span><h2>dynamic_adjustment<a class="headerlink" href="#dynamic-adjustment" title="Link to this heading"></a></h2>
+<section id="dev-ocean-realistic-global-dynamic-adjustment">
+<span id="dynamic-adjustment"></span><span id="dynamic_adjustment"></span><h2>dynamic_adjustment<a class="headerlink" href="#dev-ocean-realistic-global-dynamic-adjustment" title="Link to this heading"></a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">dynamic_adjustment</span></code> task family (steps under
 <code class="docutils literal notranslate"><span class="pre">spherical/realistic_global/{mesh_name}/dynamic_adjustment</span></code>) runs a
 restart-chained sequence of forward stages from a mesh’s realistic initial
@@ -743,8 +743,8 @@ temperature, so <code class="docutils literal notranslate"><span class="pre">tem
 same quantity in the two models — immaterial against these thresholds.</p>
 </section>
 </section>
-<section id="hydrography-woa23">
-<span id="dev-ocean-realistic-global-woa23"></span><h2>hydrography/woa23<a class="headerlink" href="#hydrography-woa23" title="Link to this heading"></a></h2>
+<section id="dev-ocean-realistic-global-woa23">
+<span id="hydrography-woa23"></span><span id="hydrographywoa23"></span><h2>hydrography/woa23<a class="headerlink" href="#dev-ocean-realistic-global-woa23" title="Link to this heading"></a></h2>
 <p>The <a class="reference internal" href="../generated/polaris.tasks.ocean.realistic_global.hydrography.woa23.Woa23.html#polaris.tasks.ocean.realistic_global.hydrography.woa23.Woa23" title="polaris.tasks.ocean.realistic_global.hydrography.woa23.task.Woa23"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.realistic_global.hydrography.woa23.task.Woa23</span></code></a>
 task is the Polaris port of the WOA preprocessing part of the legacy Compass
 <code class="docutils literal notranslate"><span class="pre">utility/extrap_woa</span></code> workflow.</p>
@@ -832,8 +832,8 @@ vertical sections through Filchner Trough and the Ross Ice Shelf cavity.  It
 is added with <code class="docutils literal notranslate"><span class="pre">run_by_default=False</span></code>.</p>
 </section>
 </section>
-<section id="forcing-jra55">
-<span id="dev-ocean-realistic-global-jra55"></span><h2>forcing/jra55<a class="headerlink" href="#forcing-jra55" title="Link to this heading"></a></h2>
+<section id="dev-ocean-realistic-global-jra55">
+<span id="forcing-jra55"></span><span id="forcingjra55"></span><h2>forcing/jra55<a class="headerlink" href="#dev-ocean-realistic-global-jra55" title="Link to this heading"></a></h2>
 <p>The <a class="reference internal" href="../generated/polaris.tasks.ocean.realistic_global.forcing.jra55.Jra55.html#polaris.tasks.ocean.realistic_global.forcing.jra55.Jra55" title="polaris.tasks.ocean.realistic_global.forcing.jra55.task.Jra55"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.realistic_global.forcing.jra55.task.Jra55</span></code></a>
 task builds the reusable wind-stress product used by the <code class="docutils literal notranslate"><span class="pre">init</span></code> tasks.  Its
 shared steps come from
@@ -867,8 +867,8 @@ plots global maps of the stress components and magnitude plus a zonal-mean
 density are right.</p>
 </section>
 </section>
-<section id="init">
-<span id="dev-ocean-realistic-global-init"></span><h2>init<a class="headerlink" href="#init" title="Link to this heading"></a></h2>
+<section id="dev-ocean-realistic-global-init">
+<span id="init"></span><h2>init<a class="headerlink" href="#dev-ocean-realistic-global-init" title="Link to this heading"></a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">init</span></code> task family (whose steps live under
 <code class="docutils literal notranslate"><span class="pre">spherical/realistic_global/{mesh_name}/init</span></code>) creates mesh-specific ocean
 initial conditions using WOA23 hydrography and the culled mesh produced by

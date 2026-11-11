@@ -62,7 +62,7 @@
 <li class="toctree-l4"><a class="reference internal" href="#graph-partitions">Graph partitions</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#ice-shelf-cavities">Ice-shelf cavities</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#omega">Omega</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#configuration-options">Configuration Options</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#e3sm-init-component-inputs-config">Configuration Options</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#running-on-a-login-node">Running on a login node</a></li>
 </ul>
 </li>
@@ -135,8 +135,8 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section class="tex2jax_ignore mathjax_ignore" id="component-input-tasks">
-<span id="e3sm-init-component-inputs-tasks"></span><h1>Component Input Tasks<a class="headerlink" href="#component-input-tasks" title="Link to this heading"></a></h1>
+  <section class="tex2jax_ignore mathjax_ignore" id="e3sm-init-component-inputs-tasks">
+<span id="component-input-tasks"></span><h1>Component Input Tasks<a class="headerlink" href="#e3sm-init-component-inputs-tasks" title="Link to this heading"></a></h1>
 <p>The <code class="docutils literal notranslate"><span class="pre">e3sm/init</span></code> <code class="docutils literal notranslate"><span class="pre">component_inputs</span></code> tasks stage the files an E3SM run needs
 from a unified mesh: the base mesh with maps to the meshes culled from it,
 SCRIP descriptions of those culled meshes, the MPAS-Ocean and MPAS-Seaice
@@ -433,8 +433,8 @@ dynamic adjustment runs, which is the one given with <code class="docutils liter
 detected from the <code class="docutils literal notranslate"><span class="pre">--ocean_path</span></code> build.  If that is Omega, setup stops with a
 message saying so, rather than staging Omega output under MPAS-Ocean names.</p>
 </section>
-<section id="configuration-options">
-<span id="e3sm-init-component-inputs-config"></span><h2>Configuration Options<a class="headerlink" href="#configuration-options" title="Link to this heading"></a></h2>
+<section id="e3sm-init-component-inputs-config">
+<span id="configuration-options"></span><h2>Configuration Options<a class="headerlink" href="#e3sm-init-component-inputs-config" title="Link to this heading"></a></h2>
 <p>These tasks create a shared config file in their work directories:</p>
 <div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="c1"># Options related to staging the component input files for an E3SM run</span>
 <span class="k">[component_inputs]</span>

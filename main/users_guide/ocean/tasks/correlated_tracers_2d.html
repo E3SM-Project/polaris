@@ -95,7 +95,7 @@
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../framework/index.html">Framework</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../suites.html">Suites</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../suites.html#nightly-suite">nightly suite</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../suites.html#ocean-suite-nightly">nightly suite</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../suites.html#omega-pr-suite">omega_pr suite</a></li>
 </ul>
 </li>
@@ -162,8 +162,8 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section class="tex2jax_ignore mathjax_ignore" id="correlated-tracers-2-d">
-<span id="ocean-correlated-tracers-2d"></span><h1>correlated tracers 2-d<a class="headerlink" href="#correlated-tracers-2-d" title="Link to this heading"></a></h1>
+  <section class="tex2jax_ignore mathjax_ignore" id="ocean-correlated-tracers-2d">
+<span id="correlated-tracers-2-d"></span><h1>correlated tracers 2-d<a class="headerlink" href="#ocean-correlated-tracers-2d" title="Link to this heading"></a></h1>
 <section id="description">
 <h2>description<a class="headerlink" href="#description" title="Link to this heading"></a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">correlated_tracers_2d</span></code> and <code class="docutils literal notranslate"><span class="pre">correlated_tracers_2d/with_viz</span></code> tasks implement the
@@ -285,13 +285,9 @@ tracer2.</p></li>
 </a>
 <p>The velocity is</p>
 <div class="math notranslate nohighlight">
-\[
-u(t) = \frac{10 R}{\tau} \sin^2(\lambda - \frac{2 \pi t}{\tau}) \sin(2\theta) \cos(\frac{\pi t}{\tau}) + \frac{2 \pi R}{\tau}\cos(\theta)
-\]</div>
+\[u(t) = \frac{10 R}{\tau} \sin^2(\lambda - \frac{2 \pi t}{\tau}) \sin(2\theta) \cos(\frac{\pi t}{\tau}) + \frac{2 \pi R}{\tau}\cos(\theta)\]</div>
 <div class="math notranslate nohighlight">
-\[
-v(t) = \frac{10 R}{\tau} \sin(2\lambda - \frac{4 \pi t}{\tau}) \cos(\theta) \cos(\frac{\pi t}{\tau})
-\]</div>
+\[v(t) = \frac{10 R}{\tau} \sin(2\lambda - \frac{4 \pi t}{\tau}) \cos(\theta) \cos(\frac{\pi t}{\tau})\]</div>
 <p>Where <span class="math notranslate nohighlight">\(\lambda\)</span> is longitude, <span class="math notranslate nohighlight">\(\theta\)</span> is latitude and <span class="math notranslate nohighlight">\(R\)</span> is the radius of the
 sphere. <span class="math notranslate nohighlight">\(\tau\)</span> is the time it takes to transit the equator. The default is 12
 days and is given by the cfg option <code class="docutils literal notranslate"><span class="pre">vel_pd</span></code>.</p>

@@ -424,13 +424,13 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l3"><a class="reference internal" href="geostrophic.html">geostrophic</a></li>
 <li class="toctree-l3 current"><a class="current reference internal" href="#">realistic_global</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#supported-models">supported models</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#woa23">woa23</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#jra55">jra55</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#init">init</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#restart">restart</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#forward-and-cached-forward">forward and cached_forward</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#analysis-output">analysis_output</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#dynamic-adjustment">dynamic_adjustment</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ocean-realistic-global-woa23">woa23</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ocean-realistic-global-jra55">jra55</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ocean-realistic-global-init">init</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ocean-realistic-global-restart">restart</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ocean-realistic-global-forward">forward and cached_forward</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ocean-realistic-global-analysis-output">analysis_output</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ocean-realistic-global-dynamic-adjustment">dynamic_adjustment</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="horiz_press_grad.html">horizontal pressure gradient</a></li>
@@ -450,7 +450,7 @@ window.runMermaid = runMermaid;</script>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../framework/index.html">Framework</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../suites.html">Suites</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../suites.html#nightly-suite">nightly suite</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../suites.html#ocean-suite-nightly">nightly suite</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../suites.html#omega-pr-suite">omega_pr suite</a></li>
 </ul>
 </li>
@@ -517,8 +517,8 @@ window.runMermaid = runMermaid;</script>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section class="tex2jax_ignore mathjax_ignore" id="realistic-global">
-<span id="ocean-realistic-global"></span><h1>realistic_global<a class="headerlink" href="#realistic-global" title="Link to this heading"></a></h1>
+  <section class="tex2jax_ignore mathjax_ignore" id="ocean-realistic-global">
+<span id="realistic-global"></span><span id="realistic_global"></span><h1>realistic_global<a class="headerlink" href="#ocean-realistic-global" title="Link to this heading"></a></h1>
 <p>The <code class="docutils literal notranslate"><span class="pre">realistic_global</span></code> task group contains tasks that use realistic global
 ocean meshes, bathymetry and forcing. It currently contains seven kinds of
 tasks:</p>
@@ -565,8 +565,8 @@ Omega writes its history time axis across a restart, and MPAS-Ocean stamps its
 output with <code class="docutils literal notranslate"><span class="pre">xtime</span></code> rather than an elapsed time measured from the start of the
 clock, so the failure it looks for cannot arise there.</p>
 </section>
-<section id="woa23">
-<span id="ocean-realistic-global-woa23"></span><h2>woa23<a class="headerlink" href="#woa23" title="Link to this heading"></a></h2>
+<section id="ocean-realistic-global-woa23">
+<span id="woa23"></span><h2>woa23<a class="headerlink" href="#ocean-realistic-global-woa23" title="Link to this heading"></a></h2>
 <p>This task is the Polaris port of the legacy Compass
 <code class="docutils literal notranslate"><span class="pre">utility/extrap_woa</span></code> workflow. It combines one monthly WOA23 climatology,
 which covers depths down to 1500 m, with the annual climatology below that,
@@ -678,8 +678,8 @@ Polaris colormap options described in <a class="reference internal" href="../../
 regenerating the combined topography product is substantially more expensive.</p>
 </section>
 </section>
-<section id="jra55">
-<span id="ocean-realistic-global-jra55"></span><h2>jra55<a class="headerlink" href="#jra55" title="Link to this heading"></a></h2>
+<section id="ocean-realistic-global-jra55">
+<span id="jra55"></span><h2>jra55<a class="headerlink" href="#ocean-realistic-global-jra55" title="Link to this heading"></a></h2>
 <p>This task builds a time-invariant global wind-stress product from JRA55-do
 10-m winds.  Its purpose is narrow: standalone runs need a realistic,
 constant-in-time momentum input so that dynamic adjustment can spin down fast
@@ -790,8 +790,8 @@ the standard Polaris colormap options described in
 <p>Both steps run serially.</p>
 </section>
 </section>
-<section id="init">
-<span id="ocean-realistic-global-init"></span><h2>init<a class="headerlink" href="#init" title="Link to this heading"></a></h2>
+<section id="ocean-realistic-global-init">
+<span id="init"></span><h2>init<a class="headerlink" href="#ocean-realistic-global-init" title="Link to this heading"></a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">init</span></code> task creates a mesh-specific ocean initial condition (and, for
 Omega, a vertical-coordinate file) from the WOA23 hydrography and the culled
 mesh from <code class="docutils literal notranslate"><span class="pre">e3sm/init</span></code>, together with a surface forcing file from the JRA55-do
@@ -980,8 +980,8 @@ in the model are described under <a class="reference internal" href="#ocean-real
 run time from the variable and the range of its data, so the
 <code class="docutils literal notranslate"><span class="pre">[realistic_global_init_viz]</span></code> colormap options are not meant to be edited.</p>
 </section>
-<section id="per-mesh-config-options">
-<span id="ocean-realistic-global-mesh-configs"></span><h3>per-mesh config options<a class="headerlink" href="#per-mesh-config-options" title="Link to this heading"></a></h3>
+<section id="ocean-realistic-global-mesh-configs">
+<span id="per-mesh-config-options"></span><h3>per-mesh config options<a class="headerlink" href="#ocean-realistic-global-mesh-configs" title="Link to this heading"></a></h3>
 <p>Some config options need to differ from one mesh to the next.  These live in
 one optional file per mesh, <code class="docutils literal notranslate"><span class="pre">&lt;mesh_name&gt;.cfg</span></code>, under
 <code class="docutils literal notranslate"><span class="pre">polaris/tasks/ocean/realistic_global/mesh_configs</span></code>.  When a
@@ -1055,8 +1055,8 @@ task, so they are rules of thumb rather than hard limits.  The other steps of
 this task run serially.</p>
 </section>
 </section>
-<section id="restart">
-<span id="ocean-realistic-global-restart"></span><h2>restart<a class="headerlink" href="#restart" title="Link to this heading"></a></h2>
+<section id="ocean-realistic-global-restart">
+<span id="restart"></span><h2>restart<a class="headerlink" href="#ocean-realistic-global-restart" title="Link to this heading"></a></h2>
 <p>This task checks that a run continued from a restart reproduces the
 uninterrupted run, history output included.  It is shaped like the ERS
 (exact restart) test that CIME runs on E3SM cases, so that Omega’s restarts are
@@ -1148,8 +1148,8 @@ its own config file sets only the equation of state:</p>
 from the number of cells in the mesh.  The <code class="docutils literal notranslate"><span class="pre">validate</span></code> step runs serially.</p>
 </section>
 </section>
-<section id="forward-and-cached-forward">
-<span id="ocean-realistic-global-forward"></span><h2>forward and cached_forward<a class="headerlink" href="#forward-and-cached-forward" title="Link to this heading"></a></h2>
+<section id="ocean-realistic-global-forward">
+<span id="forward-and-cached-forward"></span><span id="forward-and-cached_forward"></span><h2>forward and cached_forward<a class="headerlink" href="#ocean-realistic-global-forward" title="Link to this heading"></a></h2>
 <p>A forward run of the ocean model selected by the <code class="docutils literal notranslate"><span class="pre">[ocean]</span> <span class="pre">model</span></code> config option
 (MPAS-Ocean or Omega), starting from a <code class="docutils literal notranslate"><span class="pre">realistic_global</span></code> initial condition.
 The <code class="docutils literal notranslate"><span class="pre">short</span></code> step is a brief run: it checks that the model runs stably on the
@@ -1207,8 +1207,8 @@ staged:</p>
 </div>
 <p>Both <code class="docutils literal notranslate"><span class="pre">e3sm-qu240</span></code> <code class="docutils literal notranslate"><span class="pre">cached_forward</span></code> variants are in the <code class="docutils literal notranslate"><span class="pre">omega_pr</span></code> suite, and the
 <code class="docutils literal notranslate"><span class="pre">split_explicit</span></code> one is in <code class="docutils literal notranslate"><span class="pre">mpaso_pr</span></code>.</p>
-<section id="physics-and-comparing-with-omega">
-<span id="ocean-realistic-global-forward-purposes"></span><h3>physics, and comparing with Omega<a class="headerlink" href="#physics-and-comparing-with-omega" title="Link to this heading"></a></h3>
+<section id="ocean-realistic-global-forward-purposes">
+<span id="physics-and-comparing-with-omega"></span><h3>physics, and comparing with Omega<a class="headerlink" href="#ocean-realistic-global-forward-purposes" title="Link to this heading"></a></h3>
 <p><code class="docutils literal notranslate"><span class="pre">forward</span></code> and <code class="docutils literal notranslate"><span class="pre">cached_forward</span></code> run the same physics, as close to production as
 each model allows.  For MPAS-Ocean, that is E3SM’s: Gent-McWilliams, Redi, KPP,
 the submesoscale parameterization and the <code class="docutils literal notranslate"><span class="pre">Jacobian_from_TS</span></code> pressure gradient,
@@ -1655,8 +1655,8 @@ estimated from the mesh definition before that.  The <code class="docutils liter
 steps run serially.</p>
 </section>
 </section>
-<section id="analysis-output">
-<span id="ocean-realistic-global-analysis-output"></span><h2>analysis_output<a class="headerlink" href="#analysis-output" title="Link to this heading"></a></h2>
+<section id="ocean-realistic-global-analysis-output">
+<span id="analysis-output"></span><span id="analysis_output"></span><h2>analysis_output<a class="headerlink" href="#ocean-realistic-global-analysis-output" title="Link to this heading"></a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">1_year</span></code> task runs Omega for a year with its <code class="docutils literal notranslate"><span class="pre">MonthlyAverages</span></code> and <code class="docutils literal notranslate"><span class="pre">MOC</span></code>
 analysis groups on, writing what the <a class="reference internal" href="analysis.html#ocean-analysis"><span class="std std-ref">analysis</span></a> tasks read.  It is
 meant to become a cached step for regression testing the <code class="docutils literal notranslate"><span class="pre">omega_analysis</span></code>
@@ -1778,8 +1778,8 @@ defaults come before the per-mesh options:</p>
 from the number of cells in the mesh.  The <code class="docutils literal notranslate"><span class="pre">global_stats</span></code> step runs serially.</p>
 </section>
 </section>
-<section id="dynamic-adjustment">
-<span id="ocean-realistic-global-dynamic-adjustment"></span><h2>dynamic_adjustment<a class="headerlink" href="#dynamic-adjustment" title="Link to this heading"></a></h2>
+<section id="ocean-realistic-global-dynamic-adjustment">
+<span id="dynamic-adjustment"></span><span id="dynamic_adjustment"></span><h2>dynamic_adjustment<a class="headerlink" href="#ocean-realistic-global-dynamic-adjustment" title="Link to this heading"></a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">dynamic_adjustment</span></code> task runs a sequence of short forward stages that
 dissipate the fast waves introduced by the initial condition, producing a
 relaxed restart suitable for a longer production run.  One

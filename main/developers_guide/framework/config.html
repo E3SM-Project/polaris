@@ -70,7 +70,7 @@
 <li class="toctree-l2"><a class="reference internal" href="commands.html">Modules for polaris commands</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Config files</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#shared-config-files">Shared config files</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#where-a-task-s-or-step-s-config-options-come-from">Where a task’s or step’s config options come from</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#dev-component-config">Where a task’s or step’s config options come from</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#comments-in-config-files">Comments in config files</a></li>
 </ul>
 </li>
@@ -87,7 +87,7 @@
 <li class="toctree-l2"><a class="reference internal" href="task_parallelism.html">Writing task-parallel-safe steps</a></li>
 <li class="toctree-l2"><a class="reference internal" href="validation.html">Validation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="validation.html#property-checks">Property checks</a></li>
-<li class="toctree-l2"><a class="reference internal" href="validation.html#cf-compliance-checks">CF compliance checks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="validation.html#dev-cf-check">CF compliance checks</a></li>
 <li class="toctree-l2"><a class="reference internal" href="visualization.html">Visualization</a></li>
 </ul>
 </li>
@@ -139,8 +139,8 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section class="tex2jax_ignore mathjax_ignore" id="config-files">
-<span id="dev-config"></span><h1>Config files<a class="headerlink" href="#config-files" title="Link to this heading"></a></h1>
+  <section class="tex2jax_ignore mathjax_ignore" id="dev-config">
+<span id="config-files"></span><h1>Config files<a class="headerlink" href="#dev-config" title="Link to this heading"></a></h1>
 <p>The primary documentation for the config parser is in the
 <a class="reference external" href="https://xylar.github.io/tranche/">tranche documentation</a>.
 Here, we include some specific details relevant to using the
@@ -307,8 +307,8 @@ added as follows:</p>
 </pre></div>
 </div>
 </section>
-<section id="where-a-task-s-or-step-s-config-options-come-from">
-<span id="dev-component-config"></span><h2>Where a task’s or step’s config options come from<a class="headerlink" href="#where-a-task-s-or-step-s-config-options-come-from" title="Link to this heading"></a></h2>
+<section id="dev-component-config">
+<span id="where-a-task-s-or-step-s-config-options-come-from"></span><span id="where-a-tasks-or-steps-config-options-come-from"></span><h2>Where a task’s or step’s config options come from<a class="headerlink" href="#dev-component-config" title="Link to this heading"></a></h2>
 <p>Every config parser belongs to exactly one component, and gets that
 component’s config options and nothing else from any other component.</p>
 <p>During setup, polaris builds a config parser for each component <strong>in use</strong> –

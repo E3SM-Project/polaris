@@ -53,10 +53,10 @@
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">Mesh component</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="tasks/index.html">Tasks</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Suites</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#coastline-suite">coastline suite</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#river-suite">river suite</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#sizing-field-suite">sizing_field suite</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#base-mesh-suite">base_mesh suite</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#mesh-suite-coastline">coastline suite</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#mesh-suite-river">river suite</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#mesh-suite-sizing-field">sizing_field suite</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#mesh-suite-base-mesh">base_mesh suite</a></li>
 </ul>
 </li>
 </ul>
@@ -125,15 +125,15 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section class="tex2jax_ignore mathjax_ignore" id="suites">
-<span id="mesh-suites"></span><h1>Suites<a class="headerlink" href="#suites" title="Link to this heading"></a></h1>
+  <section class="tex2jax_ignore mathjax_ignore" id="mesh-suites">
+<span id="suites"></span><h1>Suites<a class="headerlink" href="#mesh-suites" title="Link to this heading"></a></h1>
 <p>The mesh component includes suites for running the standalone unified-mesh
 workflow tasks.  To set them up, run:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>polaris<span class="w"> </span>suite<span class="w"> </span>-c<span class="w"> </span>mesh<span class="w"> </span>-t<span class="w"> </span>&lt;suite_name&gt;<span class="w"> </span>...
 </pre></div>
 </div>
-<section id="coastline-suite">
-<span id="mesh-suite-coastline"></span><h2>coastline suite<a class="headerlink" href="#coastline-suite" title="Link to this heading"></a></h2>
+<section id="mesh-suite-coastline">
+<span id="coastline-suite"></span><h2>coastline suite<a class="headerlink" href="#mesh-suite-coastline" title="Link to this heading"></a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">coastline</span></code> suite runs all standalone coastline-preparation tasks, one for
 each supported latitude-longitude target-grid resolution.</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>mesh/spherical/unified/coastline/0.03125_degree/task
@@ -143,8 +143,8 @@ mesh/spherical/unified/coastline/0.25000_degree/task
 </pre></div>
 </div>
 </section>
-<section id="river-suite">
-<span id="mesh-suite-river"></span><h2>river suite<a class="headerlink" href="#river-suite" title="Link to this heading"></a></h2>
+<section id="mesh-suite-river">
+<span id="river-suite"></span><h2>river suite<a class="headerlink" href="#mesh-suite-river" title="Link to this heading"></a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">river</span></code> suite runs all standalone river-network tasks, one for each
 supported unified mesh.</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>mesh/spherical/unified/u-oi-so12to30-lr10/river/task
@@ -155,8 +155,8 @@ mesh/spherical/unified/u-oi6to18-lr25/river/task
 </pre></div>
 </div>
 </section>
-<section id="sizing-field-suite">
-<span id="mesh-suite-sizing-field"></span><h2>sizing_field suite<a class="headerlink" href="#sizing-field-suite" title="Link to this heading"></a></h2>
+<section id="mesh-suite-sizing-field">
+<span id="sizing-field-suite"></span><span id="sizing_field-suite"></span><h2>sizing_field suite<a class="headerlink" href="#mesh-suite-sizing-field" title="Link to this heading"></a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">sizing_field</span></code> suite runs all standalone sizing-field tasks, one for each
 supported unified mesh.</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>mesh/spherical/unified/u-oi-so12to30-lr10/sizing_field/task
@@ -167,8 +167,8 @@ mesh/spherical/unified/u-oi6to18-lr25/sizing_field/task
 </pre></div>
 </div>
 </section>
-<section id="base-mesh-suite">
-<span id="mesh-suite-base-mesh"></span><h2>base_mesh suite<a class="headerlink" href="#base-mesh-suite" title="Link to this heading"></a></h2>
+<section id="mesh-suite-base-mesh">
+<span id="base-mesh-suite"></span><span id="base_mesh-suite"></span><h2>base_mesh suite<a class="headerlink" href="#mesh-suite-base-mesh" title="Link to this heading"></a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">base_mesh</span></code> suite runs all standalone base-mesh tasks, one for each
 supported unified mesh.</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>mesh/spherical/unified/u-oi-so12to30-lr10/base_mesh/task

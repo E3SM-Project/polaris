@@ -59,7 +59,7 @@
 <li class="toctree-l2 current"><a class="reference internal" href="index.html">Framework</a><ul class="current">
 <li class="toctree-l3 current"><a class="current reference internal" href="#">Vertical coordinate</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#d-grid-type">1D Grid type</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#d-vertical-coordinates">3D vertical coordinates</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ocean-vert-3d">3D vertical coordinates</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="ice_shelf.html">Ice shelf</a></li>
@@ -67,7 +67,7 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../suites.html">Suites</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../suites.html#nightly-suite">nightly suite</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../suites.html#ocean-suite-nightly">nightly suite</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../suites.html#omega-pr-suite">omega_pr suite</a></li>
 </ul>
 </li>
@@ -134,8 +134,8 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section class="tex2jax_ignore mathjax_ignore" id="vertical-coordinate">
-<span id="ocean-vertical"></span><h1>Vertical coordinate<a class="headerlink" href="#vertical-coordinate" title="Link to this heading"></a></h1>
+  <section class="tex2jax_ignore mathjax_ignore" id="ocean-vertical">
+<span id="vertical-coordinate"></span><h1>Vertical coordinate<a class="headerlink" href="#ocean-vertical" title="Link to this heading"></a></h1>
 <p>The vertical coordinate used in most ocean tasks is determined by
 config options in the <code class="docutils literal notranslate"><span class="pre">vertical_grid</span></code> section of the config file:</p>
 <div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="c1"># Options related to the vertical grid</span>
@@ -185,7 +185,7 @@ grid type and is described below.</p>
 <p>The options <code class="docutils literal notranslate"><span class="pre">coord_type</span></code>, <code class="docutils literal notranslate"><span class="pre">partial_cell_type</span></code> and <code class="docutils literal notranslate"><span class="pre">min_pc_fraction</span></code>
 relate to <a class="reference internal" href="#ocean-vert-3d"><span class="std std-ref">3D vertical coordinates</span></a>, described below.</p>
 <section id="d-grid-type">
-<h2>1D Grid type<a class="headerlink" href="#d-grid-type" title="Link to this heading"></a></h2>
+<span id="1d-grid-type"></span><h2>1D Grid type<a class="headerlink" href="#d-grid-type" title="Link to this heading"></a></h2>
 <section id="uniform">
 <h3>uniform<a class="headerlink" href="#uniform" title="Link to this heading"></a></h3>
 <p>Uniform vertical grids have vertical layers all of the same thickness. The
@@ -213,18 +213,14 @@ layers, each 100 m thick.</p>
 <a class="reference external" href="https://doi.org/10.1016/j.ocemod.2017.03.012">Stewart et al. (2017)</a>.  Layer
 thickness is defined by:</p>
 <div class="math notranslate nohighlight">
-\[
-\Delta z\left(z\right) = (\Delta z_2 - \Delta z_1)
-           \mathrm{tanh}\left(\frac{-\pi z}{\Delta}\right) + \Delta z_1,
-\]</div>
+\[\Delta z\left(z\right) = (\Delta z_2 - \Delta z_1)
+           \mathrm{tanh}\left(\frac{-\pi z}{\Delta}\right) + \Delta z_1,\]</div>
 <p>where <span class="math notranslate nohighlight">\(\Delta z_1\)</span> is the value of the layer thickness
 <span class="math notranslate nohighlight">\(\Delta z\)</span> at <span class="math notranslate nohighlight">\(z = 0\)</span> and <span class="math notranslate nohighlight">\(\Delta z_2\)</span> is the same as
 <span class="math notranslate nohighlight">\(z \rightarrow \infty\)</span>.  Interface locations <code class="docutils literal notranslate"><span class="pre">z_k</span></code> are defined by:</p>
 <div class="math notranslate nohighlight">
-\[\begin{split}
-z_0 = 0, \\
-z_{k+1} = z_k - \Delta z\left(z_k\right).
-\end{split}\]</div>
+\[\begin{split}z_0 = 0, \\
+z_{k+1} = z_k - \Delta z\left(z_k\right).\end{split}\]</div>
 <p>We use a root finder to solve for <span class="math notranslate nohighlight">\(\Delta\)</span>, such that
 <span class="math notranslate nohighlight">\(z_{n_z+1} = -H_\mathrm{bot}\)</span>, where <span class="math notranslate nohighlight">\(n_z\)</span> is <code class="docutils literal notranslate"><span class="pre">nVertLevels</span></code>, the
 number of vertical levels (one less than the number of layer interfaces) and
@@ -256,10 +252,8 @@ number of vertical levels (one less than the number of layer interfaces) and
 <p>This is similar to <code class="docutils literal notranslate"><span class="pre">tanh_dz</span></code> but the hyperbolic tangent function is defined
 in layer index space rather than physical depth. Layer thickness is defined by:</p>
 <div class="math notranslate nohighlight">
-\[
-\Delta z\left(k\right) = (\Delta z_2 - \Delta z_1)
-           \mathrm{tanh}\left[\frac{\pi \left(k - k_0\right)}{\Delta}\right]+ \Delta z_1,
-\]</div>
+\[\Delta z\left(k\right) = (\Delta z_2 - \Delta z_1)
+           \mathrm{tanh}\left[\frac{\pi \left(k - k_0\right)}{\Delta}\right]+ \Delta z_1,\]</div>
 <p>where <span class="math notranslate nohighlight">\(\Delta z_1\)</span> (<code class="docutils literal notranslate"><span class="pre">min_layer_thickness</span></code>) is the value of the layer
 thickness <span class="math notranslate nohighlight">\(\Delta z\)</span> at <span class="math notranslate nohighlight">\(z = 0\)</span> and <span class="math notranslate nohighlight">\(\Delta z_2\)</span>
 (<code class="docutils literal notranslate"><span class="pre">max_layer_thickness</span></code>) is the same as <span class="math notranslate nohighlight">\(z \rightarrow \infty\)</span>.  The
@@ -268,10 +262,8 @@ vertical levels over which the <code class="docutils literal notranslate"><span 
 coarser resolution, and <span class="math notranslate nohighlight">\(k_0\)</span> is the origin in vertical index space of the
 transition. Interface locations <span class="math notranslate nohighlight">\(z_k\)</span> are defined by:</p>
 <div class="math notranslate nohighlight">
-\[\begin{split}
-z_0 = 0, \\
-z_{k+1} = z_k - \Delta z\left(k\right).
-\end{split}\]</div>
+\[\begin{split}z_0 = 0, \\
+z_{k+1} = z_k - \Delta z\left(k\right).\end{split}\]</div>
 <p>We use a root finder to solve for <span class="math notranslate nohighlight">\(k_0\)</span>, such that
 <span class="math notranslate nohighlight">\(z_{n_z+1} = -H_\mathrm{bot}\)</span>, where <span class="math notranslate nohighlight">\(n_z\)</span> is <code class="docutils literal notranslate"><span class="pre">vert_levels</span></code>, the
 number of vertical levels (one less than the number of layer interfaces) and
@@ -363,8 +355,8 @@ the default approach in several ocean tasks such as <a class="reference internal
 with the sea floor at 2500 m.</p>
 </section>
 </section>
-<section id="d-vertical-coordinates">
-<span id="ocean-vert-3d"></span><h2>3D vertical coordinates<a class="headerlink" href="#d-vertical-coordinates" title="Link to this heading"></a></h2>
+<section id="ocean-vert-3d">
+<span id="d-vertical-coordinates"></span><span id="3d-vertical-coordinates"></span><h2>3D vertical coordinates<a class="headerlink" href="#ocean-vert-3d" title="Link to this heading"></a></h2>
 <p>Currently, <code class="docutils literal notranslate"><span class="pre">z-star</span></code>, <code class="docutils literal notranslate"><span class="pre">z-level</span></code>, <code class="docutils literal notranslate"><span class="pre">sigma</span></code>, and <code class="docutils literal notranslate"><span class="pre">p-star</span></code> vertical coordinates
 are supported (<code class="docutils literal notranslate"><span class="pre">coord_type</span></code>).  The <code class="docutils literal notranslate"><span class="pre">z-star</span></code>, <code class="docutils literal notranslate"><span class="pre">z-level</span></code>, and <code class="docutils literal notranslate"><span class="pre">p-star</span></code> types
 support 3 options for
@@ -378,8 +370,8 @@ the topography is already flat).</p>
 the smallest fraction of a layer that a partial cell is allowed to have before
 it must either be expanded to the minimum or collapsed to the next adjacent
 valid layer (whichever would cause the smallest change).</p>
-<section id="z-star">
-<span id="ocean-z-star"></span><h3>z-star<a class="headerlink" href="#z-star" title="Link to this heading"></a></h3>
+<section id="ocean-z-star">
+<span id="z-star"></span><h3>z-star<a class="headerlink" href="#ocean-z-star" title="Link to this heading"></a></h3>
 <p>Most ocean tasks currently use the z* vertical coordinate
 (<a class="reference external" href="https://doi.org/10.1016/j.ocemod.2003.09.003">Adcroft and Campin, 2004</a>)
 by default.  Typically (in the absence of ice-shelf cavities), the initial
@@ -392,8 +384,8 @@ for a z-star coordinate.  This means that the initial layers are squashed
 significantly from their “resting” thickness under ice shelves as if they were
 being pressed down by the weight of the ice.</p>
 </section>
-<section id="z-level">
-<span id="ocean-z-level"></span><h3>z-level<a class="headerlink" href="#z-level" title="Link to this heading"></a></h3>
+<section id="ocean-z-level">
+<span id="z-level"></span><h3>z-level<a class="headerlink" href="#ocean-z-level" title="Link to this heading"></a></h3>
 <p>In the absence of <a class="reference internal" href="ice_shelf.html#ocean-ice-shelf"><span class="std std-ref">Ice shelf</span></a> cavities, the z-level coordinate in
 ocean is the same as the <a class="reference internal" href="#ocean-z-star"><span class="std std-ref">z-star</span></a> coordinate.</p>
 <p>When ice-shelf cavities are included, rather than depressing the vertical grid
@@ -403,19 +395,17 @@ masked as land.  The topography at the top of the ocean is represented by
 “stair steps”, using either “full” or “partial” cells to represent these steps
 in exactly the same way as at the seafloor.</p>
 </section>
-<section id="sigma">
-<span id="ocean-sigma"></span><h3>sigma<a class="headerlink" href="#sigma" title="Link to this heading"></a></h3>
+<section id="ocean-sigma">
+<span id="sigma"></span><h3>sigma<a class="headerlink" href="#ocean-sigma" title="Link to this heading"></a></h3>
 <p>The <code class="docutils literal notranslate"><span class="pre">sigma</span></code> coordinate is a terrain-following coordinate that stretches a 1D
 reference coordinate between <code class="docutils literal notranslate"><span class="pre">z</span> <span class="pre">=</span> <span class="pre">-bottomDepth</span></code> and <code class="docutils literal notranslate"><span class="pre">z</span> <span class="pre">=</span> <span class="pre">ssh</span></code>.</p>
 </section>
-<section id="p-star">
-<span id="ocean-p-star"></span><h3>p-star<a class="headerlink" href="#p-star" title="Link to this heading"></a></h3>
+<section id="ocean-p-star">
+<span id="p-star"></span><h3>p-star<a class="headerlink" href="#ocean-p-star" title="Link to this heading"></a></h3>
 <p>The <code class="docutils literal notranslate"><span class="pre">p-star</span></code> coordinate is Omega’s ALE pseudo-compressible variant of its
 z-tilde (pseudo-height) vertical coordinate.  Pseudo-height is defined as</p>
 <div class="math notranslate nohighlight">
-\[
-\tilde{z} = -p\,/\,(\rho_0 g),
-\]</div>
+\[\tilde{z} = -p\,/\,(\rho_0 g),\]</div>
 <p>where <span class="math notranslate nohighlight">\(p\)</span> is sea gauge pressure, <span class="math notranslate nohighlight">\(\rho_0\)</span> is a reference seawater density, and
 <span class="math notranslate nohighlight">\(g\)</span> is gravitational acceleration.  With the p-star coordinate, Omega stores a
 set of reference pseudo-thicknesses (<code class="docutils literal notranslate"><span class="pre">RefPseudoThickness</span></code>) — the

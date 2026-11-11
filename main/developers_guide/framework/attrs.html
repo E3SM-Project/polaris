@@ -73,9 +73,9 @@
 <li class="toctree-l2"><a class="reference internal" href="logging.html">Logging</a></li>
 <li class="toctree-l2"><a class="reference internal" href="io.html">IO</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Variable attributes</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#xarray-propagates-attributes">xarray propagates attributes</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#use-set-attrs">Use <code class="docutils literal notranslate"><span class="pre">set_attrs()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#cf-conventions">CF conventions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#dev-attrs-inheritance">xarray propagates attributes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#dev-attrs-set-attrs">Use <code class="docutils literal notranslate"><span class="pre">set_attrs()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#dev-attrs-cf">CF conventions</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="mpas.html">MPAS</a></li>
@@ -87,7 +87,7 @@
 <li class="toctree-l2"><a class="reference internal" href="task_parallelism.html">Writing task-parallel-safe steps</a></li>
 <li class="toctree-l2"><a class="reference internal" href="validation.html">Validation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="validation.html#property-checks">Property checks</a></li>
-<li class="toctree-l2"><a class="reference internal" href="validation.html#cf-compliance-checks">CF compliance checks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="validation.html#dev-cf-check">CF compliance checks</a></li>
 <li class="toctree-l2"><a class="reference internal" href="visualization.html">Visualization</a></li>
 </ul>
 </li>
@@ -139,14 +139,14 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section class="tex2jax_ignore mathjax_ignore" id="variable-attributes">
-<span id="dev-attrs"></span><h1>Variable attributes<a class="headerlink" href="#variable-attributes" title="Link to this heading"></a></h1>
+  <section class="tex2jax_ignore mathjax_ignore" id="dev-attrs">
+<span id="variable-attributes"></span><h1>Variable attributes<a class="headerlink" href="#dev-attrs" title="Link to this heading"></a></h1>
 <p>Fields Polaris writes to a NetCDF file should say what they are: a
 <code class="docutils literal notranslate"><span class="pre">long_name</span></code>, and <code class="docutils literal notranslate"><span class="pre">units</span></code> where the quantity has a meaningful unit.  Getting
 that right takes a little care, because a variable computed from another one
 does not start out with a blank slate.</p>
-<section id="xarray-propagates-attributes">
-<span id="dev-attrs-inheritance"></span><h2>xarray propagates attributes<a class="headerlink" href="#xarray-propagates-attributes" title="Link to this heading"></a></h2>
+<section id="dev-attrs-inheritance">
+<span id="xarray-propagates-attributes"></span><h2>xarray propagates attributes<a class="headerlink" href="#dev-attrs-inheritance" title="Link to this heading"></a></h2>
 <p>xarray keeps <code class="docutils literal notranslate"><span class="pre">attrs</span></code> through binary arithmetic, comparisons, <code class="docutils literal notranslate"><span class="pre">where()</span></code>,
 <code class="docutils literal notranslate"><span class="pre">zeros_like()</span></code> and NumPy ufuncs such as <code class="docutils literal notranslate"><span class="pre">np.maximum</span></code>:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">bottom_pressure</span><span class="o">.</span><span class="n">attrs</span>
@@ -172,8 +172,8 @@ upgrade.</p>
 arithmetic and comparisons, but <code class="docutils literal notranslate"><span class="pre">zeros_like()</span></code> and <code class="docutils literal notranslate"><span class="pre">where()</span></code> keep attributes
 regardless.</p>
 </section>
-<section id="use-set-attrs">
-<span id="dev-attrs-set-attrs"></span><h2>Use <code class="docutils literal notranslate"><span class="pre">set_attrs()</span></code><a class="headerlink" href="#use-set-attrs" title="Link to this heading"></a></h2>
+<section id="dev-attrs-set-attrs">
+<span id="use-set-attrs"></span><span id="use-set_attrs"></span><h2>Use <code class="docutils literal notranslate"><span class="pre">set_attrs()</span></code><a class="headerlink" href="#dev-attrs-set-attrs" title="Link to this heading"></a></h2>
 <p><a class="reference internal" href="../generated/polaris.attrs.set_attrs.html#polaris.attrs.set_attrs" title="polaris.attrs.set_attrs"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.attrs.set_attrs()</span></code></a> replaces a variable’s attributes
 wholesale, so a field carries exactly what it is given and nothing it
 inherited:</p>
@@ -200,8 +200,8 @@ variables built from one array can still describe themselves differently.</p>
 level index, a boolean mask — rather than inventing one.  Anything else, such
 as a <code class="docutils literal notranslate"><span class="pre">note</span></code> or a <code class="docutils literal notranslate"><span class="pre">standard_name</span></code>, can be passed as an extra keyword argument.</p>
 </section>
-<section id="cf-conventions">
-<span id="dev-attrs-cf"></span><h2>CF conventions<a class="headerlink" href="#cf-conventions" title="Link to this heading"></a></h2>
+<section id="dev-attrs-cf">
+<span id="cf-conventions"></span><h2>CF conventions<a class="headerlink" href="#dev-attrs-cf" title="Link to this heading"></a></h2>
 <p>A step that writes a netCDF file with xarray or <code class="docutils literal notranslate"><span class="pre">write_netcdf()</span></code> should pass
 the dataset through <a class="reference internal" href="../generated/polaris.cf.add_cf_conventions.html#polaris.cf.add_cf_conventions" title="polaris.cf.add_cf_conventions"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.cf.add_cf_conventions()</span></code></a> first.  It
 adds <code class="docutils literal notranslate"><span class="pre">CF-1.8</span></code> to the <code class="docutils literal notranslate"><span class="pre">Conventions</span></code> attribute, keeping any other convention

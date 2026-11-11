@@ -67,7 +67,7 @@
 <li class="toctree-l4"><a class="reference internal" href="#forcing">forcing</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#config-options">config options</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#cores">cores</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#supported-models">supported models</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ocean-barotropic-gyre-default">supported models</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#munk-free-slip">munk free-slip</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#munk-no-slip">munk no-slip</a></li>
 </ul>
@@ -96,7 +96,7 @@
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../framework/index.html">Framework</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../suites.html">Suites</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../suites.html#nightly-suite">nightly suite</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../suites.html#ocean-suite-nightly">nightly suite</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../suites.html#omega-pr-suite">omega_pr suite</a></li>
 </ul>
 </li>
@@ -163,8 +163,8 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section class="tex2jax_ignore mathjax_ignore" id="barotropic-gyre">
-<span id="ocean-barotropic-gyre"></span><h1>barotropic gyre<a class="headerlink" href="#barotropic-gyre" title="Link to this heading"></a></h1>
+  <section class="tex2jax_ignore mathjax_ignore" id="ocean-barotropic-gyre">
+<span id="barotropic-gyre"></span><h1>barotropic gyre<a class="headerlink" href="#ocean-barotropic-gyre" title="Link to this heading"></a></h1>
 <p>The barotropic gyre test case implements the Munk model for a simplified,
 wind-driven gyre
 (<a class="reference external" href="https://doi.org/10.1175/1520-0469%281950%29007%3C0080:OTWDOC%3E2.0.CO;2">Munk 1950</a>).
@@ -240,10 +240,8 @@ is indicated by the coriolis parameter and determined by the config options
 <h2>forcing<a class="headerlink" href="#forcing" title="Link to this heading"></a></h2>
 <p>This test has a constant wind stress field following:</p>
 <div class="math notranslate nohighlight">
-\[\begin{split}
-\tau_x &amp;= \tau_0 * \cos(\pi \frac{y}{l_y}) \\
-\tau_y &amp;= 0
-\end{split}\]</div>
+\[\begin{split}\tau_x &amp;= \tau_0 * \cos(\pi \frac{y}{l_y}) \\
+\tau_y &amp;= 0\end{split}\]</div>
 <p>where <code class="docutils literal notranslate"><span class="pre">tau_0</span></code> is given by a config option.</p>
 <a class="reference internal image-reference" href="../../../_images/barotropic_gyre_forcing.png"><img alt="../../../_images/barotropic_gyre_forcing.png" class="align-center" src="../../../_images/barotropic_gyre_forcing.png" style="width: 500px;" />
 </a>
@@ -283,8 +281,8 @@ other config options are explained further in previous sections.</p>
 <p>The number of cores is determined by <code class="docutils literal notranslate"><span class="pre">goal_cells_per_core</span></code> and
 <code class="docutils literal notranslate"><span class="pre">max_cells_per_core</span></code> in the <code class="docutils literal notranslate"><span class="pre">ocean</span></code> section of the config file.</p>
 </section>
-<section id="supported-models">
-<span id="ocean-barotropic-gyre-default"></span><h2>supported models<a class="headerlink" href="#supported-models" title="Link to this heading"></a></h2>
+<section id="ocean-barotropic-gyre-default">
+<span id="supported-models"></span><h2>supported models<a class="headerlink" href="#ocean-barotropic-gyre-default" title="Link to this heading"></a></h2>
 <p>These tasks support both MPAS-Ocean and Omega.</p>
 <section id="time-step-and-run-duration">
 <h3>time step and run duration<a class="headerlink" href="#time-step-and-run-duration" title="Link to this heading"></a></h3>

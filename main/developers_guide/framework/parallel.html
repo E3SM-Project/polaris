@@ -95,7 +95,7 @@
 <li class="toctree-l2"><a class="reference internal" href="task_parallelism.html">Writing task-parallel-safe steps</a></li>
 <li class="toctree-l2"><a class="reference internal" href="validation.html">Validation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="validation.html#property-checks">Property checks</a></li>
-<li class="toctree-l2"><a class="reference internal" href="validation.html#cf-compliance-checks">CF compliance checks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="validation.html#dev-cf-check">CF compliance checks</a></li>
 <li class="toctree-l2"><a class="reference internal" href="visualization.html">Visualization</a></li>
 </ul>
 </li>
@@ -147,8 +147,8 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section class="tex2jax_ignore mathjax_ignore" id="parallel">
-<span id="dev-parallel"></span><h1>Parallel<a class="headerlink" href="#parallel" title="Link to this heading"></a></h1>
+  <section class="tex2jax_ignore mathjax_ignore" id="dev-parallel">
+<span id="parallel"></span><h1>Parallel<a class="headerlink" href="#dev-parallel" title="Link to this heading"></a></h1>
 <p>Polaris now uses <code class="docutils literal notranslate"><span class="pre">mache.parallel</span></code> for parallel-system selection, resource
 discovery and launcher command construction.</p>
 <p>Within Polaris, a component stores a <code class="docutils literal notranslate"><span class="pre">mache.parallel.ParallelSystem</span></code>
@@ -229,7 +229,7 @@ already an object it holds rather than something to be encoded, written into
 an environment and read back.</p>
 </section>
 <section id="capping-a-step-s-memory">
-<h2>Capping a step’s memory<a class="headerlink" href="#capping-a-step-s-memory" title="Link to this heading"></a></h2>
+<span id="capping-a-steps-memory"></span><h2>Capping a step’s memory<a class="headerlink" href="#capping-a-step-s-memory" title="Link to this heading"></a></h2>
 <p>Some machines will hold a launch to a memory figure and some will not, and
 <code class="docutils literal notranslate"><span class="pre">mache</span></code> renders the flag only where it is enforced.  Polaris passes the cap
 for a step that <strong>declared</strong> <code class="docutils literal notranslate"><span class="pre">memory</span></code> and never for one carrying only the

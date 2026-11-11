@@ -193,7 +193,7 @@
            <div itemprop="articleBody">
              
   <section class="tex2jax_ignore mathjax_ignore" id="discrete-hydrostatic-consistency-in-horiz-press-grad">
-<h1>Discrete Hydrostatic Consistency in <code class="docutils literal notranslate"><span class="pre">horiz_press_grad</span></code><a class="headerlink" href="#discrete-hydrostatic-consistency-in-horiz-press-grad" title="Link to this heading"></a></h1>
+<span id="discrete-hydrostatic-consistency-in-horiz_press_grad"></span><h1>Discrete Hydrostatic Consistency in <code class="docutils literal notranslate"><span class="pre">horiz_press_grad</span></code><a class="headerlink" href="#discrete-hydrostatic-consistency-in-horiz-press-grad" title="Link to this heading"></a></h1>
 <p>Creation date: 2026/07/28</p>
 <p>Contributors: Xylar Asay-Davis, Claude</p>
 <section id="summary">
@@ -436,9 +436,7 @@ piecewise profiles whose node values and node pseudo-heights are set by
 <span class="math notranslate nohighlight">\(\Theta\)</span> and <span class="math notranslate nohighlight">\(S_A\)</span> <strong>the same functions of <span class="math notranslate nohighlight">\(\tilde z\)</span>, and therefore of <span class="math notranslate nohighlight">\(p\)</span>, in
 both columns</strong>. Specific volume is then a function of pressure alone,</p>
 <div class="math notranslate nohighlight">
-\[
-\alpha = \alpha\bigl(\Theta(p), S_A(p), p\bigr) \equiv \alpha(p),
-\]</div>
+\[\alpha = \alpha\bigl(\Theta(p), S_A(p), p\bigr) \equiv \alpha(p),\]</div>
 <p>isobars are level surfaces, and the true HPGA is identically zero everywhere in
 the fluid — for <strong>any</strong> sea-floor shape and <strong>any</strong> tilt of the coordinate
 surfaces. This is what makes both variants valid resting states, and it is the
@@ -466,10 +464,8 @@ mid-column value, so <code class="docutils literal notranslate"><span class="pre
 grid relative to the other’s. The cross-edge offset of interface <span class="math notranslate nohighlight">\(k\)</span> then grows
 linearly with depth,</p>
 <div class="math notranslate nohighlight">
-\[
-\Delta \tilde z_k \;=\; \frac{k}{N}\,
-   \bigl(\tilde z^{\text{bot}}_1 - \tilde z^{\text{bot}}_0\bigr),
-\]</div>
+\[\Delta \tilde z_k \;=\; \frac{k}{N}\,
+   \bigl(\tilde z^{\text{bot}}_1 - \tilde z^{\text{bot}}_0\bigr),\]</div>
 <p>which is the tilted-coordinate configuration §3.7 describes. <strong>This is the only
 mechanism in the two-column task that tilts interior coordinate surfaces.</strong></p>
 <p>A sea-floor step does <em>not</em> tilt them. With <code class="docutils literal notranslate"><span class="pre">z_tilde_bot_grad</span> <span class="pre">=</span> <span class="pre">0</span></code> both columns
@@ -501,10 +497,8 @@ discriminating measurement is not a convergence rate against a reference but a
 scan of the tilt at fixed resolution. For <code class="docutils literal notranslate"><span class="pre">hydrostatic_consistency</span></code> the swept
 parameter is <code class="docutils literal notranslate"><span class="pre">z_tilde_bot_grad</span></code>; the analysis fits</p>
 <div class="math notranslate nohighlight">
-\[
-\log_{10} \lVert \text{HPGA} \rVert_{\text{RMS}}
-   \;=\; q \, \log_{10} (\text{tilt}) + \text{const}
-\]</div>
+\[\log_{10} \lVert \text{HPGA} \rVert_{\text{RMS}}
+   \;=\; q \, \log_{10} (\text{tilt}) + \text{const}\]</div>
 <p>over the points below <code class="docutils literal notranslate"><span class="pre">tilt_fit_max</span></code>, and reports <span class="math notranslate nohighlight">\(q\)</span>. The readings are:</p>
 <table class="docutils align-default">
 <thead>
@@ -595,10 +589,8 @@ has not been checked — rather than the seven the existing variants use.</p>
 <p>The swept tilt has to be the geometry actually under test. The analysis
 therefore checks</p>
 <div class="math notranslate nohighlight">
-\[
-\max_i \lvert \texttt{bottomDepth}_i - \texttt{bottomDepthRequested}_i \rvert
-   \;&lt;\; \texttt{resting\_state\_max\_bathy\_error}
-\]</div>
+\[\max_i \lvert \texttt{bottomDepth}_i - \texttt{bottomDepthRequested}_i \rvert
+   \;&lt;\; \texttt{resting\_state\_max\_bathy\_error}\]</div>
 <p>at every point in the sweep and fails otherwise, with <code class="docutils literal notranslate"><span class="pre">Init</span></code> writing the
 requested bathymetry alongside the achieved one.</p>
 <p>The thing this guards against is partial-cell snapping. <code class="docutils literal notranslate"><span class="pre">min_pc_fraction</span></code>

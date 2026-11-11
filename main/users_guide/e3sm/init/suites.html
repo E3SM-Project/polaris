@@ -54,10 +54,10 @@
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">E3SM Initial Condition Component</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="tasks/index.html">Tasks</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Suites</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#cull-topo-simple-suite">cull_topo_simple suite</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#remap-topo-simple-suite">remap_topo_simple suite</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#cull-topo-unified-suite">cull_topo_unified suite</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#remap-topo-unified-suite">remap_topo_unified suite</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#e3sm-init-suite-cull-topo-simple">cull_topo_simple suite</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#e3sm-init-suite-remap-topo-simple">remap_topo_simple suite</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#e3sm-init-suite-cull-topo-unified">cull_topo_unified suite</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#e3sm-init-suite-remap-topo-unified">remap_topo_unified suite</a></li>
 </ul>
 </li>
 </ul>
@@ -125,8 +125,8 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section class="tex2jax_ignore mathjax_ignore" id="suites">
-<span id="e3sm-init-suites"></span><h1>Suites<a class="headerlink" href="#suites" title="Link to this heading"></a></h1>
+  <section class="tex2jax_ignore mathjax_ignore" id="e3sm-init-suites">
+<span id="suites"></span><h1>Suites<a class="headerlink" href="#e3sm-init-suites" title="Link to this heading"></a></h1>
 <p>The <code class="docutils literal notranslate"><span class="pre">e3sm/init</span></code> component includes suites for running topography remap and
 cull tasks in bulk.  To set them up, run:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>polaris<span class="w"> </span>suite<span class="w"> </span>-c<span class="w"> </span>e3sm/init<span class="w"> </span>-t<span class="w"> </span>&lt;suite_name&gt;<span class="w"> </span>...
@@ -139,8 +139,8 @@ cull tasks in bulk.  To set them up, run:</p>
 <li><p><strong>unified</strong> suites cover the named unified meshes (see
 <a class="reference internal" href="../../mesh/tasks/unified/base_mesh.html#users-mesh-unified-base-mesh"><span class="std std-ref">Unified base-mesh tasks</span></a>).</p></li>
 </ul>
-<section id="cull-topo-simple-suite">
-<span id="e3sm-init-suite-cull-topo-simple"></span><h2>cull_topo_simple suite<a class="headerlink" href="#cull-topo-simple-suite" title="Link to this heading"></a></h2>
+<section id="e3sm-init-suite-cull-topo-simple">
+<span id="cull-topo-simple-suite"></span><span id="cull_topo_simple-suite"></span><h2>cull_topo_simple suite<a class="headerlink" href="#e3sm-init-suite-cull-topo-simple" title="Link to this heading"></a></h2>
 <p>Runs cull-topography tasks for all supported simple base meshes.</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>e3sm/init/icos480km/topo/cull
 e3sm/init/icos240km/topo/cull
@@ -159,8 +159,8 @@ e3sm/init/qu30km/topo/cull
 </pre></div>
 </div>
 </section>
-<section id="remap-topo-simple-suite">
-<span id="e3sm-init-suite-remap-topo-simple"></span><h2>remap_topo_simple suite<a class="headerlink" href="#remap-topo-simple-suite" title="Link to this heading"></a></h2>
+<section id="e3sm-init-suite-remap-topo-simple">
+<span id="remap-topo-simple-suite"></span><span id="remap_topo_simple-suite"></span><h2>remap_topo_simple suite<a class="headerlink" href="#e3sm-init-suite-remap-topo-simple" title="Link to this heading"></a></h2>
 <p>Runs remap-topography tasks for all supported simple base meshes.</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>e3sm/init/icos480km/topo/remap
 e3sm/init/icos240km/topo/remap
@@ -179,8 +179,8 @@ e3sm/init/qu30km/topo/remap
 </pre></div>
 </div>
 </section>
-<section id="cull-topo-unified-suite">
-<span id="e3sm-init-suite-cull-topo-unified"></span><h2>cull_topo_unified suite<a class="headerlink" href="#cull-topo-unified-suite" title="Link to this heading"></a></h2>
+<section id="e3sm-init-suite-cull-topo-unified">
+<span id="cull-topo-unified-suite"></span><span id="cull_topo_unified-suite"></span><h2>cull_topo_unified suite<a class="headerlink" href="#e3sm-init-suite-cull-topo-unified" title="Link to this heading"></a></h2>
 <p>Runs cull-topography tasks for all supported unified meshes.</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>e3sm/init/u-oi-so12to30-lr10/topo/cull
 e3sm/init/u-oi240-lr240/topo/cull
@@ -190,8 +190,8 @@ e3sm/init/u-oi6to18-lr25/topo/cull
 </pre></div>
 </div>
 </section>
-<section id="remap-topo-unified-suite">
-<span id="e3sm-init-suite-remap-topo-unified"></span><h2>remap_topo_unified suite<a class="headerlink" href="#remap-topo-unified-suite" title="Link to this heading"></a></h2>
+<section id="e3sm-init-suite-remap-topo-unified">
+<span id="remap-topo-unified-suite"></span><span id="remap_topo_unified-suite"></span><h2>remap_topo_unified suite<a class="headerlink" href="#e3sm-init-suite-remap-topo-unified" title="Link to this heading"></a></h2>
 <p>Runs remap-topography tasks for all supported unified meshes.</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>e3sm/init/u-oi-so12to30-lr10/topo/remap
 e3sm/init/u-oi240-lr240/topo/remap

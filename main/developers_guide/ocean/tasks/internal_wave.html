@@ -65,7 +65,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../e3sm/init/index.html">E3SM initial condition (e3sm/init) component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../mesh/index.html">Mesh component</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../index.html">Ocean component</a><ul class="current">
-<li class="toctree-l2 current"><a class="reference internal" href="../index.html#fanssie">FAnSSIE</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="../index.html#dev-ocean-fanssie">FAnSSIE</a><ul class="current">
 <li class="toctree-l3 current"><a class="reference internal" href="index.html">Tasks</a><ul class="current">
 <li class="toctree-l4"><a class="reference internal" href="baroclinic_channel.html">baroclinic_channel</a></li>
 <li class="toctree-l4"><a class="reference internal" href="barotropic_channel.html">barotropic_channel</a></li>
@@ -150,14 +150,14 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section class="tex2jax_ignore mathjax_ignore" id="internal-wave">
-<span id="dev-ocean-internal-wave"></span><h1>internal_wave<a class="headerlink" href="#internal-wave" title="Link to this heading"></a></h1>
+  <section class="tex2jax_ignore mathjax_ignore" id="dev-ocean-internal-wave">
+<span id="internal-wave"></span><span id="internal_wave"></span><h1>internal_wave<a class="headerlink" href="#dev-ocean-internal-wave" title="Link to this heading"></a></h1>
 <p>The internal wave tests in <code class="docutils literal notranslate"><span class="pre">polaris.tasks.ocean.internal_wave</span></code> are
 variants of the Internal Wave test case (see
 <a class="reference internal" href="../../../users_guide/ocean/tasks/internal_wave.html#ocean-internal-wave"><span class="std std-ref">internal wave</span></a>) at 5km horizontal resolution.  Here,
 we describe the 4 test cases and their shared framework.</p>
-<section id="framework">
-<span id="dev-ocean-internal-wave-framework"></span><h2>framework<a class="headerlink" href="#framework" title="Link to this heading"></a></h2>
+<section id="dev-ocean-internal-wave-framework">
+<span id="framework"></span><h2>framework<a class="headerlink" href="#dev-ocean-internal-wave-framework" title="Link to this heading"></a></h2>
 <p>The shared config options for <code class="docutils literal notranslate"><span class="pre">internal_wave</span></code> tests  are described in
 <a class="reference internal" href="../../../users_guide/ocean/tasks/internal_wave.html#ocean-internal-wave"><span class="std std-ref">internal wave</span></a> in the User’s Guide.</p>
 <p>Additionally, the tests share a <code class="docutils literal notranslate"><span class="pre">forward.yaml</span></code> file with a few common model
@@ -205,15 +205,15 @@ another.  This step ensures that <code class="docutils literal notranslate"><spa
 and <code class="docutils literal notranslate"><span class="pre">normalVelocity</span></code> are identical in <code class="docutils literal notranslate"><span class="pre">output.nc</span></code> files in the two steps.</p>
 </section>
 </section>
-<section id="default">
-<span id="dev-ocean-internal-wave-default"></span><h2>default<a class="headerlink" href="#default" title="Link to this heading"></a></h2>
+<section id="dev-ocean-internal-wave-default">
+<span id="default"></span><h2>default<a class="headerlink" href="#dev-ocean-internal-wave-default" title="Link to this heading"></a></h2>
 <p>The <a class="reference internal" href="../generated/polaris.tasks.ocean.internal_wave.default.Default.html#polaris.tasks.ocean.internal_wave.default.Default" title="polaris.tasks.ocean.internal_wave.default.Default"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.internal_wave.default.Default</span></code></a>
 test performs a 3-time-step run on 4 cores. Two versions of this test exist,
 one with the flux-form vertical advection scheme (<code class="docutils literal notranslate"><span class="pre">standard</span></code>), and one with
 vertical Lagrangian-remapping (<code class="docutils literal notranslate"><span class="pre">vlr</span></code>).</p>
 </section>
-<section id="rpe">
-<span id="dev-ocean-internal-wave-rpe-test"></span><h2>rpe<a class="headerlink" href="#rpe" title="Link to this heading"></a></h2>
+<section id="dev-ocean-internal-wave-rpe-test">
+<span id="rpe"></span><h2>rpe<a class="headerlink" href="#dev-ocean-internal-wave-rpe-test" title="Link to this heading"></a></h2>
 <p>The <a class="reference internal" href="../generated/polaris.tasks.ocean.internal_wave.rpe.Rpe.html#polaris.tasks.ocean.internal_wave.rpe.Rpe" title="polaris.tasks.ocean.internal_wave.rpe.Rpe"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.internal_wave.rpe.Rpe</span></code></a>
 performs a longer (20 day) integration of the model forward in time at 4
 different values of the viscosity. Two versions of this test exist,

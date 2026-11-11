@@ -210,8 +210,8 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section class="tex2jax_ignore mathjax_ignore" id="initial-omega-analysis-capabilities">
-<span id="design-ocean-analysis-initial"></span><h1>Initial Omega Analysis Capabilities<a class="headerlink" href="#initial-omega-analysis-capabilities" title="Link to this heading"></a></h1>
+  <section class="tex2jax_ignore mathjax_ignore" id="design-ocean-analysis-initial">
+<span id="initial-omega-analysis-capabilities"></span><h1>Initial Omega Analysis Capabilities<a class="headerlink" href="#design-ocean-analysis-initial" title="Link to this heading"></a></h1>
 <p>date: 2026/08/11</p>
 <p>Contributors: Xylar Asay-Davis, Claude</p>
 <section id="summary">
@@ -306,11 +306,9 @@ normalized pressure with units of meters, defined in
 <a class="reference external" href="https://github.com/E3SM-Project/Omega/blob/develop/components/omega/doc/design/OmegaV1GoverningEqns.md">Omega’s governing equations</a>
 as</p>
 <div class="math notranslate nohighlight">
-\[
-\tilde{z} = -\frac{p}{\rho_0 g},
+\[\tilde{z} = -\frac{p}{\rho_0 g},
 \qquad\text{so that}\qquad
-d\tilde{z} = \frac{\rho}{\rho_0} \, dz
-\]</div>
+d\tilde{z} = \frac{\rho}{\rho_0} \, dz\]</div>
 <p>with <span class="math notranslate nohighlight">\(\rho_0\)</span> a constant reference density used purely as a normalization —
 its presence does not make the model Boussinesq.  <code class="docutils literal notranslate"><span class="pre">PseudoThickness</span></code> is
 <span class="math notranslate nohighlight">\(\tilde{h} = \Delta \tilde{z}\)</span>, in meters, and <span class="math notranslate nohighlight">\(\tilde{h} \approx h\)</span> only to
@@ -320,9 +318,7 @@ code needs both:</p>
 <li><p><strong>Reference density times pseudo-thickness equals full density times
 geometric thickness</strong>,</p>
 <div class="math notranslate nohighlight">
-\[
-  \rho_0 \tilde{h} = \rho h = \frac{\Delta p}{g},
-  \]</div>
+\[  \rho_0 \tilde{h} = \rho h = \frac{\Delta p}{g},\]</div>
 <p>which is the <strong>mass per unit area</strong> of the layer, exactly, by hydrostatic
 balance.  It needs no equation of state.</p>
 </li>
@@ -712,16 +708,12 @@ climatologies comparable with those produced by zppy.</p>
 <p>The monthly climatology for month <span class="math notranslate nohighlight">\(m\)</span> is the unweighted mean over the requested
 years of the monthly means for that month:</p>
 <div class="math notranslate nohighlight">
-\[
-\overline{\phi}_m = \frac{1}{N_{yr}} \sum_{y=y_0}^{y_1} \phi_{y,m}
-\]</div>
+\[\overline{\phi}_m = \frac{1}{N_{yr}} \sum_{y=y_0}^{y_1} \phi_{y,m}\]</div>
 <p>The seasonal climatology weights each month by the number of days in that
 month:</p>
 <div class="math notranslate nohighlight">
-\[
-\overline{\phi}_s = \frac{\sum_{m \in s} d_m \overline{\phi}_m}
-                         {\sum_{m \in s} d_m}
-\]</div>
+\[\overline{\phi}_s = \frac{\sum_{m \in s} d_m \overline{\phi}_m}
+                         {\sum_{m \in s} d_m}\]</div>
 <p>and the annual mean is the same expression with <span class="math notranslate nohighlight">\(s\)</span> running over all twelve
 months.  <code class="docutils literal notranslate"><span class="pre">ncclimo</span></code> implements both, using the calendar of the input files.</p>
 <p>Two conventions matter and are worth stating explicitly:</p>
@@ -933,11 +925,9 @@ ocean).</p>
 <li><p>elevation <span class="math notranslate nohighlight">\(z\)</span>: find <span class="math notranslate nohighlight">\(k_1\)</span>, the largest valid index with
 <span class="math notranslate nohighlight">\(z^{mid}_{k_1} \ge z\)</span>, and interpolate linearly between <span class="math notranslate nohighlight">\(k_1\)</span> and <span class="math notranslate nohighlight">\(k_1 + 1\)</span>:</p>
 <div class="math notranslate nohighlight">
-\[
-  w = \frac{z - z^{mid}_{k_1+1}}{z^{mid}_{k_1} - z^{mid}_{k_1+1}},
+\[  w = \frac{z - z^{mid}_{k_1+1}}{z^{mid}_{k_1} - z^{mid}_{k_1+1}},
   \qquad
-  f = w f_{k_1} + (1 - w) f_{k_1+1}
-  \]</div>
+  f = w f_{k_1} + (1 - w) f_{k_1+1}\]</div>
 <p>If <span class="math notranslate nohighlight">\(z\)</span> is above the midpoint of the topmost layer, <span class="math notranslate nohighlight">\(f = f_{k_{min}}\)</span>; if it
 is below the midpoint of the bottommost layer but above the seafloor,
 <span class="math notranslate nohighlight">\(f = f_{k_{max}}\)</span>.  If <span class="math notranslate nohighlight">\(z &lt; z^{int}_{k_{max}+1}\)</span> — below the seafloor —
@@ -1045,12 +1035,10 @@ temperature.  Over an elevation range <span class="math notranslate nohighlight"
 <span class="math notranslate nohighlight">\(z_{bot} &lt; z_{top}\)</span>, where either boundary may be a fixed elevation, the free
 surface, or the seafloor,</p>
 <div class="math notranslate nohighlight">
-\[
-Q(z_{bot}, z_{top}) = c_p \int_{z_{bot}}^{z_{top}} \rho \, \Theta \, dz
+\[Q(z_{bot}, z_{top}) = c_p \int_{z_{bot}}^{z_{top}} \rho \, \Theta \, dz
                     = \rho_0 c_p \int_{\tilde{z}_{bot}}^{\tilde{z}_{top}}
                       \Theta \, d\tilde{z}
-                    \approx \rho_0 c_p \sum_k \Theta_k \, \tilde{w}_k
-\]</div>
+                    \approx \rho_0 c_p \sum_k \Theta_k \, \tilde{w}_k\]</div>
 <p>where <span class="math notranslate nohighlight">\(\Theta\)</span> is conservative temperature, <span class="math notranslate nohighlight">\(c_p\)</span> is the specific heat
 capacity of seawater, <span class="math notranslate nohighlight">\(\rho\)</span> is in-situ density, and
 <span class="math notranslate nohighlight">\(\tilde{w}_k\)</span> is the pseudo-thickness of the overlap between layer <span class="math notranslate nohighlight">\(k\)</span> and the
@@ -1087,18 +1075,14 @@ percent at abyssal depths.  Config options are documented as geometric
 elevations, and the conversion happens here, in one place.</p>
 <p>Let</p>
 <div class="math notranslate nohighlight">
-\[
-w_k = \max\left(0, \;
+\[w_k = \max\left(0, \;
       \min\left(z^{int}_{k}, z_{top}\right) -
-      \max\left(z^{int}_{k+1}, z_{bot}\right)\right)
-\]</div>
+      \max\left(z^{int}_{k+1}, z_{bot}\right)\right)\]</div>
 <p>be the geometric thickness of the overlap, for layers within
 <code class="docutils literal notranslate"><span class="pre">[minLevelCell,</span> <span class="pre">maxLevelCell]</span></code> and <span class="math notranslate nohighlight">\(w_k = 0\)</span> elsewhere, and let
 <span class="math notranslate nohighlight">\(h_k = z^{int}_{k} - z^{int}_{k+1}\)</span> be the layer’s geometric thickness.  Then</p>
 <div class="math notranslate nohighlight">
-\[
-\tilde{w}_k = \frac{w_k}{h_k} \, \tilde{h}_k
-\]</div>
+\[\tilde{w}_k = \frac{w_k}{h_k} \, \tilde{h}_k\]</div>
 <p>is the pseudo-thickness of the overlap, and <span class="math notranslate nohighlight">\(\tilde{w}_k = \tilde{h}_k\)</span>
 whenever the layer lies entirely within the range.</p>
 <p>Splitting a layer by a geometric fraction rather than by a pseudo-height
@@ -1130,9 +1114,7 @@ coordinate drops out of that answer entirely.</p>
 <p>The globally integrated heat content used for the time series is the
 area-weighted sum</p>
 <div class="math notranslate nohighlight">
-\[
-Q_{tot} = \sum_i A_i \, Q_i
-\]</div>
+\[Q_{tot} = \sum_i A_i \, Q_i\]</div>
 <p>over cells <span class="math notranslate nohighlight">\(i\)</span> with area <code class="docutils literal notranslate"><span class="pre">areaCell</span></code>.</p>
 <section id="choice-of-constants">
 <h4>Choice of constants<a class="headerlink" href="#choice-of-constants" title="Link to this heading"></a></h4>
@@ -1166,10 +1148,8 @@ already writes the mass-like thickness we need.</p>
 layer thicknesses, per the requirement.  Because heat content is a product of
 those two, this omits the covariance term:</p>
 <div class="math notranslate nohighlight">
-\[
-\overline{\Theta \tilde{h}} = \overline{\Theta}\,\overline{\tilde{h}} +
-                      \overline{\Theta' \tilde{h}'}
-\]</div>
+\[\overline{\Theta \tilde{h}} = \overline{\Theta}\,\overline{\tilde{h}} +
+                      \overline{\Theta' \tilde{h}'}\]</div>
 <p>This term is already dropped at every timescale shorter than a month, the
 moment the analysis works from monthly means rather than from model time steps.
 Neglecting it again from month to season is the same approximation applied over

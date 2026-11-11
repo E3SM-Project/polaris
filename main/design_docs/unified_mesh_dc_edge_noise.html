@@ -187,7 +187,7 @@
            <div itemprop="articleBody">
              
   <section class="tex2jax_ignore mathjax_ignore" id="unified-mesh-raising-the-dcedge-floor-in-the-ocean-sea-ice-domain">
-<h1>Unified Mesh: Raising the dcEdge Floor in the Ocean/Sea-Ice Domain<a class="headerlink" href="#unified-mesh-raising-the-dcedge-floor-in-the-ocean-sea-ice-domain" title="Link to this heading"></a></h1>
+<span id="unified-mesh-raising-the-dcedge-floor-in-the-oceansea-ice-domain"></span><h1>Unified Mesh: Raising the dcEdge Floor in the Ocean/Sea-Ice Domain<a class="headerlink" href="#unified-mesh-raising-the-dcedge-floor-in-the-ocean-sea-ice-domain" title="Link to this heading"></a></h1>
 <p>date: 2026/08/09</p>
 <p>Contributors:</p>
 <ul class="simple">
@@ -326,11 +326,9 @@ of leaked land/river resolution must be retained as a separate guard.</p>
 <p>Contributors: Xylar Asay-Davis, Claude</p>
 <p>Raise the land-side blending factor to a power:</p>
 <div class="math notranslate nohighlight">
-\[
-h(x) = L(x) + \alpha(s)\left(H - L(x)\right), \qquad
+\[h(x) = L(x) + \alpha(s)\left(H - L(x)\right), \qquad
 s = \min\left(\frac{|d(x)|}{T},\; 1\right), \qquad
-\alpha(s) = s^{p}
-\]</div>
+\alpha(s) = s^{p}\]</div>
 <p>with <span class="math notranslate nohighlight">\(d\)</span> the distance inland from the effective coast, <span class="math notranslate nohighlight">\(L\)</span> the local ocean
 background, <span class="math notranslate nohighlight">\(H\)</span> the land background, <span class="math notranslate nohighlight">\(T\)</span> the transition width and <span class="math notranslate nohighlight">\(p\)</span> the
 exponent. The mesh-size gradient is <span class="math notranslate nohighlight">\(|H-L|\,\alpha'(s)/T\)</span>, so for <span class="math notranslate nohighlight">\(p&gt;1\)</span> both

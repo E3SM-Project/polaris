@@ -68,17 +68,17 @@
 <li class="toctree-l1"><a class="reference internal" href="../seaice/index.html">Sea ice component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../framework/index.html">Framework</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Machines</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#supported-machines">Supported Machines</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#dev-supported-machines">Supported Machines</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="aurora.html">Aurora</a></li>
 <li class="toctree-l3"><a class="reference internal" href="chrysalis.html">Chrysalis</a></li>
 <li class="toctree-l3"><a class="reference internal" href="frontier.html">Frontier</a></li>
 <li class="toctree-l3"><a class="reference internal" href="perlmutter.html">Perlmutter</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#supported-machine-configurations">Supported Machine Configurations</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#keeping-supported-machines-yaml-up-to-date">Keeping <code class="docutils literal notranslate"><span class="pre">supported_machines.yaml</span></code> Up to Date</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#dev-supported-machines-yaml">Keeping <code class="docutils literal notranslate"><span class="pre">supported_machines.yaml</span></code> Up to Date</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#other-machines">Other Machines</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#adding-a-new-supported-machine">Adding a New Supported Machine</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#dev-other-machines">Other Machines</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#dev-add-supported-machine">Adding a New Supported Machine</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#adding-a-machine-config-file">Adding a Machine Config File</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#describing-a-spack-environment">Describing a Spack Environment</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#building-the-spack-environment">Building the Spack Environment</a></li>
@@ -132,16 +132,16 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section class="tex2jax_ignore mathjax_ignore" id="machines">
-<span id="dev-machines"></span><h1>Machines<a class="headerlink" href="#machines" title="Link to this heading"></a></h1>
+  <section class="tex2jax_ignore mathjax_ignore" id="dev-machines">
+<span id="machines"></span><h1>Machines<a class="headerlink" href="#dev-machines" title="Link to this heading"></a></h1>
 <p>Polaris attempts to be aware of the capabilities of the machine it is running
 on.  This  is a particular advantage for so-called “supported” machines with a
 config file defined for them in the <code class="docutils literal notranslate"><span class="pre">polaris</span></code> package.  But even for “unknown”
 machines,  it is not difficult to set a few config options in your user config
 file to  describe your machine.  Then, polaris can use this data to make sure
 test  cases are configured in a way that is appropriate for your machine.</p>
-<section id="supported-machines">
-<span id="dev-supported-machines"></span><h2>Supported Machines<a class="headerlink" href="#supported-machines" title="Link to this heading"></a></h2>
+<section id="dev-supported-machines">
+<span id="supported-machines"></span><h2>Supported Machines<a class="headerlink" href="#dev-supported-machines" title="Link to this heading"></a></h2>
 <p>If you follow the procedure in <a class="reference internal" href="../quick_start.html#dev-conda-env"><span class="std std-ref">Polaris pixi and spack environments, compilers and system modules</span></a>, you will have an
 activation script for activating the development environment, setting
 loading system modules and setting environment variables so you can build
@@ -286,8 +286,8 @@ MPAS-Seaice builds.  It is generated from
 <p>MPAS components currently do not support Aurora in standalone builds.</p>
 </div>
 </section>
-<section id="keeping-supported-machines-yaml-up-to-date">
-<span id="dev-supported-machines-yaml"></span><h3>Keeping <code class="docutils literal notranslate"><span class="pre">supported_machines.yaml</span></code> Up to Date<a class="headerlink" href="#keeping-supported-machines-yaml-up-to-date" title="Link to this heading"></a></h3>
+<section id="dev-supported-machines-yaml">
+<span id="keeping-supported-machines-yaml-up-to-date"></span><h3>Keeping <code class="docutils literal notranslate"><span class="pre">supported_machines.yaml</span></code> Up to Date<a class="headerlink" href="#dev-supported-machines-yaml" title="Link to this heading"></a></h3>
 <p>The table above is rendered at documentation build time from
 <code class="docutils literal notranslate"><span class="pre">docs/developers_guide/supported_machines.yaml</span></code>, so it is only as accurate as
 that file.  Keeping it current is a required part of any change that alters
@@ -343,8 +343,8 @@ the tutorials</p></li>
 </ul>
 </section>
 </section>
-<section id="other-machines">
-<span id="dev-other-machines"></span><h2>Other Machines<a class="headerlink" href="#other-machines" title="Link to this heading"></a></h2>
+<section id="dev-other-machines">
+<span id="other-machines"></span><h2>Other Machines<a class="headerlink" href="#dev-other-machines" title="Link to this heading"></a></h2>
 <p>If you are working on an “unknown” machine, the procedure is pretty similar
 to what was described in <a class="reference internal" href="../quick_start.html#dev-conda-env"><span class="std std-ref">Polaris pixi and spack environments, compilers and system modules</span></a>. In general, use <code class="docutils literal notranslate"><span class="pre">./deploy.py</span></code>
 to create a local pixi environment and load scripts. For example, on Linux run:</p>
@@ -369,8 +369,8 @@ variables.</p>
 </pre></div>
 </div>
 </section>
-<section id="adding-a-new-supported-machine">
-<span id="dev-add-supported-machine"></span><h2>Adding a New Supported Machine<a class="headerlink" href="#adding-a-new-supported-machine" title="Link to this heading"></a></h2>
+<section id="dev-add-supported-machine">
+<span id="adding-a-new-supported-machine"></span><h2>Adding a New Supported Machine<a class="headerlink" href="#dev-add-supported-machine" title="Link to this heading"></a></h2>
 <p>If you want to add a new supported machine, you</p>
 <section id="adding-a-machine-config-file">
 <h3>Adding a Machine Config File<a class="headerlink" href="#adding-a-machine-config-file" title="Link to this heading"></a></h3>

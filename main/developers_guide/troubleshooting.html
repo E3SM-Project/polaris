@@ -72,8 +72,8 @@
 <li class="toctree-l1"><a class="reference internal" href="omega_pr_testing.html">Testing an Omega pull request</a></li>
 <li class="toctree-l1"><a class="reference internal" href="polaris_update_testing.html">Testing a Polaris version update</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Troubleshooting</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#solver-errors-when-configuring-deployment-environment">Solver errors when configuring deployment environment</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#proxy-on-lanl-macs">Proxy on LANL Macs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#dev-troubleshooting-conda-solver">Solver errors when configuring deployment environment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#dev-troubleshooting-proxy">Proxy on LANL Macs</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#gethostbyname-failed">gethostbyname failed</a></li>
 </ul>
 </li>
@@ -119,12 +119,12 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section class="tex2jax_ignore mathjax_ignore" id="troubleshooting">
-<span id="dev-troubleshooting"></span><h1>Troubleshooting<a class="headerlink" href="#troubleshooting" title="Link to this heading"></a></h1>
+  <section class="tex2jax_ignore mathjax_ignore" id="dev-troubleshooting">
+<span id="troubleshooting"></span><h1>Troubleshooting<a class="headerlink" href="#dev-troubleshooting" title="Link to this heading"></a></h1>
 <p>This section describes some common problems developers have run into and some
 suggested solutions.</p>
-<section id="solver-errors-when-configuring-deployment-environment">
-<span id="dev-troubleshooting-conda-solver"></span><h2>Solver errors when configuring deployment environment<a class="headerlink" href="#solver-errors-when-configuring-deployment-environment" title="Link to this heading"></a></h2>
+<section id="dev-troubleshooting-conda-solver">
+<span id="solver-errors-when-configuring-deployment-environment"></span><h2>Solver errors when configuring deployment environment<a class="headerlink" href="#dev-troubleshooting-conda-solver" title="Link to this heading"></a></h2>
 <p>When setting up <a class="reference internal" href="quick_start.html#dev-conda-env"><span class="std std-ref">Polaris pixi and spack environments, compilers and system modules</span></a>, by calling:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./deploy.py<span class="w"> </span>...
 </pre></div>
@@ -155,8 +155,8 @@ update it:</p>
 before creating them again with the new set of packages required for
 developing with the requested compiler and MPI type.</p>
 </section>
-<section id="proxy-on-lanl-macs">
-<span id="dev-troubleshooting-proxy"></span><h2>Proxy on LANL Macs<a class="headerlink" href="#proxy-on-lanl-macs" title="Link to this heading"></a></h2>
+<section id="dev-troubleshooting-proxy">
+<span id="proxy-on-lanl-macs"></span><h2>Proxy on LANL Macs<a class="headerlink" href="#dev-troubleshooting-proxy" title="Link to this heading"></a></h2>
 <p>If you are on a LANL Mac using the VPN and you see errors like:</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>An HTTP error occurred when trying to retrieve this URL.
 </pre></div>

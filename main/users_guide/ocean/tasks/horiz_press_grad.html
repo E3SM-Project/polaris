@@ -74,9 +74,9 @@
 <li class="toctree-l4"><a class="reference internal" href="#vertical-grid">vertical grid</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#reference-solution">reference solution</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#python-hpga-in-the-init-step">python HPGA in the <code class="docutils literal notranslate"><span class="pre">init</span></code> step</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#the-finite-volume-hpga">the finite-volume HPGA</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#the-resting-state-variants">the resting-state variants</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#config-options">config options</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ocean-horiz-press-grad-finite-volume">the finite-volume HPGA</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ocean-horiz-press-grad-resting">the resting-state variants</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ocean-horiz-press-grad-config">config options</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#time-step-and-run-duration">time step and run duration</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#analysis">analysis</a></li>
 </ul>
@@ -97,7 +97,7 @@
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../framework/index.html">Framework</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../suites.html">Suites</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../suites.html#nightly-suite">nightly suite</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../suites.html#ocean-suite-nightly">nightly suite</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../suites.html#omega-pr-suite">omega_pr suite</a></li>
 </ul>
 </li>
@@ -164,8 +164,8 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section class="tex2jax_ignore mathjax_ignore" id="horizontal-pressure-gradient">
-<span id="ocean-horiz-press-grad"></span><h1>horizontal pressure gradient<a class="headerlink" href="#horizontal-pressure-gradient" title="Link to this heading"></a></h1>
+  <section class="tex2jax_ignore mathjax_ignore" id="ocean-horiz-press-grad">
+<span id="horizontal-pressure-gradient"></span><h1>horizontal pressure gradient<a class="headerlink" href="#ocean-horiz-press-grad" title="Link to this heading"></a></h1>
 <section id="description">
 <h2>description<a class="headerlink" href="#description" title="Link to this heading"></a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">horiz_press_grad</span></code> tasks in <code class="docutils literal notranslate"><span class="pre">polaris.tasks.ocean.horiz_press_grad</span></code>
@@ -300,12 +300,10 @@ column from the prescribed sea-surface height and surface pressure, so the HPGA
 vanishes at the surface (for zero surface slope) and grows downward.</p>
 <p>The reference acceleration at pseudo-height <span class="math notranslate nohighlight">\(\tilde z\)</span> is</p>
 <div class="math notranslate nohighlight">
-\[
-a(\tilde z) = -g\left[\eta' - \rho_0\,\alpha(\tilde z_s)\,\tilde z_s'
+\[a(\tilde z) = -g\left[\eta' - \rho_0\,\alpha(\tilde z_s)\,\tilde z_s'
   + \rho_0 \int_{\tilde z_s}^{\tilde z}
   \bigl(\alpha_{S_A}\,\partial_x S_A + \alpha_{\Theta}\,\partial_x \Theta\bigr)\,
-  d\tilde z'\right],
-\]</div>
+  d\tilde z'\right],\]</div>
 <p>where:</p>
 <ul class="simple">
 <li><p><span class="math notranslate nohighlight">\(\eta' = \partial_x \eta\)</span> is the sea-surface-height gradient,</p></li>
@@ -358,30 +356,24 @@ same thermodynamic quantities used by Omega: pressure, specific volume,
 geometric height, and Montgomery potential.  It then forms a two-column finite
 difference,</p>
 <div class="math notranslate nohighlight">
-\[
-\frac{\partial M}{\partial x} \approx \frac{M_R - M_L}{\Delta x},
+\[\frac{\partial M}{\partial x} \approx \frac{M_R - M_L}{\Delta x},
 \qquad
 \frac{\partial \alpha}{\partial x} \approx
-\frac{\alpha_R - \alpha_L}{\Delta x},
-\]</div>
+\frac{\alpha_R - \alpha_L}{\Delta x},\]</div>
 <p>with edge pressure</p>
 <div class="math notranslate nohighlight">
-\[
-p_{\mathrm{edge}} = \frac{p_L + p_R}{2},
-\]</div>
+\[p_{\mathrm{edge}} = \frac{p_L + p_R}{2},\]</div>
 <p>and writes the corresponding diagnostic</p>
 <div class="math notranslate nohighlight">
-\[
-\mathrm{HPGA}_{\mathrm{python}} = -\frac{\partial M}{\partial x}
-+ p_{\mathrm{edge}}\frac{\partial \alpha}{\partial x}
-\]</div>
+\[\mathrm{HPGA}_{\mathrm{python}} = -\frac{\partial M}{\partial x}
++ p_{\mathrm{edge}}\frac{\partial \alpha}{\partial x}\]</div>
 <p>to <code class="docutils literal notranslate"><span class="pre">init.nc</span></code>.</p>
 <p>This Python HPGA is not the main reference solution.  Instead, it checks
 whether Omega’s one-step tendency matches the expected two-column discrete
 calculation from the initialized state.</p>
 </section>
-<section id="the-finite-volume-hpga">
-<span id="ocean-horiz-press-grad-finite-volume"></span><h2>the finite-volume HPGA<a class="headerlink" href="#the-finite-volume-hpga" title="Link to this heading"></a></h2>
+<section id="ocean-horiz-press-grad-finite-volume">
+<span id="the-finite-volume-hpga"></span><h2>the finite-volume HPGA<a class="headerlink" href="#ocean-horiz-press-grad-finite-volume" title="Link to this heading"></a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">init</span></code> step also writes a second field, <code class="docutils literal notranslate"><span class="pre">HPGAFiniteVolume</span></code>, alongside
 <code class="docutils literal notranslate"><span class="pre">HPGA</span></code>.  <code class="docutils literal notranslate"><span class="pre">HPGA</span></code> is unchanged in name, meaning and values – it remains the
 centered scheme, and the recorded baselines for all seven variants are
@@ -449,8 +441,8 @@ in realistic global runs, it is roughly 400 times better.</p>
 analysis steps compare against Omega is decided once the corresponding Omega
 option exists.</p>
 </section>
-<section id="the-resting-state-variants">
-<span id="ocean-horiz-press-grad-resting"></span><h2>the resting-state variants<a class="headerlink" href="#the-resting-state-variants" title="Link to this heading"></a></h2>
+<section id="ocean-horiz-press-grad-resting">
+<span id="the-resting-state-variants"></span><h2>the resting-state variants<a class="headerlink" href="#ocean-horiz-press-grad-resting" title="Link to this heading"></a></h2>
 <p>The four resting-state variants ask a different question from the other
 four.  Rather than measuring convergence toward a
 reference, they place the ocean in a state whose true HPGA is <strong>identically
@@ -460,9 +452,7 @@ temperature and absolute salinity are the same functions of pseudo-height in
 both columns.  Pseudo-height is a rescaled pressure, so specific volume becomes
 a function of pressure alone,</p>
 <div class="math notranslate nohighlight">
-\[
-\alpha = \alpha\bigl(\Theta(p), S_A(p), p\bigr) \equiv \alpha(p),
-\]</div>
+\[\alpha = \alpha\bigl(\Theta(p), S_A(p), p\bigr) \equiv \alpha(p),\]</div>
 <p>isobars are level surfaces, and the true HPGA vanishes everywhere in the fluid
 — for <em>any</em> sea-floor shape and <em>any</em> tilt of the coordinate surfaces.  This is
 the property the Omega higher-order pressure-gradient design calls <strong>discrete
@@ -608,8 +598,8 @@ is fixed in the framework; the guard here is about the geometry under test, not
 about the resting state.)</p>
 </section>
 </section>
-<section id="config-options">
-<span id="ocean-horiz-press-grad-config"></span><h2>config options<a class="headerlink" href="#config-options" title="Link to this heading"></a></h2>
+<section id="ocean-horiz-press-grad-config">
+<span id="config-options"></span><h2>config options<a class="headerlink" href="#ocean-horiz-press-grad-config" title="Link to this heading"></a></h2>
 <p>Shared options are in section <code class="docutils literal notranslate"><span class="pre">[horiz_press_grad]</span></code>:</p>
 <div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="c1"># resolutions in km (distance between the two columns)</span>
 <span class="na">horiz_resolutions</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">[4.0, 3.0, 2.0, 1.5, 1.0, 0.75, 0.5]</span>

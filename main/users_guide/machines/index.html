@@ -56,9 +56,9 @@
 <li class="toctree-l1"><a class="reference internal" href="../seaice/index.html">Sea ice component</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Machines</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#config-options">config options</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#slurm-job-queueing">Slurm job queueing</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#pbs-job-queueing">PBS job queueing</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#requesting-a-partition-qos-or-queue">Requesting a partition, QOS or queue</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#slurm">Slurm job queueing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#pbs">PBS job queueing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#scheduler-targets">Requesting a partition, QOS or queue</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#supported-machines">Supported Machines</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="aurora.html">Aurora</a></li>
 <li class="toctree-l3"><a class="reference internal" href="chrysalis.html">Chrysalis</a></li>
@@ -221,8 +221,8 @@ tasks within a job.  The number of <code class="docutils literal notranslate"><s
 as does the account that typical polaris users will have access to on the
 machine.</p>
 </section>
-<section id="slurm-job-queueing">
-<span id="slurm"></span><h2>Slurm job queueing<a class="headerlink" href="#slurm-job-queueing" title="Link to this heading"></a></h2>
+<section id="slurm">
+<span id="slurm-job-queueing"></span><h2>Slurm job queueing<a class="headerlink" href="#slurm" title="Link to this heading"></a></h2>
 <p>Most HPC systems now use the
 <a class="reference external" href="https://slurm.schedmd.com/documentation.html">slurm workload manager</a>.
 Here are some basic commands:</p>
@@ -234,8 +234,8 @@ scancel<span class="w"> </span>jobID<span class="w"> </span><span class="c1"># c
 </pre></div>
 </div>
 </section>
-<section id="pbs-job-queueing">
-<span id="pbs"></span><h2>PBS job queueing<a class="headerlink" href="#pbs-job-queueing" title="Link to this heading"></a></h2>
+<section id="pbs">
+<span id="pbs-job-queueing"></span><h2>PBS job queueing<a class="headerlink" href="#pbs" title="Link to this heading"></a></h2>
 <p>A few HPC systems use
 <a class="reference external" href="https://2021.help.altair.com/2021.1.2/PBS%20Professional/PBSUserGuide2021.1.2.pdf">PBS Pro</a>.
 Here are some basic commands:</p>
@@ -247,8 +247,8 @@ qcancel<span class="w"> </span>&lt;jobid&gt;<span class="w"> </span><span class=
 </pre></div>
 </div>
 </section>
-<section id="requesting-a-partition-qos-or-queue">
-<span id="scheduler-targets"></span><h2>Requesting a partition, QOS or queue<a class="headerlink" href="#requesting-a-partition-qos-or-queue" title="Link to this heading"></a></h2>
+<section id="scheduler-targets">
+<span id="requesting-a-partition-qos-or-queue"></span><h2>Requesting a partition, QOS or queue<a class="headerlink" href="#scheduler-targets" title="Link to this heading"></a></h2>
 <p>By default, Polaris lets mache choose which scheduler target to submit to
 based on how many nodes the job needs.  If you want a specific one, set it in
 the <code class="docutils literal notranslate"><span class="pre">job</span></code> section of your user config file:</p>

@@ -57,14 +57,14 @@
 <li class="toctree-l2 current"><a class="reference internal" href="index.html">Framework</a><ul class="current">
 <li class="toctree-l3"><a class="reference internal" href="vertical.html">Vertical coordinate</a></li>
 <li class="toctree-l3 current"><a class="current reference internal" href="#">Ice shelf</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#ssh-adjustment-steps">SSH adjustment steps</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ocean-ssh-adjustment">SSH adjustment steps</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="index.html#tracer-conventions">Tracer conventions</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../suites.html">Suites</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../suites.html#nightly-suite">nightly suite</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../suites.html#ocean-suite-nightly">nightly suite</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../suites.html#omega-pr-suite">omega_pr suite</a></li>
 </ul>
 </li>
@@ -131,13 +131,19 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section class="tex2jax_ignore mathjax_ignore" id="ice-shelf">
-<span id="ocean-ice-shelf"></span><h1>Ice shelf<a class="headerlink" href="#ice-shelf" title="Link to this heading"></a></h1>
+  <section class="tex2jax_ignore mathjax_ignore" id="ocean-ice-shelf">
+<span id="ice-shelf"></span><h1>Ice shelf<a class="headerlink" href="#ocean-ice-shelf" title="Link to this heading"></a></h1>
 <p>The framework defines an <code class="docutils literal notranslate"><span class="pre">IceShelfTask</span></code> class that provides methods common
-to tasks that feature ice shelf cavities. At present, the only method included
-sets up ssh adjustment steps, described in ocean-ssh-adjustment.</p>
-<section id="ssh-adjustment-steps">
-<span id="ocean-ssh-adjustment"></span><h2>SSH adjustment steps<a class="headerlink" href="#ssh-adjustment-steps" title="Link to this heading"></a></h2>
+to tasks that feature ice shelf cavities.  It sets up ssh adjustment steps,
+described in <a class="reference internal" href="#ocean-ssh-adjustment"><span class="std std-ref">SSH adjustment steps</span></a>.</p>
+<p>Ice-shelf tasks need the land-ice options in MPAS-Ocean from
+<a class="reference external" href="https://github.com/E3SM-Project/E3SM/pull/8047">E3SM-Project/E3SM#8047</a>,
+which are on the FAnSSIE branch but not yet in E3SM-Project.  Setting up an
+ice-shelf task with an MPAS-Ocean build that lacks them fails with an error
+that says to build MPAS-Ocean from the <code class="docutils literal notranslate"><span class="pre">e3sm_submodules/FAnSSIE</span></code> submodule
+(see <a class="reference internal" href="../../../developers_guide/ocean/index.html#dev-ocean-fanssie"><span class="std std-ref">FAnSSIE</span></a>).</p>
+<section id="ocean-ssh-adjustment">
+<span id="ssh-adjustment-steps"></span><h2>SSH adjustment steps<a class="headerlink" href="#ocean-ssh-adjustment" title="Link to this heading"></a></h2>
 <p>For tasks that feature ice shelf cavities, a series of forward simulations is
 run in order to iteratively bring the SSH in equilibrium with the land ice
 pressure. These steps are typically shared between all tasksthat also share

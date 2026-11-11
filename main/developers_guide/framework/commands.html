@@ -68,12 +68,12 @@
 <li class="toctree-l1"><a class="reference internal" href="../seaice/index.html">Sea ice component</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">Framework</a><ul class="current">
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Modules for polaris commands</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#list-module">list module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#setup-module">setup module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#suite-module">suite module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#run-serial-module">run.serial module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#run-parallel-module">run.parallel module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#cache-module">cache module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#dev-list">list module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#dev-setup">setup module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#dev-suite">suite module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#dev-run">run.serial module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#dev-run-parallel">run.parallel module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#dev-cache">cache module</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="config.html">Config files</a></li>
@@ -90,7 +90,7 @@
 <li class="toctree-l2"><a class="reference internal" href="task_parallelism.html">Writing task-parallel-safe steps</a></li>
 <li class="toctree-l2"><a class="reference internal" href="validation.html">Validation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="validation.html#property-checks">Property checks</a></li>
-<li class="toctree-l2"><a class="reference internal" href="validation.html#cf-compliance-checks">CF compliance checks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="validation.html#dev-cf-check">CF compliance checks</a></li>
 <li class="toctree-l2"><a class="reference internal" href="visualization.html">Visualization</a></li>
 </ul>
 </li>
@@ -142,18 +142,18 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section class="tex2jax_ignore mathjax_ignore" id="modules-for-polaris-commands">
-<span id="dev-command-mods"></span><h1>Modules for polaris commands<a class="headerlink" href="#modules-for-polaris-commands" title="Link to this heading"></a></h1>
-<section id="list-module">
-<span id="dev-list"></span><h2>list module<a class="headerlink" href="#list-module" title="Link to this heading"></a></h2>
+  <section class="tex2jax_ignore mathjax_ignore" id="dev-command-mods">
+<span id="modules-for-polaris-commands"></span><h1>Modules for polaris commands<a class="headerlink" href="#dev-command-mods" title="Link to this heading"></a></h1>
+<section id="dev-list">
+<span id="list-module"></span><h2>list module<a class="headerlink" href="#dev-list" title="Link to this heading"></a></h2>
 <p>The <a class="reference internal" href="../generated/polaris.list.list_cases.html#polaris.list.list_cases" title="polaris.list.list_cases"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.list.list_cases()</span></code></a>, <a class="reference internal" href="../generated/polaris.list.list_machines.html#polaris.list.list_machines" title="polaris.list.list_machines"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.list.list_machines()</span></code></a>
 and <a class="reference internal" href="../generated/polaris.list.list_suites.html#polaris.list.list_suites" title="polaris.list.list_suites"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.list.list_suites()</span></code></a> functions are used by the
 <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">list</span></code> command to list tasks, supported machines and test
 suites, respectively.  These functions are not currently used anywhere else
 in polaris.</p>
 </section>
-<section id="setup-module">
-<span id="dev-setup"></span><h2>setup module<a class="headerlink" href="#setup-module" title="Link to this heading"></a></h2>
+<section id="dev-setup">
+<span id="setup-module"></span><h2>setup module<a class="headerlink" href="#dev-setup" title="Link to this heading"></a></h2>
 <p>The <a class="reference internal" href="../generated/polaris.setup.setup_tasks.html#polaris.setup.setup_tasks" title="polaris.setup.setup_tasks"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.setup.setup_tasks()</span></code></a> and <a class="reference internal" href="../generated/polaris.setup.setup_task.html#polaris.setup.setup_task" title="polaris.setup.setup_task"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.setup.setup_task()</span></code></a>
 functions are used by <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">setup</span></code> and <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">suite</span></code> to set up a list
 of tasks and a single task, respectively, in a work directory.
@@ -177,8 +177,8 @@ the component, so pickling them would make each step’s pickle a copy of the
 whole component.  They come back from a pickle empty, so anything that needs
 them has to run during setup.</p>
 </section>
-<section id="suite-module">
-<span id="dev-suite"></span><h2>suite module<a class="headerlink" href="#suite-module" title="Link to this heading"></a></h2>
+<section id="dev-suite">
+<span id="suite-module"></span><h2>suite module<a class="headerlink" href="#dev-suite" title="Link to this heading"></a></h2>
 <p>The <a class="reference internal" href="../generated/polaris.suite.setup_suite.html#polaris.suite.setup_suite" title="polaris.suite.setup_suite"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.suite.setup_suite()</span></code></a> function is used by <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">suite</span></code>
 to set up a suite in a work directory.  Setting up a suite includes setting up
 the tasks (see <a class="reference internal" href="#dev-setup"><span class="std std-ref">setup module</span></a>), writing out a <a class="reference internal" href="provenance.html#dev-provenance"><span class="std std-ref">Provenance</span></a> file, and
@@ -217,8 +217,8 @@ individual task are still set by that task and take precedence over the
 suite’s.  See <a class="reference internal" href="../../users_guide/machines/index.html#scheduler-targets"><span class="std std-ref">Requesting a partition, QOS or queue</span></a> for what the <code class="docutils literal notranslate"><span class="pre">[job]</span></code> options mean and
 what happens when a machine cannot satisfy the requested scheduler target.</p>
 </section>
-<section id="run-serial-module">
-<span id="dev-run"></span><h2>run.serial module<a class="headerlink" href="#run-serial-module" title="Link to this heading"></a></h2>
+<section id="dev-run">
+<span id="run-serial-module"></span><span id="runserial-module"></span><h2>run.serial module<a class="headerlink" href="#dev-run" title="Link to this heading"></a></h2>
 <p>The function <a class="reference internal" href="../generated/polaris.run.serial.run_tasks.html#polaris.run.serial.run_tasks" title="polaris.run.serial.run_tasks"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.run.serial.run_tasks()</span></code></a> is used to run a
 suite or task and <a class="reference internal" href="../generated/polaris.run.serial.run_single_step.html#polaris.run.serial.run_single_step" title="polaris.run.serial.run_single_step"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.run.serial.run_single_step()</span></code></a> is
 used to run a single step using <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">serial</span></code>.  <code class="docutils literal notranslate"><span class="pre">run_tasks()</span></code> performs
@@ -270,8 +270,8 @@ adding a field does not need a new version.</p>
 from a given task, skipping any others, displaying the output in the terminal
 window rather than a log file.</p>
 </section>
-<section id="run-parallel-module">
-<span id="dev-run-parallel"></span><h2>run.parallel module<a class="headerlink" href="#run-parallel-module" title="Link to this heading"></a></h2>
+<section id="dev-run-parallel">
+<span id="run-parallel-module"></span><span id="runparallel-module"></span><h2>run.parallel module<a class="headerlink" href="#dev-run-parallel" title="Link to this heading"></a></h2>
 <p><a class="reference internal" href="../generated/polaris.run.parallel.run_tasks.html#polaris.run.parallel.run_tasks" title="polaris.run.parallel.run_tasks"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.run.parallel.run_tasks()</span></code></a> runs a suite or task with its
 steps at the same time, and is what <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">parallel</span></code> calls.  It shares the
 step lifecycle with the serial path – the checks on a step’s inputs and
@@ -309,8 +309,8 @@ longer take turns and cannot share a stream.  The scheduler also writes an
 event stream, <code class="docutils literal notranslate"><span class="pre">&lt;suite&gt;_events.jsonl</span></code>, recording what started when and what
 each step held; <a class="reference internal" href="../generated/polaris.run.events.read_events.html#polaris.run.events.read_events" title="polaris.run.events.read_events"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.run.events.read_events()</span></code></a> reads it back.</p>
 </section>
-<section id="cache-module">
-<span id="dev-cache"></span><h2>cache module<a class="headerlink" href="#cache-module" title="Link to this heading"></a></h2>
+<section id="dev-cache">
+<span id="cache-module"></span><h2>cache module<a class="headerlink" href="#dev-cache" title="Link to this heading"></a></h2>
 <p>The <a class="reference internal" href="../generated/polaris.cache.update_cache.html#polaris.cache.update_cache" title="polaris.cache.update_cache"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.cache.update_cache()</span></code></a> function is used by
 <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">cache</span></code> to copy step outputs to the <code class="docutils literal notranslate"><span class="pre">polaris_cache</span></code> database on
 the LCRC server and to update <code class="docutils literal notranslate"><span class="pre">&lt;component&gt;_cached_files.json</span></code> files that

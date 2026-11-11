@@ -83,9 +83,9 @@
 <li class="toctree-l4"><a class="reference internal" href="#time-step-and-run-duration">time step and run duration</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#config-options">config options</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#cores">cores</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#resolved">resolved</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#coarse">coarse</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#comparison">comparison</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ocean-mixed-layer-eddies-resolved">resolved</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ocean-mixed-layer-eddies-coarse">coarse</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ocean-mixed-layer-eddies-comparison">comparison</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="nondivergent_2d.html">nondivergent 2-d</a></li>
@@ -97,7 +97,7 @@
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../framework/index.html">Framework</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../suites.html">Suites</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../suites.html#nightly-suite">nightly suite</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../suites.html#ocean-suite-nightly">nightly suite</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../suites.html#omega-pr-suite">omega_pr suite</a></li>
 </ul>
 </li>
@@ -164,8 +164,8 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section class="tex2jax_ignore mathjax_ignore" id="mixed-layer-eddies">
-<span id="ocean-mixed-layer-eddies"></span><h1>mixed layer eddies<a class="headerlink" href="#mixed-layer-eddies" title="Link to this heading"></a></h1>
+  <section class="tex2jax_ignore mathjax_ignore" id="ocean-mixed-layer-eddies">
+<span id="mixed-layer-eddies"></span><h1>mixed layer eddies<a class="headerlink" href="#ocean-mixed-layer-eddies" title="Link to this heading"></a></h1>
 <p>The mixed-layer eddies tasks reproduce the ice-free mixed-layer instability
 experiment of
 <a class="reference external" href="https://doi.org/10.1175/JPO-D-21-0024.1">Shrestha &amp; Manucharyan (2022)</a>,
@@ -231,17 +231,13 @@ z-star from the geometric thicknesses of the converged p-star state.</p>
 <h2>initial conditions<a class="headerlink" href="#initial-conditions" title="Link to this heading"></a></h2>
 <p>The density follows Shrestha &amp; Manucharyan’s eq. 5:</p>
 <div class="math notranslate nohighlight">
-\[
-\rho(y, z) = Z_S(z)\left[\Delta\rho_y Y_S(y) - \Delta\rho_z\right]
-  + \rho_{ITP}(z),
-\]</div>
+\[\rho(y, z) = Z_S(z)\left[\Delta\rho_y Y_S(y) - \Delta\rho_z\right]
+  + \rho_{ITP}(z),\]</div>
 <div class="math notranslate nohighlight">
-\[
-Z_S(z) = \tfrac{1}{2}\left[1 + \tanh\left(\frac{z + H_m}{\Delta h}\right)
+\[Z_S(z) = \tfrac{1}{2}\left[1 + \tanh\left(\frac{z + H_m}{\Delta h}\right)
   \right],
 \qquad
-Y_S(y) = \sin\left(\frac{2\pi (y - L_y/2)}{L_y}\right),
-\]</div>
+Y_S(y) = \sin\left(\frac{2\pi (y - L_y/2)}{L_y}\right),\]</div>
 <p>with <span class="math notranslate nohighlight">\(H_m = 30\)</span> m, <span class="math notranslate nohighlight">\(\Delta h = 5\)</span> m, <span class="math notranslate nohighlight">\(\Delta\rho_y = 3\)</span> kg m⁻³ and
 <span class="math notranslate nohighlight">\(\Delta\rho_z = 1.5\)</span> kg m⁻³.  <span class="math notranslate nohighlight">\(L_y\)</span> is the periodic length of the mesh, so
 there are two opposing fronts; the one at <span class="math notranslate nohighlight">\(y = L_y/2\)</span> is analyzed.
@@ -379,8 +375,8 @@ implicit and quadratic with a coefficient of 2 × 10⁻³.</p>
 <p>The number of cores is determined by <code class="docutils literal notranslate"><span class="pre">goal_cells_per_core</span></code> and
 <code class="docutils literal notranslate"><span class="pre">max_cells_per_core</span></code> in the <code class="docutils literal notranslate"><span class="pre">ocean</span></code> section of the config file.</p>
 </section>
-<section id="resolved">
-<span id="ocean-mixed-layer-eddies-resolved"></span><h2>resolved<a class="headerlink" href="#resolved" title="Link to this heading"></a></h2>
+<section id="ocean-mixed-layer-eddies-resolved">
+<span id="resolved"></span><h2>resolved<a class="headerlink" href="#ocean-mixed-layer-eddies-resolved" title="Link to this heading"></a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">ocean/planar/mixed_layer_eddies/resolved</span></code> task runs the 500 m reference
 and diagnoses its eddy overturning in the frontal zone, the central quarter
 of the domain in y, over days 5–7.  The overturning is computed in salinity
@@ -404,8 +400,8 @@ start:</p>
 <a class="reference internal image-reference" href="../../../_images/mixed_layer_eddies_eddy_overturning_section.jpg"><img alt="../../../_images/mixed_layer_eddies_eddy_overturning_section.jpg" class="align-center" src="../../../_images/mixed_layer_eddies_eddy_overturning_section.jpg" style="width: 500px;" />
 </a>
 </section>
-<section id="coarse">
-<span id="ocean-mixed-layer-eddies-coarse"></span><h2>coarse<a class="headerlink" href="#coarse" title="Link to this heading"></a></h2>
+<section id="ocean-mixed-layer-eddies-coarse">
+<span id="coarse"></span><h2>coarse<a class="headerlink" href="#ocean-mixed-layer-eddies-coarse" title="Link to this heading"></a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">ocean/planar/mixed_layer_eddies/coarse</span></code> task runs the 8 and 16 km
 meshes with the parameterization off and on.  It verifies the
 parameterization: in the last output (<code class="docutils literal notranslate"><span class="pre">verify_day</span></code>) of each run with it
@@ -430,8 +426,8 @@ representative of the full cross-platform spread:</p>
 <a class="reference internal image-reference" href="../../../_images/mixed_layer_eddies_verification.jpg"><img alt="../../../_images/mixed_layer_eddies_verification.jpg" class="align-center" src="../../../_images/mixed_layer_eddies_verification.jpg" style="width: 600px;" />
 </a>
 </section>
-<section id="comparison">
-<span id="ocean-mixed-layer-eddies-comparison"></span><h2>comparison<a class="headerlink" href="#comparison" title="Link to this heading"></a></h2>
+<section id="ocean-mixed-layer-eddies-comparison">
+<span id="comparison"></span><h2>comparison<a class="headerlink" href="#ocean-mixed-layer-eddies-comparison" title="Link to this heading"></a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">ocean/planar/mixed_layer_eddies/comparison</span></code> task runs all five
 simulations, but not the standalone resolved analysis or coarse
 verification steps. It reports, in <code class="docutils literal notranslate"><span class="pre">restratification.csv</span></code>, the potential

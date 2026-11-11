@@ -73,8 +73,8 @@
 <li class="toctree-l3"><a class="reference internal" href="manufactured_solution.html">manufactured solution</a></li>
 <li class="toctree-l3 current"><a class="current reference internal" href="#">merry-go-round</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#supported-models">supported models</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#default">default</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#convergence-tasks">convergence tasks</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ocean-merry-go-round-default">default</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ocean-merry-go-round-convergence">convergence tasks</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="mixed_layer_eddies.html">mixed layer eddies</a></li>
@@ -87,7 +87,7 @@
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../framework/index.html">Framework</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../suites.html">Suites</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../suites.html#nightly-suite">nightly suite</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../suites.html#ocean-suite-nightly">nightly suite</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../suites.html#omega-pr-suite">omega_pr suite</a></li>
 </ul>
 </li>
@@ -154,8 +154,8 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section class="tex2jax_ignore mathjax_ignore" id="merry-go-round">
-<span id="ocean-merry-go-round"></span><h1>merry-go-round<a class="headerlink" href="#merry-go-round" title="Link to this heading"></a></h1>
+  <section class="tex2jax_ignore mathjax_ignore" id="ocean-merry-go-round">
+<span id="merry-go-round"></span><h1>merry-go-round<a class="headerlink" href="#ocean-merry-go-round" title="Link to this heading"></a></h1>
 <p>The <code class="docutils literal notranslate"><span class="pre">ocean/merry_go_round</span></code> test group induces a convective cell in a horizontal
 domain in order to verify tracer advection.</p>
 <a class="reference internal image-reference" href="../../../_images/merry_go_round_section.png"><img alt="../../../_images/merry_go_round_section.png" class="align-center" src="../../../_images/merry_go_round_section.png" style="width: 500px;" />
@@ -164,8 +164,8 @@ domain in order to verify tracer advection.</p>
 <h2>supported models<a class="headerlink" href="#supported-models" title="Link to this heading"></a></h2>
 <p>These tasks support MPAS-Ocean and Omega.</p>
 </section>
-<section id="default">
-<span id="ocean-merry-go-round-default"></span><h2>default<a class="headerlink" href="#default" title="Link to this heading"></a></h2>
+<section id="ocean-merry-go-round-default">
+<span id="default"></span><h2>default<a class="headerlink" href="#ocean-merry-go-round-default" title="Link to this heading"></a></h2>
 <section id="description">
 <h3>description<a class="headerlink" href="#description" title="Link to this heading"></a></h3>
 <p>For the initial conditions described below, tracer concentration contours match
@@ -285,8 +285,8 @@ The run duration is determined by the config option
 <code class="docutils literal notranslate"><span class="pre">max_cells_per_core</span></code> and <code class="docutils literal notranslate"><span class="pre">goal_cells_per_core</span></code>.</p>
 </section>
 </section>
-<section id="convergence-tasks">
-<span id="ocean-merry-go-round-convergence"></span><h2>convergence tasks<a class="headerlink" href="#convergence-tasks" title="Link to this heading"></a></h2>
+<section id="ocean-merry-go-round-convergence">
+<span id="convergence-tasks"></span><h2>convergence tasks<a class="headerlink" href="#ocean-merry-go-round-convergence" title="Link to this heading"></a></h2>
 <p>There are two versions of the convergence test case: <code class="docutils literal notranslate"><span class="pre">convergence_space</span></code> and
 <code class="docutils literal notranslate"><span class="pre">convergence_both</span></code> corresponding to space and both space and time convergence
 tests. All settings, except monotonic tracer advection, are the same as the

@@ -67,7 +67,7 @@
 <li class="toctree-l3"><a class="reference internal" href="#supported-resolutions">Supported Resolutions</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#resolution-naming">Resolution Naming</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#cubed-sphere-resolution-selection">Cubed-Sphere Resolution Selection</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#staging-e3sm-input-files">Staging E3SM Input Files</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#dev-e3sm-init-framework-staging">Staging E3SM Input Files</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="tasks/index.html">Tasks</a></li>
@@ -125,8 +125,8 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section class="tex2jax_ignore mathjax_ignore" id="framework">
-<span id="dev-e3sm-init-framework"></span><h1>Framework<a class="headerlink" href="#framework" title="Link to this heading"></a></h1>
+  <section class="tex2jax_ignore mathjax_ignore" id="dev-e3sm-init-framework">
+<span id="framework"></span><h1>Framework<a class="headerlink" href="#dev-e3sm-init-framework" title="Link to this heading"></a></h1>
 <p>The <code class="docutils literal notranslate"><span class="pre">e3sm/init</span></code> component includes a small amount of shared framework code in
 <code class="docutils literal notranslate"><span class="pre">polaris.e3sm.init.topo</span></code>. This framework defines supported source-topography
 resolutions and helper functions used by <code class="docutils literal notranslate"><span class="pre">e3sm/init</span></code> tasks and by other
@@ -174,8 +174,8 @@ at least <code class="docutils literal notranslate"><span class="pre">LOW_RES_BA
 rather than in <code class="docutils literal notranslate"><span class="pre">polaris.tasks.e3sm.init</span></code>, which allows mesh and ocean
 workflows to reuse the same supported-resolution definitions.</p>
 </section>
-<section id="staging-e3sm-input-files">
-<span id="dev-e3sm-init-framework-staging"></span><h2>Staging E3SM Input Files<a class="headerlink" href="#staging-e3sm-input-files" title="Link to this heading"></a></h2>
+<section id="dev-e3sm-init-framework-staging">
+<span id="staging-e3sm-input-files"></span><h2>Staging E3SM Input Files<a class="headerlink" href="#dev-e3sm-init-framework-staging" title="Link to this heading"></a></h2>
 <p><code class="docutils literal notranslate"><span class="pre">polaris.e3sm.init</span></code> also holds what any workflow needs to stage files in an
 <code class="docutils literal notranslate"><span class="pre">inputdata</span></code>-style tree for E3SM.  The <a class="reference internal" href="tasks/component_inputs.html#dev-e3sm-init-component-inputs"><span class="std std-ref">component_inputs</span></a>
 tasks are the first to use it.  None of these modules imports from

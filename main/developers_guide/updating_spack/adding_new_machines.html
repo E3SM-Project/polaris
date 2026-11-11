@@ -129,8 +129,8 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section class="tex2jax_ignore mathjax_ignore" id="adding-a-new-machine">
-<span id="dev-adding-new-machines"></span><h1>Adding a New Machine<a class="headerlink" href="#adding-a-new-machine" title="Link to this heading"></a></h1>
+  <section class="tex2jax_ignore mathjax_ignore" id="dev-adding-new-machines">
+<span id="adding-a-new-machine"></span><h1>Adding a New Machine<a class="headerlink" href="#dev-adding-new-machines" title="Link to this heading"></a></h1>
 <p>Support for a new HPC machine in Polaris requires coordinated updates
 across multiple tools — primarily in
 <a class="reference external" href="https://github.com/E3SM-Project/mache"><code class="docutils literal notranslate"><span class="pre">mache</span></code></a>, but also in the E3SM Spack
@@ -139,7 +139,7 @@ fork and Polaris deployment scripts.</p>
 developers integrating new machines into the release and deployment workflow.</p>
 <hr class="docutils" />
 <section id="main-mache-documentation">
-<h2>🔗 Main Mache Documentation<a class="headerlink" href="#main-mache-documentation" title="Link to this heading"></a></h2>
+<span id="-main-mache-documentation"></span><h2>🔗 Main Mache Documentation<a class="headerlink" href="#main-mache-documentation" title="Link to this heading"></a></h2>
 <p>Most of the process is already documented in the official <code class="docutils literal notranslate"><span class="pre">mache</span></code> developer
 guide:</p>
 <ul class="simple">
@@ -161,7 +161,7 @@ must first be added upstream before <code class="docutils literal notranslate"><
 </section>
 <hr class="docutils" />
 <section id="integration-with-polaris-deployment">
-<h2>🧩 Integration with Polaris Deployment<a class="headerlink" href="#integration-with-polaris-deployment" title="Link to this heading"></a></h2>
+<span id="-integration-with-polaris-deployment"></span><h2>🧩 Integration with Polaris Deployment<a class="headerlink" href="#integration-with-polaris-deployment" title="Link to this heading"></a></h2>
 <p>After updating <code class="docutils literal notranslate"><span class="pre">mache</span></code>, you’ll need to:</p>
 <ol class="arabic simple">
 <li><p><strong>Reference your <code class="docutils literal notranslate"><span class="pre">mache</span></code> branch in Polaris Deployment</strong></p>
@@ -203,7 +203,7 @@ MPI libraries are added, removed, or renamed.  See
 </section>
 <hr class="docutils" />
 <section id="testing-your-changes">
-<h2>✅ Testing Your Changes<a class="headerlink" href="#testing-your-changes" title="Link to this heading"></a></h2>
+<span id="-testing-your-changes"></span><h2>✅ Testing Your Changes<a class="headerlink" href="#testing-your-changes" title="Link to this heading"></a></h2>
 <p>Use the standard test deployment approach from
 <a class="reference internal" href="testing/deploying_spack.html"><span class="std std-doc">Deploying a new spack environment</span></a>:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./deploy.py<span class="w"> </span>--mache-fork<span class="w"> </span>&lt;your_fork&gt;<span class="w"> </span><span class="se">\</span>
@@ -228,7 +228,7 @@ MPI libraries are added, removed, or renamed.  See
 </section>
 <hr class="docutils" />
 <section id="tips-and-best-practices">
-<h2>💡 Tips and Best Practices<a class="headerlink" href="#tips-and-best-practices" title="Link to this heading"></a></h2>
+<span id="-tips-and-best-practices"></span><h2>💡 Tips and Best Practices<a class="headerlink" href="#tips-and-best-practices" title="Link to this heading"></a></h2>
 <ul class="simple">
 <li><p>Reuse YAML templates from similar machines to minimize effort</p></li>
 <li><p>Add common system tools as <code class="docutils literal notranslate"><span class="pre">buildable:</span> <span class="pre">false</span></code> in the Spack environment</p></li>

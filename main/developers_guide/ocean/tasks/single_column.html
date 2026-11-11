@@ -67,7 +67,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../e3sm/init/index.html">E3SM initial condition (e3sm/init) component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../mesh/index.html">Mesh component</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../index.html">Ocean component</a><ul class="current">
-<li class="toctree-l2 current"><a class="reference internal" href="../index.html#fanssie">FAnSSIE</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="../index.html#dev-ocean-fanssie">FAnSSIE</a><ul class="current">
 <li class="toctree-l3 current"><a class="reference internal" href="index.html">Tasks</a><ul class="current">
 <li class="toctree-l4"><a class="reference internal" href="baroclinic_channel.html">baroclinic_channel</a></li>
 <li class="toctree-l4"><a class="reference internal" href="barotropic_channel.html">barotropic_channel</a></li>
@@ -152,8 +152,8 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section class="tex2jax_ignore mathjax_ignore" id="single-column">
-<span id="dev-ocean-single-column"></span><h1>single_column<a class="headerlink" href="#single-column" title="Link to this heading"></a></h1>
+  <section class="tex2jax_ignore mathjax_ignore" id="dev-ocean-single-column">
+<span id="single-column"></span><span id="single_column"></span><h1>single_column<a class="headerlink" href="#dev-ocean-single-column" title="Link to this heading"></a></h1>
 <p>The single column tests in <code class="docutils literal notranslate"><span class="pre">polaris.tasks.ocean.single_column</span></code> exercise
 the vertical dynamics of the ocean model only. The test cases are:</p>
 <ul class="simple">
@@ -170,8 +170,8 @@ surface-absorbed shortwave heating</p></li>
 the <code class="docutils literal notranslate"><span class="pre">FixedProperty</span></code> and <code class="docutils literal notranslate"><span class="pre">teos</span></code> algorithms</p></li>
 </ul>
 <p>Here, we describe the tests and their shared framework.</p>
-<section id="framework">
-<span id="dev-ocean-single-column-framework"></span><h2>framework<a class="headerlink" href="#framework" title="Link to this heading"></a></h2>
+<section id="dev-ocean-single-column-framework">
+<span id="framework"></span><h2>framework<a class="headerlink" href="#dev-ocean-single-column-framework" title="Link to this heading"></a></h2>
 <p>The shared config options for the <code class="docutils literal notranslate"><span class="pre">single_column</span></code> tests
 are described in <a class="reference internal" href="../../../users_guide/ocean/tasks/single_column.html#ocean-single-column"><span class="std std-ref">single column</span></a> in the User’s Guide.</p>
 <p>Additionally, the tests share a <code class="docutils literal notranslate"><span class="pre">forward.yaml</span></code> file with
@@ -270,8 +270,8 @@ produces figures comparing the initial and final profiles of temperature and
 salinity.</p>
 </section>
 </section>
-<section id="cvmix">
-<span id="dev-ocean-single-column-cvmix"></span><h2>cvmix<a class="headerlink" href="#cvmix" title="Link to this heading"></a></h2>
+<section id="dev-ocean-single-column-cvmix">
+<span id="cvmix"></span><h2>cvmix<a class="headerlink" href="#dev-ocean-single-column-cvmix" title="Link to this heading"></a></h2>
 <p>The <code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.single_column.cvmix.CVMix</span></code>
 test performs a 10-day run on 1 cores.  Then, validation of <code class="docutils literal notranslate"><span class="pre">temperature</span></code>,
 <code class="docutils literal notranslate"><span class="pre">salinity</span></code>, <code class="docutils literal notranslate"><span class="pre">layerThickness</span></code> and <code class="docutils literal notranslate"><span class="pre">normalVelocity</span></code> are performed against a
@@ -312,8 +312,8 @@ theory, as determined by the config option
 <code class="docutils literal notranslate"><span class="pre">single_column_inertial:period_tolerance_fraction</span></code>.</p>
 </section>
 </section>
-<section id="kpp-regimes">
-<span id="dev-ocean-single-column-kpp"></span><h2>KPP regimes<a class="headerlink" href="#kpp-regimes" title="Link to this heading"></a></h2>
+<section id="dev-ocean-single-column-kpp">
+<span id="kpp-regimes"></span><h2>KPP regimes<a class="headerlink" href="#dev-ocean-single-column-kpp" title="Link to this heading"></a></h2>
 <p>The <code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.single_column.kpp_regimes.KPPRegimes</span></code>
 task class creates all nine regimes documented in
 <a class="reference internal" href="../../../users_guide/ocean/tasks/single_column.html#ocean-single-column-kpp"><span class="std std-ref">KPP regimes</span></a>. Their physical goals, literature
@@ -655,7 +655,7 @@ pseudo-thickness, the geometric <code class="docutils literal notranslate"><span
 </section>
 </section>
 <section id="shortwave-pen">
-<h2>shortwave_pen<a class="headerlink" href="#shortwave-pen" title="Link to this heading"></a></h2>
+<span id="shortwave_pen"></span><h2>shortwave_pen<a class="headerlink" href="#shortwave-pen" title="Link to this heading"></a></h2>
 <p>The <a class="reference internal" href="../generated/polaris.tasks.ocean.single_column.shortwave_pen.ShortwavePen.html#polaris.tasks.ocean.single_column.shortwave_pen.ShortwavePen" title="polaris.tasks.ocean.single_column.shortwave_pen.ShortwavePen"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.single_column.shortwave_pen.ShortwavePen</span></code></a>
 task compares penetrating shortwave radiation across Jerlov water types. It
 supports both MPAS-Ocean and Omega. MPAS-Ocean uses its two-band Jerlov

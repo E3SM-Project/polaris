@@ -1,0 +1,6 @@
+﻿polaris.ocean.ice\_shelf.IceShelfTask.configure
+===============================================
+
+.. currentmodule:: polaris.ocean.ice_shelf
+
+.. automethod:: IceShelfTask.configure

@@ -343,16 +343,12 @@ the resolved run. It does not fail the task.</p>
 <p>Contributors: Xylar Asay-Davis, Claude</p>
 <p>The density follows SM22 (their eq. 5 and published <code class="docutils literal notranslate"><span class="pre">gendata.m</span></code>):</p>
 <div class="math notranslate nohighlight">
-\[
-\rho(y, z) = Z_S(z)\left[\Delta\rho_y Y_S(y) - \Delta\rho_z\right]
-  + \rho_{ITP}(z),
-\]</div>
+\[\rho(y, z) = Z_S(z)\left[\Delta\rho_y Y_S(y) - \Delta\rho_z\right]
+  + \rho_{ITP}(z),\]</div>
 <div class="math notranslate nohighlight">
-\[
-Z_S(z) = \tfrac{1}{2}\left[1 + \tanh\left(\frac{z + H_m}{\Delta h}\right)\right],
+\[Z_S(z) = \tfrac{1}{2}\left[1 + \tanh\left(\frac{z + H_m}{\Delta h}\right)\right],
 \qquad
-Y_S(y) = \sin\left(\frac{2\pi (y - L_y/2)}{L_y}\right),
-\]</div>
+Y_S(y) = \sin\left(\frac{2\pi (y - L_y/2)}{L_y}\right),\]</div>
 <p>with <span class="math notranslate nohighlight">\(H_m = 30\)</span> m, <span class="math notranslate nohighlight">\(\Delta h = 5\)</span> m, <span class="math notranslate nohighlight">\(\Delta\rho_y = 3\)</span> kg m⁻³ and
 <span class="math notranslate nohighlight">\(\Delta\rho_z = \Delta\rho_y/2\)</span>. <span class="math notranslate nohighlight">\(L_y\)</span> is the mesh’s periodic length,
 not the nominal 200 km, so the front is periodic. The front at
@@ -471,10 +467,8 @@ half a period apart. Let edge <span class="math notranslate nohighlight">\(e\)</
 <span class="math notranslate nohighlight">\(c_1\)</span> to <span class="math notranslate nohighlight">\(c_2\)</span>. The along-front mean stream function at interface <span class="math notranslate nohighlight">\(k\)</span>
 is</p>
 <div class="math notranslate nohighlight">
-\[
-\Psi(y_0, z_k) = \frac{1}{L_x} \sum_{e \in B(y_0)} s_e \, d_e
-  \sum_{k' &lt; k} u_{e,k'} \, h_{e,k'},
-\]</div>
+\[\Psi(y_0, z_k) = \frac{1}{L_x} \sum_{e \in B(y_0)} s_e \, d_e
+  \sum_{k' &lt; k} u_{e,k'} \, h_{e,k'},\]</div>
 <p>so <span class="math notranslate nohighlight">\(\Psi = 0\)</span> at the surface and <span class="math notranslate nohighlight">\(\bar v = -\partial \Psi/\partial z\)</span>.
 Here <span class="math notranslate nohighlight">\(d_e\)</span> is <code class="docutils literal notranslate"><span class="pre">dvEdge</span></code> and <span class="math notranslate nohighlight">\(h_e\)</span> is the flux thickness on the edge. For
 Omega that is the pseudo-thickness, which makes the transport a mass
@@ -507,12 +501,10 @@ Eulerian-mean overturning at the same depth (Abernathey et al.
 <li><p><strong>Normalization:</strong></p></li>
 </ul>
 <div class="math notranslate nohighlight">
-\[
-\Psi^+ = \frac{\Psi}{C_e H^2 \, \overline{\partial_y b} \, \mu(z) / |f|},
+\[\Psi^+ = \frac{\Psi}{C_e H^2 \, \overline{\partial_y b} \, \mu(z) / |f|},
 \qquad
 \mu(z) = \max\left\{0, \left[1 - \left(\tfrac{2z}{H} + 1\right)^2\right]
-  \left[1 + \tfrac{5}{21}\left(\tfrac{2z}{H} + 1\right)^2\right]\right\},
-\]</div>
+  \left[1 + \tfrac{5}{21}\left(\tfrac{2z}{H} + 1\right)^2\right]\right\},\]</div>
 <p>where <span class="math notranslate nohighlight">\(\overline{\partial_y b}\)</span> is the mixed-layer, x- and time-averaged
 buoyancy gradient. It is computed from differences of area-weighted
 means over y-bands about one cell wide, across the frontal zone

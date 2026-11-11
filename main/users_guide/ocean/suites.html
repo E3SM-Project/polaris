@@ -56,15 +56,15 @@
 <li class="toctree-l2"><a class="reference internal" href="tasks/index.html">Tasks</a></li>
 <li class="toctree-l2"><a class="reference internal" href="framework/index.html">Framework</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Suites</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#pr-suite">pr suite</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ocean-suite-pr">pr suite</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#nightly-suite">nightly suite</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#ocean-suite-nightly">nightly suite</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#omega-pr-suite">omega_pr suite</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#omega-analysis-suite">omega_analysis suite</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#framework-pr-suite">framework_pr suite</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#fanssie-pr-suite">fanssie_pr suite</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#convergence-suite">convergence suite</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ocean-suite-omega-analysis">omega_analysis suite</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ocean-suite-framework-pr">framework_pr suite</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ocean-suite-fanssie-pr">fanssie_pr suite</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ocean-suite-convergence">convergence suite</a></li>
 </ul>
 </li>
 </ul>
@@ -131,8 +131,8 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section class="tex2jax_ignore mathjax_ignore" id="suites">
-<span id="ocean-suites"></span><h1>Suites<a class="headerlink" href="#suites" title="Link to this heading"></a></h1>
+  <section class="tex2jax_ignore mathjax_ignore" id="ocean-suites">
+<span id="suites"></span><h1>Suites<a class="headerlink" href="#ocean-suites" title="Link to this heading"></a></h1>
 <p>The ocean component includes a number of <a class="reference internal" href="../suites.html#suites"><span class="std std-ref">Suites</span></a> that can be used to
 run a series of ocean tasks and optionally compare them against a baseline
 run of the same tasks.  To set them up, run:</p>
@@ -141,8 +141,8 @@ run of the same tasks.  To set them up, run:</p>
 </div>
 <p>Below are details on some of the most commonly used suites.  The other suites
 are mostly focused on specific tests as indicated by their names.</p>
-<section id="pr-suite">
-<span id="ocean-suite-pr"></span><h2>pr suite<a class="headerlink" href="#pr-suite" title="Link to this heading"></a></h2>
+<section id="ocean-suite-pr">
+<span id="pr-suite"></span><h2>pr suite<a class="headerlink" href="#ocean-suite-pr" title="Link to this heading"></a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">pr</span></code> suite is designed for testing pull-requests (PRs) that involve
 changes to the Ocean component or the Polaris framework.  It includes some
 basic tests that are always expected to work, and which should indicate if
@@ -172,8 +172,8 @@ ocean/spherical/icos/cosine_bell/restart
 </div>
 </section>
 </section>
-<section class="tex2jax_ignore mathjax_ignore" id="nightly-suite">
-<span id="ocean-suite-nightly"></span><h1>nightly suite<a class="headerlink" href="#nightly-suite" title="Link to this heading"></a></h1>
+<section class="tex2jax_ignore mathjax_ignore" id="ocean-suite-nightly">
+<span id="nightly-suite"></span><h1>nightly suite<a class="headerlink" href="#ocean-suite-nightly" title="Link to this heading"></a></h1>
 <p>The <code class="docutils literal notranslate"><span class="pre">nightly</span></code> suite is similar to the <code class="docutils literal notranslate"><span class="pre">pr</span></code> suite but is designed to allow for
 slightly heavier testing on a nightly basis.  For now, the suite actually
 includes fewer tests than <code class="docutils literal notranslate"><span class="pre">pr</span></code> but it is expected to be fleshed out as Omega
@@ -189,7 +189,7 @@ ocean/spherical/icos/cosine_bell/restart
 </div>
 </section>
 <section class="tex2jax_ignore mathjax_ignore" id="omega-pr-suite">
-<h1>omega_pr suite<a class="headerlink" href="#omega-pr-suite" title="Link to this heading"></a></h1>
+<span id="omega_pr-suite"></span><h1>omega_pr suite<a class="headerlink" href="#omega-pr-suite" title="Link to this heading"></a></h1>
 <p>The <code class="docutils literal notranslate"><span class="pre">omega_pr</span></code> suite is designed to test changes in Omega or the affects of
 Polaris changes on Omega results.  Every file Omega writes in the suite is
 checked for CF compliance, and a task fails if the checker reports errors
@@ -217,8 +217,8 @@ ocean/spherical/icos/cosine_bell/decomp
 ocean/spherical/icos/cosine_bell/restart
 </pre></div>
 </div>
-<section id="omega-analysis-suite">
-<span id="ocean-suite-omega-analysis"></span><h2>omega_analysis suite<a class="headerlink" href="#omega-analysis-suite" title="Link to this heading"></a></h2>
+<section id="ocean-suite-omega-analysis">
+<span id="omega-analysis-suite"></span><span id="omega_analysis-suite"></span><h2>omega_analysis suite<a class="headerlink" href="#ocean-suite-omega-analysis" title="Link to this heading"></a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">omega_analysis</span></code> suite analyzes a simulation that has already been run,
 rather than running one.  It is pointed at a completed Omega simulation
 through a config file and produces plots and the netCDF data behind them.  It
@@ -242,8 +242,8 @@ ocean/analysis/moc
 </pre></div>
 </div>
 </section>
-<section id="framework-pr-suite">
-<span id="ocean-suite-framework-pr"></span><h2>framework_pr suite<a class="headerlink" href="#framework-pr-suite" title="Link to this heading"></a></h2>
+<section id="ocean-suite-framework-pr">
+<span id="framework-pr-suite"></span><span id="framework_pr-suite"></span><h2>framework_pr suite<a class="headerlink" href="#ocean-suite-framework-pr" title="Link to this heading"></a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">framework_pr</span></code> suite is designed for testing pull-requests (PRs) that
 involve changes to the Polaris and/or Ocean framework.  It includes the tests
 in the <code class="docutils literal notranslate"><span class="pre">pr</span></code> suite plus additional tests focused on visualization.
@@ -267,8 +267,8 @@ ocean/spherical/icos/rotation_2d/with_viz
 </pre></div>
 </div>
 </section>
-<section id="fanssie-pr-suite">
-<span id="ocean-suite-fanssie-pr"></span><h2>fanssie_pr suite<a class="headerlink" href="#fanssie-pr-suite" title="Link to this heading"></a></h2>
+<section id="ocean-suite-fanssie-pr">
+<span id="fanssie-pr-suite"></span><span id="fanssie_pr-suite"></span><h2>fanssie_pr suite<a class="headerlink" href="#ocean-suite-fanssie-pr" title="Link to this heading"></a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">fanssie_pr</span></code> suite holds the tasks that need MPAS-Ocean from the FAnSSIE
 branch rather than from E3SM-Project, including all the ice-shelf tasks.  It
 must be run with MPAS-Ocean built from the <code class="docutils literal notranslate"><span class="pre">e3sm_submodules/FAnSSIE</span></code>
@@ -280,8 +280,8 @@ ocean/planar/isomip_plus/4km/z-star/ocean0
 </pre></div>
 </div>
 </section>
-<section id="convergence-suite">
-<span id="ocean-suite-convergence"></span><h2>convergence suite<a class="headerlink" href="#convergence-suite" title="Link to this heading"></a></h2>
+<section id="ocean-suite-convergence">
+<span id="convergence-suite"></span><h2>convergence suite<a class="headerlink" href="#ocean-suite-convergence" title="Link to this heading"></a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">convergence</span></code> suite is designed for running all convergence tests. To
 speed up the process, most tests have cached base meshes. Here are the tests
 included:</p>

@@ -67,7 +67,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../e3sm/init/index.html">E3SM initial condition (e3sm/init) component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../mesh/index.html">Mesh component</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../index.html">Ocean component</a><ul class="current">
-<li class="toctree-l2 current"><a class="reference internal" href="../index.html#fanssie">FAnSSIE</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="../index.html#dev-ocean-fanssie">FAnSSIE</a><ul class="current">
 <li class="toctree-l3 current"><a class="reference internal" href="index.html">Tasks</a><ul class="current">
 <li class="toctree-l4"><a class="reference internal" href="baroclinic_channel.html">baroclinic_channel</a></li>
 <li class="toctree-l4"><a class="reference internal" href="barotropic_channel.html">barotropic_channel</a></li>
@@ -152,8 +152,8 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section class="tex2jax_ignore mathjax_ignore" id="external-gravity-wave">
-<span id="dev-ocean-external-gravity-wave"></span><h1>external_gravity_wave<a class="headerlink" href="#external-gravity-wave" title="Link to this heading"></a></h1>
+  <section class="tex2jax_ignore mathjax_ignore" id="dev-ocean-external-gravity-wave">
+<span id="external-gravity-wave"></span><span id="external_gravity_wave"></span><h1>external_gravity_wave<a class="headerlink" href="#dev-ocean-external-gravity-wave" title="Link to this heading"></a></h1>
 <p>The <code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.external_gravity_wave.ExternalGravityWave</span></code>
 task provides a test case to evaluate the time-convergence of time-stepping
 schemes in the simplest possible model configuration.</p>
@@ -162,12 +162,10 @@ While the standard, non-linear shallow water thickness equation
 has been left alone, all tendencies in the  momentum equation have been turned
 off, save the pressure gradient term. The resulting equations are given by
 <div class="math notranslate nohighlight">
-\[\begin{split}
-\begin{align}
+\[\begin{split}\begin{align}
     &amp;\partial_t \mathbf{u} = -g \nabla h \\
     &amp;\partial_t h + \nabla \cdot (h\mathbf{u}) = 0 \,.
-\end{align}
-\end{split}\]</div>
+\end{align}\end{split}\]</div>
 </p>
 <p>In particular, this task is used to  test the convergence of local
 time-stepping schemes (<code class="docutils literal notranslate"><span class="pre">LTS</span></code> and <code class="docutils literal notranslate"><span class="pre">FB_LTS</span></code>) that employ a operator splitting
