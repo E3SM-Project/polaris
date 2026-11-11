@@ -732,6 +732,12 @@ issues in Polaris' `AGENTS.md`: what happens, what was expected, and how to
 reproduce it. The issue ends with the signature that `AGENTS.md`
 prescribes.
 
+Once the bug hunter is in Polaris' `main`, everything it posts (issues,
+lines in clean-up batches and comments) says in its signature that the bug
+hunter posted it, and links to the Developer's Guide page. Until then the
+tool is unknown to the teams and the link would lead nowhere, so posts use
+the `AGENTS.md` signature alone.
+
 ### Implementation: Findings are ranked by priority.
 
 The rubric is in `utils/bug_hunt/AGENTS.md`. Polaris gets Omega's three
