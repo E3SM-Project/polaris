@@ -858,8 +858,24 @@ that needs a ruling.
 Unit tests also check that two findings cannot share a name, and that
 commands find a finding by its name. Replayed, the
 `HORZOPERATORS_SPHERE_TEST` failures of 2026-11-07, which passed again the
-next night, are linked to Omega#643, which fixed them, and to #639, which
-introduced them.
+next night, are linked to Omega#643, which fixed them, and record #639 as
+their cause.
+
+The replays are cases in a corpus, `tests/bug_hunt/corpus/`, kept so that a
+change to matching can be tested against every case seen so far, not only
+the one that prompted it. A case holds a finding, the saved search results
+for each of its terms, and the issues that must need a ruling and those
+that must not. Search results are saved rather than fetched, since they
+change. A test fails if a duplicate is missed, if a case's noise passes its
+limit, or if a term has no saved results, which means the case needs
+refreshing. It also prints the noise across the corpus, so a change that
+adds noise shows. The corpus starts with the duplicates of the first week,
+the candidates that a pull-request testing tool's name found on 2026-11-11,
+the `HORZOPERATORS_SPHERE_TEST` fix and cause, and, beside the saved CDash
+responses, the coupled tests that first ran on 2026-11-08 and so have no
+last pass. A case is added whenever a hunt files a duplicate or buries the
+developer in candidates. Now and then, the corpus is run against live
+searches to catch changes in GitHub's search.
 
 ### Testing and Validation: Each finding names the project that owns it.
 
