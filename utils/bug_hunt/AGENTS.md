@@ -110,8 +110,16 @@ harvests and triages.
    few results, needs a ruling.  Those found only by broad terms, such as
    a tool's name that every pull request tested with it mentions, are
    listed in one line and need none, even when two broad terms find the
-   same one.  Read every
-   candidate that needs a ruling, and decide and record one of:
+   same one.
+
+   The search is where you start, not where you stop: a redundant issue
+   costs developers' time and their trust in the hunter far more than
+   searching costs you.  Use your judgment to look further: skim the
+   candidates that need no ruling, search with your own words for the
+   symptom, and read the open issues about the same code.  Anything you
+   find that may cover the bug gets a ruling like any other candidate.
+
+   Read every candidate that needs a ruling, and decide and record one of:
    - it is tracked: `bug_hunt.py update <id> --link <owner>/<repo>#<n>
      --status tracked`.  This includes a finding that is one instance of an
      open general issue, such as one of many loops that ignore the minimum
@@ -223,9 +231,11 @@ harvests and triages.
      code names in the evidence summary need backticks.  Then post it with
      `bug_hunt.py file <id> --title "..." --post --agent "<your name>"`,
      adding `--co-drafted` if the developer directed what the issue says.
-     `--post` refuses while any candidate is neither linked nor ruled out
-     with `--not-duplicate`.  If a candidate turns out to be the same bug,
-     link it, do not file, and tell the developer.
+     `--post` refuses while any candidate that needs a ruling is neither
+     linked nor ruled out with `--not-duplicate`; that is a floor, not the
+     whole check.  Before posting, look again as in step 3, beyond what
+     `file` lists.  If anything turns out to be the same bug, link it, do
+     not file, and tell the developer.
    - `batch`: the same with `--batch <theme>`; the P4 findings together with
      `bug_hunt.py file --all-p4`, which refuses any without a theme.  A
      batch closes once every line is checked off or struck out as not a
