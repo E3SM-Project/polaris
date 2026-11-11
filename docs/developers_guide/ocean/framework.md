@@ -1317,20 +1317,26 @@ instead.
 
 ### Publishing what the steps made
 
-Publication is three pieces, none of which knows anything about the ocean, so
-all three live in the component-neutral `polaris.analysis` package beside
-`polaris.viz` rather than under `polaris.tasks.ocean.analysis`:
+Publication is four pieces, none of which knows anything about the ocean, so
+all four live in the component-neutral `polaris.analysis` package beside
+`polaris.viz` rather than under `polaris.tasks.ocean.analysis`, and any
+component's tasks can use them:
 
+- the **product step**, {py:class}`polaris.analysis.product_step.ProductStep`,
+  which `AnalysisStep` derives from, and whose
+  {py:meth}`polaris.analysis.product_step.ProductStep.add_product()` a
+  plotting step calls once per product;
 - the **manifest writer**, {py:class}`polaris.analysis.manifest.Manifest`,
-  which a plotting step reaches through
-  {py:meth}`polaris.tasks.ocean.analysis.analysis_step.AnalysisStep.add_product()`
-  once per product;
+  which `add_product()` fills in;
 - the **collector**, {py:func}`polaris.analysis.publish.publish`, which merges
   the fragments, copies each product into the staging tree and renders its
   thumbnail;
-- the **site generator**,
-  {py:func}`polaris.analysis.site.generate_site`, which renders the gallery
-  from the merged manifest.
+- the **publish step**, {py:class}`polaris.analysis.publish_step.PublishStep`,
+  which runs the collector and the site generator,
+  {py:func}`polaris.analysis.site.generate_site`, and reads its options from
+  one config section.  The ocean analysis's
+  {py:class}`polaris.tasks.ocean.analysis.publish.Publish` is a
+  `PublishStep` with its options in `[ocean_analysis]`.
 
 A step describes what it made as it makes it, and writes no fragment itself:
 
@@ -1345,12 +1351,12 @@ self.add_product(
 )
 ```
 
-`AnalysisStep` writes it.  `runtime_setup()` leaves an empty fragment before
+`ProductStep` writes it.  `runtime_setup()` leaves an empty fragment before
 `run()` is called and each `add_product()` writes it again, so a step that
-makes products always has a current one on disk.  The range of years the step
-covers is added to the facets unless the call passes its own, since every
-product of a step covers the step's range and that range is what keeps the
-published names of two analyses of one simulation apart.
+makes products always has a current one on disk.  `AnalysisStep` adds the
+range of years the step covers to the facets unless the call passes its own,
+since every product of a step covers the step's range and that range is what
+keeps the published names of two analyses of one simulation apart.
 
 Three rules keep the fragment from growing into a format that needs a
 specification.  A step fills in the facets and nothing else --- the published
@@ -1361,8 +1367,7 @@ later, which is what makes adding a facet cheap.  And products keep the order
 they were added in, so a gallery reads ANN, DJF, MAM, JJA, SON because that is
 the order the step plotted them in, with no sort key anywhere.
 
-{py:class}`polaris.tasks.ocean.analysis.publish.Publish` is the one step that
-knows how results are presented, and everything about presentation can change
+The publish step is the one step that knows how results are presented, and everything about presentation can change
 without a plotting step changing.  Two things about it are easy to get wrong:
 
 - **It never looks for its inputs.**  Walking the work directory for anything

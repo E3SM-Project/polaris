@@ -271,6 +271,32 @@ seaice/api
    write_merged_manifest
 ```
 
+#### analysis.product_step
+
+```{eval-rst}
+.. currentmodule:: polaris.analysis.product_step
+
+.. autosummary::
+   :toctree: generated/
+
+   ProductStep
+   ProductStep.runtime_setup
+   ProductStep.add_product
+```
+
+#### analysis.publish_step
+
+```{eval-rst}
+.. currentmodule:: polaris.analysis.publish_step
+
+.. autosummary::
+   :toctree: generated/
+
+   PublishStep
+   PublishStep.run
+   PublishStep.output_path
+```
+
 #### analysis.thumbnail
 
 ```{eval-rst}
