@@ -336,10 +336,10 @@ apply, with these differences:
 Only when the requester asks.  Testing never removes anything by itself.
 `cleanup` keeps anything an open Omega or Polaris PR cites, or that
 contains such a path, anything modified in the last three days (it may be
-in use), baselines for the current Polaris commit, and the baselines and
-worktrees that kept runs use.  It touches only runs, baselines and
-worktrees in `work_base`; leave anything else there, and anything outside
-it, alone.
+in use), runs and baselines whose jobs are still queued or running,
+baselines for the current Polaris commit, and the baselines and worktrees
+that kept runs use.  It touches only runs, baselines and worktrees in
+`work_base`; leave anything else there, and anything outside it, alone.
 
 1. Where `gh` is logged in, list the paths that open PRs cite:
    ```bash
@@ -373,7 +373,9 @@ it, alone.
 - **A coupled test fails.**  Its case directory, which the report names,
   has a `TestStatus` with the failing phase.  A failed build's log is
   `bld/e3sm.bldlog.*` under the case, or the component log it names, such
-  as `bld/ocn.bldlog.*`; a failed run's logs are in `run/`.
+  as `bld/ocn.bldlog.*`; a failed run's logs are in `run/`.  `setup`
+  builds a case that did not build again from scratch the next time it
+  runs, unless the row's jobs have been submitted.
 - **The baseline cannot run on a row**, such as an older Kokkos on a
   new GPU.  Only if the requester asks, run `setup` with
   `--no-baseline "<why>"`, a lowercase clause the report prints after

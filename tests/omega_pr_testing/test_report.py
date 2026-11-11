@@ -228,6 +228,53 @@ def test_report_coupled_job_ended_early(tester):
     assert '| 2 of 2 failed: ERS_D (RUN), PEM_D (RUN) |' in text
 
 
+def test_report_coupled_job_submitted_by_hand(tester, monkeypatch):
+    fixture, manifest, _ = tester
+    # setup without --submit, then the tester runs case.submit by hand
+    state = _setup(fixture, manifest)
+    _finish(state, coupled=False)
+    for index, case_dir in enumerate(state.coupled_cases):
+        name = Path(case_dir).name
+        Path(case_dir, 'CaseStatus').write_text(
+            f'2026-11-11 11:07:19: case.submit starting case.test:{index}\n'
+            f'---------------------------------------------------\n'
+            f'2026-11-11 11:07:19: case.submit success case.test:{index}\n'
+        )
+        status = Path(case_dir, 'TestStatus')
+        status.write_text(f'{status.read_text()}PASS {name} SUBMIT\n')
+    checked = []
+
+    def is_job_active(job_id, system):
+        checked.append(job_id)
+        return job_id == '0'
+
+    monkeypatch.setattr(omega_pr_coupled, 'is_job_active', is_job_active)
+
+    # the jobs are found from what case.submit logged
+    with pytest.raises(
+        pr_test_report.ReportError,
+        match=r'ERS_D\.T62_oQU240\.COMEGA-IAF.* has not finished \(job 0\)',
+    ):
+        omega_pr_report.run_report(
+            fixture.config, fixture.fork, manifest.branch
+        )
+
+    # and once they end, one before it started the test, it is a failure
+    monkeypatch.setattr(
+        omega_pr_coupled, 'is_job_active', lambda job_id, system: False
+    )
+    name = Path(state.coupled_cases[0]).name
+    status = Path(state.coupled_cases[0], 'TestStatus')
+    status.write_text(f'{status.read_text()}PASS {name} RUN time=30\n')
+
+    text, _ = omega_pr_report.run_report(
+        fixture.config, fixture.fork, manifest.branch
+    )
+
+    assert checked == ['0']
+    assert '| 1 of 2 failed: PEM_D (RUN) |' in text
+
+
 def test_report_before_coupled_tests_finish(tester, monkeypatch):
     fixture, manifest, _ = tester
     state = _setup(fixture, manifest, submit=True)

@@ -54,9 +54,10 @@ its rows.  An agent on every machine also works, but is discouraged.
 7. **`cleanup`** (each machine), only when you ask, lists the old runs,
    baselines and Omega worktrees in `work_base`, and removes them with
    `--delete`.  It keeps anything an open Omega or Polaris PR cites, which
-   **`cited`** lists on your computer, and anything modified in the last
-   few days.  With `--branches` on your computer, it also deletes the test
-   branches of PRs that have merged or closed.
+   **`cited`** lists on your computer, anything modified in the last few
+   days, and anything with a job still queued or running.  With
+   `--branches` on your computer, it also deletes the test branches of PRs
+   that have merged or closed.
 
 ## Setup
 

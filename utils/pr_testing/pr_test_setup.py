@@ -45,6 +45,10 @@ STATE_FILENAME = 'setup.json'
 #: the file in a job's directory that holds its id once submitted
 JOB_ID_FILENAME = 'job_id'
 
+#: the file beside an Omega worktree that says all of its submodules, not
+#: just those Omega's build needs, have been initialized for CIME
+ALL_SUBMODULES_SUFFIX = '.all-submodules'
+
 #: what the PR suite's dependency is called before the baseline is submitted
 BASELINE_JOB_PLACEHOLDER = '<baseline job id>'
 
@@ -96,6 +100,9 @@ TREE_LOCK_TIMEOUT = 3600
 
 #: what ``case.submit`` prints for the job that runs a CIME test
 _CASE_JOB_ID = re.compile(r'Submitted job case\.test with id (\S+)')
+
+#: what ``case.submit`` logs in a case's ``CaseStatus`` for the same job
+_CASE_STATUS_JOB_ID = re.compile(r'case\.submit success case\.test:([^\s,]+)')
 
 _LOAD_SCRIPT_EXPORT = re.compile(r'^export ([A-Z_]+)="([^"]*)"$', re.MULTILINE)
 
@@ -517,6 +524,11 @@ def prepare_tree(repo: str, sha: str, tree: str) -> None:
         with _tree_lock(tree):
             if not os.path.exists(ready):
                 interrupted = os.path.exists(tree)
+                # a marker left by a tree of the same name that was removed
+                # would skip initializing this one's submodules for CIME
+                all_submodules = f'{tree}{ALL_SUBMODULES_SUFFIX}'
+                if os.path.exists(all_submodules):
+                    os.remove(all_submodules)
                 if not interrupted:
                     check_same_filesystem(
                         repo,
@@ -561,7 +573,7 @@ def init_all_submodules(tree: str) -> None:
     tree : str
         The worktree, made with ``prepare_tree()``
     """
-    ready = f'{tree}.all-submodules'
+    ready = f'{tree}{ALL_SUBMODULES_SUFFIX}'
     if os.path.exists(ready):
         return
     with _tree_lock(tree):
@@ -719,7 +731,7 @@ def get_baseline(
         script=f'job_script.{suite}.sh',
     )
     if os.path.exists(os.path.join(work_dir, f'{suite}.pickle')):
-        job_id = _read_job_id(work_dir)
+        job_id = read_job_id(work_dir)
         if job_id is None:
             # set up earlier but never submitted
             return Baseline(work_dir, reused=False, job=job)
@@ -1001,6 +1013,44 @@ def submit_jobs(
             baseline_id = job.job_id
 
 
+def get_job_id(job: Job) -> Optional[str]:
+    """
+    The id of a job's latest submission, whether setup or the tester
+    submitted it: for a CIME case, the last job ``case.submit`` logged in
+    its ``CaseStatus``; otherwise, the id in ``job_id`` in its directory,
+    which the tester writes for a job submitted by hand; and otherwise, the
+    id setup recorded
+
+    Parameters
+    ----------
+    job : pr_test_setup.Job
+        The job
+
+    Returns
+    -------
+    job_id : str, optional
+        Its id, or ``None`` if it has not been submitted
+    """
+    if job.env_script is not None:
+        job_id = _read_case_job_id(job.work_dir)
+        if job_id is not None:
+            return job_id
+    job_id = read_job_id(job.work_dir)
+    if job_id is not None:
+        return job_id
+    return job.job_id
+
+
+def read_job_id(work_dir: str) -> Optional[str]:
+    """The job id in ``job_id`` in a job's directory, if there is one"""
+    path = os.path.join(work_dir, JOB_ID_FILENAME)
+    try:
+        with open(path) as f:
+            return f.read().strip() or None
+    except OSError:
+        return None
+
+
 def submit_case(job: Job, dependency: Optional[str] = None) -> str:
     """
     Submit a CIME case with ``case.submit``, in a clean login shell with
@@ -1226,12 +1276,14 @@ def _finished(work_dir, suite):
         return False
 
 
-def _read_job_id(work_dir):
-    path = os.path.join(work_dir, JOB_ID_FILENAME)
-    if not os.path.exists(path):
+def _read_case_job_id(case_dir):
+    """The last job ``case.submit`` logged in a case's ``CaseStatus``"""
+    try:
+        with open(os.path.join(case_dir, 'CaseStatus')) as f:
+            ids = _CASE_STATUS_JOB_ID.findall(f.read())
+    except OSError:
         return None
-    with open(path) as f:
-        return f.read().strip() or None
+    return ids[-1] if ids else None
 
 
 def _newest(work_dirs, suite):
