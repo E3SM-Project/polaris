@@ -21,6 +21,8 @@ __all__ = [
     'VARIANTS',
     'LINEAR_VARIANT',
     'STEP_LINEAR_VARIANT',
+    'QUADRATIC_VARIANT',
+    'STEP_QUADRATIC_VARIANT',
     'GRADIENT_VARIANTS',
     'make_config',
     'sweep',
@@ -38,6 +40,8 @@ VARIANTS = [
     'hydrostatic_consistency_linear',
     'bathymetry_step',
     'bathymetry_step_linear',
+    'hydrostatic_consistency_quadratic',
+    'bathymetry_step_quadratic',
 ]
 
 # The variant whose profile is linear in pressure and whose coordinate is
@@ -49,6 +53,12 @@ LINEAR_VARIANT = 'hydrostatic_consistency_linear'
 # geometry that drives the global bottom-layer error, which is what makes it
 # the one that isolates what a bathymetry step costs the scheme.
 STEP_LINEAR_VARIANT = 'bathymetry_step_linear'
+
+# The same two geometries with a profile quadratic in pressure, which is the
+# parabolic reconstruction's exact set and only second order for the linear
+# one.
+QUADRATIC_VARIANT = 'hydrostatic_consistency_quadratic'
+STEP_QUADRATIC_VARIANT = 'bathymetry_step_quadratic'
 
 # The four gradient variants, which sweep resolution rather than tilt.  They
 # add nothing to the algebra but a good deal to the states it is checked on:
@@ -85,6 +95,8 @@ REPRESENTATIVE = [
     ('bathymetry_step', 4.0, 128.0, 200.0),
     ('bathymetry_step_linear', 4.0, 256.0, 25.0),
     ('bathymetry_step_linear', 4.0, 256.0, 200.0),
+    ('hydrostatic_consistency_quadratic', 4.0, 64.0, 50.0),
+    ('bathymetry_step_quadratic', 4.0, 256.0, 200.0),
     ('temperature_gradient', 4.0, 4.0, None),
     ('surface_pressure_gradient', 4.0, 4.0, None),
     ('ztilde_gradient', 0.5, 0.5, None),

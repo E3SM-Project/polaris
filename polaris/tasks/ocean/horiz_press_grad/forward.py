@@ -5,10 +5,20 @@ from polaris.resolution import resolution_to_string
 # spelling to Omega's PressureGradType.  There is no "centered limit" of the
 # finite-volume scheme: the two are separate implementations and no setting
 # reduces one to the other, so this is a choice between them rather than a
-# parameter of one.
+# parameter of one.  The two finite-volume entries are one Omega scheme with
+# its linear and its parabolic vertical reconstruction.
 SCHEMES = {
     'centered': 'Centered',
     'finite_volume': 'FiniteVolume',
+    'finite_volume_ppm': 'FiniteVolume',
+}
+
+# Omega's VerticalReconstruction for each scheme.  The centered scheme does
+# not use it, so it is given Omega's default.
+SCHEME_VERTICAL_RECONSTRUCTION = {
+    'centered': 'linear',
+    'finite_volume': 'linear',
+    'finite_volume_ppm': 'ppm',
 }
 
 # Which field in init.nc is the Polaris counterpart of each scheme's output.
@@ -18,6 +28,7 @@ SCHEMES = {
 SCHEME_HPGA = {
     'centered': 'HPGA',
     'finite_volume': 'HPGAFiniteVolume',
+    'finite_volume_ppm': 'HPGAFiniteVolumePPM',
 }
 
 
@@ -109,6 +120,9 @@ class Forward(OceanModelStep):
             'forward.yaml',
             template_replacements=dict(
                 pressure_grad_type=SCHEMES[self.scheme],
+                vertical_reconstruction=SCHEME_VERTICAL_RECONSTRUCTION[
+                    self.scheme
+                ],
                 quadrature_points=quadrature_points,
             ),
         )

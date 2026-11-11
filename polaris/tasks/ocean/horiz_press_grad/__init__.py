@@ -29,12 +29,15 @@ def add_horiz_press_grad_tasks(component):
     # _linear variants are additionally inside the finite-volume scheme's exact
     # set, so their residual is the scheme's own rather than the profile's;
     # bathymetry_step_linear is the only one that is both exact and in the
-    # geometry that matters globally.
+    # geometry that matters globally.  The two _quadratic variants are the
+    # same for the parabolic reconstruction, whose exact set is wider.
     for name in [
         'bathymetry_step',
         'bathymetry_step_linear',
         'hydrostatic_consistency',
         'hydrostatic_consistency_linear',
+        'hydrostatic_consistency_quadratic',
+        'bathymetry_step_quadratic',
     ]:
         component.add_task(
             HorizPressGradRestingStateTask(component=component, name=name)
