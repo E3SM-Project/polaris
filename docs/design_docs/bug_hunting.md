@@ -167,15 +167,17 @@ last hunt, then triage.
 For each failing test on each row, the harvest walks back through the
 nights to the last one that passed. It lists the merges into `develop`
 between that night and the first failure, which is how Omega#626 was traced
-to #512 by hand. A test that alternates between passing and failing with no
-merge in between is marked intermittent. A failure that stopped before the
-row's latest build, and did not come and go, is counted but not recorded,
-since a hunt is about bugs that are still there. The harvest also reports
-rows that stopped reporting, since CDash says nothing about a missing build,
-and rows whose count of compiler warnings rose. A row the developer puts on
-hold, with a reason and a date, is not reported as stopped, since a row out
-of compute hours is not a bug. The digest notes it in one line, and the
-harvest takes it off hold, and says so, when it reports again.
+to #512 by hand. For a failure that has ended, it also lists the merges
+between the last failure and the first pass. A test that alternates between
+passing and failing with no merge in between is marked intermittent. A
+failure that stopped before the row's latest build, and did not come and
+go, is counted but not recorded, since a hunt is about bugs that are still
+there. The harvest also reports rows that stopped reporting, since CDash
+says nothing about a missing build, and rows whose count of compiler
+warnings rose. A row the developer puts on hold, with a reason and a date,
+is not reported as stopped, since a row out of compute hours is not a bug.
+The digest notes it in one line, and the harvest takes it off hold, and
+says so, when it reports again.
 
 Polaris' nightly suite runs the Omega commit pinned in Polaris, not
 `develop`. A regression on `develop` that only Polaris' suites catch
@@ -321,7 +323,12 @@ failure after its issue was closed, or a failure after its fix was merged.
 A tracked finding whose links have all closed, and that has not failed
 since, is listed in the digest as closed upstream. The agent sets it
 `fixed` once it has checked that each link was closed by a fix; a link
-closed as a duplicate is replaced by the issue it duplicates. If a new row
+closed as a duplicate is replaced by the issue it duplicates. A failure
+that has ended is explained before it is triaged: the agent reads the
+merges between its last failure and its first pass, and the candidates from
+`match`. If one of them fixed it, the agent links it, along with the merge
+that introduced the failure when that is clear, and sets it `fixed`. Only a
+failure that nothing explains is ranked as one that has ended. If a new row
 turns out to fail for another reason, the agent moves it to a finding of
 its own.
 
@@ -672,17 +679,18 @@ An ID is the date a finding was first recorded and a hash of its first key.
 `park` and `harvest` add to an existing finding with the same key rather
 than make a new one, except for a row that stopped reporting again. `match`
 checks the ledger by key and prints candidate issues and pull requests from
-a GitHub search, and the agent decides. A search takes the test name or
-file and each identifier in the claim, with ten results apiece. `file`
-searches again when it posts. It refuses while any candidate other than the
-finding's own links is open, or was closed in the last 90 days, unless the
-agent names each one it read and ruled out; the finding's history records
-them. Without `--post`, `file` prints the candidates above the draft. Each
-command pulls before it reads the ledger, and commits and pushes after; a
-rejected push pulls and tries again. Two clones writing the same day's hunt
-record are merged. Any other conflict is undone with a warning, and the
-commit waits in the clone for the next command, so a clone is never left
-mid-rebase.
+a GitHub search, and the agent decides. It marks pull requests merged
+between a finding's last failure and its first pass, or between its last
+pass and its first failure. A search takes the test name or file and each
+identifier in the claim, with ten results apiece. `file` searches again
+when it posts. It refuses while any candidate other than the finding's own
+links is open, or was closed in the last 90 days, unless the agent names
+each one it read and ruled out; the finding's history records them. Without
+`--post`, `file` prints the candidates above the draft. Each command pulls
+before it reads the ledger, and commits and pushes after; a rejected push
+pulls and tries again. Two clones writing the same day's hunt record are
+merged. Any other conflict is undone with a warning, and the commit waits
+in the clone for the next command, so a clone is never left mid-rebase.
 
 ### Implementation: Each finding names the project that owns it.
 
@@ -822,7 +830,10 @@ already reported and one instance of a general issue about the minimum
 layer index, each match the issue they duplicate.
 
 Unit tests also check that two findings cannot share a name, and that
-commands find a finding by its name.
+commands find a finding by its name. Replayed, the
+`HORZOPERATORS_SPHERE_TEST` failures of 2026-11-07, which passed again the
+next night, are linked to Omega#643, which fixed them, and to #639, which
+introduced them.
 
 ### Testing and Validation: Each finding names the project that owns it.
 
