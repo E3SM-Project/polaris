@@ -1753,18 +1753,18 @@ Rejected:
   for MALI's developers;
 - refilling a retreating front with thin ice, which does not conserve mass.
 
-### D33: Stage E runs in two slots of four nodes
+### D33: Stage E runs on eight nodes
 
-Date last modified: 2026/11/07
+Date last modified: 2026/11/11
 
 Contributors: Xylar Asay-Davis, Claude
 
 Stage E runs every experiment at 2 km with split-explicit wetting and
-drying, on at most eight nodes in two slots of four. One slot runs
-IceOcean1r and then IceOcean1ra on four nodes each, about 38 days. The
-other runs Ocean0 on four nodes, then Ocean1 and Ocean2 side by side on
-two nodes each, then Ocean3 and Ocean4 the same way, about 31 days. Ocean0
-runs three years. Jobs run several model years
+drying, on eight nodes. Four run IceOcean1r and then IceOcean1ra, about
+38 days. The other four run the ocean-only experiments in pairs on two
+nodes each: Ocean1 and Ocean2, then Ocean3 and Ocean4, about 30 days.
+Ocean0 runs three years on four more nodes beside them, about half a day.
+Jobs run several model years
 each ([D20](#decisions)). Daily output keeps the two-dimensional fields and
 the daily speed maximum throughout; daily three-dimensional fields are
 written for every year of Ocean0, the first year of the other runs and the
@@ -1781,11 +1781,12 @@ IceOcean1r and IceOcean1ra form the longest chain, since IceOcean1ra
 starts from IceOcean1r's final state, and 2 km can use no more than four
 nodes, so that slot sets the stage's length. At 2 km, four nodes run only
 about 1.4 times as fast as two, so the ocean-only experiments finish sooner
-and cheaper in pairs on two nodes: about 31 days and 120 node-days, against
+and cheaper in pairs on two nodes: about 30 days and 120 node-days, against
 43 days and 170 node-days one at a time on four. The whole stage then takes
 about 38 days and 6,600 node-hours. Ocean0 melts less than the ISOMIP+
 models with the protocol's common settings. Run a year at a time, it
-settled only in its third year, and each year costs only about four hours.
+settled only in its third year. Each year costs only about four hours, so
+it runs beside the other runs rather than delaying the pairs.
 Daily
 three-dimensional output for all of stage E's roughly 440 model years would
 be several terabytes. MPAS-Ocean's monthly means are plain averages of
