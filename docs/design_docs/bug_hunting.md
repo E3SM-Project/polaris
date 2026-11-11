@@ -468,7 +468,8 @@ repository; name any to leave out.
 
 ### Not shown
 
-2 speculative findings; 3 tracked bugs unchanged.
+2 speculative findings; 3 tracked bugs unchanged; 1 dig waiting for
+Perlmutter's maintenance to end.
 ```
 
 The developer answers each decision with one word:
@@ -482,18 +483,21 @@ The developer answers each decision with one word:
 A digest asks for at most five decisions, unless the developer asks for a
 different number, and always includes every P1 finding. Decisions are
 ordered by priority, then by the number of rows affected, then by age, then
-by confidence. The
-P4 findings are listed together, and one answer covers all of them:
-`batch` sends them to their batches, and the developer can name any to
-leave out. A finding that is not shown keeps its place for a later digest.
-A tracked bug appears, in one line, only when something about it has
-changed. Commenting on its issue is a decision like any other. Until every
-decision is answered, or the developer leaves the rest for later, each of
-the agent's turns ends with the open ones again, never with a pointer to an
-earlier message. Decisions left for later stay open in the ledger, and the
-next digest raises them again. A finding the developer is handling outside
-a hunt is set to `fixing`: hunts leave it alone, and a harvest raises it
-again only if a new row fails.
+by confidence. The P4 findings are listed together, and one answer covers
+all of them: `batch` sends them to their batches, and the developer can
+name any to leave out. A finding that is not shown keeps its place for a
+later digest. A tracked bug appears, in one line, only when something about
+it has changed. Commenting on its issue is a decision like any other. Until
+every decision is answered, or the developer leaves the rest for later,
+each of the agent's turns ends with the open ones again, never with a
+pointer to an earlier message. Decisions left for later stay open in the
+ledger, and the next digest raises them again. A finding the developer is
+handling outside a hunt is set to `fixing`: hunts leave it alone, and a
+harvest raises it again only if a new row fails. A dig that is waiting for
+something, such as a machine back from maintenance or an answer from a
+colleague, is set to `digging` with what it waits for. The digest lists
+such digs in one line, not as decisions, and each hunt does them once it
+can. A finding is raised as a decision again only with the dig's result.
 
 ### Algorithm Design: Minor bugs are batched.
 
@@ -663,8 +667,8 @@ claim: PEM tests fail their comparison on CPUs
 severity: S1
 confidence: measured
 priority: P1
-status: tracked   # new, parked, fixing, tracked, batched, logged,
-                  # dismissed or fixed
+status: tracked   # new, parked, fixing, digging, tracked, batched,
+                  # logged, dismissed or fixed
 links: [E3SM-Project/Omega#626]
 last_passed: 2026-10-06
 first_failed: 2026-10-07
@@ -764,13 +768,14 @@ bug_hunt.py park --claim <text> --where <file:line or test>
 ```
 
 `park` refuses a finding without a location or evidence. With `--fixing`,
-it records a blocker and where it is being fixed, with the status
-`fixing`. `update --status fixing --fixing <who or where>` does the same
-for a finding the developer is handling outside a hunt. Without a ledger
-configured, it prints the finding, and the agent
-puts it in its report. A short section of Polaris' `AGENTS.md`, "Bugs
-outside the task", states the rule, including when a bug blocks the task,
-and names `park`. An Omega pull request adds the same section to a new
+it records a blocker and where it is being fixed, with the status `fixing`.
+`update --status fixing --fixing <who or where>` does the same for a
+finding the developer is handling outside a hunt, and `update --status
+digging --note <what it waits for>` for a dig that has to wait. Without a
+ledger configured, it prints the finding, and the agent puts it in its
+report. A short section of Polaris' `AGENTS.md`, "Bugs outside the task",
+states the rule, including when a bug blocks the task, and names `park`. An
+Omega pull request adds the same section to a new
 `components/omega/AGENTS.md`. There, `park` runs from a Polaris checkout,
 and an agent without one puts the finding in its report.
 
