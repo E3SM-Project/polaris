@@ -702,15 +702,19 @@ checks the ledger by key and prints candidate issues and pull requests from
 a GitHub search, and the agent decides. It marks pull requests merged
 between a finding's last failure and its first pass, or between its last
 pass and its first failure. A search takes the test name or file and each
-identifier in the claim, with ten results apiece. `file` searches again
-when it posts. It refuses while any candidate other than the finding's own
-links is open, or was closed in the last 90 days, unless the agent names
-each one it read and ruled out; the finding's history records them. Without
-`--post`, `file` prints the candidates above the draft. Each command pulls
-before it reads the ledger, and commits and pushes after; a rejected push
-pulls and tries again. Two clones writing the same day's hunt record are
-merged. Any other conflict is undone with a warning, and the commit waits
-in the clone for the next command, so a clone is never left mid-rebase.
+identifier in the claim, with ten results apiece. A candidate found by the
+test name or file, or by two or more terms, needs a ruling. The rest are
+listed in one line, since a broad term such as a tool's name finds every
+pull request whose testing used it. `file` searches again when it posts. It
+refuses while any candidate that needs a ruling, other than the finding's
+own links, is open, or was closed in the last 90 days, unless the agent
+names each one it read and ruled out; the finding's history records them.
+Without `--post`, `file` prints the candidates above the draft. Each
+command pulls before it reads the ledger, and commits and pushes after; a
+rejected push pulls and tries again. Two clones writing the same day's hunt
+record are merged. Any other conflict is undone with a warning, and the
+commit waits in the clone for the next command, so a clone is never left
+mid-rebase.
 
 ### Implementation: Each finding names the project that owns it.
 
@@ -845,10 +849,10 @@ tests failed on pm-gpu before they failed on CPUs, for a different tracked
 reason. A second harvest of the same nights adds no findings. Unit tests
 check that `file --post` refuses a finding with a candidate it has not
 ruled out, and that a search still at the rate limit after its wait fails.
-Replayed, the two
-review findings the hunter filed twice in its first week, a GPU race
-already reported and one instance of a general issue about the minimum
-layer index, each match the issue they duplicate.
+Replayed, the two review findings the hunter filed twice in its first week,
+a GPU race already reported and one instance of a general issue about the
+minimum layer index, each match the issue they duplicate as a candidate
+that needs a ruling.
 
 Unit tests also check that two findings cannot share a name, and that
 commands find a finding by its name. Replayed, the
