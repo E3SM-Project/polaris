@@ -62,6 +62,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#unix-shell">Unix Shell</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#set-up-a-polaris-repository-for-beginners">Set up a polaris repository: for beginners</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#polaris-pixi-and-spack-environments-compilers-and-system-modules">Polaris pixi and spack environments, compilers and system modules</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#keeping-pixi-off-your-home-quota">Keeping pixi off your home quota</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#supported-machines">Supported machines</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#unknown-machines">Unknown machines</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#what-the-script-does">What the script does</a></li>
@@ -190,6 +191,51 @@ existing files in <code class="docutils literal notranslate"><span class="pre">p
 <p>Miniforge, Micromamba, and Miniconda are no longer required for Polaris
 deployment. If pixi is not already installed, <code class="docutils literal notranslate"><span class="pre">./deploy.py</span></code> can install it.</p>
 </div>
+<section id="keeping-pixi-off-your-home-quota">
+<span id="dev-pixi-cache"></span><h3>Keeping pixi off your home quota<a class="headerlink" href="#keeping-pixi-off-your-home-quota" title="Link to this heading"></a></h3>
+<p>Before you run <code class="docutils literal notranslate"><span class="pre">./deploy.py</span></code> for the first time on an HPC machine, decide
+where pixi will keep its packages.</p>
+<p>Pixi downloads each package once into a package cache, and then hardlinks the
+files from the cache into each environment. Hardlinks only work when the cache
+and the environment are on the same file system. Otherwise, pixi copies the
+packages into every environment. A Polaris pixi environment is about 3 GB, and
+every branch or worktree gets its own environment, so copies add up quickly.
+Home directories on HPC machines usually have small quotas.</p>
+<p>To avoid this, add a line like the following to your <code class="docutils literal notranslate"><span class="pre">.bashrc</span></code> on each
+machine, pointing at a directory with plenty of space:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">export</span><span class="w"> </span><span class="nv">PIXI_CACHE_DIR</span><span class="o">=</span>/path/with/space/pixi/cache
+</pre></div>
+</div>
+<p>Set <code class="docutils literal notranslate"><span class="pre">PIXI_CACHE_DIR</span></code> explicitly even if the default location would have room.
+On some network file systems, pixi otherwise caches packages inside each
+workspace, so every branch or worktree gets its own copy of every package.</p>
+<p><code class="docutils literal notranslate"><span class="pre">./deploy.py</span></code> puts the pixi environment in <code class="docutils literal notranslate"><span class="pre">pixi-env/.pixi</span></code> of the branch you
+deploy from. If your Polaris branches are not on the same file system as
+<code class="docutils literal notranslate"><span class="pre">PIXI_CACHE_DIR</span></code> (for example, if your branches are in your home directory but
+the cache is on a project file system), also tell pixi to put its environments
+next to the cache:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pixi<span class="w"> </span>config<span class="w"> </span><span class="nb">set</span><span class="w"> </span>--global<span class="w"> </span>detached-environments<span class="w"> </span>/path/with/space/pixi/envs
+</pre></div>
+</div>
+<p>You only need to run this once on each machine. It is saved in
+<code class="docutils literal notranslate"><span class="pre">${HOME}/.pixi/config.toml</span></code>. After you set it, pixi ignores environments that
+already exist in <code class="docutils literal notranslate"><span class="pre">pixi-env/.pixi</span></code>, so rerun <code class="docutils literal notranslate"><span class="pre">./deploy.py</span></code> in each existing
+branch or worktree before you source its load script again.</p>
+<p>For example, on Perlmutter, the home quota is small and the E3SM project
+directory on CFS has room for both:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># in ~/.bashrc</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">PIXI_CACHE_DIR</span><span class="o">=</span>/global/cfs/cdirs/e3sm/<span class="si">${</span><span class="nv">USER</span><span class="si">}</span>/pixi/cache
+</pre></div>
+</div>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># once</span>
+pixi<span class="w"> </span>config<span class="w"> </span><span class="nb">set</span><span class="w"> </span>--global<span class="w"> </span>detached-environments<span class="w"> </span>/global/cfs/cdirs/e3sm/<span class="si">${</span><span class="nv">USER</span><span class="si">}</span>/pixi/envs
+</pre></div>
+</div>
+<p>Avoid scratch file systems that are purged. If files in an environment are
+purged, the environment stops working and you will need to rerun
+<code class="docutils literal notranslate"><span class="pre">./deploy.py</span></code>.</p>
+<p>On a laptop or workstation, the default locations are usually fine.</p>
+</section>
 <section id="supported-machines">
 <h3>Supported machines<a class="headerlink" href="#supported-machines" title="Link to this heading"></a></h3>
 <p>If you are on one of the <a class="reference internal" href="machines/index.html#dev-supported-machines"><span class="std std-ref">Supported Machines</span></a>, run:</p>
