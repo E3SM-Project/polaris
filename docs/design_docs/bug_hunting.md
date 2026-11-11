@@ -93,8 +93,8 @@ a later hunt.
 
 ### Requirement: Minor bugs are batched.
 
-Low-priority bugs are collected by project and theme in a few clean-up
-issues rather than filed one at a time.
+Low-priority bugs that one developer would fix together are collected in
+clean-up issues rather than filed one at a time.
 
 ### Requirement: Nothing reaches another person without the developer's permission.
 
@@ -448,7 +448,7 @@ to 2026-11-03 and triaged 3 parked findings.
    P3, polaris, inferred; S3, another failure. (F-20261030-07bd)
    - In `polaris/run/serial.py:212`.
    - Evidence: <...>.
-   - Proposed: **batch (with logging and error messages)**. Or: file
+   - Proposed: **batch (with the task runner)**. Or: file
      (an issue in E3SM-Project/polaris, `priority: low`), log, dismiss, dig.
 
 ### For clean-up batches, one decision for all
@@ -456,8 +456,7 @@ to 2026-11-03 and triaged 3 parked findings.
 `batch` adds each to the "Clean-up: <theme>" issue of its owner's
 repository; name any to leave out.
 
-- polaris, documentation and naming: **<name>: <claim>.**
-  (F-20261029-5c1e)
+- polaris, ice shelves: **<name>: <claim>.** (F-20261029-5c1e)
   - Evidence: <...>.
 - omega, compiler warnings: **<name>: <claim>.** (F-20261102-a07f)
   - Evidence: <...>.
@@ -501,16 +500,21 @@ can. A finding is raised as a decision again only with the dig's result.
 
 ### Algorithm Design: Minor bugs are batched.
 
-A clean-up batch is an open issue for one project and theme, labeled
+A clean-up batch is an open issue for one project and one theme, labeled
 `clean up` in Omega or `clean-up` in Polaris, and `priority: low`. Its body
-is a checklist with a line per finding. The themes are few and broad:
-compiler warnings; logging and error messages; tests and CI; documentation
-and naming; and everything else. A P3 or P4 finding that the developer
-batches joins the matching open batch, or starts one, with the P4 lines
-below the P3 lines.
+is a checklist with a line per finding. A theme is an area of code that one
+pull request would touch and one developer would own: a task family such as
+ice shelves, a utility such as Omega PR testing, a part of Omega such as
+KPP, or one mechanical fix across files, such as compiler warnings. A layer
+or a category, such as tasks and steps, tests and CI or error handling, is
+not a theme. Before batching, the agent asks whether one person would fix
+the lines in one sitting and one pull request. A small finding with no
+partner is filed as an issue of its own with `priority: low`: small does
+not mean batchable. A P3 or P4 finding that the developer batches joins the
+matching open batch, or starts one, with the P4 lines below the P3 lines.
 
-One pull request fixes a batch and closes it. Small fixes go there rather
-than into feature branches.
+A batch's issue says that its lines are small bugs in one area, likely
+fixed together. Small fixes go there rather than into feature branches.
 
 ### Algorithm Design: Nothing reaches another person without the developer's permission.
 
@@ -971,7 +975,7 @@ The second trial hands at least one finding to a new session with
 - **Low-priority bugs go to clean-up issues upstream, not only to the
   ledger.** Few developers may use the hunter, and the rest see only what
   is in the issue trackers. This holds for cosmetic bugs too. Bugs are
-  batched by theme because an issue per finding would cost the team as much
+  batched by area of code because an issue per finding would cost the team as much
   attention for a typo as for a crash. Only speculative findings wait in
   the ledger, until they are confirmed.
 - **A hunt never fixes, and work on other things fixes only its
