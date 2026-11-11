@@ -1,5 +1,7 @@
+import os
 from typing import Dict as Dict
 
+import polaris.namelist
 from polaris import (
     Step as Step,
 )
@@ -56,6 +58,21 @@ class IceShelfTask(Task):
         self.sshdir = sshdir
         self.component = component
         self.min_resolution = min_resolution
+
+    def configure(self):
+        """
+        Check that MPAS-Ocean supports the land-ice pressure in ice-shelf
+        cavities.
+
+        Ice-shelf tasks turn the land-ice pressure on with
+        ``config_use_land_ice_pressure``, which MPAS-Ocean only has on the
+        FAnSSIE branch so far.  An MPAS-Ocean without it would ignore the
+        option with nothing but a printed warning and then abort on a land-ice
+        flux mode it does not recognize, so the task is refused at setup
+        instead.
+        """
+        super().configure()
+        _check_land_ice_pressure_support(self.config)
 
     def setup_ssh_adjustment_steps(
         self,
@@ -164,3 +181,37 @@ class IceShelfTask(Task):
             final_step = ssh_adjust
 
         return final_step
+
+
+def _check_land_ice_pressure_support(config):
+    """
+    Raise an error if the MPAS-Ocean build has no
+    ``config_use_land_ice_pressure`` option.
+
+    The option comes from E3SM-Project/E3SM#8047, which is on the FAnSSIE
+    branch but not yet in E3SM-Project.  Remove this check once E3SM-Project's
+    MPAS-Ocean has the new land-ice options.
+
+    Omega is not checked, and neither is a build whose default namelist does
+    not exist yet, which fails later with an error of its own.
+    """
+    if config.get('ocean', 'model') != 'mpas-ocean':
+        return
+    namelist_filename = config.get('namelists', 'forward')
+    if not os.path.exists(namelist_filename):
+        return
+    namelist = polaris.namelist.ingest(namelist_filename)
+    for options in namelist.values():
+        if 'config_use_land_ice_pressure' in options:
+            return
+    component_path = config.get('paths', 'component_path')
+    raise ValueError(
+        f'Tasks with ice-shelf cavities need config_use_land_ice_pressure, '
+        f'which the MPAS-Ocean build in {component_path} does not have.\n'
+        f'The option comes from E3SM-Project/E3SM#8047, which is on the '
+        f'FAnSSIE branch but not yet in E3SM-Project.  Build MPAS-Ocean from '
+        f'the FAnSSIE submodule instead, for example with:\n'
+        f'    git submodule update --init e3sm_submodules/FAnSSIE\n'
+        f'    polaris setup ... --branch e3sm_submodules/FAnSSIE\n'
+        f"(see the FAnSSIE section of the Developer's Guide)."
+    )

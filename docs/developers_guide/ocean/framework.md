@@ -784,11 +784,21 @@ the evaluation time specified by the `convergence_eval_time` config option.
 
 The `polaris.ocean.ice_shelf` module provides support for ice shelf tasks.
 
-The {py:class}`polaris.ocean.ice_shelf.IceShelf` class can serve as a parent
-class for ice shelf tests, such as
-{py:class}`polaris.tasks.ocean.ice_shelf_2d.IceShelf2d`.
+The {py:class}`polaris.ocean.ice_shelf.IceShelfTask` class can serve as a
+parent class for ice shelf tests, such as
+{py:class}`polaris.tasks.ocean.ice_shelf_2d.default.Default`.
 
-The {py:meth}`polaris.ocean.ice_shelf.IceShelf.setup_ssh_adjustment_steps()`
+{py:meth}`polaris.ocean.ice_shelf.IceShelfTask.configure()` refuses to set up
+the task if MPAS-Ocean has no `config_use_land_ice_pressure` option, which
+comes from
+[E3SM-Project/E3SM#8047](https://github.com/E3SM-Project/E3SM/pull/8047) and
+is on the FAnSSIE branch but not yet in E3SM-Project (see
+{ref}`dev-ocean-fanssie`).  Without the option, MPAS-Ocean would ignore the
+land-ice pressure with only a printed warning and then abort on an unknown
+land-ice flux mode.  A task that overrides `configure()` must call
+`super().configure()` to keep this check.
+
+The {py:meth}`polaris.ocean.ice_shelf.IceShelfTask.setup_ssh_adjustment_steps()`
 sets up `ssh_forward` and `ssh_adjustment` steps from the classes
 {py:class}`polaris.ocean.ice_shelf.ssh_forward.SshForward`
 {py:class}`polaris.ocean.ice_shelf.ssh_adjustment.SshAdjustment`.
