@@ -129,20 +129,32 @@ job with `squeue --me`.
 
 ## Checking the results
 
-The job's output is in `polaris_mali_pr.o<jobid>` in the work directory.  It
-ends with a summary of the tasks:
+The job's output is in `polaris_mali_pr.o<jobid>` in the work directory.  The
+suite's steps run at the same time where they fit on the node, so the output
+ends with a summary of the steps (in the order they finished) and the result
+of the suite:
 
 ```none
-Task Runtimes:
-0:00:07 PASS landice/dome/2km/sia/decomp
-0:00:02 PASS landice/dome/2km/sia/restart
-0:00:12 PASS landice/dome/2km/fo/decomp
-0:00:07 PASS landice/dome/2km/fo/restart
-Total runtime: 0:00:28
+Step runtimes:
+      23.9s SUCCESS landice/dome/2km/init
+       3.8s SUCCESS landice/dome/2km/sia/decomp/1proc
+       4.1s SUCCESS landice/dome/2km/sia/decomp/4proc
+       4.1s SUCCESS landice/dome/2km/sia/restart/full_run
+       3.7s SUCCESS landice/dome/2km/sia/restart/restart_run
+       8.0s SUCCESS landice/dome/2km/fo/decomp/4proc
+       8.2s SUCCESS landice/dome/2km/fo/restart/full_run
+       4.7s SUCCESS landice/dome/2km/sia/decomp/validate
+       2.2s SUCCESS landice/dome/2km/sia/restart/validate
+      11.0s SUCCESS landice/dome/2km/fo/decomp/1proc
+       4.5s SUCCESS landice/dome/2km/fo/restart/restart_run
+       3.0s SUCCESS landice/dome/2km/fo/decomp/validate
+       1.6s SUCCESS landice/dome/2km/fo/restart/validate
+Total runtime: 0:00:38
+Step time was 83s, so this run did 2.2x the work of running one step at a time for as long.
 PASS: All passed successfully!
 ```
 
-Each task's log is in `case_outputs`, and the task's own work directory, such
+Each step's log is in `case_outputs`, and each task's own work directory, such
 as `landice/dome/2km/fo/decomp`, has its steps' output.  The job also writes
 `mali_pr_output_for_pr.md`, a summary of the run to paste into a pull
 request.
