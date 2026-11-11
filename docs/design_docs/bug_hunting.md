@@ -27,7 +27,7 @@ carries one, and Polaris has none.
 A developer starts each hunt. The hunt reads the results that testing
 already produces. It can also run tests that do not run regularly, among
 them Omega's coupled E3SM tests and two suites of Polaris tasks kept for
-hunting, or read recently merged code. Each finding is
+hunting, or read the code. Each finding is
 matched against what is already known, assigned to the project that owns
 it, and ranked. The developer sees at most five decisions per hunt. Minor
 bugs go into a few clean-up issues instead of one issue each.
@@ -141,7 +141,7 @@ The developer says what to hunt, choosing one or more of:
 
 - **harvest**: read testing results;
 - **campaign** *name*: run a campaign from the list;
-- **review**: read code merged since the last review;
+- **review**: read a part of the code;
 - **triage**: rank what is in the ledger, including parked findings.
 
 By default, a hunt harvests and triages, which costs no compute. The target
@@ -258,13 +258,15 @@ failure, so a hunt reports it only when it changes.
 
 ### Algorithm Design: Hunts can find bugs by reading code.
 
-A review reads the pull requests merged into Omega `develop` and Polaris
-`main` since the last review, or a part of the code the developer names. It
-looks only for code that gives wrong answers or fails: missing halo
-exchanges, races on GPUs, out-of-bounds or uninitialized values,
-inconsistent units or constants. It ignores style. Each candidate must come
-with a concrete way it fails, and is `inferred` unless a test shows it. A
-review records at most ten candidates.
+A review reads a part of Omega or Polaris: the part the developer names,
+or else code no review has read. All of both repositories is in scope. Old
+code gets the least scrutiny, so its bugs matter as much as those in recent
+merges. Code that E3SM v4 runs comes before code outside it. A file counts
+as reviewed until it changes. A review looks only for code that gives wrong
+answers or fails: missing halo exchanges, races on GPUs, out-of-bounds or
+uninitialized values, inconsistent units or constants. It ignores style.
+Each candidate must come with a concrete way it fails, and is `inferred`
+unless a test shows it. A review records at most ten candidates.
 
 A review starts from the bugs already known: the ledger's findings and the
 open issues in both repositories, many of which were filed outside any
@@ -528,8 +530,8 @@ to start that session. A branch fixes one finding or one batch.
 - `README.md`: the same workflow, for people running the commands;
 - `bug_hunt.py`, with the subcommands `harvest`, `park`, `match`,
   `update` (which records what the agent decides about a finding), `review`
-  (which lists the merges since the last review and records one), `digest`,
-  `file`, `handoff` and `status`, and its modules, `bug_hunt_*.py`;
+  (which lists the code no review has read, and records what one read),
+  `digest`, `file`, `handoff` and `status`, and its modules, `bug_hunt_*.py`;
 - `campaigns.yaml`: the campaigns.
 
 The modules reuse `utils/pr_testing` for settings, git, GitHub (through
@@ -590,9 +592,12 @@ reaches Polaris.
 
 ### Implementation: Hunts can find bugs by reading code.
 
-The agent reviews with its own tools. `review` lists the pull requests
-merged into each repository since the last review, and the hunt record
-keeps each repository's range separately.
+The agent reviews with its own tools. The unit of coverage is a file. The
+hunt record keeps each file a review read, with the commit it was read at.
+`review` lists, by directory, the files in Omega's `components/omega/src`
+and in Polaris that no review has read or that changed after their review,
+with their sizes. The agent picks a related group of them, sized for one
+review. `review --merges` still lists the merges since a review.
 
 ### Implementation: Each bug is reported once.
 
