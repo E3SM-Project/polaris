@@ -67,6 +67,8 @@ def test_report(finished):
     assert 'No new warnings (0 in the PR build, 0 in the baseline build)' in (
         block
     )
+    # nothing failed, so there is no section naming failures
+    assert 'Failures and differences' not in text
     marker = pr_test_report.parse_marker(text, MARKER_PREFIX)
     assert marker is not None
     assert marker['schema'] == 2
@@ -144,9 +146,15 @@ def test_report_failures(finished):
     contents = json.loads(results.read_text())
     contents['summary'].update({'passed': 2, 'failed': 1})
     contents['tasks'][0]['baseline'] = 'fail'
+    contents['tasks'][0]['baseline_diffs'] = {
+        'temperature': {'l1': 1e-3, 'l2': 1e-3, 'linf': 1e-3}
+    }
     results.write_text(json.dumps(contents))
     Path(state.pr_build_dir, 'ctests.log').write_text(
         '98% tests passed, 1 tests failed out of 50\n'
+        '\n'
+        'The following tests FAILED:\n'
+        '\t  7 - EOS_TEST (Failed)\n'
     )
 
     text, _ = omega_pr_report.run_report(
@@ -157,6 +165,16 @@ def test_report_failures(finished):
         '| chrysalis, intel, openmpi | 49 of 50 passed | 2 of 3 passed, 1 '
         'with baseline differences | 2 of 2 passed | 0 |'
     ) in text
+    # the failures are named above the row's collapsed block
+    visible = text.split('<details>')[0]
+    assert (
+        '**1 task differs from the baseline:**\n\n- `ocean/task0`: on '
+        'chrysalis, intel, openmpi'
+    ) in visible
+    assert '**1 CTest failed:**\n\n- `EOS_TEST`: on chrysalis' in visible
+    assert visible.index('| chrysalis, intel') < visible.index(
+        '### Failures and differences'
+    )
     marker = pr_test_report.parse_marker(text, MARKER_PREFIX)
     assert marker is not None and marker['rows'][0]['result'] == 'fail'
 
