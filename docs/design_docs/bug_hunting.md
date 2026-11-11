@@ -165,19 +165,21 @@ last hunt, then triage.
 | CIME test directories | `create_test` runs | as recorded by CIME |
 
 For each failing test on each row, the harvest walks back through the
-nights to the last one that passed. It lists the merges into `develop`
-between that night and the first failure, which is how Omega#626 was traced
-to #512 by hand. For a failure that has ended, it also lists the merges
-between the last failure and the first pass. A test that alternates between
-passing and failing with no merge in between is marked intermittent. A
-failure that stopped before the row's latest build, and did not come and
-go, is counted but not recorded, since a hunt is about bugs that are still
-there. The harvest also reports rows that stopped reporting, since CDash
-says nothing about a missing build, and rows whose count of compiler
-warnings rose. A row the developer puts on hold, with a reason and a date,
-is not reported as stopped, since a row out of compute hours is not a bug.
-The digest notes it in one line, and the harvest takes it off hold, and
-says so, when it reports again.
+nights to the last one that passed. A night counts only if its build ran
+the test and the test passed, so a test that has failed since it first ran
+has no last pass. It lists the merges into `develop` between that night and
+the first failure, which is how Omega#626 was traced to #512 by hand. For a
+failure that has ended, it also lists the merges between the last failure
+and the first pass. A test that alternates between passing and failing with
+no merge in between is marked intermittent. A failure that stopped before
+the row's latest build, and did not come and go, is counted but not
+recorded, since a hunt is about bugs that are still there. The harvest also
+reports rows that stopped reporting, since CDash says nothing about a
+missing build, and rows whose count of compiler warnings rose. A row the
+developer puts on hold, with a reason and a date, is not reported as
+stopped, since a row out of compute hours is not a bug. The digest notes it
+in one line, and the harvest takes it off hold, and says so, when it
+reports again.
 
 Polaris' nightly suite runs the Omega commit pinned in Polaris, not
 `develop`. A regression on `develop` that only Polaris' suites catch
@@ -332,11 +334,12 @@ since, is listed in the digest as closed upstream. The agent sets it
 closed as a duplicate is replaced by the issue it duplicates. A failure
 that has ended is explained before it is triaged: the agent reads the
 merges between its last failure and its first pass, and the candidates from
-`match`. If one of them fixed it, the agent links it, along with the merge
-that introduced the failure when that is clear, and sets it `fixed`. Only a
-failure that nothing explains is ranked as one that has ended. If a new row
-turns out to fail for another reason, the agent moves it to a finding of
-its own.
+`match`. If one of them fixed it, the agent links it and sets it `fixed`. A
+link is an issue or pull request that tracks or fixes the finding. The
+merge that introduced a failure, when that is clear, is recorded as its
+cause instead, and a later failure is never read against it. Only a failure
+that nothing explains is ranked as one that has ended. If a new row turns
+out to fail for another reason, the agent moves it to a finding of its own.
 
 The 14 coupled failures of 2026-10-27 are five tests on four rows. Three
 open issues cover them: Omega#626 the `PEM` failures on CPUs, and #564 and
@@ -666,6 +669,7 @@ links: [E3SM-Project/Omega#626]
 last_passed: 2026-10-06
 first_failed: 2026-10-07
 merged_between: [E3SM-Project/Omega#512]
+caused_by: E3SM-Project/Omega#512
 occurrences:      # one for each test on each row
   - {test: PEM_Vmct.T62_oQU240.COMEGA-IAF, row: chrysalis/intel,
      source: coupled, first_failed: 2026-10-07, last_failed: 2026-10-27,
