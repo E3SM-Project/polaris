@@ -221,12 +221,16 @@ next to the cache:</p>
 <code class="docutils literal notranslate"><span class="pre">${HOME}/.pixi/config.toml</span></code>. After you set it, pixi ignores environments that
 already exist in <code class="docutils literal notranslate"><span class="pre">pixi-env/.pixi</span></code>, so rerun <code class="docutils literal notranslate"><span class="pre">./deploy.py</span></code> in each existing
 branch or worktree before you source its load script again.</p>
-<p>For example, on Perlmutter, the home quota is small and the E3SM project
-directory on CFS has room for both:</p>
+<p>For example, on Perlmutter, the home directory is too small for Polaris
+branches, so we recommend cloning Polaris somewhere under
+<code class="docutils literal notranslate"><span class="pre">/global/cfs/cdirs/e3sm/${USER}</span></code>. Then put the cache on the same file system:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># in ~/.bashrc</span>
 <span class="nb">export</span><span class="w"> </span><span class="nv">PIXI_CACHE_DIR</span><span class="o">=</span>/global/cfs/cdirs/e3sm/<span class="si">${</span><span class="nv">USER</span><span class="si">}</span>/pixi/cache
 </pre></div>
 </div>
+<p>If you do keep Polaris branches in your home directory, this cache alone would
+make pixi copy packages into each <code class="docutils literal notranslate"><span class="pre">pixi-env</span></code> in your home directory. In that
+case, also put the environments on CFS:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># once</span>
 pixi<span class="w"> </span>config<span class="w"> </span><span class="nb">set</span><span class="w"> </span>--global<span class="w"> </span>detached-environments<span class="w"> </span>/global/cfs/cdirs/e3sm/<span class="si">${</span><span class="nv">USER</span><span class="si">}</span>/pixi/envs
 </pre></div>
