@@ -286,7 +286,9 @@ launcher message around the abort. That line is kept as evidence instead.
 Rows and nights are occurrences of a finding, not part of its key. For a
 row that stopped reporting, the key is the row itself: its source, machine
 and compiler, since the row is what is broken and rows stop for different
-reasons. For a finding from reading code or from parking, the key is the
+reasons. A row that stops again after its finding was fixed or dismissed
+starts a new finding, since one silence says nothing about the cause of
+another. For a finding from reading code or from parking, the key is the
 file, the function and a short form of the claim.
 
 The harvest adds each failure to the finding that holds its key. Every
@@ -307,11 +309,15 @@ that is one instance of an open general issue, such as one of many loops
 that ignore the minimum layer index, matches that issue and is not filed on
 its own; commenting there is a decision like any other. A search held back
 by GitHub's rate limit waits for the limit to reset. A search that still
-fails stops the command, and never counts as finding nothing. A finding
-is raised again only when it changes: a new row or test, a new message, a
+fails stops the command, and never counts as finding nothing. A finding is
+raised again only when it changes: a new row or test, a new message, a
 failure after its issue was closed, or a failure after its fix was merged.
-If a new row turns out to fail for another reason, the agent moves it to a
-finding of its own.
+A tracked finding whose links have all closed, and that has not failed
+since, is listed in the digest as closed upstream. The agent sets it
+`fixed` once it has checked that each link was closed by a fix; a link
+closed as a duplicate is replaced by the issue it duplicates. If a new row
+turns out to fail for another reason, the agent moves it to a finding of
+its own.
 
 The 14 coupled failures of 2026-10-27 are five tests on four rows. Three
 open issues cover them: Omega#626 the `PEM` failures on CPUs, and #564 and
@@ -376,15 +382,18 @@ offered in the digest with its cost.
 | P4 | S4 | a clean-up batch, below the P3 lines | `priority: low` |
 
 A speculative finding stays in the ledger, whatever its severity, until a
-test or a closer reading confirms it. The agent proposes a priority, and the
-developer can change it in the digest. A bug that comes back after its
-issue was closed moves up one level. An Omega bug that matters only for a
-feature or option outside E3SM v4 moves down one level, but no lower than
-P3. The features in v4.0 are those in the Ocean section of the E3SM v4
-roadmap. An option is in v4 only if v4 turns it on, which Omega's defaults
-do not show. When v4's setting is not written down, the agent proposes one
-and says so in the digest, and the code owner decides; a code owner who
-relabels the issue has decided.
+test or a closer reading confirms it. The agent proposes a priority, and
+the developer can change it in the digest. A bug that comes back after its
+issue was closed moves up one level. A failure that has ended, because
+every row has passed or stopped running the test on each of its last three
+nights, moves down one level, no lower than P3, and the digest says since
+when. If it fails again, that is a change, raised at its full priority. An
+Omega bug that matters only for a feature or option outside E3SM v4 moves
+down one level, but no lower than P3. The features in v4.0 are those in the
+Ocean section of the E3SM v4 roadmap. An option is in v4 only if v4 turns
+it on, which Omega's defaults do not show. When v4's setting is not written
+down, the agent proposes one and says so in the digest, and the code owner
+decides; a code owner who relabels the issue has decided.
 
 ### Algorithm Design: A hunt asks for only a few decisions.
 
@@ -647,14 +656,14 @@ history:
 
 An ID is the date a finding was first recorded and a hash of its first key.
 `park` and `harvest` add to an existing finding with the same key rather
-than make a new one. `match` checks the ledger by key and prints candidate
-issues and pull requests from a GitHub search, and the agent decides. A
-search takes the test name or file and each identifier in the claim, with
-ten results apiece. `file` searches again when it posts. It refuses while
-any candidate other than the finding's own links is open, or was closed in
-the last 90 days, unless the agent names each one it read and ruled out;
-the finding's history records them. Without `--post`, `file` prints the
-candidates above the draft. Each
+than make a new one, except for a row that stopped reporting again. `match`
+checks the ledger by key and prints candidate issues and pull requests from
+a GitHub search, and the agent decides. A search takes the test name or
+file and each identifier in the claim, with ten results apiece. `file`
+searches again when it posts. It refuses while any candidate other than the
+finding's own links is open, or was closed in the last 90 days, unless the
+agent names each one it read and ruled out; the finding's history records
+them. Without `--post`, `file` prints the candidates above the draft. Each
 command pulls before it reads the ledger, and commits and pushes after; a
 rejected push pulls and tries again. Two clones writing the same day's hunt
 record are merged. Any other conflict is undone with a warning, and the
@@ -811,8 +820,9 @@ reproduce it, and that the issue it writes has each part.
 ### Testing and Validation: Findings are ranked by priority.
 
 Unit tests rank fixture findings that cover each row of the priority table,
-a bug that came back after its issue was closed, and one outside E3SM
-v4.
+a bug that came back after its issue was closed, a failure that has ended,
+and one outside E3SM v4. A row that stops again after its finding was fixed
+starts a new finding, and is not ranked as one that came back.
 
 ### Testing and Validation: A hunt asks for only a few decisions.
 
