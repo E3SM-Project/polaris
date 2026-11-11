@@ -61,14 +61,15 @@ requested basin, as a function of latitude and elevation.
 
 ### Requirement: Omega computes the AMOC as it runs
 
-Date last modified: 2026/11/08
+Date last modified: 2026/11/11
 
 Contributors: Xylar Asay-Davis, Claude
 
 An Omega run shall compute the overturning streamfunction across the RAPID
 line as it runs, on any mesh, with no input files beyond those it already
 reads. The AMOC time series shall need no pass over three-dimensional
-output.
+output. The streamfunction shall be bit-for-bit the same from run to run and
+across restarts, on CPUs and GPUs.
 
 ### Requirement: Lines and basins are defined by data
 
@@ -403,7 +404,7 @@ For each family, the group builds three chains:
 
 ### Implementation: Omega computes the AMOC as it runs
 
-Date last modified: 2026/11/08
+Date last modified: 2026/11/11
 
 Contributors: Xylar Asay-Davis, Claude
 
@@ -412,19 +413,30 @@ Three new general operators:
 - **`CellToEdge`**: the mean of a cell field's two cells on each edge, with
   the input's other dimensions.
 - **`LineCrossings`**: computed once, as `CoordinateBinning` is. From
-  `LatCell`, `LonCell` and a family's options, it gives each owned edge the
-  first and last line it crosses and its sign. An edge that crosses none has
-  an empty range.
-- **`LineTransport(<Crossings>, <ZInterfaceEdge>)`**: for each owned edge
-  with a nonempty range, the running transport from the sea floor,
-  interpolated to the elevations and added with its sign to every line it
-  crosses. The sum over ranks is Omega's reproducible `globalSum`, and the
-  result is negated. The output has a line and an elevation dimension.
+  `LatCell`, `LonCell` and a family's options, it lists each line's crossing
+  edges among the owned edges, in local index order, with their signs. The
+  lists are stored as one compressed sparse row array. An edge that crosses
+  several lines is in each of their lists.
+- **`LineTransport(<Crossings>, <ZInterfaceEdge>)`**: one device thread per
+  line and elevation walks that line's list. For each edge, it interpolates
+  the running transport from the sea floor to the elevation and adds it with
+  its sign. The output has a line and an elevation dimension, and it is
+  negated after the sum over ranks.
 
 `LineTransport` fuses the vertical interpolation with the sum over edges, so
-no array of edges by elevations is formed. Its atomic sums over edges on a
-device have the order dependence of `BinnedAccumulator`'s
-([Omega#661](https://github.com/E3SM-Project/Omega/issues/661)).
+no array of edges by elevations is formed. Its sums are reproducible:
+
+- Each thread accumulates in double-double precision, in the fixed order of
+  its list, with no atomic operations.
+- The sum over ranks is a `globalSum` overload that takes each rank's
+  double-double partial sums, high and low parts, and reduces them with
+  Omega's `MPI_SUMDD`.
+
+The streamfunction is then bit-for-bit the same from run to run and across
+restarts on GPUs, and as reproducible across task counts as `globalSum`.
+This is the approach of the fix for `BinnedAccumulator`'s order dependence
+([Omega#661](https://github.com/E3SM-Project/Omega/issues/661)), with the
+same `globalSum` overload.
 
 The chain parser changes in two ways. A parenthesized argument ends at its
 matching parenthesis rather than the first `)`, so an operand may be a field
@@ -681,7 +693,7 @@ Contributors: Xylar Asay-Davis, Claude
 
 ### Testing and Validation: Omega computes the AMOC as it runs
 
-Date last modified: 2026/11/08
+Date last modified: 2026/11/11
 
 Contributors: Xylar Asay-Davis, Claude
 
@@ -693,6 +705,8 @@ CTests on a small mesh with synthetic fields:
   north;
 - `LineTransport` matches values from Polaris's core for a known transport
   and tilted layers;
+- on a GPU, a repeated run and a run restarted partway give bit-for-bit the
+  same `MOC_streamfunction_<Name>` as the original run;
 - the parser accepts an operand holding parentheses, and several operands.
 
 ### Testing and Validation: Lines and basins are defined by data
