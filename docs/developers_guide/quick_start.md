@@ -55,6 +55,65 @@ Miniforge, Micromamba, and Miniconda are no longer required for Polaris
 deployment. If pixi is not already installed, `./deploy.py` can install it.
 :::
 
+(dev-pixi-cache)=
+
+### Keeping pixi off your home quota
+
+Before you run `./deploy.py` for the first time on an HPC machine, decide
+where pixi will keep its packages.
+
+Pixi downloads each package once into a package cache, and then hardlinks the
+files from the cache into each environment. Hardlinks only work when the cache
+and the environment are on the same file system. Otherwise, pixi copies the
+packages into every environment. A Polaris pixi environment is about 3 GB, and
+every branch or worktree gets its own environment, so copies add up quickly.
+Home directories on HPC machines usually have small quotas.
+
+To avoid this, add a line like the following to your `.bashrc` on each
+machine, pointing at a directory with plenty of space:
+
+```bash
+export PIXI_CACHE_DIR=/path/with/space/pixi/cache
+```
+
+Set `PIXI_CACHE_DIR` explicitly even if the default location would have room.
+On some network file systems, pixi otherwise caches packages inside each
+workspace, so every branch or worktree gets its own copy of every package.
+
+`./deploy.py` puts the pixi environment in `pixi-env/.pixi` of the branch you
+deploy from. If your Polaris branches are not on the same file system as
+`PIXI_CACHE_DIR` (for example, if your branches are in your home directory but
+the cache is on a project file system), also tell pixi to put its environments
+next to the cache:
+
+```bash
+pixi config set --global detached-environments /path/with/space/pixi/envs
+```
+
+You only need to run this once on each machine. It is saved in
+`${HOME}/.pixi/config.toml`. After you set it, pixi ignores environments that
+already exist in `pixi-env/.pixi`, so rerun `./deploy.py` in each existing
+branch or worktree before you source its load script again.
+
+For example, on Perlmutter, the home quota is small and the E3SM project
+directory on CFS has room for both:
+
+```bash
+# in ~/.bashrc
+export PIXI_CACHE_DIR=/global/cfs/cdirs/e3sm/${USER}/pixi/cache
+```
+
+```bash
+# once
+pixi config set --global detached-environments /global/cfs/cdirs/e3sm/${USER}/pixi/envs
+```
+
+Avoid scratch file systems that are purged. If files in an environment are
+purged, the environment stops working and you will need to rerun
+`./deploy.py`.
+
+On a laptop or workstation, the default locations are usually fine.
+
 ### Supported machines
 
 If you are on one of the {ref}`dev-supported-machines`, run:
