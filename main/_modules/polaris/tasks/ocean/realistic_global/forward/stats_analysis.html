@@ -482,7 +482,6 @@ window.runMermaid = runMermaid;</script>
 <span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.model</span><span class="w"> </span><span class="kn">import</span> <span class="n">OceanIOStep</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.model.time</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_time_since_start</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.tasks.ocean.realistic_global.forward.stage</span><span class="w"> </span><span class="kn">import</span> <span class="n">ForwardStage</span>
 
 
 <div class="viewcode-block" id="StatsAnalysis">
@@ -498,7 +497,7 @@ window.runMermaid = runMermaid;</script>
 
 <span class="sd">    Attributes</span>
 <span class="sd">    ----------</span>
-<span class="sd">    forward_step : polaris.Step</span>
+<span class="sd">    forward_step : polaris.tasks.ocean.realistic_global.forward.Forward</span>
 <span class="sd">        The forward step whose statistics are plotted.</span>
 
 <span class="sd">    output_filename : str</span>
@@ -526,7 +525,7 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">        indir : str</span>
 <span class="sd">            The directory the step is in, to which ``name`` is appended.</span>
 
-<span class="sd">        forward_step : polaris.Step</span>
+<span class="sd">        forward_step : polaris.tasks.ocean.realistic_global.forward.Forward</span>
 <span class="sd">            The forward step whose statistics are plotted.</span>
 
 <span class="sd">        output_filename : str, optional</span>
@@ -554,14 +553,13 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">        What the file is called depends on the model and, for Omega, on the</span>
 <span class="sd">        statistics period, so the name comes from</span>
 <span class="sd">        :py:meth:`~polaris.tasks.ocean.realistic_global.forward.stage.ForwardStage.stats_filename`</span>
-<span class="sd">        on the same stage the forward step renders its config from.  That is</span>
-<span class="sd">        also why the entry is added here rather than in ``__init__()``, where</span>
-<span class="sd">        the model is not yet known.</span>
+<span class="sd">        on the same stage the forward step renders its config from, which</span>
+<span class="sd">        :py:meth:`~polaris.tasks.ocean.realistic_global.forward.forward.Forward.get_stage`</span>
+<span class="sd">        returns.  That is also why the entry is added here rather than in</span>
+<span class="sd">        ``__init__()``, where the model is not yet known.</span>
 <span class="sd">        """</span>
         <span class="n">model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'ocean'</span><span class="p">,</span> <span class="s1">'model'</span><span class="p">)</span>
-        <span class="n">stage</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">forward_step</span><span class="p">,</span> <span class="s1">'stage'</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">stage</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">stage</span> <span class="o">=</span> <span class="n">ForwardStage</span><span class="o">.</span><span class="n">from_config</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">)</span>
+        <span class="n">stage</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">forward_step</span><span class="o">.</span><span class="n">get_stage</span><span class="p">()</span>
         <span class="n">filename</span> <span class="o">=</span> <span class="n">stage</span><span class="o">.</span><span class="n">stats_filename</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_filename</span><span class="p">)</span>
         <span class="n">target</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">forward_step</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s1">'</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span>

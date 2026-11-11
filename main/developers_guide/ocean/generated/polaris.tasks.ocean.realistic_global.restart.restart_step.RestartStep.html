@@ -260,6 +260,12 @@ history up to that time.</p></li>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_init_filename</span></code>()</p></td>
 <td><p>Get the configured local filename for the initial-condition file.</p></td>
 </tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="polaris.tasks.ocean.realistic_global.restart.restart_step.RestartStep.get_stage.html#polaris.tasks.ocean.realistic_global.restart.restart_step.RestartStep.get_stage" title="polaris.tasks.ocean.realistic_global.restart.restart_step.RestartStep.get_stage"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_stage</span></code></a>()</p></td>
+<td><p>The stage from config with the task's run duration and output interval, rebuilt every time, as <code class="docutils literal notranslate"><span class="pre">Forward</span></code> does when it has no stage, so that a user's config changes after setup still take effect</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_stats_filename</span></code>()</p></td>
+<td><p>The global-statistics file this run writes, relative to the step's work directory.</p></td>
+</tr>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_vert_coord_filename</span></code>()</p></td>
 <td><p>Get the configured local filename for the vertical coordinate file.</p></td>
 </tr>

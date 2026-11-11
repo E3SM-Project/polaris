@@ -400,9 +400,13 @@ instantaneous samples, or <code class="docutils literal notranslate"><span class
 asked for.  Both names come from
 <a class="reference internal" href="../generated/polaris.tasks.ocean.realistic_global.forward.stage.ForwardStage.stats_filename.html#polaris.tasks.ocean.realistic_global.forward.stage.ForwardStage.stats_filename" title="polaris.tasks.ocean.realistic_global.forward.stage.ForwardStage.stats_filename"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.tasks.ocean.realistic_global.forward.stage.ForwardStage.stats_filename()</span></code></a>,
 which lives on the stage because the period does; this step only asks it, in
-<code class="docutils literal notranslate"><span class="pre">setup()</span></code>, once the model is known.  Anything else that reads a stage’s
-statistics asks the same question the same way, so the two cannot drift
-apart.</p></li>
+<code class="docutils literal notranslate"><span class="pre">setup()</span></code>, once the model is known, on the stage from the forward step’s
+<a class="reference internal" href="../generated/polaris.tasks.ocean.realistic_global.forward.forward.Forward.get_stage.html#polaris.tasks.ocean.realistic_global.forward.forward.Forward.get_stage" title="polaris.tasks.ocean.realistic_global.forward.forward.Forward.get_stage"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.tasks.ocean.realistic_global.forward.forward.Forward.get_stage()</span></code></a>.
+Anything else that reads a stage’s statistics asks the same question the
+same way, so the two cannot drift apart.  The forward step declares the
+file as an output, which <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">parallel</span></code> needs in order to run the two
+steps together; a run shorter than its <code class="docutils literal notranslate"><span class="pre">stats_interval</span></code> declares none,
+since Omega writes no statistics before the first interval.</p></li>
 <li><p><strong>Standard deviation.</strong> Omega writes a standard deviation
 (<code class="docutils literal notranslate"><span class="pre">&lt;Field&gt;_SpatialStdDev</span></code>), while MPAS-Ocean writes a true root-mean-square
 (<code class="docutils literal notranslate"><span class="pre">&lt;field&gt;Rms</span></code>), so for MPAS-Ocean the standard deviation is recovered as

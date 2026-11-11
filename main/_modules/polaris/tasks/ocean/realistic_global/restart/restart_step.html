@@ -620,6 +620,28 @@ window.runMermaid = runMermaid;</script>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">setup</span><span class="p">()</span></div>
 
 
+<div class="viewcode-block" id="RestartStep.get_stage">
+<a class="viewcode-back" href="../../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.realistic_global.restart.restart_step.RestartStep.get_stage.html#polaris.tasks.ocean.realistic_global.restart.restart_step.RestartStep.get_stage">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_stage</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        The stage from config with the task's run duration and output</span>
+<span class="sd">        interval, rebuilt every time, as ``Forward`` does when it has no</span>
+<span class="sd">        stage, so that a user's config changes after setup still take effect</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        ForwardStage</span>
+<span class="sd">            The run settings for this step.</span>
+<span class="sd">        """</span>
+        <span class="n">stage</span> <span class="o">=</span> <span class="n">ForwardStage</span><span class="o">.</span><span class="n">from_config</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">dataclasses</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span>
+            <span class="n">stage</span><span class="p">,</span>
+            <span class="n">run_duration</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">run_duration</span><span class="p">,</span>
+            <span class="n">output_interval</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">output_interval</span><span class="p">,</span>
+            <span class="n">restart_interval</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">run_duration</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+
 <div class="viewcode-block" id="RestartStep.dynamic_model_config">
 <a class="viewcode-back" href="../../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.realistic_global.restart.restart_step.RestartStep.dynamic_model_config.html#polaris.tasks.ocean.realistic_global.restart.restart_step.RestartStep.dynamic_model_config">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">dynamic_model_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">at_setup</span><span class="p">):</span>
@@ -635,15 +657,7 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">            Whether this is being run during setup of the step, as opposed to</span>
 <span class="sd">            at run time.</span>
 <span class="sd">        """</span>
-        <span class="c1"># rebuilt every time, as Forward does when it has no stage, so that a</span>
-        <span class="c1"># user's config changes after setup still take effect</span>
-        <span class="n">stage</span> <span class="o">=</span> <span class="n">ForwardStage</span><span class="o">.</span><span class="n">from_config</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">stage</span> <span class="o">=</span> <span class="n">dataclasses</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span>
-            <span class="n">stage</span><span class="p">,</span>
-            <span class="n">run_duration</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">run_duration</span><span class="p">,</span>
-            <span class="n">output_interval</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">output_interval</span><span class="p">,</span>
-            <span class="n">restart_interval</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">run_duration</span><span class="p">,</span>
-        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stage</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_stage</span><span class="p">()</span>
 
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">dynamic_model_config</span><span class="p">(</span><span class="n">at_setup</span><span class="o">=</span><span class="n">at_setup</span><span class="p">)</span>
 

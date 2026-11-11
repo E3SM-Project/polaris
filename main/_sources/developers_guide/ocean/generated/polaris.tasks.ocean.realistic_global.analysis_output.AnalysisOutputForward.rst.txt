@@ -35,6 +35,8 @@
       ~AnalysisOutputForward.get_forcing_filename
       ~AnalysisOutputForward.get_horiz_mesh_filename
       ~AnalysisOutputForward.get_init_filename
+      ~AnalysisOutputForward.get_stage
+      ~AnalysisOutputForward.get_stats_filename
       ~AnalysisOutputForward.get_vert_coord_filename
       ~AnalysisOutputForward.map_yaml_configs
       ~AnalysisOutputForward.map_yaml_options

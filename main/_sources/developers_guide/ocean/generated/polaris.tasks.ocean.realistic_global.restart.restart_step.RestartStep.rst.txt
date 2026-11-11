@@ -35,6 +35,8 @@
       ~RestartStep.get_forcing_filename
       ~RestartStep.get_horiz_mesh_filename
       ~RestartStep.get_init_filename
+      ~RestartStep.get_stage
+      ~RestartStep.get_stats_filename
       ~RestartStep.get_vert_coord_filename
       ~RestartStep.map_yaml_configs
       ~RestartStep.map_yaml_options

@@ -35,6 +35,8 @@
       ~Forward.get_forcing_filename
       ~Forward.get_horiz_mesh_filename
       ~Forward.get_init_filename
+      ~Forward.get_stage
+      ~Forward.get_stats_filename
       ~Forward.get_vert_coord_filename
       ~Forward.map_yaml_configs
       ~Forward.map_yaml_options

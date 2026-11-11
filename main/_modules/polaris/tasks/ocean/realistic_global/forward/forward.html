@@ -477,6 +477,7 @@ window.runMermaid = runMermaid;</script>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.mpas.time</span><span class="w"> </span><span class="kn">import</span> <span class="n">duration_to_seconds</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.model</span><span class="w"> </span><span class="kn">import</span> <span class="n">OceanModelStep</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.tasks.ocean.realistic_global.forward.initial_condition</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">InitialCondition</span><span class="p">,</span>
@@ -657,6 +658,10 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">        Omega writes each stage's restart into a directory of its own, so the</span>
 <span class="sd">        files declared for Omega are the ones in those directories; see</span>
 <span class="sd">        :py:meth:`ForwardStage.restart_files`.</span>
+
+<span class="sd">        The global-statistics file is declared as an output too, so that a</span>
+<span class="sd">        step reading it, such as ``global_stats``, can be run alongside this</span>
+<span class="sd">        one; see :py:meth:`get_stats_filename`.</span>
 <span class="sd">        """</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">init_condition</span><span class="o">.</span><span class="n">add_input_files</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
         <span class="n">stage</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">stage</span>
@@ -667,7 +672,55 @@ window.runMermaid = runMermaid;</script>
                 <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="n">restart_in</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">restart_out</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">add_output_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="n">restart_out</span><span class="p">)</span>
+        <span class="n">stats_filename</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_stats_filename</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">stats_filename</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_output_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="n">stats_filename</span><span class="p">)</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">setup</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="Forward.get_stage">
+<a class="viewcode-back" href="../../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.realistic_global.forward.forward.Forward.get_stage.html#polaris.tasks.ocean.realistic_global.forward.forward.Forward.get_stage">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_stage</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ForwardStage</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        The stage this step runs.</span>
+
+<span class="sd">        This is ``stage`` if the step was given one, and otherwise a stage</span>
+<span class="sd">        built from the ``[realistic_global_forward]`` config section, rebuilt</span>
+<span class="sd">        on each call so that a user's config changes after setup still take</span>
+<span class="sd">        effect.  Subclasses that adjust the stage override this.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        ForwardStage</span>
+<span class="sd">            The run settings for this step.</span>
+<span class="sd">        """</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">stage</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">stage</span>
+        <span class="k">return</span> <span class="n">ForwardStage</span><span class="o">.</span><span class="n">from_config</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Forward.get_stats_filename">
+<a class="viewcode-back" href="../../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.realistic_global.forward.forward.Forward.get_stats_filename.html#polaris.tasks.ocean.realistic_global.forward.forward.Forward.get_stats_filename">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_stats_filename</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        The global-statistics file this run writes, relative to the step's</span>
+<span class="sd">        work directory.</span>
+
+<span class="sd">        A run shorter than its ``stats_interval`` is not counted as writing</span>
+<span class="sd">        one: Omega writes no statistics before the first interval has passed,</span>
+<span class="sd">        and MPAS-Ocean writes only the record at startup.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        str or None</span>
+<span class="sd">            The filename, or ``None`` if the run is shorter than its</span>
+<span class="sd">            ``stats_interval``.</span>
+<span class="sd">        """</span>
+        <span class="n">stage</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_stage</span><span class="p">()</span>
+        <span class="n">stats_seconds</span> <span class="o">=</span> <span class="n">duration_to_seconds</span><span class="p">(</span><span class="n">stage</span><span class="o">.</span><span class="n">stats_interval</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">stats_seconds</span> <span class="o">&gt;</span> <span class="n">duration_to_seconds</span><span class="p">(</span><span class="n">stage</span><span class="o">.</span><span class="n">run_duration</span><span class="p">):</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">return</span> <span class="n">stage</span><span class="o">.</span><span class="n">stats_filename</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'ocean'</span><span class="p">,</span> <span class="s1">'model'</span><span class="p">))</span></div>
 
 
 <div class="viewcode-block" id="Forward.compute_cell_count">
@@ -717,9 +770,7 @@ window.runMermaid = runMermaid;</script>
         <span class="n">model</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'ocean'</span><span class="p">,</span> <span class="s1">'model'</span><span class="p">)</span>
         <span class="n">min_res</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">init_condition</span><span class="o">.</span><span class="n">min_res</span>
 
-        <span class="n">stage</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">stage</span>
-        <span class="k">if</span> <span class="n">stage</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">stage</span> <span class="o">=</span> <span class="n">ForwardStage</span><span class="o">.</span><span class="n">from_config</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+        <span class="n">stage</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_stage</span><span class="p">()</span>
 
         <span class="n">replacements</span> <span class="o">=</span> <span class="n">stage</span><span class="o">.</span><span class="n">model_replacements</span><span class="p">(</span>
             <span class="n">model</span><span class="p">,</span> <span class="n">min_res</span><span class="p">,</span> <span class="n">at_setup</span><span class="o">=</span><span class="n">at_setup</span>
