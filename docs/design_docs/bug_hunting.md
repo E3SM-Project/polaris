@@ -296,10 +296,11 @@ file, the function and a short form of the claim.
 Each finding also has a name: a few plain words, unique in the ledger, that
 say what goes wrong and where, as a developer would say it aloud, such as
 "Frontier nightly can't find python" or "coupled answers change with the
-processor layout". Names use the terms developers say aloud, the names of
-components, schemes, machines and suites, such as "EAMxx coupled debug
-tests crash at startup on Chrysalis". Test and compset strings, option
-names, error codes and row names belong in the evidence. Hunts, digests and
+processor layout". Names may use terms that Omega developers know, such as
+the names of components, schemes, machines and suites: "EAMxx coupled debug
+tests crash at startup on Chrysalis". Terms specific to E3SM's coupled
+infrastructure, such as CIME test types and compsets, belong in the
+evidence, as do option names, error codes and row names. Hunts, digests and
 agents refer to a finding by its name when writing for people, never by its
 ID alone. The agent sets the name at triage. Once a digest has shown it,
 the name changes only if the developer asks.
@@ -682,8 +683,9 @@ as it does the claim. Output for people (the digest, `status`, `match`,
 a command needs it. Commands accept a name or an ID. The terms a name may
 use are listed in the ledger's `name_terms.yaml`, which starts with Omega,
 Polaris, E3SM's components, the schemes and diagnostics in Omega, the
-supported machines and the suites. When the developer renames a finding
-with a term not on the list, the agent adds it.
+supported machines and the suites, and leaves out the coupled
+infrastructure's terms. When the developer renames a finding with a term
+not on the list, the agent adds it.
 
 An ID is the date a finding was first recorded and a hash of its first key.
 `park` and `harvest` add to an existing finding with the same key rather
