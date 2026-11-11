@@ -296,11 +296,13 @@ file, the function and a short form of the claim.
 Each finding also has a name: a few plain words, unique in the ledger, that
 say what goes wrong and where, as a developer would say it aloud, such as
 "Frontier nightly can't find python" or "coupled answers change with the
-processor layout". Test names and abbreviations belong in the evidence, not
-the name. Hunts, digests and agents refer to a finding by its name when
-writing for people, never by its ID alone. The agent sets the name at
-triage. Once a digest has shown it, the name changes only if the developer
-asks.
+processor layout". Names use the terms developers say aloud, the names of
+components, schemes, machines and suites, such as "EAMxx coupled debug
+tests crash at startup on Chrysalis". Test and compset strings, option
+names, error codes and row names belong in the evidence. Hunts, digests and
+agents refer to a finding by its name when writing for people, never by its
+ID alone. The agent sets the name at triage. Once a digest has shown it,
+the name changes only if the developer asks.
 
 The harvest adds each failure to the finding that holds its key. Every
 finding with a new key, whatever its source, is matched before it is
@@ -638,6 +640,7 @@ hunts/2026-10-27.md              its digest
 on_hold.yaml                     rows on hold, each with a reason and a date
 outside_v4.yaml                  features and options outside E3SM v4, each
                                  with its source and a date
+name_terms.yaml                  terms that finding names may use
 ```
 
 A finding is a YAML file:
@@ -676,7 +679,11 @@ history:
 or from its test and row, and the agent rewrites it with `update --name`,
 as it does the claim. Output for people (the digest, `status`, `match`,
 `file` and `handoff`) shows the name, with the ID in parentheses only where
-a command needs it. Commands accept a name or an ID.
+a command needs it. Commands accept a name or an ID. The terms a name may
+use are listed in the ledger's `name_terms.yaml`, which starts with Omega,
+Polaris, E3SM's components, the schemes and diagnostics in Omega, the
+supported machines and the suites. When the developer renames a finding
+with a term not on the list, the agent adds it.
 
 An ID is the date a finding was first recorded and a hash of its first key.
 `park` and `harvest` add to an existing finding with the same key rather
