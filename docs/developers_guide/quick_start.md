@@ -95,13 +95,18 @@ You only need to run this once on each machine. It is saved in
 already exist in `pixi-env/.pixi`, so rerun `./deploy.py` in each existing
 branch or worktree before you source its load script again.
 
-For example, on Perlmutter, the home quota is small and the E3SM project
-directory on CFS has room for both:
+For example, on Perlmutter, the home directory is too small for Polaris
+branches, so we recommend cloning Polaris somewhere under
+`/global/cfs/cdirs/e3sm/${USER}`. Then put the cache on the same file system:
 
 ```bash
 # in ~/.bashrc
 export PIXI_CACHE_DIR=/global/cfs/cdirs/e3sm/${USER}/pixi/cache
 ```
+
+If you do keep Polaris branches in your home directory, this cache alone would
+make pixi copy packages into each `pixi-env` in your home directory. In that
+case, also put the environments on CFS:
 
 ```bash
 # once
