@@ -132,6 +132,54 @@ def test_plan_cleanup_resolves_links_in_cited_paths(tmp_path):
     ]
 
 
+def test_plan_cleanup_keeps_entries_with_active_jobs(tmp_path):
+    work_base = str(tmp_path)
+    queued = _run(work_base, 'pr1-1111111', jobs=[('omega_pr', '41')])
+    # a coupled case the tester submitted by hand, logged by case.submit
+    by_hand = _run(work_base, 'pr2-2222222', jobs=[('coupled/case', None)])
+    case_dir = os.path.join(by_hand, 'm_c', 'coupled', 'case')
+    with open(os.path.join(case_dir, 'CaseStatus'), 'w') as f:
+        f.write('2026-11-11 11:07:28: case.submit success case.test:42\n')
+    _age(by_hand, OLD)
+    done = _run(work_base, 'pr3-3333333', jobs=[('omega_pr', '40')])
+    baseline = _baseline(work_base, 'b_omega-aaaaaaa')
+    with open(os.path.join(baseline, 'omega_pr', 'job_id'), 'w') as f:
+        f.write('43\n')
+    _age(baseline, OLD)
+    active = {'41', '42', '43'}
+
+    entries = pr_test_cleanup.plan_cleanup(
+        work_base,
+        set(),
+        keep_days=3,
+        polaris_hashes=[],
+        now=NOW,
+        is_active=lambda job_id: job_id in active,
+    )
+
+    keep = {entry.path: entry.keep for entry in entries}
+    assert keep[queued] == 'job 41 is queued or running'
+    assert keep[by_hand] == 'job 42 is queued or running'
+    assert keep[done] is None
+    assert keep[baseline] == 'job 43 is queued or running'
+
+
+def test_plan_cleanup_lists_stale_submodule_markers(tmp_path):
+    work_base = str(tmp_path)
+    tree = _tree(work_base, 'a' * 12)
+    kept = f'{tree}.all-submodules'
+    stale = os.path.join(work_base, 'omega', 'e' * 12 + '.all-submodules')
+    for path in [kept, stale]:
+        _touch(path)
+
+    entries = pr_test_cleanup.plan_cleanup(
+        work_base, set(), keep_days=3, polaris_hashes=[], now=NOW
+    )
+
+    markers = [entry.path for entry in entries if entry.kind == 'marker']
+    assert markers == [stale]
+
+
 def test_remove(tmp_path):
     clone = tmp_path / 'clone'
     clone.mkdir()
@@ -142,6 +190,7 @@ def test_remove(tmp_path):
     tree.parent.mkdir(parents=True)
     _git(clone, 'worktree', 'add', '--quiet', '--detach', str(tree))
     _touch(f'{tree}.ready')
+    _touch(f'{tree}.all-submodules')
     run = _run(str(work_base), 'pr1-1111111')
     kept = _run(str(work_base), 'pr2-2222222')
     marker = str(work_base / 'omega' / ('e' * 12 + '.ready'))
@@ -158,6 +207,8 @@ def test_remove(tmp_path):
     assert removed == [str(tree), run, marker]
     assert not tree.exists()
     assert not os.path.exists(f'{tree}.ready')
+    # so a later setup that makes the same tree initializes its submodules
+    assert not os.path.exists(f'{tree}.all-submodules')
     assert os.path.exists(kept)
     assert str(tree) not in _git(clone, 'worktree', 'list')
 
@@ -183,12 +234,26 @@ def test_get_open_pull_request_texts(monkeypatch):
     }
 
 
-def _run(work_base, name, baseline=None, tree=None, recent=False):
-    """A run with one row, its setup state and its PR build"""
+def _run(work_base, name, baseline=None, tree=None, recent=False, jobs=()):
+    """A run with one row, its setup state and its PR build, and jobs
+    given by their directories in the row and their ids"""
     row_dir = os.path.join(work_base, name, 'm_c')
     build_dir = os.path.join(row_dir, 'build')
     os.makedirs(build_dir)
-    state = {'pr_build_dir': build_dir}
+    state: dict = {'pr_build_dir': build_dir, 'jobs': []}
+    for job_dir, job_id in jobs:
+        work_dir = os.path.join(row_dir, job_dir)
+        os.makedirs(work_dir)
+        state['jobs'].append(
+            {
+                'name': job_dir,
+                'work_dir': work_dir,
+                'script': 'case.submit',
+                'depends_on_baseline': False,
+                'job_id': job_id,
+                'env_script': '/cime/env.sh',
+            }
+        )
     if baseline is not None:
         state['baseline_work_dir'] = os.path.join(
             work_base, 'baselines', baseline, 'omega_pr'
