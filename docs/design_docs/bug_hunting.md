@@ -516,6 +516,16 @@ matching open batch, or starts one, with the P4 lines below the P3 lines.
 A batch's issue says that its lines are small bugs in one area, likely
 fixed together. Small fixes go there rather than into feature branches.
 
+A batch closes when every line is checked off, or struck out as not a bug,
+since an open issue with nothing left to do misleads people about the work
+remaining. The pull request that fixes a line names it, and its author or
+reviewer checks it off; the hunter does not. A finding whose line is
+checked is treated like one whose issue closed: listed as closed upstream,
+and set `fixed` once the agent has checked the fix. A batch with every line
+done is listed in the digest as ready to close, and closing it needs the
+developer's permission. A later finding in the same area starts a new
+batch, which links the last closed one. A closed batch is not reopened.
+
 ### Algorithm Design: Nothing reaches another person without the developer's permission.
 
 Filing an issue, adding to a batch, commenting on an issue, submitting a job
@@ -763,8 +773,10 @@ hunt record, so no later hunt asks it again.
 ### Implementation: Minor bugs are batched.
 
 `file --batch <theme>` adds a line to the theme's open batch issue, found
-by its label and title, or prints the issue that would start one. Lines are
-added by editing the issue's body, so the batch stays one list.
+by its label and title, or prints the issue that would start one, linking
+the theme's last closed batch. Lines are added by editing the issue's body,
+so the batch stays one list. `match --refresh` reads the checkboxes of each
+linked batch.
 
 ### Implementation: Nothing reaches another person without the developer's permission.
 
