@@ -8,7 +8,6 @@ from polaris.ocean.global_stats_names import (
 )
 from polaris.ocean.model import OceanIOStep
 from polaris.ocean.model.time import get_time_since_start
-from polaris.tasks.ocean.realistic_global.forward.stage import ForwardStage
 
 
 class StatsAnalysis(OceanIOStep):
@@ -22,7 +21,7 @@ class StatsAnalysis(OceanIOStep):
 
     Attributes
     ----------
-    forward_step : polaris.Step
+    forward_step : polaris.tasks.ocean.realistic_global.forward.Forward
         The forward step whose statistics are plotted.
 
     output_filename : str
@@ -48,7 +47,7 @@ class StatsAnalysis(OceanIOStep):
         indir : str
             The directory the step is in, to which ``name`` is appended.
 
-        forward_step : polaris.Step
+        forward_step : polaris.tasks.ocean.realistic_global.forward.Forward
             The forward step whose statistics are plotted.
 
         output_filename : str, optional
@@ -73,14 +72,13 @@ class StatsAnalysis(OceanIOStep):
         What the file is called depends on the model and, for Omega, on the
         statistics period, so the name comes from
         :py:meth:`~polaris.tasks.ocean.realistic_global.forward.stage.ForwardStage.stats_filename`
-        on the same stage the forward step renders its config from.  That is
-        also why the entry is added here rather than in ``__init__()``, where
-        the model is not yet known.
+        on the same stage the forward step renders its config from, which
+        :py:meth:`~polaris.tasks.ocean.realistic_global.forward.forward.Forward.get_stage`
+        returns.  That is also why the entry is added here rather than in
+        ``__init__()``, where the model is not yet known.
         """
         model = self.config.get('ocean', 'model')
-        stage = getattr(self.forward_step, 'stage', None)
-        if stage is None:
-            stage = ForwardStage.from_config(self.config)
+        stage = self.forward_step.get_stage()
         filename = stage.stats_filename(model, self.output_filename)
         target = f'{self.forward_step.path}/{filename}'
         self.add_input_file(
