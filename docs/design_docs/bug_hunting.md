@@ -291,6 +291,12 @@ starts a new finding, since one silence says nothing about the cause of
 another. For a finding from reading code or from parking, the key is the
 file, the function and a short form of the claim.
 
+Each finding also has a name: a few words, unique in the ledger, that say
+what fails and where, such as "WCYCLXX SHOC FPE on Chrysalis gnu". Hunts,
+digests and agents refer to a finding by its name when writing for people,
+never by its ID alone. The agent sets the name at triage. Once a digest has
+shown it, the name changes only if the developer asks.
+
 The harvest adds each failure to the finding that holds its key. Every
 finding with a new key, whatever its source, is matched before it is
 triaged, and again before it is filed or batched, against:
@@ -412,7 +418,7 @@ to 2026-11-03 and triaged 3 parked findings.
 
 ### Decisions
 
-1. **<claim>.**
+1. **<name>: <claim>.**
    P2, omega, measured; S2, a failure in regular testing. (F-20261103-3fa2)
    - Fails on chrysalis/gnu since 2026-11-01. Merged in between: Omega#<n>.
    - Evidence: <why the agent believes the claim, in a few sentences>.
@@ -422,7 +428,7 @@ to 2026-11-03 and triaged 3 parked findings.
    - Proposed: **file (an issue in E3SM-Project/Omega, `priority:
      medium`)**. Or: batch, log, dismiss, dig (one debug build, about a
      node-hour).
-2. **<claim>.**
+2. **<name>: <claim>.**
    P3, polaris, inferred; S3, another failure. (F-20261030-07bd)
    - In `polaris/run/serial.py:212`.
    - Evidence: <...>.
@@ -434,9 +440,10 @@ to 2026-11-03 and triaged 3 parked findings.
 `batch` adds each to the "Clean-up: <theme>" issue of its owner's
 repository; name any to leave out.
 
-- polaris, documentation and naming: **<claim>.** (F-20261029-5c1e)
+- polaris, documentation and naming: **<name>: <claim>.**
+  (F-20261029-5c1e)
   - Evidence: <...>.
-- omega, compiler warnings: **<claim>.** (F-20261102-a07f)
+- omega, compiler warnings: **<name>: <claim>.** (F-20261102-a07f)
   - Evidence: <...>.
 
 ### Changed since the last hunt
@@ -504,7 +511,7 @@ An agent that notices a bug outside the task it was given:
    already in hand and its confidence, and does not reproduce it, search
    for issues or fix it;
 3. says so in one line of its report, such as
-   `Parked F-20261027-3fa2: <claim>`.
+   `Parked "<name>": <claim>`.
 
 The same goes for review findings that a pull request did not introduce.
 The next hunt triages parked findings with everything else.
@@ -628,6 +635,7 @@ A finding is a YAML file:
 ```yaml
 schema_version: 1
 id: F-20261027-3fa2
+name: PEM comparisons on CPUs
 keys:
   - {test: PEM_Vmct.T62_oQU240.COMEGA-IAF, phase: compare}
   - {test: PEM_Vmct.T62_oQU240.GOMEGA-IAF, phase: compare}
@@ -653,6 +661,12 @@ reproduce: <commands>
 history:
   - {hunt: 2026-10-27, change: matched E3SM-Project/Omega#626}
 ```
+
+`park` and `harvest` give a new finding a provisional name, from its claim
+or from its test and row, and the agent rewrites it with `update --name`,
+as it does the claim. Output for people (the digest, `status`, `match`,
+`file` and `handoff`) shows the name, with the ID in parentheses only where
+a command needs it. Commands accept a name or an ID.
 
 An ID is the date a finding was first recorded and a hash of its first key.
 `park` and `harvest` add to an existing finding with the same key rather
@@ -806,6 +820,9 @@ Replayed, the two
 review findings the hunter filed twice in its first week, a GPU race
 already reported and one instance of a general issue about the minimum
 layer index, each match the issue they duplicate.
+
+Unit tests also check that two findings cannot share a name, and that
+commands find a finding by its name.
 
 ### Testing and Validation: Each finding names the project that owns it.
 
