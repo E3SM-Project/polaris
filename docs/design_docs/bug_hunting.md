@@ -293,11 +293,14 @@ starts a new finding, since one silence says nothing about the cause of
 another. For a finding from reading code or from parking, the key is the
 file, the function and a short form of the claim.
 
-Each finding also has a name: a few words, unique in the ledger, that say
-what fails and where, such as "WCYCLXX SHOC FPE on Chrysalis gnu". Hunts,
-digests and agents refer to a finding by its name when writing for people,
-never by its ID alone. The agent sets the name at triage. Once a digest has
-shown it, the name changes only if the developer asks.
+Each finding also has a name: a few plain words, unique in the ledger, that
+say what goes wrong and where, as a developer would say it aloud, such as
+"Frontier nightly can't find python" or "coupled answers change with the
+processor layout". Test names and abbreviations belong in the evidence, not
+the name. Hunts, digests and agents refer to a finding by its name when
+writing for people, never by its ID alone. The agent sets the name at
+triage. Once a digest has shown it, the name changes only if the developer
+asks.
 
 The harvest adds each failure to the finding that holds its key. Every
 finding with a new key, whatever its source, is matched before it is
@@ -642,7 +645,7 @@ A finding is a YAML file:
 ```yaml
 schema_version: 1
 id: F-20261027-3fa2
-name: PEM comparisons on CPUs
+name: coupled answers change with the processor layout
 keys:
   - {test: PEM_Vmct.T62_oQU240.COMEGA-IAF, phase: compare}
   - {test: PEM_Vmct.T62_oQU240.GOMEGA-IAF, phase: compare}
