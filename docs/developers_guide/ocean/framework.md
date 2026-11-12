@@ -1418,6 +1418,13 @@ component's tasks can use them:
   {py:class}`polaris.tasks.ocean.analysis.publish.Publish` is a
   `PublishStep` with its options in `[ocean_analysis]`.
 
+A page that is not a gallery, such as a run's provenance, comes from a
+{py:class}`polaris.analysis.page.PageStep`.  The step fills in a
+{py:class}`polaris.analysis.page.Page` of sections and files and writes its
+description; the publish step copies the files into the page's directory,
+renders the page in the gallery's style, and links to it from the footer of
+every page.
+
 A step describes what it made as it makes it, and writes no fragment itself:
 
 ```python

@@ -260,6 +260,25 @@ seaice/api
    read_fragment
 ```
 
+#### analysis.page
+
+```{eval-rst}
+.. currentmodule:: polaris.analysis.page
+
+.. autosummary::
+   :toctree: generated/
+
+   Page
+   Page.add_section
+   Page.add_file
+   Page.write
+   Page.to_dict
+   PageStep
+   PageStep.write_page
+   read_page
+   publish_pages
+```
+
 #### analysis.publish
 
 ```{eval-rst}

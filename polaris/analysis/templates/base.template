@@ -36,6 +36,18 @@ footer dl { display: grid; grid-template-columns: max-content 1fr;
             gap: 0.15rem 1rem; margin: 0; }
 footer dt { font-weight: 600; }
 footer dd { margin: 0; overflow-wrap: anywhere; }
+footer p.pages { margin: 0.75rem 0 0; }
+dl.entries { display: grid; grid-template-columns: max-content 1fr;
+             gap: 0.25rem 1rem; margin: 0; }
+dl.entries dt { font-weight: 600; }
+dl.entries dd { margin: 0; overflow-wrap: anywhere; }
+table { border-collapse: collapse; font-size: 0.9rem; }
+th, td { border-bottom: 1px solid var(--edge); padding: 0.25rem 0.75rem
+         0.25rem 0; text-align: left; vertical-align: top;
+         overflow-wrap: anywhere; }
+pre { background: #f5f7f9; border: 1px solid var(--edge);
+      border-radius: 4px; padding: 0.75rem; font-size: 0.8rem;
+      overflow-x: auto; }
 </style>
 </head>
 <body>
@@ -55,6 +67,13 @@ footer dd { margin: 0; overflow-wrap: anywhere; }
 <dt>{{ label }}</dt><dd>{{ value }}</dd>
 {% endfor %}
 </dl>
+{% if pages %}
+<p class="pages">
+{% for page in pages %}
+<a href="{{ prefix }}{{ page.href }}">{{ page.title }}</a>{{ ' · ' if not loop.last }}
+{% endfor %}
+</p>
+{% endif %}
 </footer>
 </body>
 </html>

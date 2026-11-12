@@ -2,12 +2,16 @@ import os
 
 from polaris import Step
 from polaris.analysis.manifest import FRAGMENT_FILENAME
+from polaris.analysis.page import PAGE_FILENAME, publish_pages
 from polaris.analysis.publish import publish
 from polaris.analysis.site import generate_site
 from polaris.provenance import get_summary
 
 #: The subdirectory the fragments are linked into, one per step
 FRAGMENTS_DIRNAME = 'fragments'
+
+#: The subdirectory the pages' descriptions are linked into, one per step
+PAGES_DIRNAME = 'pages'
 
 
 class PublishStep(Step):
@@ -35,6 +39,11 @@ class PublishStep(Step):
     writes, and it is what lets the fragment be declared rather than looked
     for.
 
+    A :py:class:`polaris.analysis.page.PageStep` among the product steps
+    makes a page published beside the galleries, such as a run's
+    provenance.  Its description is declared as an input in the same way,
+    and the footer of every page links to it.
+
     The step reads its options from one config section, which holds
     ``output_path``, ``simulation_name``, ``copy_netcdf``,
     ``thumbnail_size``, ``thumbnail_scale``, ``thumbnail_format`` and
@@ -48,6 +57,10 @@ class PublishStep(Step):
     fragment_filenames : list of str
         The fragments, as local paths within this step's work directory, in
         the order the steps that wrote them are listed
+
+    page_filenames : list of str
+        The descriptions of the pages published beside the galleries, as
+        local paths within this step's work directory
     """
 
     def __init__(self, component, subdir, product_steps, section):
@@ -62,10 +75,10 @@ class PublishStep(Step):
         subdir : str
             The subdirectory for the step
 
-        product_steps : list of polaris.analysis.product_step.ProductStep
+        product_steps : list of polaris.Step
             The steps whose products are published.  Each that sets
-            ``makes_products`` becomes a dependency, and the rest are left
-            out.
+            ``makes_products`` or ``makes_page`` becomes a dependency, and
+            the rest are left out.
 
         section : str
             The config section the step's options are in
@@ -79,9 +92,12 @@ class PublishStep(Step):
         )
         self.section = section
         self.fragment_filenames: list = []
+        self.page_filenames: list = []
         for step in product_steps:
             if getattr(step, 'makes_products', False):
                 self._add_product_dependency(step)
+            if getattr(step, 'makes_page', False):
+                self._add_page_dependency(step)
 
     def run(self):
         """
@@ -106,11 +122,19 @@ class PublishStep(Step):
             copy_data=section.getboolean('copy_netcdf'),
         )
 
+        pages = publish_pages(
+            page_filenames=[
+                self.work_path(filename) for filename in self.page_filenames
+            ],
+            output_path=output_path,
+        )
+
         generate_site(
             published=published,
             output_path=output_path,
             simulation_name=section.get('simulation_name'),
             provenance=get_summary(config=self.config),
+            pages=pages,
         )
         self.logger.info(f'published to {output_path}')
 
@@ -150,3 +174,20 @@ class PublishStep(Step):
             work_dir_target=f'{step.path}/{FRAGMENT_FILENAME}',
         )
         self.fragment_filenames.append(filename)
+
+    def _add_page_dependency(self, step):
+        """
+        Declare one step's page as an input and the step as a dependency,
+        named for its work directory as a fragment is
+        """
+        name = step.subdir.replace('/', '_')
+        self.add_dependency(step, name=name)
+
+        filename = os.path.join(PAGES_DIRNAME, f'{name}.json')
+        if filename in self.page_filenames:
+            return
+        self.add_input_file(
+            filename=filename,
+            work_dir_target=f'{step.path}/{PAGE_FILENAME}',
+        )
+        self.page_filenames.append(filename)
