@@ -173,7 +173,7 @@ class ModelExchange(ProductStep):
     def _plot(self, ds, period, estimated):
         """Plot the two fluxes and their relative difference"""
         years = ds.periodStart.values / 365.0
-        sent_label = 'ocean, sent to MALI'
+        sent_label = 'ocean, sent to MALI (melt + frazil under the ice)'
         if estimated:
             sent_label = f'{sent_label} (estimated)'
         lines = [
@@ -196,12 +196,15 @@ class ModelExchange(ProductStep):
                 Series(
                     years,
                     GT_PER_YEAR * ds.oceanMelt.values,
-                    "ocean's melt",
+                    "ocean's melt alone (no frazil)",
                     linestyle=':',
                 )
             )
         stem = f'melt_sent_and_applied_{period}'
-        title = f'Melt the ocean sends and MALI applies, {period}'
+        title = (
+            f'Net flux at the ice base the ocean sends and MALI applies, '
+            f'{period}'
+        )
         plot_time_series(
             lines,
             f'{stem}.png',
@@ -222,7 +225,7 @@ class ModelExchange(ProductStep):
         kept = _kept(ds)
         stem = f'melt_exchange_difference_{period}'
         title = (
-            f'Relative difference of the melt MALI applies from what the '
+            f'Relative difference of the flux MALI applies from what the '
             f'ocean sends, {period}'
         )
         plot_time_series(

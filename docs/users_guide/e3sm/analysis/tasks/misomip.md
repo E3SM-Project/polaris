@@ -231,7 +231,7 @@ as a run goes on to add its new segments.
 In IceOcean1r and IceOcean1ra, where MALI evolves, a `model_exchange` step
 compares the net mass flux out of the ice shelves that the ocean sends with
 the melt MALI applies, each from its own model's output.  The ocean sends
-its melt less the frazil under the land ice, and only where MALI floats
+its melt + frazil under the land ice, and only where MALI floats
 more than `config_glc_ice_shelf_coupling_min_floating_fraction`.  MALI's
 global statistics give the melt it applies in each time step.  MALI's
 step over each glc coupling interval applies the coupler's average of what
