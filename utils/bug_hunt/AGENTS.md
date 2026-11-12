@@ -95,7 +95,9 @@ Begin every hunt with `bug_hunt.py start`, which begins the hunt's record
 and prints its name, such as `2026-11-12-2`: the date and its number that
 day.  Later commands write to the hunt this clone started last, so two
 hunts on one day keep two records.  If two agents hunt in one clone, each
-passes its own hunt's name with `--hunt <name>` on every command.  A hunt
+passes its own hunt's name with `--hunt <name>` on every command.  An agent
+doing a dig handed over from another machine is not hunting: it passes the
+`--hunt` its prompt names and never runs `start`.  A hunt
 keeps its name past midnight.  If another clone pushed a hunt with the same
 name first, yours takes the next number when it pushes, and `status` shows
 it.
@@ -275,7 +277,9 @@ it.
      machine is a handoff: a prompt for an agent there, saying how to get
      this branch and the ledger, what to look at, and what to record.  Put
      the checks that need no special access first, so that a directory the
-     agent cannot read does not stop the rest.
+     agent cannot read does not stop the rest.  The dig is part of the hunt
+     that asked for it, so the prompt names that hunt, and tells the agent
+     to pass `--hunt <name>` on every command and never to run `start`.
    - If the developer is handling it outside the hunt: `bug_hunt.py update
      <id> --status fixing --fixing "<who or where>" --note "<why>"`.  Hunts
      leave it alone, and a harvest raises it again only if a new row fails.
