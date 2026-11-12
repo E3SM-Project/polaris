@@ -132,6 +132,8 @@
    read_user_namelist
    read_namelist_groups
    read_environment
+   read_case_entries
+   summarize_environment
    has_local_changes
    read_restart_date
 ```

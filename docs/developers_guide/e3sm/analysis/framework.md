@@ -125,6 +125,14 @@ run on a page of its own, which the footer of every gallery page links to:
   Albany's input from the run directory, published with a `.txt` suffix so
   a browser shows them.
 
+The page is meant for a public web portal, so of the environment dumps
+CIME writes, `build_environment.txt` and `software_environment.txt`, only
+the loaded modules, the compilers and the libraries' locations are
+published: the rest of the shell's environment can hold tokens and
+addresses.  Credentials in a URL are removed, and a copied file that still
+has what looks like a token, password, or secure-shell or session variable
+stops the step.
+
 The options are those set explicitly, whether or not they differ from the
 defaults.  The files are copied when the step runs, so they are those of the
 run's most recent job, and the page gives the date of its latest restart.

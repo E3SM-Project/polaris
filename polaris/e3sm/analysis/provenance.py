@@ -32,7 +32,7 @@ BUILD_FILES = {
     'GIT_STATUS': 'git status',
     'GIT_SUBMODULE_STATUS': 'submodules',
     'GIT_REMOTE': 'remotes',
-    'build_environment.txt': 'build environment',
+    'build_environment.txt': 'build modules and libraries',
 }
 
 #: The files of the case directory published, if the case has them, and
@@ -40,8 +40,37 @@ BUILD_FILES = {
 CASE_FILES = {
     'replay.sh': None,
     'README.case': 'README.case',
-    'software_environment.txt': 'run environment',
+    'software_environment.txt': 'run modules and libraries',
 }
+
+#: The environment dumps CIME writes, of which only the loaded modules and
+#: the variables :py:data:`PUBLISHED_VARIABLES` matches are published
+ENVIRONMENT_FILES = ['build_environment.txt', 'software_environment.txt']
+
+#: The environment variables published from an environment dump: the
+#: compilers and the locations of the libraries the build uses.  The rest
+#: of the shell's environment is left out, since it can hold tokens and
+#: addresses that a public page must not show.
+PUBLISHED_VARIABLES = re.compile(
+    r'(CC|CXX|FC|F77|F90|MPICC|MPICXX|MPIFC|MPIF77|MPIF90'
+    r'|(ADIOS2|Albany|ALBANY|Blosc2|BLOSC2|HDF5|Kokkos|KOKKOS|MKL|MOAB'
+    r'|NETCDF|NETCDF_C|NETCDF_FORTRAN|PETSC|PNETCDF|SZ|TBB|Trilinos'
+    r'|TRILINOS|ZFP)_?(ROOT|PATH|DIR))'
+)
+
+#: What looks like a secret in a published file: a token, secret or
+#: password, in any case, or a secure-shell or session variable, in the
+#: upper case of an environment variable, given a value.  The case matters
+#: for the latter because ``ssh`` is also the sea-surface height in
+#: MPAS-Ocean's options.  A published file that has one stops the step
+#: rather than being published.
+SECRET = re.compile(
+    r'\b(?:\w*(?i:token|secret|passw(?:or)?d)\w*'
+    r'|[A-Z0-9_]*(?:SSH_[A-Z0-9_]+|SESSION_ID)[A-Z0-9_]*)\s*[=:]'
+)
+
+#: The user and password in a URL, as in ``https://user:token@host``
+_URL_CREDENTIALS = re.compile(r'(://)[^/@\s]+@')
 
 #: The libraries whose location the build environment records
 LIBRARIES = {'Albany': 'Albany_ROOT', 'Trilinos': 'Trilinos_ROOT'}
@@ -138,7 +167,20 @@ class CaseProvenance(PageStep):
         if not os.path.isfile(source):
             return None
         local = os.path.join(FILES_DIRNAME, name)
-        shutil.copyfile(source, self.work_path(local))
+        if name in ENVIRONMENT_FILES:
+            text = summarize_environment(source)
+        else:
+            with open(source, errors='replace') as original:
+                text = _URL_CREDENTIALS.sub(r'\1', original.read())
+        match = SECRET.search(text)
+        if match is not None:
+            raise ValueError(
+                f'{source} has what looks like a secret, '
+                f'"{match.group(0)}", so the provenance page would publish '
+                f'it.  Leave the file out or remove what it holds.'
+            )
+        with open(self.work_path(local), 'w') as copy:
+            copy.write(text)
         # a published name ending in .txt is shown by a browser rather than
         # downloaded
         published_name = name if name.endswith('.txt') else f'{name}.txt'
@@ -481,6 +523,50 @@ def read_case_entries(case_dir):
             group_id = None if group is None else group.attrib.get('id')
             values.append((group_id, value))
     return entries
+
+
+def summarize_environment(filename):
+    """
+    Summarize an environment dump CIME wrote, keeping only what is safe to
+    publish: the loaded modules and the variables
+    :py:data:`PUBLISHED_VARIABLES` matches
+
+    Parameters
+    ----------
+    filename : str
+        ``build_environment.txt`` or ``software_environment.txt``
+
+    Returns
+    -------
+    text : str
+        The summary
+    """
+    modules: list = []
+    variables: list = []
+    in_modules = False
+    with open(filename, errors='replace') as environment:
+        for line in environment:
+            line = line.rstrip('\n')
+            if line.startswith('Currently Loaded Modules'):
+                in_modules = True
+            elif in_modules and not line.strip():
+                in_modules = False
+            if in_modules:
+                modules.append(line)
+                continue
+            match = re.match(r'([A-Za-z_]\w*)=(.*)$', line)
+            if match is not None and PUBLISHED_VARIABLES.fullmatch(
+                match.group(1)
+            ):
+                variables.append(line)
+    lines = [
+        f'# From {os.path.basename(filename)}: the loaded modules, the '
+        f'compilers and the',
+        '# libraries; the rest of the environment is left out.',
+        '',
+    ]
+    lines += modules + [''] + sorted(variables)
+    return '\n'.join(lines) + '\n'
 
 
 def has_local_changes(filename):

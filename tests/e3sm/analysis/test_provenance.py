@@ -1,16 +1,20 @@
 import json
 import os
 
+import pytest
+
 from polaris import Component
 from polaris.analysis.page import PAGE_FILENAME
 from polaris.e3sm.analysis.case import E3smCase
 from polaris.e3sm.analysis.provenance import (
+    SECRET,
     CaseProvenance,
     has_local_changes,
     read_case_commands,
     read_namelist_groups,
     read_restart_date,
     read_user_namelist,
+    summarize_environment,
     xmlchange_variables,
 )
 from tests.e3sm.analysis.test_case import _write_case
@@ -61,6 +65,19 @@ ENV_MACH_PES = """<?xml version="1.0"?>
     </entry>
   </group>
 </file>
+"""
+
+#: An environment dump as CIME writes it, from a shell with secrets
+ENVIRONMENT = """Currently Loaded Modules:
+  1) gcc/11.2.0   2) openmpi/4.1.6
+
+CLAUDE_CODE_MESSAGING_TOKEN=not-for-the-web
+SSH_CONNECTION=10.0.0.1 22 10.0.0.2 22
+CLAUDE_CODE_SESSION_ID=1234
+LD_LIBRARY_PATH=/soft/lib
+CC=mpicc
+HDF5_ROOT=/soft/hdf5
+Albany_ROOT=/soft/albany/2026.05.26
 """
 
 MPASO_IN = """&time_integration
@@ -131,9 +148,11 @@ def _make_case(tmp_path):
         'abc1234 Merge the fix\n0123456 Earlier\n',
     )
     _write(os.path.join(build_dir, 'GIT_DIFF'), "Entering 'cime'\n\n")
+    _write(os.path.join(build_dir, 'build_environment.txt'), ENVIRONMENT)
+    _write(os.path.join(case_dir, 'software_environment.txt'), ENVIRONMENT)
     _write(
-        os.path.join(build_dir, 'build_environment.txt'),
-        'Currently Loaded Modules:\nAlbany_ROOT=/soft/albany/2026.05.26\n',
+        os.path.join(build_dir, 'GIT_REMOTE'),
+        'origin\thttps://someone:hunter2@github.com/x/E3SM.git (fetch)\n',
     )
     return E3smCase(case_dir)
 
@@ -250,3 +269,67 @@ def test_the_step_describes_and_copies_the_case(tmp_path):
     )
     for local in page['files']:
         assert os.path.isfile(os.path.join(step.work_dir, local))
+
+
+def test_only_modules_and_libraries_of_an_environment_are_kept(tmp_path):
+    filename = str(tmp_path / 'build_environment.txt')
+    _write(filename, ENVIRONMENT)
+
+    text = summarize_environment(filename)
+
+    assert '2) openmpi/4.1.6' in text
+    assert 'CC=mpicc' in text
+    assert 'HDF5_ROOT=/soft/hdf5' in text
+    for left_out in ['TOKEN', 'SSH_', 'SESSION', 'LD_LIBRARY_PATH']:
+        assert left_out not in text
+
+
+def test_no_published_file_holds_a_secret(tmp_path):
+    case = _make_case(tmp_path)
+    step = CaseProvenance(
+        component=Component(name='e3sm'), subdir='a/provenance', case=case
+    )
+    step.work_dir = str(tmp_path / 'work')
+    os.makedirs(step.work_dir)
+
+    step.run()
+
+    for local in step.page.files:
+        with open(os.path.join(step.work_dir, local)) as copy:
+            text = copy.read()
+        assert SECRET.search(text) is None, local
+        assert 'not-for-the-web' not in text
+        assert 'hunter2' not in text
+    with open(os.path.join(step.work_dir, 'files', 'GIT_REMOTE')) as copy:
+        assert 'https://github.com/x/E3SM.git' in copy.read()
+
+
+def test_a_secret_in_a_copied_file_stops_the_step(tmp_path):
+    case = _make_case(tmp_path)
+    with open(os.path.join(case.case_dir, 'replay.sh'), 'a') as replay:
+        replay.write('export GITHUB_TOKEN=abc123\n')
+    step = CaseProvenance(
+        component=Component(name='e3sm'), subdir='a/provenance', case=case
+    )
+    step.work_dir = str(tmp_path / 'work')
+    os.makedirs(step.work_dir)
+
+    with pytest.raises(ValueError, match='looks like a secret'):
+        step.run()
+
+
+def test_what_looks_like_a_secret():
+    for text in [
+        'CLAUDE_CODE_MESSAGING_TOKEN=x',
+        'SSH_CONNECTION=10.0.0.1',
+        'CLAUDE_CODE_SESSION_ID=1',
+        'password: x',
+        'export GITHUB_TOKEN=x',
+    ]:
+        assert SECRET.search(text) is not None, text
+    # ssh is also the sea-surface height in MPAS-Ocean's options
+    for text in [
+        'config_use_ssh_gradient_wetting_drying = .true.',
+        "config_land_ice_flux_mode = 'pressure_only'",
+    ]:
+        assert SECRET.search(text) is None, text
