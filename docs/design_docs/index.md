@@ -15,6 +15,7 @@ land_locked_cells
 mixed_layer_eddies
 ocean_analysis
 ocean_analysis_initial
+ocean_analysis_regional_moc
 omega_pr_testing
 overflow_nonlinear_eos
 polaris_update_testing
