@@ -521,9 +521,19 @@ class Ledger:
         _write_yaml(record, self._hunt_path(name, '.yaml'))
 
     def save_digest(self, name: str, text: str) -> str:
-        """Write a hunt's digest and return its path"""
+        """
+        Write a hunt's digest and return its path
+
+        A digest written again in the same hunt is saved beside the earlier
+        ones, as ``<hunt>.2.md`` and so on, so the ledger keeps what the
+        developer was shown each time.
+        """
         os.makedirs(os.path.join(self.path, HUNTS_DIR), exist_ok=True)
         filename = self._hunt_path(name, '.md')
+        revision = 2
+        while os.path.exists(filename):
+            filename = self._hunt_path(name, f'.{revision}.md')
+            revision += 1
         with open(filename, 'w') as handle:
             handle.write(text)
         return filename
@@ -794,7 +804,9 @@ class Ledger:
         replayed = _git(self.path, ['show', f':3:{path}'], check=True).stdout
         upstream = _git(self.path, ['show', f':2:{path}'], check=True).stdout
         filename = os.path.join(self.path, path)
-        name = os.path.basename(path).rsplit('.', 1)[0]
+        # a hunt's name, and what follows it: .yaml, .md or .<n>.md
+        name, dot, rest = os.path.basename(path).partition('.')
+        suffix = f'{dot}{rest}'
         if path.endswith('.yaml'):
             yaml = YAML(typ='safe')
             theirs, mine = yaml.load(upstream), yaml.load(replayed)
@@ -817,7 +829,7 @@ class Ledger:
                 return
             _write_yaml(merge_hunts(theirs, mine), filename)
         elif name in renamed:
-            new_path = self._hunt_path(renamed[name], '.md')
+            new_path = self._hunt_path(renamed[name], suffix)
             with open(new_path, 'w') as handle:
                 handle.write(replayed)
             self._restore(filename, upstream)
