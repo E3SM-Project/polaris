@@ -59,7 +59,10 @@ For each run, from its monthly means:
 
 - the total melt flux and the mean melt rate over the floating ice base,
   over all of it and where the draft is deeper than 300 m, and the mean
-  thermal driving and friction velocity;
+  thermal driving and friction velocity.  Melt here and below never
+  includes frazil; the total melt flux is plotted beside the freshwater
+  flux of the frazil that forms under the ice, and a flux that includes
+  both says "melt + frazil";
 - the ranges under the ice of the barotropic streamfunction and of the
   overturning streamfunction across lines of constant $x$;
 - the strongest gyre in the open ocean, the barotropic streamfunction of

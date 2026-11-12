@@ -32,14 +32,21 @@ TIME_SERIES: list[tuple[str, str, str, str, list[tuple]]] = [
     (
         'melt',
         'total_melt_flux',
-        'Total melt flux',
-        'melt flux (Gt yr$^{-1}$)',
-        [('totalMeltFlux', SECONDS_PER_YEAR * 1e-12, None)],
+        'Total melt flux and frazil under the ice',
+        'freshwater flux (Gt yr$^{-1}$)',
+        [
+            ('totalMeltFlux', SECONDS_PER_YEAR * 1e-12, 'melt'),
+            (
+                'totalFrazilFlux',
+                SECONDS_PER_YEAR * 1e-12,
+                'frazil under the ice',
+            ),
+        ],
     ),
     (
         'melt',
         'mean_melt_rate',
-        'Mean melt rate over the ice base',
+        'Mean melt rate over the ice base (no frazil)',
         'melt rate (m yr$^{-1}$)',
         [
             ('meanMeltRate', SECONDS_PER_YEAR, 'all of the ice base'),
@@ -165,7 +172,7 @@ MAPS = [
     (
         'melt',
         'meltRate',
-        'Melt rate',
+        'Melt rate (no frazil)',
         SECONDS_PER_YEAR,
         'm yr$^{-1}$',
         'cmo.amp',
@@ -675,7 +682,9 @@ class RunPlots(ProductStep):
             ax.plot(melt.values, ds_mean.draft.values, 'k.-')
             ax.set_xlabel('melt rate (m yr$^{-1}$)')
             ax.set_ylabel('draft (m)')
-            ax.set_title(f'Melt rate by draft, {months},\n{self.label}')
+            ax.set_title(
+                f'Melt rate by draft (no frazil), {months},\n{self.label}'
+            )
             ax.grid(True, alpha=0.3)
             fig.savefig(plot, bbox_inches='tight')
         ds_data = xr.Dataset()
@@ -688,7 +697,7 @@ class RunPlots(ProductStep):
             data=data,
             group=self.kind,
             gallery='melt',
-            title='Melt rate by draft',
+            title='Melt rate by draft (no frazil)',
         )
 
     def _plot_landice_series(self, ds_landice):
