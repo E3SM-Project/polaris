@@ -71,7 +71,7 @@ TIME_SERIES: list[tuple[str, str, str, str, list[tuple]]] = [
         ],
     ),
     (
-        'circulation',
+        'sea_surface_height',
         'open_ocean_ssh_residual',
         'SSH of the open ocean above the restoring region',
         'height (cm)',
@@ -82,7 +82,7 @@ TIME_SERIES: list[tuple[str, str, str, str, list[tuple]]] = [
         ],
     ),
     (
-        'circulation',
+        'sea_surface_height',
         'open_ocean_ssh_offset',
         'Residual SSH of the open ocean: gyres and offset',
         'height (cm)',
