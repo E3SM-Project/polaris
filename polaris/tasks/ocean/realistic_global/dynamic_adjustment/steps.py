@@ -1,4 +1,5 @@
 import os
+from functools import partial
 from typing import Any, Dict, List, Tuple
 
 from polaris.config import PolarisConfigParser
@@ -18,6 +19,10 @@ from polaris.tasks.ocean.realistic_global.mesh_info import (
     estimate_ocean_cell_count,
     min_res_for_mesh,
 )
+from polaris.tasks.ocean.realistic_global.models import (
+    DEFAULT_MODEL,
+    model_subdir,
+)
 
 from .schedule import load_schedule_stages
 from .summary import Summary
@@ -31,7 +36,10 @@ FORWARD_CONFIG_PACKAGE = 'polaris.tasks.ocean.realistic_global.forward'
 
 
 def get_realistic_dynamic_adjustment_steps(
-    component: Any, mesh_name: str, include_viz: bool = False
+    component: Any,
+    mesh_name: str,
+    include_viz: bool = False,
+    model: str = DEFAULT_MODEL,
 ) -> Tuple[Dict[str, Step], PolarisConfigParser, List[ForwardStage]]:
     """
     Get shared steps for the realistic global ocean dynamic-adjustment
@@ -61,6 +69,12 @@ def get_realistic_dynamic_adjustment_steps(
     Calling this again for the same mesh is a no-op that hands back what
     already exists, including the restart chain's dependencies.
 
+    Every step here runs, or reads the output of, one ocean model, so the
+    whole family is model-dependent: it lives under
+    ``dynamic_adjustment/<model>/``, with its config file and the stages'
+    ``restarts`` directory, and so do the init chain's model-dependent steps.
+    See :py:mod:`polaris.tasks.ocean.realistic_global.models`.
+
     Parameters
     ----------
     component : polaris.tasks.ocean.Ocean
@@ -77,6 +91,9 @@ def get_realistic_dynamic_adjustment_steps(
         completed adjustment is not what a workflow that only wants the relaxed
         restart is asking about, so those consumers leave it ``False``.
 
+    model : str, optional
+        The ocean model to build the steps for.
+
     Returns
     -------
     steps : dict of {str: polaris.Step}
@@ -90,12 +107,13 @@ def get_realistic_dynamic_adjustment_steps(
     stages : list of ForwardStage
         The stages of the adjustment, in schedule order.
     """
-    base_subdir = adjustment_subdir(mesh_name)
-    config = _get_dynamic_adjustment_config(
-        component, base_subdir, CONFIG_FILENAME, mesh_name
-    )
+    base_subdir = model_subdir(adjustment_subdir(mesh_name), model)
+    config = get_dynamic_adjustment_config(component, mesh_name, model)
     init_steps, _ = get_realistic_init_steps(
-        component=component, mesh_name=mesh_name, include_viz=False
+        component=component,
+        mesh_name=mesh_name,
+        include_viz=False,
+        model=model,
     )
     steps: Dict[str, Step] = dict(init_steps)
 
@@ -185,7 +203,8 @@ def get_realistic_dynamic_adjustment_steps(
 
 def adjustment_subdir(mesh_name: str) -> str:
     """
-    The work directory the dynamic-adjustment steps for a mesh live under.
+    The work directory of a mesh's dynamic-adjustment task.  Its steps live in
+    a directory under it named for their ocean model.
 
     Parameters
     ----------
@@ -200,11 +219,11 @@ def adjustment_subdir(mesh_name: str) -> str:
     return f'spherical/realistic_global/{mesh_name}/dynamic_adjustment'
 
 
-def _get_dynamic_adjustment_config(
-    component: Any, subdir: str, config_filename: str, mesh_name: str
+def get_dynamic_adjustment_config(
+    component: Any, mesh_name: str, model: str
 ) -> PolarisConfigParser:
     """
-    Get or create the shared per-mesh config for the dynamic-adjustment steps.
+    Get or create the shared config for one model's dynamic-adjustment steps.
 
     A stage is a forward run, so the config carries the
     ``[realistic_global_forward]`` options as well as its own.  The per-mesh
@@ -217,24 +236,30 @@ def _get_dynamic_adjustment_config(
     component : polaris.tasks.ocean.Ocean
         The ocean component.
 
-    subdir : str
-        The subdirectory path for this mesh's dynamic-adjustment steps.
-
-    config_filename : str
-        The config filename (symlinked in each step's work directory).
-
     mesh_name : str
         The name of the MPAS mesh, used to find per-mesh overrides.
+
+    model : str
+        The ocean model the steps are for.
 
     Returns
     -------
     polaris.config.PolarisConfigParser
     """
-    filepath = os.path.join(component.name, subdir, config_filename)
-    if filepath in component.configs:
-        return component.configs[filepath]
+    subdir = model_subdir(adjustment_subdir(mesh_name), model)
+    filepath = os.path.join(component.name, subdir, CONFIG_FILENAME)
+    return component.get_or_create_shared_config(
+        filepath=filepath,
+        create=partial(_build_config, filepath=filepath, mesh_name=mesh_name),
+    )
+
+
+def _build_config(filepath: str, mesh_name: str) -> PolarisConfigParser:
+    """
+    Build the dynamic-adjustment config, with the per-mesh overrides last.
+    """
     config = PolarisConfigParser(filepath=filepath)
     config.add_from_package(FORWARD_CONFIG_PACKAGE, FORWARD_CONFIG_FILENAME)
-    config.add_from_package(CONFIG_PACKAGE, config_filename)
+    config.add_from_package(CONFIG_PACKAGE, CONFIG_FILENAME)
     add_realistic_global_mesh_config(config=config, mesh_name=mesh_name)
     return config
