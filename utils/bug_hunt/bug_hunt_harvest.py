@@ -214,7 +214,7 @@ def harvest_cdash(
         ledger, builds, failures, day, omega_of, omega_repo
     )
 
-    hunt = ledger.load_hunt(day)
+    hunt = ledger.load_hunt()
     hunt['covered']['cdash'] = last
     _touch(hunt, summary)
     for finding_id in summary.stopped:
@@ -267,7 +267,7 @@ def harvest_local(
         for failure in failures
     ]
     summary = record(ledger, sightings, day)
-    hunt = ledger.load_hunt(day)
+    hunt = ledger.load_hunt()
     _touch(hunt, summary)
     ledger.save_hunt(hunt)
     return summary
