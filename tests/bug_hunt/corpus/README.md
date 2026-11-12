@@ -33,6 +33,7 @@ that are mostly noise (see `utils/bug_hunt/AGENTS.md`).
 
 | Case | Why it is here |
 |---|---|
+| `cron_results_lost_when_driver_dies` | A claim that names the `omega_nightly` suite, which found 9 issues across both repositories on 2026-11-12, one short of `FEW_RESULTS`, so 5 unrelated issues needed a ruling before E3SM-Project/polaris#968 was posted. The saved searches leave out #968 itself, whose posting made the suite name broad. |
 | `gpu_race_already_reported` | Filed twice on 2026-10-30 (E3SM-Project/Omega#664) though Omega#631 had reported it; found only by `ProvPseudoThickness`, an identifier in the claim. |
 | `one_instance_of_a_general_issue` | Filed on 2026-10-30 (Omega#665) though it is one instance of Omega#434, about loops that ignore the minimum layer index; found only by `MinLayerCell`, the family of `MinLayerEdgeBot` in the claim. Searches sorted by recency lost #434 to recent pull requests until they were sorted by best match and issues were counted apart from pull requests. |
 | `pr_testing_cleanup_marker` | A claim that names a tool, `omega_pr_test.py`, which every Omega pull request tested with it mentions, and E3SM: 30 candidates needed a ruling on 2026-11-11, all unrelated. |
