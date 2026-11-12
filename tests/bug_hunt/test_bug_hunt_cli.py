@@ -216,3 +216,19 @@ def test_refresh_reads_a_batch_lines_and_whether_all_are_done():
     states = {'E3SM-Project/polaris#964': _batch_state(open_line)}
     assert bug_hunt._line_done_on(finding, states, '2026-11-12') is None
     assert bug_hunt._ready_batches(states) == set()
+
+
+def test_a_second_digest_keeps_the_answers_recorded():
+    recorded = [
+        {'id': 'F-a', 'answer': 'file'},
+        {'id': 'F-b', 'answer': None},
+        {'id': 'F-c', 'answer': 'dismiss'},
+    ]
+    # the new digest asks about F-a again, F-b and a new F-d, but no
+    # longer about F-c, which was dismissed
+    assert bug_hunt._digest_decisions(recorded, ['F-a', 'F-b', 'F-d']) == [
+        {'id': 'F-a', 'answer': 'file'},
+        {'id': 'F-b', 'answer': None},
+        {'id': 'F-d', 'answer': None},
+        {'id': 'F-c', 'answer': 'dismiss'},
+    ]
