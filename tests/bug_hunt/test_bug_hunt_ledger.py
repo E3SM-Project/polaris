@@ -1,3 +1,4 @@
+import os
 import subprocess
 
 import pytest
@@ -573,3 +574,21 @@ def test_the_name_terms_are_committed(ledger_dir):
         check=True,
     ).stdout
     assert status == ''
+
+
+def test_a_digest_written_again_is_kept_beside_the_first(ledger_dir):
+    ledger = Ledger(str(ledger_dir))
+    name = ledger.start_hunt('2026-11-12')
+    first = ledger.save_digest(name, 'first\n')
+    second = ledger.save_digest(name, 'second\n')
+    third = ledger.save_digest(name, 'third\n')
+
+    assert [os.path.basename(path) for path in (first, second, third)] == [
+        '2026-11-12-1.md',
+        '2026-11-12-1.2.md',
+        '2026-11-12-1.3.md',
+    ]
+    with open(first) as handle:
+        assert handle.read() == 'first\n'
+    # revisions are digests, not records of hunts
+    assert [hunt['name'] for hunt in ledger.hunts()] == [name]
