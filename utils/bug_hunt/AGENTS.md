@@ -129,8 +129,9 @@ harvests and triages.
      --not-duplicate "<owner>/<repo>#<n>: <why it is different>"`, so the
      digest and `file` know it was ruled out;
    - it has the same cause as another finding, such as several tests that
-     began failing after the same merge: `bug_hunt.py update <id> --merge
-     <other id>`;
+     began failing after the same merge: `bug_hunt.py update <kept id>
+     --merge <id>` folds `<id>` into `<kept id>`, the finding that stays,
+     usually the older one that a digest has already shown;
    - some rows fail for another reason: `bug_hunt.py update <id> --split
      <row>,<row>`.  This also undoes a "came back" that those rows set
      off;
