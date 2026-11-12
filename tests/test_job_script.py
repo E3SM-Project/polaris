@@ -591,3 +591,28 @@ def test_a_cached_step_is_not_sized(tmp_path):
     tasks = {'task': _task_using(component, 'task', [cached, run])}
     cores, _ = _get_concurrent_resources(tasks)
     assert cores == pytest.approx(16)
+
+
+def test_a_job_script_loads_the_environment_it_was_set_up_with(
+    tmp_path, monkeypatch
+):
+    """
+    A later setup in the same work directory, for another model and compiler,
+    replaces the load_polaris_env.sh link there, so a job script that sourced
+    the link would run in the later setup's environment.
+    """
+    load_script = str(
+        tmp_path / 'my polaris' / 'load_polaris_chrysalis_gnu_openmpi.sh'
+    )
+    monkeypatch.setenv('POLARIS_LOAD_SCRIPT', load_script)
+    text, _ = get_job_script(tmp_path, 'chrysalis', nodes=2)
+    assert f"source '{load_script}'\n" in text
+    assert 'source load_polaris_env.sh' not in text
+
+
+def test_a_job_script_without_a_load_script_sources_the_link(
+    tmp_path, monkeypatch
+):
+    monkeypatch.delenv('POLARIS_LOAD_SCRIPT', raising=False)
+    text, _ = get_job_script(tmp_path, 'chrysalis', nodes=2)
+    assert 'source load_polaris_env.sh\n' in text
