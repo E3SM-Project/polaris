@@ -13,15 +13,19 @@ INDEX_FILENAME = 'index.html'
 GALLERIES_DIRNAME = 'galleries'
 
 
-def generate_site(published, output_path, simulation_name, provenance=None):
+def generate_site(
+    published, output_path, simulation_name, provenance=None, pages=None
+):
     """
     Generate the static site over the products that have been published
 
     The site is a landing page of gallery groups, plus one page of thumbnails
-    per gallery.  It is rendered from the merged manifest alone, so that a
-    facet added later, a richer presentation, or a different visual design
-    costs nothing anywhere else: no step, no manifest fragment already
-    written, and no published path has to change.
+    per gallery, and any pages published beside the galleries, such as a
+    run's provenance, which the footer of every page links to.  It is
+    rendered from the merged manifest alone, so that a facet added later, a
+    richer presentation, or a different visual design costs nothing
+    anywhere else: no step, no manifest fragment already written, and no
+    published path has to change.
 
     The pages have their CSS inlined and no JavaScript, so a page costs one
     request and its images, and works the same from a local filesystem and
@@ -44,6 +48,11 @@ def generate_site(published, output_path, simulation_name, provenance=None):
         footer of every page.  By default, the provenance of the Polaris that
         is running, from :py:func:`polaris.provenance.get_summary`.
 
+    pages : list of dict, optional
+        The pages published beside the galleries, as
+        :py:func:`polaris.analysis.page.publish_pages` returned them, each
+        rendered as ``index.html`` in its directory
+
     Returns
     -------
     filenames : list of str
@@ -62,9 +71,15 @@ def generate_site(published, output_path, simulation_name, provenance=None):
         lstrip_blocks=True,
     )
 
+    if pages is None:
+        pages = []
+
     shared = {
         'title': f'Analysis of {simulation_name}',
         'provenance': list(provenance.items()),
+        'pages': [
+            {'title': page['title'], 'href': page['href']} for page in pages
+        ],
     }
 
     filenames = [
@@ -97,6 +112,20 @@ def generate_site(published, output_path, simulation_name, provenance=None):
                     **shared,
                 )
             )
+    for page in pages:
+        filenames.append(
+            _render(
+                environment=environment,
+                template_name='page.template',
+                filename=os.path.join(output_path, page['href']),
+                page_title=f'{simulation_name}: {page["title"]}',
+                subtitle=page['title'],
+                index_href=f'../{INDEX_FILENAME}',
+                page=page,
+                prefix='../',
+                **shared,
+            )
+        )
     return filenames
 
 
