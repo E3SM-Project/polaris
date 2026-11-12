@@ -406,8 +406,8 @@ offered in the digest with its cost.
 |---|---|---|---|
 | P1 | S1 measured; S2 measured on more than one row | an issue of its own | `priority: high` |
 | P2 | S1 inferred; S2 measured on one row; S3 measured on more than one row | an issue of its own | `priority: medium` |
-| P3 | other S3; S2 inferred | a clean-up batch | `priority: low` |
-| P4 | S4 | a clean-up batch, below the P3 lines | `priority: low` |
+| P3 | other S3; S2 inferred | a clean-up batch, or an issue of its own | `priority: low` |
+| P4 | S4 | a clean-up batch, below the P3 lines, or an issue of its own | `priority: low` |
 
 A speculative finding stays in the ledger, whatever its severity, until a
 test or a closer reading confirms it. The agent proposes a priority, and
@@ -450,22 +450,27 @@ to 2026-11-03 and triaged 3 parked findings.
    - Proposed: **file (an issue in E3SM-Project/Omega, `priority:
      medium`)**. Or: batch, log, dismiss, dig (one debug build, about a
      node-hour).
-2. **<name>: <claim>.**
+2. **Batch: vertical advection in Omega.** Starts "Clean-up: vertical
+   advection" in E3SM-Project/Omega. <What the findings share, and why one
+   developer would fix them together.>
+   - **<name>: <claim>.** P3, inferred; S3, another failure.
+     (F-20261112-1c0d)
+     - In `components/omega/src/ocn/<file>:<line>`.
+     - Evidence: <...>.
+     - Expected: <...>.
+   - **<name>: <claim>.** P4, inferred; S4, cosmetic. (F-20261112-8e2b)
+     - In `<file>:<line>`.
+     - Evidence: <...>.
+     - Expected: <...>.
+   - Proposed: **batch all**. Or: name any to file on its own, log, dismiss
+     or dig.
+3. **<name>: <claim>.**
    P3, polaris, inferred; S3, another failure. (F-20261030-07bd)
    - In `polaris/run/serial.py:212`.
    - Evidence: <...>.
-   - Proposed: **batch (with the task runner)**. Or: file
-     (an issue in E3SM-Project/polaris, `priority: low`), log, dismiss, dig.
-
-### For clean-up batches, one decision for all
-
-`batch` adds each to the "Clean-up: <theme>" issue of its owner's
-repository; name any to leave out.
-
-- polaris, ice shelves: **<name>: <claim>.** (F-20261029-5c1e)
-  - Evidence: <...>.
-- omega, compiler warnings: **<name>: <claim>.** (F-20261102-a07f)
-  - Evidence: <...>.
+   - Proposed: **file (an issue in E3SM-Project/polaris, `priority:
+     low`)**, since nothing else in the task runner is waiting. Or: log,
+     dismiss, dig.
 
 ### Changed since the last hunt
 
@@ -488,14 +493,19 @@ The developer answers each decision with one word:
 A digest asks for at most five decisions, unless the developer asks for a
 different number, and always includes every P1 finding. Decisions are
 ordered by priority, then by the number of rows affected, then by age, then
-by confidence. The P4 findings are listed together, and one answer covers
-all of them: `batch` sends them to their batches, and the developer can
-name any to leave out. A finding that is not shown keeps its place for a
-later digest. A tracked bug appears, in one line, only when something about
-it has changed. Commenting on its issue is a decision like any other. Until
-every decision is answered, or the developer leaves the rest for later,
-each of the agent's turns ends with the open ones again, never with a
-pointer to an earlier message. Decisions left for later stay open in the
+by confidence. A P3 or P4 finding is never shown apart from its partners,
+the other findings with its owner and theme. Together they are one
+decision, ranked by the highest of them. It opens with the theme, the
+repository and the batch it would start or join, then describes each
+finding as fully as a decision of its own. One answer covers them all, and
+the developer can name any to file on its own or leave out. A finding with
+no partner, in the digest or in an open batch, is proposed as an issue of
+its own with `priority: low`. A finding that is not shown keeps its place
+for a later digest. A tracked bug appears, in one line, only when something
+about it has changed. Commenting on its issue is a decision like any other.
+Until every decision is answered, or the developer leaves the rest for
+later, each of the agent's turns ends with the open ones again, never with
+a pointer to an earlier message. Decisions left for later stay open in the
 ledger, and the next digest raises them again. A finding the developer is
 handling outside a hunt is set to `fixing`: hunts leave it alone, and a
 harvest raises it again only if a new row fails. A dig that is waiting for
@@ -927,9 +937,10 @@ starts a new finding, and is not ranked as one that came back.
 ### Testing and Validation: A hunt asks for only a few decisions.
 
 Unit tests check that a digest asks for no more decisions than the limit,
-apart from P1 findings, in the stated order, and that all P4 findings share
-one decision. In the second trial, the
-developer times each digest, with a goal of five minutes.
+apart from P1 findings, in the stated order, that the findings of one owner
+and theme are shown together as one decision whatever their priorities, and
+that a finding with no partner is proposed as an issue of its own. In the
+second trial, the developer times each digest, with a goal of five minutes.
 
 ### Testing and Validation: Minor bugs are batched.
 
