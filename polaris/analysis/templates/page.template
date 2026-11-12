@@ -1,0 +1,32 @@
+{% extends "base.template" %}
+{% block content %}
+<p class="back"><a href="{{ index_href }}">&larr; All results</a></p>
+{% for section in page.sections %}
+<section>
+<h2>{{ section.title }}</h2>
+{% if section.text %}
+<p>{{ section.text }}</p>
+{% endif %}
+{% if section.entries %}
+<dl class="entries">
+{% for entry in section.entries %}
+<dt>{{ entry.label }}</dt><dd>{% if entry.href %}<a href="{{ entry.href }}">{{ entry.value }}</a>{% else %}{{ entry.value }}{% endif %}</dd>
+{% endfor %}
+</dl>
+{% endif %}
+{% if section.table %}
+<table>
+<thead><tr>{% for column in section.table.columns %}<th>{{ column }}</th>{% endfor %}</tr></thead>
+<tbody>
+{% for row in section.table.rows %}
+<tr>{% for cell in row %}<td>{% if cell.href %}<a href="{{ cell.href }}">{{ cell.value }}</a>{% else %}{{ cell.value }}{% endif %}</td>{% endfor %}</tr>
+{% endfor %}
+</tbody>
+</table>
+{% endif %}
+{% if section.code %}
+<pre>{{ section.code }}</pre>
+{% endif %}
+</section>
+{% endfor %}
+{% endblock %}

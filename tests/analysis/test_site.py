@@ -3,6 +3,7 @@ import re
 
 from polaris.analysis import Manifest, generate_site, publish
 from polaris.analysis.manifest import FRAGMENT_FILENAME
+from polaris.analysis.page import PAGE_FILENAME, Page, publish_pages
 from polaris.analysis.site import GALLERIES_DIRNAME, INDEX_FILENAME
 from tests.analysis.test_publish import SEASONS, write_plot
 
@@ -274,3 +275,75 @@ def test_publishing_nothing_still_generates_a_page(tmp_path):
     index = _read(os.path.join(output_path, INDEX_FILENAME))
     assert 'No products were published.' in index
     assert '0 products' in index
+
+
+def test_a_page_beside_the_galleries_is_rendered_and_linked(tmp_path):
+    """A page's sections are rendered in its own directory, its files are
+    copied beside it, and every page's footer links to it."""
+    work_dir = str(tmp_path / 'work')
+    fragment = _make_step(work_dir, 'maps')
+    step_path = os.path.join(work_dir, 'provenance')
+    os.makedirs(step_path)
+    with open(os.path.join(step_path, 'mpaso_in'), 'w') as out:
+        out.write('&time_integration\n/\n')
+    page = Page(name='provenance', title='Provenance of the run')
+    href = page.add_file('mpaso_in', 'mpaso_in.txt')
+    page.add_section(
+        'Code',
+        entries=[('E3SM', 'v3.2.0-1-gabc'), ('namelist', 'ocean', href)],
+    )
+    page.add_section(
+        'Settings',
+        table={'columns': ['option', 'value'], 'rows': [['config_dt', "'1'"]]},
+    )
+    page.add_section('Commands', code='./xmlchange STOP_N=1 && echo <done>')
+    page.write(step_path)
+
+    output_path = str(tmp_path / 'output')
+    published, _ = publish([fragment], output_path)
+    pages = publish_pages(
+        [os.path.join(step_path, PAGE_FILENAME)], output_path
+    )
+    generate_site(
+        published,
+        output_path,
+        simulation_name='QU240',
+        provenance=PROVENANCE,
+        pages=pages,
+    )
+
+    page_text = _read(os.path.join(output_path, 'provenance', 'index.html'))
+    assert 'v3.2.0-1-gabc' in page_text
+    assert 'href="mpaso_in.txt"' in page_text
+    assert '<td>config_dt</td>' in page_text
+    # text shown as it is is still escaped
+    assert '&lt;done&gt;' in page_text
+    assert os.path.exists(
+        os.path.join(output_path, 'provenance', 'mpaso_in.txt')
+    )
+    index = _read(os.path.join(output_path, INDEX_FILENAME))
+    assert 'provenance/index.html' in _hrefs(index)
+    gallery = _read(
+        os.path.join(
+            output_path,
+            GALLERIES_DIRNAME,
+            'climatology_maps_temperature_0021-0040.html',
+        )
+    )
+    assert '../provenance/index.html' in _hrefs(gallery)
+
+
+def test_a_page_published_again_drops_files_it_no_longer_has(tmp_path):
+    step_path = str(tmp_path / 'step')
+    os.makedirs(step_path)
+    for name in ['old', 'new']:
+        with open(os.path.join(step_path, name), 'w') as out:
+            out.write(name)
+    output_path = str(tmp_path / 'output')
+    for name in ['old', 'new']:
+        page = Page(name='provenance', title='Provenance')
+        page.add_file(name)
+        page.write(step_path)
+        publish_pages([os.path.join(step_path, PAGE_FILENAME)], output_path)
+
+    assert os.listdir(os.path.join(output_path, 'provenance')) == ['new']

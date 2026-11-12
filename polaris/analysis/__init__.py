@@ -10,6 +10,15 @@ from polaris.analysis.manifest import (
 from polaris.analysis.manifest import (
     read_fragment as read_fragment,
 )
+from polaris.analysis.page import (
+    Page as Page,
+)
+from polaris.analysis.page import (
+    PageStep as PageStep,
+)
+from polaris.analysis.page import (
+    publish_pages as publish_pages,
+)
 from polaris.analysis.publish import (
     publish as publish,
 )

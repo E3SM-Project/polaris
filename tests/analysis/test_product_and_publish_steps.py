@@ -4,9 +4,10 @@ import os
 
 from polaris import Component
 from polaris.analysis.manifest import FRAGMENT_FILENAME
+from polaris.analysis.page import PAGE_FILENAME, PageStep
 from polaris.analysis.product_step import ProductStep
 from polaris.analysis.publish import MERGED_FILENAME, PLOTS_DIRNAME
-from polaris.analysis.publish_step import PublishStep
+from polaris.analysis.publish_step import PAGES_DIRNAME, PublishStep
 from polaris.analysis.site import INDEX_FILENAME
 from polaris.config import PolarisConfigParser
 from tests.analysis.test_publish import write_plot
@@ -122,3 +123,64 @@ def test_a_publish_step_reads_its_options_from_its_own_section(tmp_path):
     names = os.listdir(os.path.join(output_path, PLOTS_DIRNAME))
     assert any(name.endswith('.nc') for name in names)
     assert os.path.exists(os.path.join(output_path, INDEX_FILENAME))
+
+
+class _Provenance(PageStep):
+    """A step that makes a page beside the galleries"""
+
+    def __init__(self, component):
+        super().__init__(
+            component=component,
+            name='provenance',
+            subdir='a/provenance',
+            page_name='provenance',
+            page_title='Provenance of the run',
+        )
+
+
+def test_a_publish_step_publishes_a_page_step_s_page(tmp_path):
+    component = Component(name='stand_in')
+    plots = _Plots(component)
+    provenance = _Provenance(component)
+    assert PAGE_FILENAME in provenance.outputs
+    publish = PublishStep(
+        component=component,
+        subdir='a/publish',
+        product_steps=[plots, provenance],
+        section=SECTION,
+    )
+    assert list(publish.dependencies) == ['a_plots', 'a_provenance']
+    assert publish.page_filenames == [
+        os.path.join(PAGES_DIRNAME, 'a_provenance.json')
+    ]
+
+    config = _config(tmp_path)
+    base_work_dir = str(tmp_path / 'work')
+    for step in [plots, provenance]:
+        step.config = config
+        step.work_dir = os.path.join(base_work_dir, step.path)
+        os.makedirs(step.work_dir)
+    plots.runtime_setup()
+    provenance.page.add_section('Code', entries=[('E3SM', 'v3.2.0')])
+    provenance.write_page()
+
+    publish.config = config
+    publish.base_work_dir = base_work_dir
+    publish.work_dir = os.path.join(base_work_dir, publish.path)
+    publish.logger = logging.getLogger('test_product_and_publish_steps')
+    for dirname, name, step, filename in [
+        ('fragments', 'a_plots', plots, FRAGMENT_FILENAME),
+        (PAGES_DIRNAME, 'a_provenance', provenance, PAGE_FILENAME),
+    ]:
+        os.makedirs(os.path.join(publish.work_dir, dirname))
+        os.symlink(
+            os.path.join(step.work_dir, filename),
+            os.path.join(publish.work_dir, dirname, f'{name}.json'),
+        )
+    publish.fragment_filenames = [os.path.join('fragments', 'a_plots.json')]
+
+    publish.run()
+
+    page = os.path.join(str(tmp_path / 'output'), 'provenance', 'index.html')
+    with open(page) as text:
+        assert 'v3.2.0' in text.read()
