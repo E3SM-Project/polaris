@@ -3,7 +3,7 @@ The digest: the few decisions a hunt asks of a developer
 """
 
 from dataclasses import dataclass, field
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Tuple
 
 from bug_hunt_file import PRIORITY_LABELS, REPOS
 from bug_hunt_ledger import (
@@ -29,6 +29,12 @@ SEVERITY_MEANINGS = {
 #: the most characters of evidence a decision shows
 EVIDENCE_LIMIT = 600
 
+#: the priorities whose findings go to clean-up batches
+BATCH_PRIORITIES = ('P3', 'P4')
+
+#: the short names of the repositories, for the heading of a batch
+REPO_NAMES = {'E3SM-Project/Omega': 'Omega', 'E3SM-Project/polaris': 'Polaris'}
+
 
 @dataclass
 class Digest:
@@ -44,7 +50,8 @@ class Digest:
         The findings asked about one by one, in order
 
     batched : list of str
-        The P4 findings asked about together
+        The findings asked about in batches, one decision for each owner
+        and theme
 
     untriaged : list of str
         Open findings with no priority yet, which the digest leaves out
@@ -83,6 +90,44 @@ def rank(findings: List[Finding]) -> List[Finding]:
     )
 
 
+@dataclass
+class Decision:
+    """
+    One decision in a digest: a finding of its own, or the partners in one
+    clean-up batch
+
+    Attributes
+    ----------
+    findings : list of bug_hunt_ledger.Finding
+        The finding, or the batch's findings, most pressing first
+
+    theme : str, optional
+        The batch's theme, if it is a batch
+
+    joins : str, optional
+        The open batch issue the findings would join, if there is one
+    """
+
+    findings: List[Finding]
+    theme: Optional[str] = None
+    joins: Optional[str] = None
+
+    @property
+    def is_batch(self) -> bool:
+        """Whether the decision is a batch"""
+        return self.theme is not None
+
+
+def decision_cost(decision: Decision) -> int:
+    """
+    How many of a digest's decisions a decision counts as
+
+    A batch counts as one decision, however many findings it holds.  The
+    rule lives only here, so that it is easy to change.
+    """
+    return 1
+
+
 def build_digest(
     findings: Dict[str, Finding],
     limit: int,
@@ -94,10 +139,13 @@ def build_digest(
     """
     Write the digest of the open findings in a ledger
 
-    Every P1 finding is shown.  P2 and P3 findings are shown up to
-    ``limit`` decisions in all.  P4 findings that are not speculative are
-    listed together, for one decision.  Speculative findings and those with
-    no priority are only counted.
+    Every P1 finding is shown.  Other findings are shown up to ``limit``
+    decisions in all.  A P3 or P4 finding is never shown apart from its
+    partners, the other findings with its owner and theme: together they
+    are one decision, ranked by the most pressing of them.  A finding with
+    no partner, in the digest or in an open batch, is proposed as an issue
+    of its own.  Speculative findings and those with no priority are only
+    counted.
 
     Parameters
     ----------
@@ -147,14 +195,22 @@ def build_digest(
             and finding.confidence != 'speculative'
         ]
     )
-    first = [finding for finding in ranked if finding.priority == 'P1']
-    middle = [
-        finding for finding in ranked if finding.priority in ('P2', 'P3')
-    ]
-    batched = [finding for finding in ranked if finding.priority == 'P4']
-    room = max(limit - len(first), 0)
-    decisions = first + middle[:room]
-    waiting = middle[room:]
+    shown: List[Decision] = []
+    waiting: List[Finding] = []
+    room = limit
+    for decision in _decisions(ranked, findings):
+        if decision.findings[0].priority == 'P1':
+            shown.append(decision)
+            room -= decision_cost(decision)
+    for decision in _decisions(ranked, findings):
+        if decision.findings[0].priority == 'P1':
+            continue
+        cost = decision_cost(decision)
+        if cost <= room:
+            shown.append(decision)
+            room -= cost
+        else:
+            waiting.extend(decision.findings)
     changed = sorted(
         (
             finding
@@ -176,31 +232,17 @@ def build_digest(
     lines = [f'## Bug hunt {day}', ''] + header + ['']
     lines.append('### Decisions')
     lines.append('')
-    if decisions:
-        for index, finding in enumerate(decisions, start=1):
-            lines.extend(_decision_lines(index, finding, outside_v4))
+    if shown:
+        for index, decision in enumerate(shown, start=1):
+            if decision.is_batch:
+                lines.extend(_batch_lines(index, decision, outside_v4))
+            else:
+                lines.extend(
+                    _decision_lines(index, decision.findings[0], outside_v4)
+                )
     else:
         lines.append('None.')
     lines.append('')
-    if batched:
-        lines.append('### For clean-up batches, one decision for all')
-        lines.append('')
-        lines.append(
-            '`batch` adds each to the "Clean-up: <theme>" issue of its '
-            "owner's repository; name any to leave out."
-        )
-        lines.append('')
-        for finding in batched:
-            # a small finding with no partner is filed on its own
-            theme = finding.theme or 'an issue of its own'
-            lines.append(
-                f'- {finding.owner}, {theme}: **{_headline(finding)}** '
-                f'({finding.id})'
-            )
-            lines.extend(
-                f'  - {detail}' for detail in _details(finding, outside_v4)
-            )
-        lines.append('')
     if changed:
         lines.append('### Changed since the last hunt')
         lines.append('')
@@ -242,8 +284,17 @@ def build_digest(
     lines.append('')
     return Digest(
         text='\n'.join(lines),
-        decisions=[finding.id for finding in decisions],
-        batched=[finding.id for finding in batched],
+        decisions=[
+            decision.findings[0].id
+            for decision in shown
+            if not decision.is_batch
+        ],
+        batched=[
+            finding.id
+            for decision in shown
+            if decision.is_batch
+            for finding in decision.findings
+        ],
         untriaged=untriaged,
     )
 
@@ -275,6 +326,125 @@ def hold_line(holds: Dict[str, Dict[str, str]]) -> str:
     return f'On hold: {"; ".join(parts)}.'
 
 
+def _decisions(
+    ranked: List[Finding], findings: Dict[str, Finding]
+) -> List[Decision]:
+    """
+    The decisions for ranked findings, most pressing first: a P3 or P4
+    finding goes with its partners, the others with its owner and theme,
+    and with the open batch for them if there is one
+    """
+    partners: Dict[Tuple[str, str], List[Finding]] = {}
+    for finding in ranked:
+        key = _batch_key(finding)
+        if key is not None:
+            partners.setdefault(key, []).append(finding)
+    open_batches = _open_batches(findings)
+    decisions = []
+    done = set()
+    for finding in ranked:
+        key = _batch_key(finding)
+        if key is None or (
+            len(partners[key]) == 1 and key not in open_batches
+        ):
+            decisions.append(Decision([finding]))
+        elif key not in done:
+            done.add(key)
+            decisions.append(
+                Decision(
+                    partners[key], theme=key[1], joins=open_batches.get(key)
+                )
+            )
+    return decisions
+
+
+def _batch_key(finding: Finding) -> Optional[Tuple[str, str]]:
+    """The owner and theme a finding is batched by, if it goes to a batch"""
+    if finding.priority not in BATCH_PRIORITIES or not finding.theme:
+        return None
+    return (finding.owner or 'unknown', finding.theme)
+
+
+def _open_batches(findings: Dict[str, Finding]) -> Dict[Tuple[str, str], str]:
+    """
+    The batch issue each owner and theme has open, from the findings
+    already in it
+    """
+    batches: Dict[Tuple[str, str], str] = {}
+    for finding in findings.values():
+        if finding.status != 'batched' or not finding.theme:
+            continue
+        repo = REPOS.get(finding.owner or '')
+        refs = [
+            link
+            for link in finding.links
+            if repo is not None and link.startswith(f'{repo}#')
+        ]
+        if refs:
+            batches.setdefault((finding.owner, finding.theme), refs[0])
+    return batches
+
+
+def _batch_lines(
+    index: int,
+    decision: Decision,
+    outside_v4: Optional[Dict[str, Dict[str, str]]] = None,
+) -> List[str]:
+    """
+    The lines of a batch decision: the theme, where the batch goes and what
+    its findings share, then each finding as fully as a decision of its own
+    """
+    first = decision.findings[0]
+    repo = REPOS.get(first.owner or '') or 'a repository you name'
+    title = f'Clean-up: {decision.theme}'
+    where = REPO_NAMES.get(repo, repo)
+    if decision.joins is not None:
+        goes = f'Joins "{title}", {decision.joins}.'
+    else:
+        goes = f'Starts "{title}" in {repo}.'
+    lines = [f'{index}. **Batch: {decision.theme} in {where}.** {goes}']
+    shared = _shared(decision.findings)
+    if shared:
+        lines[0] = f'{lines[0]} {shared}'
+    for finding in decision.findings:
+        lines.append(
+            f'   - **{_headline(finding)}** {_rating(finding, owner=False)}. '
+            f'({finding.id})'
+        )
+        lines.extend(
+            f'     - {detail}' for detail in _details(finding, outside_v4)
+        )
+    lines.append(
+        '   - Proposed: **batch all**. Or: name any to file on its own, '
+        'log, dismiss or dig.'
+    )
+    return lines
+
+
+def _shared(batch: List[Finding]) -> str:
+    """One sentence on the files a batch's findings are in"""
+    files = sorted(
+        {finding.where.split(':')[0] for finding in batch if finding.where}
+    )
+    if not files:
+        return ''
+    count = 'Both are' if len(batch) == 2 else f'All {len(batch)} are'
+    listed = ', '.join(f'`{name}`' for name in files)
+    return f'{count} in {listed}.'
+
+
+def _rating(finding: Finding, owner: bool = True) -> str:
+    """A finding's priority, owner, confidence and severity"""
+    rating = f'{finding.priority}, '
+    if owner:
+        rating = f'{rating}{finding.owner}, '
+    rating = f'{rating}{finding.confidence or "unrated"}'
+    if finding.severity in SEVERITY_MEANINGS:
+        meaning = SEVERITY_MEANINGS[finding.severity]
+        rating = f'{rating}; {finding.severity}, {meaning}'
+    return rating
+
+
 def _decision_lines(
     index: int,
     finding: Finding,
@@ -284,14 +454,9 @@ def _decision_lines(
     The lines of one decision in the digest, with enough to decide on
     without the ledger
     """
-    rating = f'{finding.priority}, {finding.owner}, '
-    rating = f'{rating}{finding.confidence or "unrated"}'
-    if finding.severity in SEVERITY_MEANINGS:
-        meaning = SEVERITY_MEANINGS[finding.severity]
-        rating = f'{rating}; {finding.severity}, {meaning}'
     lines = [
         f'{index}. **{_headline(finding)}**',
-        f'   {rating}. ({finding.id})',
+        f'   {_rating(finding)}. ({finding.id})',
     ]
     lines.extend(f'   - {detail}' for detail in _details(finding, outside_v4))
     lines.append(f'   - {_answers(finding)}')
@@ -361,7 +526,15 @@ def _answers(finding: Finding) -> str:
         described['file'] = 'file (in a repository you name)'
     elif label is not None:
         described['file'] = f'file (an issue in {repo}, `{label}`)'
-    if finding.theme:
+    if finding.theme and finding.priority in BATCH_PRIORITIES:
+        # shown alone, so nothing else is waiting for its batch
+        if proposed == 'batch':
+            proposed = 'file'
+        described['file'] = (
+            f'{described["file"]}, since nothing else in {finding.theme} '
+            f'is waiting'
+        )
+    elif finding.theme:
         described['batch'] = f'batch (with {finding.theme})'
     if finding.dig:
         described['dig'] = f'dig ({finding.dig})'
