@@ -662,28 +662,9 @@ def _file(args):
     _, ledger = _setup(args)
     day = today()
     findings = ledger.findings()
-    if args.all_p4:
-        ids = [
-            finding.id
-            for finding in findings.values()
-            if finding.status in OPEN_STATUSES
-            and finding.priority == 'P4'
-            and finding.confidence != 'speculative'
-        ]
-    else:
-        ids = [ledger.get(ref).id for ref in args.ids]
+    ids = [ledger.get(ref).id for ref in args.ids]
     if not ids:
-        raise ValueError('Name the findings to file, or pass --all-p4.')
-    if args.all_p4 and args.batch is None:
-        lone = [findings[i].label for i in ids if not findings[i].theme]
-        if lone:
-            raise ValueError(
-                'These P4 findings have no theme: '
-                + '; '.join(f'"{label}"' for label in lone)
-                + '.  Give each the area of code its batch covers '
-                '("update <id> --theme <area>"), or, if it has no partner, '
-                'file it on its own.'
-            )
+        raise ValueError('Name the findings to file.')
     if args.title is not None and len(ids) > 1:
         raise ValueError('--title names one issue, so file one finding.')
     if args.post and args.agent is None:
@@ -716,7 +697,7 @@ def _file(args):
             ledger.save(finding)
     if args.post:
         hunt = ledger.load_hunt(day)
-        answer = 'batch' if args.batch or args.all_p4 else 'file'
+        answer = 'batch' if args.batch else 'file'
         for finding_id in ids:
             record_answer(hunt, finding_id, answer)
         ledger.save_hunt(hunt)
@@ -1121,8 +1102,6 @@ def _split(ledger, finding, rows, day):
 
 def _theme_for(finding, args):
     """The clean-up batch a finding is filed in, if it goes in one"""
-    if args.batch is None and args.all_p4:
-        return finding.theme
     return args.batch
 
 
@@ -1558,12 +1537,6 @@ def _parse_args():
     file_parser.add_argument('ids', nargs='*')
     file_parser.add_argument(
         '--batch', help='Add to the clean-up batch with this theme'
-    )
-    file_parser.add_argument(
-        '--all-p4',
-        dest='all_p4',
-        action='store_true',
-        help='Batch every open P4 finding in its theme',
     )
     file_parser.add_argument(
         '--repo', help="The repository, if not the owner's"
