@@ -58,9 +58,7 @@ def test_an_entry_outside_v4_must_be_on_the_list():
 
 
 def _file_args(**overrides):
-    args: dict = dict(
-        post=True, batch=None, all_p4=False, repo=None, not_duplicate=[]
-    )
+    args: dict = dict(post=True, batch=None, repo=None, not_duplicate=[])
     args.update(overrides)
     return argparse.Namespace(**args)
 
@@ -192,27 +190,6 @@ def test_a_dig_that_waits_says_what_for(tmp_path, monkeypatch):
     assert ledger.get(finding.id).waiting_for == 'Perlmutter'
     bug_hunt._update(_update_args(finding.id, status='new'))
     assert ledger.get(finding.id).waiting_for is None
-
-
-def test_file_all_p4_refuses_findings_with_no_theme(tmp_path, monkeypatch):
-    ledger = _cli_ledger(tmp_path, monkeypatch)
-    lone = _finding(name='a typo in a log message', priority='P4')
-    ledger.save(lone)
-
-    with pytest.raises(ValueError, match='no theme'):
-        bug_hunt._file(
-            argparse.Namespace(
-                ids=[],
-                all_p4=True,
-                batch=None,
-                title=None,
-                post=False,
-                agent=None,
-                co_drafted=False,
-                repo=None,
-                not_duplicate=[],
-            )
-        )
 
 
 def _batch_state(body, state='open'):
