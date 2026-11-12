@@ -689,6 +689,10 @@
 
    mesh_info.estimate_cell_count
    mesh_info.estimate_ocean_cell_count
+
+   models.model_subdir
+   models.get_configured_model
+   models.replace_steps
 ```
 
 ### realistic_global.mesh_configs
@@ -737,6 +741,7 @@
    add_realistic_global_analysis_output_tasks
 
    AnalysisOutput
+   AnalysisOutput.configure
 
    AnalysisOutputForward
    AnalysisOutputForward.setup
@@ -778,8 +783,11 @@
    tasks.get_cached_initial_condition
 
    task.RealisticGlobalForward
+   task.RealisticGlobalForward.configure
+   task.swap_init_model
 
    forward.Forward
+   forward.Forward.set_init_condition
    forward.Forward.setup
    forward.Forward.get_stage
    forward.Forward.get_stats_filename
@@ -809,6 +817,7 @@
 
    initial_condition.StepInitialCondition
    initial_condition.StepInitialCondition.add_input_files
+   initial_condition.StepInitialCondition.for_init_steps
 
    initial_condition.DatabaseInitialCondition
    initial_condition.DatabaseInitialCondition.add_input_files
@@ -861,8 +870,10 @@
    tasks.add_realistic_global_init_tasks
 
    task.RealisticGlobalInit
+   task.RealisticGlobalInit.configure
 
    steps.get_realistic_init_steps
+   steps.init_subdir
 
    cull_topo.CullTopoStep
    cull_topo.CullTopoStep.setup
@@ -920,6 +931,7 @@
    task.RealisticGlobalDynamicAdjustment.configure
 
    steps.get_realistic_dynamic_adjustment_steps
+   steps.get_dynamic_adjustment_config
    steps.adjustment_subdir
 
    schedule.load_schedule_stages
