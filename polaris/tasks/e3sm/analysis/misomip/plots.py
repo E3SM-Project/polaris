@@ -244,7 +244,7 @@ MAPS = [
         'all',
     ),
     (
-        'thin_film',
+        'sea_surface_height',
         'ssh',
         'Sea-surface height where there is no land ice',
         1.0,
