@@ -326,7 +326,10 @@ def test_the_viz_step_is_shared_but_returned_only_when_asked():
         component=component, mesh_name='u-oi240-lr240', include_viz=True
     )
     assert 'viz' in with_viz
-    base = 'spherical/realistic_global/u-oi240-lr240/dynamic_adjustment'
+    base = (
+        'spherical/realistic_global/u-oi240-lr240/dynamic_adjustment/'
+        'mpas-ocean'
+    )
     assert with_viz['viz'] is component.steps[f'{base}/viz']
 
 
@@ -469,11 +472,10 @@ def test_configure_rebuilds_only_when_the_schedule_changed(tmp_path):
         task.steps['damped_adjustment_1'] is not before['damped_adjustment_1']
     )
     # the dropped stages are gone from the component, not just from the task
-    base = 'spherical/realistic_global/u-oi240-lr240/dynamic_adjustment'
     dropped = set(before) - set(task.steps)
     assert dropped
     for name in dropped:
-        assert f'{base}/{name}' not in component.steps, name
+        assert before[name].subdir not in component.steps, name
     # the init steps upstream are untouched: they do not depend on the
     # schedule and are shared with other tasks
     assert task.steps['initial_state'] is before['initial_state']
@@ -512,8 +514,9 @@ def test_task_forward_steps_share_one_restarts_directory():
             )
         previous = step
 
-    # and they all land in the one shared directory beside the stages
-    restarts = f'{task.subdir}/restarts'
+    # and they all land in the one shared directory beside the stages, in the
+    # directory of the model the stages are for
+    restarts = f'{task.subdir}/mpas-ocean/restarts'
     for step in steps:
         assert resolve(step, step.stage.restart_out).startswith(restarts)
 
