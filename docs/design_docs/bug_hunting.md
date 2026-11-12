@@ -793,11 +793,15 @@ agent names the hunt in what it hands over, and the digging agent passes
 `--hunt` with that name.
 
 `digest` writes the digest from the ledger, enforces the limit and saves it
-with the hunt record. Its evidence line is the first paragraph of the
-finding's evidence, so the agent opens the evidence with a short summary
-when it triages. The agent ends its turn with the digest, in full, followed
-only by its questions. The commands that act on a decision record it in the
-hunt record, so no later hunt asks it again.
+with the hunt record. A digest written again in the same hunt is saved
+beside the earlier ones, as `<hunt>.2.md` and so on, so the ledger keeps
+what the developer was shown each time, and the answers already recorded
+are kept. The agent shows the developer only digests that `digest` wrote. A
+decision's evidence line is the first paragraph of the finding's evidence,
+so the agent opens the evidence with a short summary when it triages. The
+agent ends its turn with the digest, in full, followed only by its
+questions. The commands that act on a decision record it in the hunt
+record, so no later hunt asks it again.
 
 ### Implementation: Minor bugs are batched.
 
