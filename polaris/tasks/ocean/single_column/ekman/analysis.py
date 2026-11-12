@@ -4,7 +4,7 @@ from matplotlib.ticker import MaxNLocator
 
 from polaris.constants import get_constant
 from polaris.ocean.model import OceanIOStep, get_time_since_start
-from polaris.ocean.vertical.diagnostics import vertical_coord_from_location
+from polaris.ocean.vertical.diagnostics import surface_relative_vertical_coords
 from polaris.viz import mplstyle_context
 
 
@@ -113,11 +113,17 @@ class Analysis(OceanIOStep):
             )
             nu = config.getfloat('single_column_ekman', 'vertical_viscosity')
 
-            z_mid = (
-                vertical_coord_from_location(ds, 'cell-center')
-                .mean(dim='nCells')
-                .values
+            filename = (
+                self.get_vert_coord_filename()
+                if config.get('ocean', 'model') == 'omega'
+                else self.get_init_filename()
             )
+            ds_vert = self.open_model_dataset(
+                filename, config=config, decode_times=False
+            )
+            z_mid, z_interface = surface_relative_vertical_coords(ds, ds_vert)
+            z_mid = z_mid.mean(dim='nCells').values
+            z_interface = z_interface.mean(dim='nCells').values
             if 'density' in ds.keys():
                 rho_0 = (
                     ds['density'].mean(dim='nCells').isel(nVertLevels=0).values
@@ -136,26 +142,6 @@ class Analysis(OceanIOStep):
             v = ds['velocityMeridional'].mean(dim='nCells')
             u_exact, v_exact = _exact_solution(
                 z_mid, nu, f, tau_x=tau_x / rho_0
-            )
-            ds_vert = None
-            if 'GeomZInterface' not in ds:
-                filename = (
-                    self.get_vert_coord_filename()
-                    if config.get('ocean', 'model') == 'omega'
-                    else self.get_init_filename()
-                )
-                ds_vert = self.open_model_dataset(
-                    filename, config=config, decode_times=False
-                )
-            z_interface = (
-                vertical_coord_from_location(
-                    ds,
-                    'cell-interfaces',
-                    allow_reconstruct=True,
-                    ds_vert=ds_vert,
-                )
-                .mean(dim='nCells')
-                .values
             )
             z_top = z_interface[:-1]
             z_bottom = z_interface[1:]

@@ -339,8 +339,8 @@ The time-averaged Omega profile and analytic solution for the default
 ```
 
 Analysis logs the relative L2 error of the velocity vector over the top
-third of the column, weighted by each layer's overlap with that depth
-range:
+third of the column below the actual surface, weighted by each layer's
+overlap with that depth range:
 
 $$
 E = \left[

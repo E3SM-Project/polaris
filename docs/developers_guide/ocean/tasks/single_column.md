@@ -114,7 +114,8 @@ step reports a layer-overlap-weighted relative L2 error over the top third
 of the column and writes `velocity_comparison_steady.png`, with velocity
 profiles and model-minus-analytic differences. It uses model-written
 geometric interfaces when available and the shared vertical-coordinate
-helper to reconstruct them otherwise. Omega history output includes
+helper to reconstruct them otherwise. Midpoints and interfaces are measured
+relative to the water-column surface. Omega history output includes
 `GeomZMid` and `GeomZInterface`; reconstruction uses Omega's vertical
 coordinate file or MPAS-Ocean's initial-condition file.
 

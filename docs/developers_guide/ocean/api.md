@@ -1298,6 +1298,7 @@
    vertical.diagnostics.get_z_mid_and_interface
    vertical.diagnostics.depth_from_thickness
    vertical.diagnostics.vertical_coord_from_location
+   vertical.diagnostics.surface_relative_vertical_coords
    vertical.diagnostics.location_for_field
    vertical.diagnostics.compute_zint_zmid_from_layer_thickness
    vertical.elevation.VerticalReduction
