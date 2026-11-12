@@ -43,6 +43,10 @@ Hunt Omega bugs following utils/bug_hunt/AGENTS.md: harvest since the
 last hunt, then triage.
 ```
 
+Each hunt keeps its own record in the ledger, named by its date and its
+number that day, so that two hunts on one day do not mix their decisions;
+`bug_hunt.py start` begins one.
+
 Agents doing other work use the same utility to set aside bugs that do not
 block their task, with `bug_hunt.py park`, as the Polaris `AGENTS.md` says.
 A bug that blocks the task is fixed as part of it.
