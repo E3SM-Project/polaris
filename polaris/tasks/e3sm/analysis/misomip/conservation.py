@@ -217,9 +217,9 @@ class CouplerConservation(ProductStep):
         if ds_ocean is not None:
             ocean = _ocean_series(ds_ocean, dates, scale)
             for name, label in [
-                ('totalMeltFlux', "ocean's melt"),
+                ('totalMeltFlux', "ocean's melt alone (no frazil)"),
                 ('totalFrazilFlux', "ocean's frazil under the ice"),
-                ('meltPlusFrazil', "ocean's melt + frazil"),
+                ('meltPlusFrazil', "ocean's melt + frazil under the ice"),
             ]:
                 if name in ocean:
                     lines.append(
