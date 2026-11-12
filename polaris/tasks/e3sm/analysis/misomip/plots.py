@@ -135,7 +135,7 @@ TIME_SERIES: list[tuple[str, str, str, str, list[tuple]]] = [
         [('dryAreaUnderGroundedIce', 1e-6, None)],
     ),
     (
-        'thin_film',
+        'sea_surface_height',
         'open_ocean_ssh',
         'Mean sea-surface height of the open ocean',
         'SSH (m)',
