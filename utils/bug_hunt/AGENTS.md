@@ -239,7 +239,11 @@ it.
    change introduced it if known, and what it affects; put the excerpts
    after a blank line.  The digest shows only that first paragraph.
 7. **Digest:** `bug_hunt.py digest --omega <sha> --polaris <sha>`, and end
-   your turn with it.
+   your turn with it.  Show the developer only digests that `digest`
+   wrote, never a preview from a script of your own, so the ledger keeps
+   what the developer saw: a digest written again in the same hunt is
+   saved beside the earlier ones, and answers already recorded are kept.
+   If `digest` misbehaves, that blocks the hunt: fix it.
 8. **Answers:** the developer answers each decision with one word.
    - `file`: `bug_hunt.py file <id> --title "<under 90 characters>"`
      searches again and prints the candidates above the issue.  Read both;
