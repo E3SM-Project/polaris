@@ -53,6 +53,44 @@ Omega writes its history time axis across a restart, and MPAS-Ocean stamps its
 output with `xtime` rather than an elapsed time measured from the start of the
 clock, so the failure it looks for cannot arise there.
 
+(ocean-realistic-global-model-directories)=
+
+### both models in one work directory
+
+The steps whose files are written for one model live in a directory named for
+the model, `mpas-ocean` or `omega`, each with a copy of the config file of its
+own:
+
+- In `init`, the `initial_state`, `forcing` and `viz` steps, under
+  `init/<model>/`.
+- In `dynamic_adjustment`, every stage, check, `summary`, `viz` and the
+  `restarts` directory, under `dynamic_adjustment/<model>/`.
+
+The other steps, from the mesh through `pstar_init`, do not depend on the
+model and are shared.  A work directory can therefore be set up for one model,
+then the other, and the second setup reuses the shared steps that have already
+run.  Give each setup its own suite name, so the second does not replace the
+first's job script and pickle.  Each job script loads the environment it was
+set up with, so the two setups can use different compilers, gnu for MPAS-Ocean
+and intel for Omega on Chrysalis, for example:
+
+```bash
+polaris setup -t ocean/spherical/realistic_global/<mesh>/dynamic_adjustment \
+    -w <work_dir> -p <mpas_ocean_build> --suite_name mpas_ocean
+polaris setup -t ocean/spherical/realistic_global/<mesh>/dynamic_adjustment \
+    -w <work_dir> -p <omega_build> --suite_name omega
+```
+
+A task's own work directory, such as `init` or `dynamic_adjustment`, holds
+links to its steps, and those point at the model it was set up for most
+recently.  To run the other model's steps from there, set it up again for
+that model.  Edit a model's options in the config file in its directory, for
+example `dynamic_adjustment/omega/dynamic_adjustment.cfg`.
+
+The forward and `analysis_output` tasks use the model-dependent `init` steps
+but keep their own steps in one directory, so set them up for one model per
+work directory.
+
 (ocean-realistic-global-woa23)=
 
 ## woa23
@@ -340,6 +378,9 @@ steps of its own:
    (stratification) check are also produced.  Global maps of the on-mesh wind
    stress components and magnitude are also written, which is where remapping
    artifacts would show up.
+
+Steps 5 to 7 write files for one model and live in `init/<model>/`; see
+{ref}`ocean-realistic-global-model-directories`.
 
 On large meshes, `viz` is the most expensive step: it took 33 minutes of a
 run of about 1.8 hours on `u-oi6to18-lr12p5`.  It runs only in this task;
@@ -1449,7 +1490,9 @@ drag and Omega's `RayleighDamping` both damp the velocity in every layer.
 
 ### restart chaining
 
-The stages share a `restarts` directory beside them in the task work directory.
+The stages share a `restarts` directory beside them, in their model's directory
+under the task's work directory (see
+{ref}`ocean-realistic-global-model-directories`).
 Each stage writes `restarts/rst.<timestamp>.nc` at the end of its run and
 declares it as an output; the next stage declares the same file as an input and
 starts from it, so a break in the chain is caught before the model launches.

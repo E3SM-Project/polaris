@@ -1,17 +1,26 @@
-from typing import TYPE_CHECKING, Dict, Optional
+from typing import TYPE_CHECKING, Dict, Optional, Tuple
 
 from polaris import Task
 from polaris.config import PolarisConfigParser
 from polaris.tasks.ocean.realistic_global.forward.forward import Forward
 from polaris.tasks.ocean.realistic_global.forward.initial_condition import (
     InitialCondition,
+    StepInitialCondition,
 )
 from polaris.tasks.ocean.realistic_global.forward.stats_analysis import (
     StatsAnalysis,
 )
 from polaris.tasks.ocean.realistic_global.forward.viz import Viz
+from polaris.tasks.ocean.realistic_global.init.steps import (
+    get_realistic_init_steps,
+)
 from polaris.tasks.ocean.realistic_global.mesh_configs import (
     add_realistic_global_mesh_config,
+)
+from polaris.tasks.ocean.realistic_global.models import (
+    DEFAULT_MODEL,
+    get_configured_model,
+    replace_steps,
 )
 
 if TYPE_CHECKING:
@@ -54,6 +63,14 @@ class RealisticGlobalForward(Task):
 
     time_integrator : str
         The variant of the task, ``'split_explicit'`` or ``'rk4'``.
+
+    model : str
+        The ocean model the shared init steps are for.  The task is built for
+        :py:data:`~polaris.tasks.ocean.realistic_global.models.DEFAULT_MODEL`
+        and ``configure()`` switches to the configured model.
+
+    forward_step : polaris.tasks.ocean.realistic_global.forward.forward.Forward
+        The ``short`` forward run.
     """
 
     def __init__(
@@ -87,7 +104,8 @@ class RealisticGlobalForward(Task):
         init_steps : dict of polaris.Step, optional
             Shared upstream steps to add to the task, keyed by the symlink name
             to give them.  Needed when ``init_condition`` consumes their
-            outputs, and left unset for a source that does not.
+            outputs, and left unset for a source that does not.  They are
+            :py:data:`~polaris.tasks.ocean.realistic_global.models.DEFAULT_MODEL`'s.
 
         time_integrator : str, optional
             The variant of the task, one of ``TIME_INTEGRATORS``: the default
@@ -110,6 +128,8 @@ class RealisticGlobalForward(Task):
         )
         self.mesh_name = mesh_name
         self.time_integrator = time_integrator
+        self.model = DEFAULT_MODEL
+        self._init_steps = init_steps
 
         config_filename = 'forward.cfg'
         filepath = f'{component.name}/{base}/{config_filename}'
@@ -142,6 +162,7 @@ class RealisticGlobalForward(Task):
         )
         forward_step.set_shared_config(config, link=config_filename)
         self.add_step(forward_step)
+        self.forward_step = forward_step
 
         # both are diagnostics rather than part of the run, so neither is on by
         # default; the statistics time series is the more useful of the two on
@@ -157,3 +178,77 @@ class RealisticGlobalForward(Task):
         viz = Viz(component=component, indir=base, forward=forward_step)
         viz.set_shared_config(config, link=config_filename)
         self.add_step(viz, run_by_default=False)
+
+    def configure(self):
+        """
+        Switch to the configured ocean model's init steps, if the task has any.
+        """
+        super().configure()
+        self._init_steps, self.model = swap_init_model(
+            task=self,
+            forward_step=self.forward_step,
+            mesh_name=self.mesh_name,
+            init_steps=self._init_steps,
+            model=self.model,
+        )
+
+
+def swap_init_model(
+    task: Task,
+    forward_step: Forward,
+    mesh_name: str,
+    init_steps: Optional[Dict[str, 'Step']],
+    model: str,
+) -> Tuple[Optional[Dict[str, 'Step']], str]:
+    """
+    Switch a forward task to the configured ocean model's init steps.
+
+    The task's model-dependent init steps are swapped for the configured
+    model's, and its forward step reads its initial condition from them.  A
+    task without init steps, which runs from a cached initial condition, is
+    left alone.
+
+    Parameters
+    ----------
+    task : polaris.Task
+        The task, during ``configure()``.
+
+    forward_step : polaris.tasks.ocean.realistic_global.forward.forward.Forward
+        The task's forward step, whose initial condition reads the init steps.
+
+    mesh_name : str
+        The name of the MPAS mesh.
+
+    init_steps : dict of {str: polaris.Step} or None
+        The task's init steps, for ``model``.
+
+    model : str
+        The ocean model ``init_steps`` are for.
+
+    Returns
+    -------
+    init_steps : dict of {str: polaris.Step} or None
+        The task's init steps now.
+
+    model : str
+        The ocean model they are for.
+    """
+    configured = get_configured_model(task.config, model)
+    if init_steps is None or configured == model:
+        return init_steps, model
+
+    init_condition = forward_step.init_condition
+    if not isinstance(init_condition, StepInitialCondition):
+        raise TypeError(
+            f'{task.path} has init steps but its initial condition does not '
+            f'read them.'
+        )
+    new_steps, _ = get_realistic_init_steps(
+        component=task.component,
+        mesh_name=mesh_name,
+        include_viz=False,
+        model=configured,
+    )
+    replace_steps(task, init_steps, new_steps)
+    forward_step.set_init_condition(init_condition.for_init_steps(new_steps))
+    return new_steps, configured

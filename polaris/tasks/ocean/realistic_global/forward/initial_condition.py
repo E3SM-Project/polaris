@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, Dict, Optional
 
 if TYPE_CHECKING:
     from polaris import Step
@@ -124,6 +124,34 @@ class StepInitialCondition(InitialCondition):
         self.approx_cell_count = approx_cell_count
         self.graph_target = f'{init_step.path}/culled_graph.info'
         self.forcing_step = forcing_step
+
+    def for_init_steps(
+        self, init_steps: Dict[str, 'Step']
+    ) -> 'StepInitialCondition':
+        """
+        The same source, reading another set of init steps' outputs.
+
+        A task built for one ocean model uses this to switch to the init steps
+        of the model it is set up for.
+
+        Parameters
+        ----------
+        init_steps : dict of {str: polaris.Step}
+            The init steps, as
+            :py:func:`~polaris.tasks.ocean.realistic_global.init.steps.get_realistic_init_steps`
+            returns them.
+
+        Returns
+        -------
+        StepInitialCondition
+            A source reading ``init_steps``' initial state and forcing.
+        """
+        return StepInitialCondition(
+            init_steps['initial_state'],
+            min_res=self.min_res,
+            approx_cell_count=self.approx_cell_count,
+            forcing_step=init_steps['forcing'],
+        )
 
     def add_input_files(self, step: 'OceanModelStep') -> None:
         """

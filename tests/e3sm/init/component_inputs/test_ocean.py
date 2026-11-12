@@ -29,7 +29,7 @@ def test_the_initial_condition_comes_from_the_adjusted_restart():
         for entry in step.input_data
         if entry['filename'] == 'restart.nc'
     ]
-    assert '/dynamic_adjustment/restarts/' in source
+    assert '/dynamic_adjustment/mpas-ocean/restarts/' in source
     assert source.endswith('.nc')
     assert 'initial_state' not in source
 
