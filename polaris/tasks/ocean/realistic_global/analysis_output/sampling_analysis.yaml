@@ -1,0 +1,23 @@
+# Analysis output for the forward steps of the analysis_output
+# sampling_convergence task, added over the forward step's yaml.  Only
+# MonthlyAverages averages, at the step's sampling interval, and the history
+# holds only the averaged fields, so that the run that writes a snapshot at
+# every sample stays small.
+Omega:
+  Analysis:
+    MonthlyAverages:
+      Enable: true
+      Fields: [{{ fields | join(', ') }}]
+      ReductionPeriod: ["{{ period }}"]
+      SamplingInterval: "{{ sampling_interval }}"
+      # One file per period, named for the instant the period ends
+      Filename: means.$Y-$M-$D.nc
+      Stream:
+        FileFreq: {{ file_freq_days }}
+        FileFreqUnits: days
+  IOStreams:
+    History:
+      Contents:
+{%- for field in fields %}
+      - {{ field }}
+{%- endfor %}

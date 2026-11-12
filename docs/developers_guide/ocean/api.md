@@ -743,6 +743,35 @@
    AnalysisOutputForward.dynamic_model_config
 
    forward.get_monthly_filenames
+
+   AnalysisRestart
+
+   AnalysisRestartStep
+   AnalysisRestartStep.setup
+   AnalysisRestartStep.dynamic_model_config
+
+   AnalysisRestartValidate
+   AnalysisRestartValidate.run
+
+   restart.get_analysis_restart_filenames
+   restart_validate.compare_datasets_exactly
+
+   SamplingConvergence
+
+   SampledForward
+   SampledForward.setup
+   SampledForward.dynamic_model_config
+
+   SamplingAnalysis
+   SamplingAnalysis.run
+
+   sampling.get_sampling_mean_filenames
+   sampling_analysis.fit_order
+   sampling_analysis.get_sample_times
+   sampling_analysis.relative_l2_error
+   sampling_analysis.relative_max_difference
+   sampling_analysis.select_period
+   start_time.check_start_time
 ```
 
 ### realistic_global.restart
@@ -789,6 +818,7 @@
    stage.ForwardStage
    stage.ForwardStage.from_config
    stage.ForwardStage.model_replacements
+   stage.ForwardStage.time_step_seconds
    stage.ForwardStage.stats_period
    stage.ForwardStage.stats_filename
    stage.ForwardStage.bottom_drag_options
