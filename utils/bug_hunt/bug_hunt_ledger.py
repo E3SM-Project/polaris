@@ -10,6 +10,7 @@ import io
 import os
 import re
 import subprocess
+import uuid
 from dataclasses import asdict, dataclass, field, fields
 from typing import (
     IO,
@@ -52,6 +53,13 @@ OPEN_STATUSES = ('new', 'parked')
 
 FINDINGS_DIR = 'findings'
 HUNTS_DIR = 'hunts'
+
+#: the file, in a clone's git directory and so never committed, that names
+#: the hunt the clone started last
+CURRENT_HUNT_FILE = 'bug_hunt_current'
+
+#: a hunt's name: the day it started and its number that day
+_HUNT_NAME = re.compile(r'^(\d{4}-\d{2}-\d{2})(?:-(\d+))?$')
 
 #: the rows on hold, each with a reason and a date
 HOLDS_FILE = 'on_hold.yaml'
@@ -279,6 +287,8 @@ class Ledger:
     def __init__(self, path: str) -> None:
         self.path = path
         self._lock_file: Optional[IO[str]] = None
+        #: the hunt commands write to, if one is chosen or started
+        self.hunt: Optional[str] = None
         if not os.path.isdir(os.path.join(path, '.git')):
             raise LedgerError(
                 f'{path} is not a clone of a ledger repository.  Clone the '
@@ -420,9 +430,10 @@ class Ledger:
                 return finding_id
         raise LedgerError(f'Could not make a new ID for {key.text()}.')
 
-    def load_hunt(self, day: Optional[str] = None) -> Dict[str, Any]:
+    def start_hunt(self, day: Optional[str] = None) -> str:
         """
-        The record of the hunt on a day, or an empty one
+        Begin a hunt's record, numbered within its day, and make it the
+        hunt this clone writes to
 
         Parameters
         ----------
@@ -431,35 +442,88 @@ class Ledger:
 
         Returns
         -------
-        record : dict
-            ``date``, ``covered`` (what was harvested or reviewed),
-            ``touched`` (finding IDs) and ``decisions``, and ``reviewed``
-            (the files a review read, by repository, with the commit each
-            was read at) once a review is recorded
+        name : str
+            ``<yyyy-mm-dd>-<n>``, such as ``2026-11-12-2``
         """
         if day is None:
             day = today()
-        filename = os.path.join(self.path, HUNTS_DIR, f'{day}.yaml')
+        name = self._next_hunt_name(day)
+        self.save_hunt(_empty_hunt(name, uuid.uuid4().hex))
+        self.use_hunt(name)
+        return name
+
+    def use_hunt(self, name: Optional[str] = None) -> Optional[str]:
+        """
+        Choose the hunt commands write to: the one named, or else the one
+        this clone started last, if any
+
+        Parameters
+        ----------
+        name : str, optional
+            A hunt's name, as ``start`` printed it
+
+        Returns
+        -------
+        name : str, optional
+            The hunt chosen, or ``None`` if this clone has started none
+        """
+        if name is not None:
+            if not os.path.exists(self._hunt_path(name, '.yaml')):
+                raise LedgerError(f'The ledger has no hunt {name}.')
+            self.hunt = name
+            with open(self._current_hunt_path(), 'w') as handle:
+                handle.write(f'{name}\n')
+            return name
+        path = self._current_hunt_path()
+        if os.path.exists(path):
+            with open(path) as handle:
+                current = handle.read().strip()
+            if current and os.path.exists(self._hunt_path(current, '.yaml')):
+                self.hunt = current
+        return self.hunt
+
+    def load_hunt(self, name: Optional[str] = None) -> Dict[str, Any]:
+        """
+        The record of a hunt
+
+        Parameters
+        ----------
+        name : str, optional
+            The hunt's name; by default, the hunt chosen with
+            :py:meth:`use_hunt`, or the one this clone started last, or
+            else a new one, started now
+
+        Returns
+        -------
+        record : dict
+            ``name``, ``id``, ``date`` (the day it started), ``covered``
+            (what was harvested or reviewed), ``touched`` (finding IDs) and
+            ``decisions``, and ``reviewed`` (the files a review read, by
+            repository, with the commit each was read at) once a review is
+            recorded
+        """
+        if name is None:
+            name = self.hunt or self.use_hunt()
+        if name is None:
+            name = self.start_hunt()
+            print(f'Started hunt {name}, since this clone had none.')
+        filename = self._hunt_path(name, '.yaml')
         if not os.path.exists(filename):
-            return {
-                'schema_version': SCHEMA_VERSION,
-                'date': day,
-                'covered': {},
-                'touched': [],
-                'decisions': [],
-            }
-        return _read_yaml(filename)
+            return _empty_hunt(name, uuid.uuid4().hex)
+        record = _read_yaml(filename)
+        record.setdefault('name', name)
+        return record
 
     def save_hunt(self, record: Dict[str, Any]) -> None:
         """Write the record of a hunt"""
         os.makedirs(os.path.join(self.path, HUNTS_DIR), exist_ok=True)
-        filename = os.path.join(self.path, HUNTS_DIR, f'{record["date"]}.yaml')
-        _write_yaml(record, filename)
+        name = record.get('name') or record['date']
+        _write_yaml(record, self._hunt_path(name, '.yaml'))
 
-    def save_digest(self, day: str, text: str) -> str:
+    def save_digest(self, name: str, text: str) -> str:
         """Write a hunt's digest and return its path"""
         os.makedirs(os.path.join(self.path, HUNTS_DIR), exist_ok=True)
-        filename = os.path.join(self.path, HUNTS_DIR, f'{day}.md')
+        filename = self._hunt_path(name, '.md')
         with open(filename, 'w') as handle:
             handle.write(text)
         return filename
@@ -536,14 +600,10 @@ class Ledger:
         )
 
     def hunts(self) -> List[Dict[str, Any]]:
-        """The records of every hunt, oldest first"""
-        directory = os.path.join(self.path, HUNTS_DIR)
-        if not os.path.isdir(directory):
-            return []
+        """The records of every hunt, by date and then number"""
         return [
-            _read_yaml(os.path.join(directory, filename))
-            for filename in sorted(os.listdir(directory))
-            if filename.endswith('.yaml')
+            _read_yaml(self._hunt_path(name, '.yaml'))
+            for name in self._hunt_names()
         ]
 
     def covered(self, what: str) -> Optional[str]:
@@ -680,6 +740,9 @@ class Ledger:
             ['pull', '--rebase', '--quiet', remote[0], remote[1]],
             check=False,
         )
+        # hunts that took a name another clone pushed first, and the names
+        # they take instead
+        renamed: Dict[str, str] = {}
         while self._rebasing():
             conflicts = _git(
                 self.path,
@@ -693,8 +756,9 @@ class Ledger:
                 # the merge left the replayed commit with nothing to add
                 action = 'skip'
             elif conflicts and all(_is_hunt_file(path) for path in conflicts):
-                for path in conflicts:
-                    self._resolve_hunt_file(path)
+                # records first, so a digest follows its record's new name
+                for path in sorted(conflicts, key=lambda p: p.endswith('.md')):
+                    self._resolve_hunt_file(path, renamed)
                 action = 'continue'
             else:
                 _git(self.path, ['rebase', '--abort'], check=False)
@@ -716,28 +780,102 @@ class Ledger:
             return result.stderr
         return None
 
-    def _resolve_hunt_file(self, path: str) -> None:
+    def _resolve_hunt_file(self, path: str, renamed: Dict[str, str]) -> None:
         """
         Resolve a conflict in a hunt's record or digest, between the
         remote's version (stage 2 in a rebase) and that of the commit being
         replayed (stage 3)
+
+        Two versions of one hunt, written from two clones, are merged.  A
+        different hunt that took the same name, started in another clone
+        that pushed first, takes the next number, and so does its digest;
+        ``renamed`` collects the new names.
         """
         replayed = _git(self.path, ['show', f':3:{path}'], check=True).stdout
+        upstream = _git(self.path, ['show', f':2:{path}'], check=True).stdout
         filename = os.path.join(self.path, path)
+        name = os.path.basename(path).rsplit('.', 1)[0]
         if path.endswith('.yaml'):
-            upstream = _git(
-                self.path, ['show', f':2:{path}'], check=True
-            ).stdout
             yaml = YAML(typ='safe')
-            _write_yaml(
-                merge_hunts(yaml.load(upstream), yaml.load(replayed)),
-                filename,
+            theirs, mine = yaml.load(upstream), yaml.load(replayed)
+            other_hunt = (
+                theirs.get('id') is not None
+                and mine.get('id') is not None
+                and theirs['id'] != mine['id']
             )
+            if name in renamed or other_hunt:
+                new = renamed.get(name) or self._next_hunt_name(
+                    hunt_order(name)[0], taken=set(renamed.values())
+                )
+                renamed[name] = new
+                mine['name'] = new
+                _write_yaml(mine, self._hunt_path(new, '.yaml'))
+                self._restore(filename, upstream)
+                self._follow_rename(name, new)
+                new_path = self._hunt_path(new, '.yaml')
+                _git(self.path, ['add', '--', path, new_path], check=True)
+                return
+            _write_yaml(merge_hunts(theirs, mine), filename)
+        elif name in renamed:
+            new_path = self._hunt_path(renamed[name], '.md')
+            with open(new_path, 'w') as handle:
+                handle.write(replayed)
+            self._restore(filename, upstream)
+            _git(self.path, ['add', '--', path, new_path], check=True)
+            return
         else:
             # the digest being replayed was written after the remote's
             with open(filename, 'w') as handle:
                 handle.write(replayed)
         _git(self.path, ['add', '--', path], check=True)
+
+    @staticmethod
+    def _restore(filename: str, text: str) -> None:
+        """Put back the remote's version of a file"""
+        with open(filename, 'w') as handle:
+            handle.write(text)
+
+    def _follow_rename(self, old: str, new: str) -> None:
+        """Point the clone at a hunt's new name, if it was the current one"""
+        path = self._current_hunt_path()
+        if os.path.exists(path):
+            with open(path) as handle:
+                current = handle.read().strip()
+            if current == old:
+                with open(path, 'w') as handle:
+                    handle.write(f'{new}\n')
+        if self.hunt == old:
+            self.hunt = new
+
+    def _hunt_names(self) -> List[str]:
+        """The names of the hunts in the clone, by date and then number"""
+        directory = os.path.join(self.path, HUNTS_DIR)
+        if not os.path.isdir(directory):
+            return []
+        names = [
+            filename[: -len('.yaml')]
+            for filename in os.listdir(directory)
+            if filename.endswith('.yaml')
+        ]
+        return sorted(names, key=hunt_order)
+
+    def _next_hunt_name(self, day: str, taken: Container[str] = ()) -> str:
+        """The next free number for a hunt starting on a day"""
+        numbers = [
+            hunt_order(name)[1]
+            for name in self._hunt_names()
+            if hunt_order(name)[0] == day
+        ]
+        number = max(numbers, default=0) + 1
+        while f'{day}-{number}' in taken:
+            number += 1
+        return f'{day}-{number}'
+
+    def _hunt_path(self, name: str, suffix: str) -> str:
+        return os.path.join(self.path, HUNTS_DIR, f'{name}{suffix}')
+
+    def _current_hunt_path(self) -> str:
+        return os.path.join(self.path, '.git', CURRENT_HUNT_FILE)
 
     def _lock(self) -> None:
         """
@@ -793,6 +931,40 @@ class Ledger:
             self.path, ['rev-parse', '--abbrev-ref', 'HEAD'], check=True
         ).stdout.strip()
         return remotes[0], branch
+
+
+def hunt_order(name: str) -> Tuple[str, int]:
+    """
+    A hunt's date and number, to sort hunts by; a record from before hunts
+    were numbered counts as number 0 of its day
+
+    Parameters
+    ----------
+    name : str
+        The hunt's name, such as ``2026-11-12-2``
+
+    Returns
+    -------
+    order : tuple of str and int
+        The date and the number
+    """
+    match = _HUNT_NAME.match(name)
+    if match is None:
+        return (name, 0)
+    return (match[1], int(match[2] or 0))
+
+
+def _empty_hunt(name: str, hunt_id: str) -> Dict[str, Any]:
+    """A new hunt's record"""
+    return {
+        'schema_version': SCHEMA_VERSION,
+        'name': name,
+        'id': hunt_id,
+        'date': hunt_order(name)[0],
+        'covered': {},
+        'touched': [],
+        'decisions': [],
+    }
 
 
 def today() -> str:
