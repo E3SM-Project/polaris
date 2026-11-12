@@ -91,6 +91,15 @@ Without a ledger, `park` prints the finding instead; put it in your report.
 The developer says which of these to do.  A hunt with no instructions
 harvests and triages.
 
+Begin every hunt with `bug_hunt.py start`, which begins the hunt's record
+and prints its name, such as `2026-11-12-2`: the date and its number that
+day.  Later commands write to the hunt this clone started last, so two
+hunts on one day keep two records.  If two agents hunt in one clone, each
+passes its own hunt's name with `--hunt <name>` on every command.  A hunt
+keeps its name past midnight.  If another clone pushed a hunt with the same
+name first, yours takes the next number when it pushes, and `status` shows
+it.
+
 1. **Status:** `bug_hunt.py status` says what the ledger holds and what was
    last harvested and reviewed.
 2. **Harvest:** `bug_hunt.py harvest` reads CDash since the last harvest.

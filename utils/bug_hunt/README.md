@@ -29,6 +29,7 @@ passed and the first night it failed.
 
 | Command | What it does |
 |---|---|
+| `start` | begins a hunt's record, numbered within its day, and prints its name; later commands write to it, or to the one named with `--hunt` |
 | `harvest` | reads CDash (and with `--local`, runs on disk) into the ledger |
 | `park` | records a bug found while doing something else, or in a review |
 | `hold` | puts rows on hold, so a harvest does not report them as stopped |
