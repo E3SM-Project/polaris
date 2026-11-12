@@ -594,7 +594,8 @@ to start that session. A branch fixes one finding or one batch.
 - `AGENTS.md`: the hunt procedure, the ranking rubric and the parking rule,
   for agents;
 - `README.md`: the same workflow, for people running the commands;
-- `bug_hunt.py`, with the subcommands `harvest`, `park`, `match`,
+- `bug_hunt.py`, with the subcommands `start` (which begins a hunt's
+  record), `harvest`, `park`, `match`,
   `update` (which records what the agent decides about a finding), `review`
   (which lists the code no review has read, and records what one read),
   `digest`, `file`, `handoff` and `status`, and its modules, `bug_hunt_*.py`;
@@ -673,8 +674,9 @@ organization once it has proven useful. Its layout is:
 
 ```
 findings/F-20261027-3fa2.yaml    one file per finding
-hunts/2026-10-27.yaml            what the hunt covered, and its decisions
-hunts/2026-10-27.md              its digest
+hunts/2026-10-27-1.yaml          what the day's first hunt covered, and its
+                                 decisions
+hunts/2026-10-27-1.md            its digest
 on_hold.yaml                     rows on hold, each with a reason and a date
 outside_v4.yaml                  features and options outside E3SM v4, each
                                  with its source and a date
@@ -745,9 +747,10 @@ links, is open, or was closed in the last 90 days, unless the agent names
 each one it read and ruled out; the finding's history records them. Without
 `--post`, `file` prints the candidates above the draft. Each command pulls
 before it reads the ledger, and commits and pushes after; a rejected push
-pulls and tries again. Two clones writing the same day's hunt record are
-merged. Any other conflict is undone with a warning, and the commit waits
-in the clone for the next command, so a clone is never left mid-rebase.
+pulls and tries again. A hunt that took the same name as one pushed from
+another clone takes the next number. Any other conflict is undone with a
+warning, and the commit waits in the clone for the next command, so a clone
+is never left mid-rebase.
 
 ### Implementation: Each finding names the project that owns it.
 
@@ -778,6 +781,13 @@ v4 names the entry in `outside_v4.yaml` it depends on, and the rubric
 lowers its priority with it.
 
 ### Implementation: A hunt asks for only a few decisions.
+
+Each hunt has its own record, named by its date and its number that day,
+so a second hunt on the same day does not overwrite the first. `start`
+begins a record and prints its name. Later commands write to the hunt this
+clone started last, or to the one named with `--hunt`, so two agents
+hunting in one clone keep their records apart. A hunt that runs past
+midnight keeps its name.
 
 `digest` writes the digest from the ledger, enforces the limit and saves it
 with the hunt record. Its evidence line is the first paragraph of the
@@ -854,6 +864,8 @@ one has tracked yet:
 ### Testing and Validation: A developer starts each hunt.
 
 Each trial starts from a request like the one in the algorithm design.
+Unit tests check that two hunts on one day keep two records, and that two
+clones starting hunts at once end with different names.
 
 ### Testing and Validation: Hunts start from the testing that already runs.
 
