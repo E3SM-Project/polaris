@@ -74,7 +74,8 @@ def write_job_script(
 
     run_command : str, optional
         The command(s) to run in the job script. If not provided, defaults to
-        'polaris serial {{suite}}'.
+        'polaris serial {{suite}}', after sourcing the load script setup was
+        run with.
 
     concurrent : bool, optional
         Whether the job script should run the steps of a suite or task at the
@@ -268,7 +269,7 @@ mache.parallel.pbs.PbsOptions, None}
     if run_command is None:
         command = 'polaris parallel' if concurrent else 'polaris serial'
         run_command = f'{command} {suite}' if suite else command
-        run_command = f'source load_polaris_env.sh\n{run_command}'
+        run_command = f'source {_load_script()}\n{run_command}'
 
     render_kwargs.update(
         job_name=job_name,
@@ -481,3 +482,15 @@ def _get_min_nodes_allowed(
     if len(minima) == 0:
         return None
     return max(minima)
+
+
+def _load_script():
+    """
+    The load script a job script sources: the one setup was run with.
+
+    It is named by its own path rather than by the ``load_polaris_env.sh``
+    link in the work directory, because another setup in the same work
+    directory, for example for another ocean model and compiler, replaces
+    that link.  Without a load script, there is only the link.
+    """
+    return os.environ.get('POLARIS_LOAD_SCRIPT', 'load_polaris_env.sh')
