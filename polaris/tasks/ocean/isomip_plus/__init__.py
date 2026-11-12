@@ -3,7 +3,7 @@ from typing import (
     Dict as Dict,
 )
 from typing import (
-    Union as Union,
+    List as List,
 )
 
 from polaris import Step as Step
@@ -18,9 +18,6 @@ from polaris.tasks.ocean.isomip_plus.mesh import (
 from polaris.tasks.ocean.isomip_plus.mesh import (
     PlanarMesh as PlanarMesh,
 )
-from polaris.tasks.ocean.isomip_plus.mesh import (
-    SphericalMesh as SphericalMesh,
-)
 from polaris.tasks.ocean.isomip_plus.topo import (
     TopoMap as TopoMap,
 )
@@ -31,91 +28,177 @@ from polaris.tasks.ocean.isomip_plus.topo import (
     TopoScale as TopoScale,
 )
 
+# The ISOMIP+ experiments, each of which has a default task
+EXPERIMENTS = ['ocean0', 'ocean1', 'ocean2', 'inception', 'wetting', 'drying']
 
-def add_isomip_plus_tasks(component, mesh_type):
+# Variants of the default tasks, with the experiments each applies to.  A
+# variant adds a level to the task path and its own config file,
+# ``<variant>.cfg`` in this package.
+VARIANTS: Dict[str, List[str]] = {
+    'split_explicit': ['ocean0', 'inception', 'wetting', 'drying'],
+}
+
+# Variants with experiments that also have a restart test, in a
+# ``with_restart`` directory within the variant's task
+RESTART_TASKS: Dict[str, List[str]] = {'split_explicit': ['wetting']}
+
+
+def add_isomip_plus_tasks(component):
     """
-    Add tasks for different baroclinic channel tests to the ocean component
+    Add ISOMIP+ tasks to the ocean component
 
     component : polaris.tasks.ocean.Ocean
         the ocean component that the tasks will be added to
-
-    mesh_type : {'planar', 'spherical'}
-        The type of mesh
     """
-    planar = mesh_type == 'planar'
     for resolution in [4.0, 2.0, 1.0]:
         mesh_name = resolution_to_string(resolution)
-        resdir = f'{mesh_type}/isomip_plus/{mesh_name}'
+        resdir = f'planar/isomip_plus/{mesh_name}'
 
         filepath = os.path.join(component.name, resdir, 'isomip_plus_topo.cfg')
-        config = PolarisConfigParser(filepath=filepath)
-        if not planar:
-            config.add_from_package('polaris.mesh.spherical', 'spherical.cfg')
-            config.set(
-                'spherical_mesh',
-                'mpas_mesh_filename',
-                'base_mesh_without_xy.nc',
-            )
+        topo_config = PolarisConfigParser(filepath=filepath)
 
-        config.add_from_package('polaris.remap', 'mapping.cfg')
+        topo_config.add_from_package('polaris.remap', 'mapping.cfg')
 
-        config.add_from_package(
-            'polaris.tasks.ocean.isomip_plus', 'isomip_plus.cfg'
-        )
-
-        config.add_from_package(
+        topo_config.add_from_package(
             'polaris.tasks.ocean.isomip_plus', 'isomip_plus_topo.cfg'
         )
 
         shared_steps = _get_shared_steps(
-            mesh_type, resolution, mesh_name, resdir, component, config
+            resolution, mesh_name, resdir, component, topo_config
         )
 
-        for experiment in [
-            'ocean0',
-            'ocean1',
-            'ocean2',
-            'ocean3',
-            'ocean4',
-            'inception',
-            'wetting',
-            'drying',
-        ]:
-            for vertical_coordinate in ['z-star']:
-                task = IsomipPlusTest(
-                    component=component,
-                    resdir=resdir,
-                    resolution=resolution,
-                    experiment=experiment,
-                    vertical_coordinate=vertical_coordinate,
-                    planar=planar,
-                    shared_steps=shared_steps[experiment],
-                )
-                component.add_task(task)
+        for vertical_coordinate in ['z-star']:
+            for variant, experiments in _get_variants():
+                for experiment in experiments:
+                    config = _get_task_config(
+                        component,
+                        resdir,
+                        vertical_coordinate,
+                        experiment,
+                        variant,
+                    )
+                    task = IsomipPlusTest(
+                        component=component,
+                        resdir=resdir,
+                        resolution=resolution,
+                        experiment=experiment,
+                        vertical_coordinate=vertical_coordinate,
+                        shared_steps=shared_steps[experiment],
+                        config=config,
+                        variant=variant,
+                    )
+                    component.add_task(task)
+                    if experiment in _get_restart_experiments(variant):
+                        _add_restart_task(
+                            component,
+                            resdir,
+                            resolution,
+                            vertical_coordinate,
+                            experiment,
+                            variant,
+                            shared_steps[experiment],
+                        )
 
 
-def _get_shared_steps(
-    mesh_type, resolution, mesh_name, resdir, component, config
+def _get_variants():
+    """
+    Get each variant, with None for the default tasks, and its experiments
+    """
+    return [(None, EXPERIMENTS)] + list(VARIANTS.items())
+
+
+def _get_restart_experiments(variant):
+    """
+    Get the experiments of a variant that also have a restart test
+    """
+    if variant is None:
+        return []
+    return RESTART_TASKS.get(variant, [])
+
+
+def _add_restart_task(
+    component,
+    resdir,
+    resolution,
+    vertical_coordinate,
+    experiment,
+    variant,
+    shared_steps,
 ):
+    """
+    Add the restart test of a variant's task, which must already be added
+    """
+    config = _get_task_config(
+        component,
+        resdir,
+        vertical_coordinate,
+        experiment,
+        variant,
+        with_restart=True,
+    )
+    task = IsomipPlusTest(
+        component=component,
+        resdir=resdir,
+        resolution=resolution,
+        experiment=experiment,
+        vertical_coordinate=vertical_coordinate,
+        shared_steps=shared_steps,
+        config=config,
+        variant=variant,
+        with_restart=True,
+    )
+    component.add_task(task)
+
+
+def _get_task_config(
+    component,
+    resdir,
+    vertical_coordinate,
+    experiment,
+    variant,
+    with_restart=False,
+):
+    """Get a config parser shared by the steps of one task"""
+    taskdir = os.path.join(component.name, resdir, vertical_coordinate)
+    if variant is not None:
+        taskdir = os.path.join(taskdir, variant)
+    taskdir = os.path.join(taskdir, experiment)
+    if with_restart:
+        taskdir = os.path.join(taskdir, 'with_restart')
+    filepath = os.path.join(taskdir, 'isomip_plus.cfg')
+    config = PolarisConfigParser(filepath=filepath)
+    config.add_from_package('polaris.ocean.eos', 'linear.cfg')
+    config.add_from_package('polaris.ocean.ice_shelf', 'ssh_adjustment.cfg')
+    config.add_from_package('polaris.ocean.ice_shelf', 'freeze.cfg')
+    config.add_from_package(
+        'polaris.tasks.ocean.isomip_plus', 'isomip_plus.cfg'
+    )
+    if experiment in ['inception', 'wetting', 'drying']:
+        config.add_from_package(
+            'polaris.tasks.ocean.isomip_plus', 'thin_film.cfg'
+        )
+    if experiment == 'inception':
+        config.add_from_package(
+            'polaris.tasks.ocean.isomip_plus', 'inception.cfg'
+        )
+    if variant is not None:
+        config.add_from_package(
+            'polaris.tasks.ocean.isomip_plus', f'{variant}.cfg'
+        )
+    config.set('vertical_grid', 'coord_type', vertical_coordinate)
+    return config
+
+
+def _get_shared_steps(resolution, mesh_name, resdir, component, config):
     """Get the shared steps for adding to tasks"""
 
     subdir = f'{resdir}/base_mesh'
-    base_mesh: Union[PlanarMesh, SphericalMesh, None] = None
-    if mesh_type == 'planar':
-        base_mesh = PlanarMesh(
-            component=component,
-            resolution=resolution,
-            subdir=subdir,
-            config=config,
-        )
-    else:
-        base_mesh = SphericalMesh(
-            component=component,
-            cell_width=resolution,
-            subdir=subdir,
-            mesh_name=mesh_name,
-        )
-        base_mesh.set_shared_config(config, link='isomip_plus_topo.cfg')
+    base_mesh = PlanarMesh(
+        component=component,
+        resolution=resolution,
+        subdir=subdir,
+        config=config,
+    )
 
     subdir = f'{resdir}/topo/map_base'
     # we remap the topography onto the base mesh without smoothing the
@@ -170,7 +253,7 @@ def _get_shared_steps(
 
     topo_remap_culled: Dict[str, TopoRemap] = dict()
     shared_steps: Dict[str, Dict[str, Step]] = dict()
-    for experiment in ['ocean1', 'ocean2', 'ocean3', 'ocean4']:
+    for experiment in ['ocean1', 'ocean2']:
         name = 'topo_remap_culled'
         subdir = f'{resdir}/topo/remap_culled/{experiment}'
         topo_remap_culled[experiment] = TopoRemap(

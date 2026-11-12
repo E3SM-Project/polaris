@@ -9,8 +9,9 @@ from polaris.ocean.vertical import update_layer_thickness
 
 class SshAdjustment(Step):
     """
-    A step for iteratively adjusting the pressure from the weight of the ice
-    shelf to match the sea-surface height as part of ice-shelf 2D test cases
+    A step for iteratively adjusting either the pressure from the weight of
+    the ice shelf or the sea-surface height so the two are consistent with
+    one another
     """
 
     def __init__(
@@ -103,16 +104,15 @@ class SshAdjustment(Step):
 
         # then, modify the SSH or land-ice pressure
         if adjust_variable == 'ssh':
-            final_ssh = final_ssh.expand_dims(dim='Time', axis=0)
-            ds_out['ssh'] = final_ssh
+            ds_out['ssh'] = final_ssh.expand_dims(dim='Time', axis=0)
             # also update the landIceDraft variable, which will be used to
             # compensate for the SSH due to land-ice pressure when
             # computing sea-surface tilt
-            ds_out['landIceDraft'] = final_ssh
+            ds_out['landIceDraft'] = ds_out.ssh
             # we also need to stretch layerThickness to be compatible with
             # the new SSH
             update_layer_thickness(config, ds_out)
-            land_ice_pressure = ds_out.landIcePressure.values
+            land_ice_pressure = ds_init.landIcePressure
         else:
             # Moving the SSH up or down by deltaSSH would change the
             # land-ice pressure by density(SSH)*g*deltaSSH. If deltaSSH is
@@ -138,7 +138,13 @@ class SshAdjustment(Step):
         # Write the largest change in SSH and its lon/lat to a file
         with open('maxDeltaSSH.log', 'w') as log_file:
             mask = land_ice_pressure > 0.0
-            i_cell = np.abs(delta_ssh.where(mask)).argmax().values
+            if mask.any():
+                delta_ssh_logged = delta_ssh.where(mask)
+            else:
+                # with no land ice (e.g. before an ice shelf grows), log the
+                # largest change anywhere
+                delta_ssh_logged = delta_ssh
+            i_cell = np.abs(delta_ssh_logged).argmax().values
 
             ds_cell = ds_final.isel(nCells=i_cell)
             ds_mesh = ds_mesh.isel(nCells=i_cell)
