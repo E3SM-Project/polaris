@@ -106,6 +106,7 @@ def test_each_run_gets_steps_named_for_its_months(tmp_path):
         f'{TASK}/e3sm/diagnostics_0001-01_0001-02',
         f'{TASK}/e3sm/performance_0001-01_0001-02',
         f'{TASK}/e3sm/plots_0001-01_0001-02',
+        f'{TASK}/e3sm/provenance_0001-01_0001-02',
         f'{TASK}/publish',
         f'{TASK}/published_0001-01_0001-02_0001-01_0001-01',
         f'{TASK}/standalone/diagnostics_0001-01_0001-01',
@@ -125,6 +126,7 @@ def test_each_run_gets_steps_named_for_its_months(tmp_path):
         f'{prefix}_e3sm_conservation_0001-01_0001-02',
         f'{prefix}_e3sm_performance_0001-01_0001-02',
         f'{prefix}_e3sm_plots_0001-01_0001-02',
+        f'{prefix}_e3sm_provenance_0001-01_0001-02',
         f'{prefix}_published_0001-01_0001-02_0001-01_0001-01',
         f'{prefix}_standalone_plots_0001-01_0001-01',
     ]
@@ -145,6 +147,7 @@ def test_a_case_without_budgets_has_no_conservation_step(tmp_path):
         'e3sm_diagnostics',
         'e3sm_plots',
         'performance',
+        'provenance',
         'publish',
         'published',
         'yung2026_ocean0',
@@ -175,6 +178,7 @@ def test_runs_over_the_same_months_get_distinct_steps(tmp_path):
         'e3sm_diagnostics',
         'e3sm_plots',
         'performance',
+        'provenance',
         'publish',
         'published',
         'standalone_diagnostics',
@@ -377,6 +381,7 @@ def test_a_coupled_run_compares_both_models_melt_and_ice_sheet(tmp_path):
         'ice_sheet_comparison',
         'model_exchange',
         'performance',
+        'provenance',
         'publish',
     ]
     exchange = next(
