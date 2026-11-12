@@ -117,6 +117,25 @@
    budget_time_series
 ```
 
+### provenance
+
+```{eval-rst}
+.. currentmodule:: polaris.e3sm.analysis.provenance
+
+.. autosummary::
+   :toctree: generated/
+
+   CaseProvenance
+   CaseProvenance.run
+   read_case_commands
+   xmlchange_variables
+   read_user_namelist
+   read_namelist_groups
+   read_environment
+   has_local_changes
+   read_restart_date
+```
+
 ### performance
 
 ```{eval-rst}

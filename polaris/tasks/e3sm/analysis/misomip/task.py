@@ -1,5 +1,6 @@
 from polaris import Task
 from polaris.e3sm.analysis.case import E3smCase
+from polaris.e3sm.analysis.provenance import CaseProvenance
 from polaris.tasks.e3sm.analysis.misomip.comparison import RunComparison
 from polaris.tasks.e3sm.analysis.misomip.conservation import (
     CouplerConservation,
@@ -165,6 +166,13 @@ class MisomipAnalysisTask(Task):
             )
         if 'e3sm' in runs:
             case = E3smCase(runs['e3sm'].path)
+            products.append(
+                self._add_shared_step(
+                    CaseProvenance,
+                    f'{self.subdir}/e3sm/provenance_{runs["e3sm"].key}',
+                    case=case,
+                )
+            )
             products.append(
                 self._add_shared_step(
                     RunPerformance,

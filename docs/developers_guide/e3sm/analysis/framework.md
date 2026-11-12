@@ -108,3 +108,23 @@ Each segment starts new processes, so memory records are kept for every
 segment, even where the last record of one and the first of the next share
 a model time.  A model day that a later segment runs again takes the later
 segment's wall-clock stamp.
+
+## Provenance
+
+{py:class}`polaris.e3sm.analysis.provenance.CaseProvenance` is a
+{py:class}`polaris.analysis.page.PageStep` that records what made a case's
+run on a page of its own, which the footer of every gallery page links to:
+
+- the code, from the `GIT_*` files and `build_environment.txt` CIME writes
+  in the build directory, including where Albany and Trilinos were found;
+- the commands that created and changed the case, from its `replay.sh`,
+  and the current value of each case variable an `xmlchange` set;
+- the options set in each `user_nl_*` file, with the namelist group each
+  is in, and the files under `SourceMods`;
+- copies of the namelists, streams files, `drv_in`, `seq_maps.rc` and
+  Albany's input from the run directory, published with a `.txt` suffix so
+  a browser shows them.
+
+The options are those set explicitly, whether or not they differ from the
+defaults.  The files are copied when the step runs, so they are those of the
+run's most recent job, and the page gives the date of its latest restart.

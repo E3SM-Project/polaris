@@ -325,3 +325,9 @@ Each task's `publish` step copies its plots into a gallery under
 `[misomip_analysis] output_path`, in a directory for the mesh and the
 experiment.  Set `copy_netcdf = True` to publish the data of each plot as
 well.
+
+With an E3SM run, the footer of every page links to the run's provenance:
+the E3SM commit and libraries it was built with, the commands that created
+and changed the case, the options set in its `user_nl_*` files and its
+`SourceMods`, and copies of the namelists, streams files and Albany input
+the models read in its latest job.
