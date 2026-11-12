@@ -175,10 +175,10 @@ def _two_clones(tmp_path, ledger_dir):
     return remote, Ledger(str(ledger_dir)), Ledger(str(other))
 
 
-def _touch(ledger, finding, day='2026-10-30'):
-    """Save a finding and note it in the day's hunt, as park does"""
+def _touch(ledger, finding, name=None):
+    """Save a finding and note it in a hunt, as park does"""
     ledger.save(finding)
-    hunt = ledger.load_hunt(day)
+    hunt = ledger.load_hunt(name)
     hunt['touched'].append(finding.id)
     ledger.save_hunt(hunt)
 
@@ -222,23 +222,88 @@ def test_merging_hunts_keeps_what_both_clones_wrote():
     ]
 
 
-def test_a_rejected_push_merges_the_days_hunt_and_pushes(tmp_path, ledger_dir):
+def test_one_hunt_written_from_two_clones_is_merged(tmp_path, ledger_dir):
     remote, first, second = _two_clones(tmp_path, ledger_dir)
-    _touch(first, _finding('F-20261030-aaaa'))
+    name = first.start_hunt('2026-10-30')
+    first.commit(f'Start hunt {name}')
+    second.sync()
+    second.use_hunt(name)
+    _touch(first, _finding('F-20261030-aaaa'), name)
     first.commit('Recorded F-20261030-aaaa')
     # the second clone has not pulled since the first pushed
-    _touch(second, _finding('F-20261030-bbbb'))
+    _touch(second, _finding('F-20261030-bbbb'), name)
     second.commit('Recorded F-20261030-bbbb')
 
     log = _git(remote, 'log', '--format=%s', 'main')
     assert 'Recorded F-20261030-aaaa' in log
     assert 'Recorded F-20261030-bbbb' in log
     assert not second._rebasing()
-    assert second.load_hunt('2026-10-30')['touched'] == [
+    assert second.load_hunt(name)['touched'] == [
         'F-20261030-aaaa',
         'F-20261030-bbbb',
     ]
     assert sorted(second.findings()) == ['F-20261030-aaaa', 'F-20261030-bbbb']
+
+
+def test_two_clones_starting_hunts_at_once_get_different_names(
+    tmp_path, ledger_dir
+):
+    remote, first, second = _two_clones(tmp_path, ledger_dir)
+    # neither clone has seen the other's hunt when it starts its own
+    assert first.start_hunt('2026-11-12') == '2026-11-12-1'
+    assert second.start_hunt('2026-11-12') == '2026-11-12-1'
+    _touch(first, _finding('F-20261112-aaaa'))
+    first.save_digest('2026-11-12-1', 'the first digest\n')
+    first.commit('Hunt 1')
+    _touch(second, _finding('F-20261112-bbbb'))
+    second.save_digest('2026-11-12-1', 'the second digest\n')
+    second.commit('Hunt 2')
+
+    assert not second._rebasing()
+    # the hunt that pushed second took the next number, and so did its
+    # digest and the clone's record of which hunt it is on
+    assert second.hunt == '2026-11-12-2'
+    assert Ledger(second.path).use_hunt() == '2026-11-12-2'
+    hunts = {hunt['name']: hunt for hunt in second.hunts()}
+    assert hunts['2026-11-12-1']['touched'] == ['F-20261112-aaaa']
+    assert hunts['2026-11-12-2']['touched'] == ['F-20261112-bbbb']
+    files = _git(remote, 'ls-tree', '--name-only', 'main', 'hunts/')
+    assert files.split() == [
+        'hunts/2026-11-12-1.md',
+        'hunts/2026-11-12-1.yaml',
+        'hunts/2026-11-12-2.md',
+        'hunts/2026-11-12-2.yaml',
+    ]
+    digest = _git(remote, 'show', 'main:hunts/2026-11-12-2.md')
+    assert digest == 'the second digest\n'
+
+
+def test_two_hunts_on_one_day_keep_two_records(ledger_dir):
+    ledger = Ledger(str(ledger_dir))
+    first = ledger.start_hunt('2026-11-12')
+    ledger.save_digest(first, 'first\n')
+    second = ledger.start_hunt('2026-11-12')
+    ledger.save_digest(second, 'second\n')
+
+    assert (first, second) == ('2026-11-12-1', '2026-11-12-2')
+    assert [hunt['name'] for hunt in ledger.hunts()] == [first, second]
+    # commands write to the hunt started last, whatever the day is now
+    assert ledger.load_hunt()['name'] == second
+    assert Ledger(str(ledger_dir)).use_hunt() == second
+
+
+def test_the_last_hunt_is_found_by_date_then_number(ledger_dir):
+    ledger = Ledger(str(ledger_dir))
+    for name, review in (
+        ('2026-11-12-2', 'second'),
+        ('2026-11-12-10', 'tenth'),
+        ('2026-11-11-1', 'the day before'),
+    ):
+        hunt = ledger.load_hunt(name)
+        hunt['covered']['review'] = review
+        ledger.save_hunt(hunt)
+
+    assert ledger.covered('review') == 'tenth'
 
 
 def test_a_conflict_in_a_finding_is_undone_and_waits(
