@@ -188,6 +188,7 @@ def _park(args):
 
     ledger = Ledger(config.ledger)
     ledger.sync()
+    ledger.use_hunt(args.hunt)
     findings = ledger.findings()
     finding = ledger.find(findings, test, phase, message, 'code')
     day = today()
@@ -229,7 +230,7 @@ def _park(args):
         finding.note(f'seen again from {args.source}: {args.context}', day)
         verb = 'Added to'
     ledger.save(finding)
-    hunt = ledger.load_hunt(day)
+    hunt = ledger.load_hunt()
     if finding.id not in hunt['touched']:
         hunt['touched'].append(finding.id)
     ledger.save_hunt(hunt)
@@ -429,7 +430,7 @@ def _refresh(ledger, findings, day):
             ledger.save(finding)
         if date is not None:
             closed.append((finding, states))
-    hunt = ledger.load_hunt(day)
+    hunt = ledger.load_hunt()
     hunt['ready_to_close'] = sorted(ready)
     ledger.save_hunt(hunt)
     ledger.commit(f'Refresh links on {day}')
@@ -560,7 +561,7 @@ def _update(args):
         raise ValueError('Nothing to update.')
     finding.note('; '.join(changes), day)
     ledger.save(finding)
-    hunt = ledger.load_hunt(day)
+    hunt = ledger.load_hunt()
     if finding.id not in hunt['touched']:
         hunt['touched'].append(finding.id)
     if args.answer is not None:
@@ -603,7 +604,7 @@ def _digest(args):
     config, ledger = _setup(args)
     day = today()
     findings = ledger.findings()
-    hunt = ledger.load_hunt(day)
+    hunt = ledger.load_hunt()
     header = []
     if args.omega or args.polaris:
         commits = []
@@ -624,12 +625,12 @@ def _digest(args):
     digest = build_digest(
         findings,
         limit,
-        day,
+        hunt['name'],
         header,
         outside_v4=ledger.outside_v4(),
         ready_to_close=hunt.get('ready_to_close') or [],
     )
-    path = ledger.save_digest(day, digest.text)
+    path = ledger.save_digest(hunt['name'], digest.text)
     raised = [
         finding_id
         for finding_id, finding in findings.items()
@@ -644,7 +645,7 @@ def _digest(args):
         for finding_id in digest.decisions + digest.batched
     ]
     ledger.save_hunt(hunt)
-    ledger.commit(f'Digest on {day}')
+    ledger.commit(f'Digest of hunt {hunt["name"]}')
     print(digest.text)
     print(f'(saved to {path})')
     if digest.untriaged:
@@ -696,7 +697,7 @@ def _file(args):
         for finding in batched:
             ledger.save(finding)
     if args.post:
-        hunt = ledger.load_hunt(day)
+        hunt = ledger.load_hunt()
         answer = 'batch' if args.batch else 'file'
         for finding_id in ids:
             record_answer(hunt, finding_id, answer)
@@ -783,7 +784,7 @@ def _record_review(args, ledger, repos):
             '--merges for a review of merges.'
         )
     day = today()
-    hunt = ledger.load_hunt(day)
+    hunt = ledger.load_hunt()
     hunt['covered']['review'] = args.record
     hunt['covered']['review_until'] = day
     read = []
@@ -984,6 +985,7 @@ def _status(args):
     for finding in findings.values():
         by_status[finding.status] = by_status.get(finding.status, 0) + 1
     print(f'Ledger: {ledger.path}')
+    print(f'Hunt: {ledger.hunt or "none started in this clone"}')
     print(
         'Findings: '
         + ', '.join(
@@ -1018,7 +1020,16 @@ def _setup(args):
         )
     ledger = Ledger(config.ledger)
     ledger.sync()
+    ledger.use_hunt(getattr(args, 'hunt', None))
     return config, ledger
+
+
+def _start(args):
+    _, ledger = _setup(args)
+    name = ledger.start_hunt()
+    ledger.commit(f'Start hunt {name}')
+    # another clone may have pushed a hunt with the same name first
+    print(ledger.hunt)
 
 
 def _set_outside_v4(finding, entry, outside_v4):
@@ -1326,7 +1337,17 @@ def _parse_args():
     parser.add_argument(
         '--ledger', help='A ledger clone, in place of the one in the config'
     )
+    parser.add_argument(
+        '--hunt',
+        help='The hunt to write to, as "start" printed its name (default: '
+        'the hunt this clone started last)',
+    )
     subparsers = parser.add_subparsers(dest='command', required=True)
+
+    start = subparsers.add_parser(
+        'start', help="Begin a hunt's record, and print its name"
+    )
+    start.set_defaults(func=_start)
 
     harvest = subparsers.add_parser(
         'harvest', help='Read testing results into the ledger'
