@@ -12,6 +12,7 @@ from polaris.tasks.ocean.realistic_global.forward import (
     StatsAnalysis,
     StepInitialCondition,
 )
+from polaris.tasks.ocean.realistic_global.forward.task import swap_init_model
 from polaris.tasks.ocean.realistic_global.forward.tasks import (
     CACHED_MESHES,
     get_cached_initial_condition,
@@ -26,6 +27,7 @@ from polaris.tasks.ocean.realistic_global.mesh_info import (
     estimate_ocean_cell_count,
     min_res_for_mesh,
 )
+from polaris.tasks.ocean.realistic_global.models import DEFAULT_MODEL
 
 if TYPE_CHECKING:
     from polaris import Step
@@ -85,6 +87,19 @@ class AnalysisOutput(Task):
     defaults in ``analysis_output.cfg``, with the mesh's options and then
     ``one_year.cfg`` layered on top.  Only the ``forward`` step runs by
     default; ``global_stats`` plots the daily statistics.
+
+    Attributes
+    ----------
+    mesh_name : str
+        The name of the mesh.
+
+    model : str
+        The ocean model the shared init steps are for.  The task is built for
+        :py:data:`~polaris.tasks.ocean.realistic_global.models.DEFAULT_MODEL`
+        and ``configure()`` switches to the configured model.
+
+    forward_step : AnalysisOutputForward
+        The one-year forward run.
     """
 
     def __init__(
@@ -111,7 +126,8 @@ class AnalysisOutput(Task):
         init_steps : dict of polaris.Step, optional
             Shared upstream steps to add to the task, keyed by the symlink name
             to give them.  Needed when ``init_condition`` consumes their
-            outputs, and left unset for a cached initial condition.
+            outputs, and left unset for a cached initial condition.  They are
+            :py:data:`~polaris.tasks.ocean.realistic_global.models.DEFAULT_MODEL`'s.
         """
         subdir = (
             f'spherical/realistic_global/{mesh_name}/analysis_output/1_year'
@@ -121,6 +137,9 @@ class AnalysisOutput(Task):
             name='analysis_output_1_year',
             subdir=subdir,
         )
+        self.mesh_name = mesh_name
+        self.model = DEFAULT_MODEL
+        self._init_steps = init_steps
 
         config_filename = 'analysis_output.cfg'
         config_path = f'{component.name}/{subdir}/{config_filename}'
@@ -152,6 +171,7 @@ class AnalysisOutput(Task):
         )
         forward_step.set_shared_config(config, link=config_filename)
         self.add_step(forward_step)
+        self.forward_step = forward_step
 
         stats_analysis = StatsAnalysis(
             component=component,
@@ -160,3 +180,16 @@ class AnalysisOutput(Task):
         )
         stats_analysis.set_shared_config(config, link=config_filename)
         self.add_step(stats_analysis, run_by_default=False)
+
+    def configure(self):
+        """
+        Switch to the configured ocean model's init steps, if the task has any.
+        """
+        super().configure()
+        self._init_steps, self.model = swap_init_model(
+            task=self,
+            forward_step=self.forward_step,
+            mesh_name=self.mesh_name,
+            init_steps=self._init_steps,
+            model=self.model,
+        )

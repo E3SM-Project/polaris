@@ -161,6 +161,21 @@ class Forward(OceanModelStep):
                 check_properties=check_properties,
             )
 
+    def set_init_condition(self, init_condition: InitialCondition) -> None:
+        """
+        Read the model's input files from another source.
+
+        Only valid before setup, which is when the source is first asked for
+        its files.
+
+        Parameters
+        ----------
+        init_condition : InitialCondition
+            The source of the model input files.
+        """
+        self.init_condition = init_condition
+        self.graph_target = init_condition.graph_target
+
     def setup(self):
         """
         Add the initial-condition input files, then set up the model step.
