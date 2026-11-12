@@ -787,7 +787,10 @@ so a second hunt on the same day does not overwrite the first. `start`
 begins a record and prints its name. Later commands write to the hunt this
 clone started last, or to the one named with `--hunt`, so two agents
 hunting in one clone keep their records apart. A hunt that runs past
-midnight keeps its name.
+midnight keeps its name. A dig handed to an agent on another machine is
+part of the hunt that asked for it, not a hunt of its own: the hunt's
+agent names the hunt in what it hands over, and the digging agent passes
+`--hunt` with that name.
 
 `digest` writes the digest from the ledger, enforces the limit and saves it
 with the hunt record. Its evidence line is the first paragraph of the
