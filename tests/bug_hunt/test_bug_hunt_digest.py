@@ -81,21 +81,94 @@ def test_p1_findings_beyond_the_limit_are_still_shown():
     assert len(digest.decisions) == 7
 
 
-def test_p4_findings_share_one_decision():
+def test_findings_of_one_theme_share_one_decision():
+    # on 2026-11-12 the digest showed a P4 for a batch and hid its three P3
+    # partners among the findings not shown
     findings = _findings(
         _finding('a', 'P2'),
-        _finding('b', 'P4', theme='compiler warnings'),
-        _finding('c', 'P4'),
-        _finding('d', 'P4', confidence='speculative'),
+        _finding('b', 'P4', theme='vertical advection', where='VertCoord.cpp'),
+        _finding('c', 'P3', theme='vertical advection', where='VertAdv.cpp:9'),
+        _finding('d', 'P3', theme='vertical advection', where='VertAdv.cpp'),
+        _finding(
+            'e', 'P4', theme='vertical advection', confidence='speculative'
+        ),
     )
-    digest = build_digest(findings, limit=5, day='2026-10-27', header=[])
+    digest = build_digest(findings, limit=5, day='2026-11-12', header=[])
 
     assert digest.decisions == ['a']
-    assert digest.batched == ['b', 'c']
-    assert 'one decision for all' in digest.text
-    assert '- omega, compiler warnings: **Claim of b.** (b)' in digest.text
-    assert '- omega, an issue of its own: **Claim of c.** (c)' in digest.text
-    assert '1 speculative' in digest.text
+    assert digest.batched == ['c', 'd', 'b']
+    text = digest.text
+    assert (
+        '2. **Batch: vertical advection in Omega.** Starts "Clean-up: '
+        'vertical advection" in E3SM-Project/Omega. All 3 are in '
+        '`VertAdv.cpp`, `VertCoord.cpp`.'
+    ) in text
+    assert '   - **Claim of c.** P3, measured. (c)' in text
+    assert '     - In `VertAdv.cpp:9`.' in text
+    assert '   - **Claim of b.** P4, measured. (b)' in text
+    assert 'Proposed: **batch all**' in text
+    assert 'For clean-up batches' not in text
+    assert '1 speculative' in text
+
+
+def test_a_batch_counts_as_one_decision():
+    findings = _findings(
+        _finding('a', 'P2'),
+        _finding('b', 'P2'),
+        *[_finding(f'p3-{index}', 'P3', theme='frazil') for index in range(4)],
+        _finding('c', 'P3', created='2026-10-21'),
+    )
+    digest = build_digest(findings, limit=3, day='2026-11-12', header=[])
+
+    assert digest.decisions == ['a', 'b']
+    assert digest.batched == [f'p3-{index}' for index in range(4)]
+    assert '1 more at P3' in digest.text
+
+
+def test_a_batch_ranks_by_its_most_pressing_finding():
+    findings = _findings(
+        _finding('p3', 'P3', rows=['a/x']),
+        _finding('p4-old', 'P4', theme='frazil', created='2026-10-01'),
+        _finding('p3-themed', 'P3', theme='frazil', rows=['a/x', 'b/y']),
+    )
+    digest = build_digest(findings, limit=5, day='2026-11-12', header=[])
+
+    assert digest.batched == ['p3-themed', 'p4-old']
+    assert digest.decisions == ['p3']
+    assert digest.text.index('Batch: frazil') < digest.text.index(
+        'Claim of p3.'
+    )
+
+
+def test_a_finding_with_no_partner_is_an_issue_of_its_own():
+    findings = _findings(
+        _finding('a', 'P4', theme='vertical advection', proposed='batch'),
+        _finding('b', 'P3', theme='frazil'),
+        _finding('c', 'P2', theme='frazil'),
+    )
+    digest = build_digest(findings, limit=5, day='2026-11-12', header=[])
+
+    # a P2 is never batched, so the P3 in its theme has no partner
+    assert digest.batched == []
+    assert digest.decisions == ['c', 'b', 'a']
+    assert (
+        'Proposed: **file (an issue in E3SM-Project/Omega, `priority: '
+        'low`), since nothing else in vertical advection is waiting**'
+    ) in digest.text
+
+
+def test_a_finding_whose_partner_is_an_open_batch_joins_it():
+    in_batch = _finding('old', 'P3', theme='frazil')
+    in_batch.status = 'batched'
+    in_batch.links = ['E3SM-Project/Omega#662']
+    findings = _findings(in_batch, _finding('new', 'P3', theme='frazil'))
+    digest = build_digest(findings, limit=5, day='2026-11-12', header=[])
+
+    assert digest.batched == ['new']
+    assert (
+        '1. **Batch: frazil in Omega.** Joins "Clean-up: frazil", '
+        'E3SM-Project/Omega#662.'
+    ) in digest.text
 
 
 def test_untriaged_and_decided_findings_are_left_out():
@@ -109,7 +182,8 @@ def test_untriaged_and_decided_findings_are_left_out():
     assert digest.decisions == ['open']
     assert digest.untriaged == ['new']
     assert digest.text.startswith('## Bug hunt 2026-10-27\n\nH.\n')
-    assert 'Proposed: **batch (with logging)**.' in digest.text
+    # a P3 with no partner in its theme is an issue of its own
+    assert 'since nothing else in logging is waiting**.' in digest.text
     assert '1 not yet triaged; 1 tracked bugs unchanged.' in digest.text
 
 
