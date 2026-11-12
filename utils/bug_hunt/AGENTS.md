@@ -218,8 +218,11 @@ harvests and triages.
    warnings).  A layer or category, such as tasks and steps, tests and CI
    or error handling, is not a theme.  Before batching, ask whether one
    person would fix the lines in one sitting and one pull request.  A
-   small finding with no partner is filed on its own with `priority: low`:
-   small does not mean batchable.  A finding worth digging into gets
+   small finding with no partner, in the ledger or in an open batch, is
+   filed on its own with `priority: low`: small does not mean batchable.
+   The digest shows a P3 or P4 finding only with its partners, the other
+   findings with its owner and theme, as one decision that opens with the
+   theme and then describes each finding.  A finding worth digging into gets
    `--dig "<what and its cost>"`.  Open the `--evidence` with a paragraph of a few
    sentences, under 100 words, saying why you believe the claim, which
    change introduced it if known, and what it affects; put the excerpts
@@ -237,8 +240,11 @@ harvests and triages.
      whole check.  Before posting, look again as in step 3, beyond what
      `file` lists.  If anything turns out to be the same bug, link it, do
      not file, and tell the developer.
-   - `batch`: the same with `--batch <theme>`; the P4 findings together with
-     `bug_hunt.py file --all-p4`, which refuses any without a theme.  A
+   - `batch`: answers a batch decision for every finding in it, except any
+     the developer names to file on its own or leave out:
+     `bug_hunt.py file <id> <id> ... --batch <theme>`, checked and posted
+     as for `file`.  One run adds them all, since each body edit replaces
+     the whole body.  A
      batch closes once every line is checked off or struck out as not a
      bug.  The pull request that fixes a line names it, and its author or
      reviewer checks the box; the hunter never does.  `match --refresh`
@@ -282,8 +288,8 @@ harvests and triages.
 |---|---|---|
 | P1 | S1 measured; S2 measured on more than one row | an issue of its own, `priority: high` |
 | P2 | S1 inferred; S2 measured on one row; S3 measured on more than one row | an issue of its own, `priority: medium` |
-| P3 | other S3; S2 inferred | a clean-up batch |
-| P4 | S4 | a clean-up batch, below the P3 lines |
+| P3 | other S3; S2 inferred | a clean-up batch, or an issue of its own |
+| P4 | S4 | a clean-up batch, below the P3 lines, or an issue of its own |
 
 A speculative finding stays in the ledger, whatever its severity, until a
 test or a closer reading confirms it.  A bug that came back after its issue
