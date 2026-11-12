@@ -640,10 +640,9 @@ def _digest(args):
         findings[finding_id].changed = None
         findings[finding_id].note('raised in the digest', day)
         ledger.save(findings[finding_id])
-    hunt['decisions'] = [
-        {'id': finding_id, 'answer': None}
-        for finding_id in digest.decisions + digest.batched
-    ]
+    hunt['decisions'] = _digest_decisions(
+        hunt.get('decisions') or [], digest.decisions + digest.batched
+    )
     ledger.save_hunt(hunt)
     ledger.commit(f'Digest of hunt {hunt["name"]}')
     print(digest.text)
@@ -657,6 +656,27 @@ def _digest(args):
             f'\nNot in the digest because they have no priority yet: '
             f'{", ".join(labels)}'
         )
+
+
+def _digest_decisions(recorded, asked):
+    """
+    A hunt's decisions after a digest asks for ``asked``: answers already
+    recorded are kept, both for findings asked again and for those the new
+    digest no longer asks about
+    """
+    answers = {
+        decision['id']: decision['answer']
+        for decision in recorded
+        if decision['answer'] is not None
+    }
+    decisions = [
+        {'id': finding_id, 'answer': answers.get(finding_id)}
+        for finding_id in asked
+    ]
+    for finding_id, answer in answers.items():
+        if finding_id not in asked:
+            decisions.append({'id': finding_id, 'answer': answer})
+    return decisions
 
 
 def _file(args):
