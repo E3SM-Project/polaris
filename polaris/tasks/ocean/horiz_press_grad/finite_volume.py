@@ -662,6 +662,21 @@ def anchor_difference(
     comparison the recurrence makes at every other interface.  A state only
     approximately at rest carries a real gradient, and the scheme reports it.
 
+    **The shift to a common pressure never spans more than one layer.**  The
+    short integrals use one first-order expansion, so stretched across a floor
+    offset of several layers -- as terrain-following layers over a steep slope
+    produce -- they leave an error that grows with the cube of the offset and
+    is the same at every depth.  Where the shallower floor's pressure lies
+    above the deeper column's own layer ``K``, the deeper column is represented
+    instead by its own interface at or just below that pressure, its height
+    there taken from ``GeomZInterface``, and the expansion is shared by the two
+    layers that meet there.  The result is then carried down to
+    :math:`\\bar q_{K+1}` with the matched-pressure integrand, which vanishes
+    on the exact set.  Where the floors are within one layer of each other,
+    which includes every flat floor and every floor cut by partial cells
+    beneath level interior layers, this is the comparison above unchanged.
+    It mirrors Omega's ``PressureGrad::computeColumnScan``.
+
     Parameters
     ----------
     pieces : dict
@@ -691,14 +706,72 @@ def anchor_difference(
         return float(delta_z)
 
     nodes, weights = np.polynomial.legendre.leggauss(order)
-    common = pieces['edge_interface'][interface]
     # the edge layer adjacent to the anchor interface supplies the shared
     # coefficients, as it does for every other interface in the scan
     edge_layer = max(interface - 1, 0)
 
+    # each column's own interface the comparison is made at: the anchor
+    # interface itself unless the floors are more than a layer apart
+    own_interface = [interface, interface]
+    if interface > 0:
+        floor = pieces['interface'][:, interface]
+        deep = 1 if floor[0] <= floor[1] else 0
+        # the deeper column's layer containing the shallower floor's pressure,
+        # searched upward from the edge's deepest layer as Omega's
+        # findLayerForPress does from that hint
+        layer = layer_containing_pressure(
+            pieces, deep, np.array([floor[1 - deep]])
+        )
+        own_interface[deep] = min(int(layer[0]), edge_layer) + 1
+
+    if own_interface == [interface, interface]:
+        common = pieces['edge_interface'][interface]
+        expansion = pieces['expansion'].isel(nVertLevels=edge_layer)
+        coefficients = {
+            name: float(expansion[name])
+            for name in [
+                'alpha_0',
+                'alpha_theta',
+                'alpha_s',
+                'alpha_p',
+                'theta_ref',
+                's_ref',
+                'p_ref',
+            ]
+        }
+    else:
+        common = 0.5 * (
+            pieces['interface'][0, own_interface[0]]
+            + pieces['interface'][1, own_interface[1]]
+        )
+        # shared by the two layers that meet where the comparison is made
+        local = pieces['cell_local']
+        layers = [own_interface[0] - 1, own_interface[1] - 1]
+        coefficients = {
+            name: 0.5
+            * (
+                float(local[name].isel(nCells=0, nVertLevels=layers[0]))
+                + float(local[name].isel(nCells=1, nVertLevels=layers[1]))
+            )
+            for name in [
+                'alpha_0',
+                'alpha_theta',
+                'alpha_s',
+                'alpha_p',
+                'theta_ref',
+                's_ref',
+                'p_ref',
+            ]
+        }
+
+    delta_z = (
+        pieces['interface_height'][1, own_interface[1]]
+        - pieces['interface_height'][0, own_interface[0]]
+    )
+
     correction = np.empty(2)
     for icell in range(2):
-        own = pieces['interface'][icell, interface]
+        own = pieces['interface'][icell, own_interface[icell]]
         middle = 0.5 * (own + common)
         half = 0.5 * (common - own)
         probe = middle + half * nodes
@@ -709,17 +782,32 @@ def anchor_difference(
         salinity = pieces['salinity'][icell, level] + pieces['slope_salinity'][
             icell, level
         ] * (probe - pieces['pressure_mid'][icell, level])
-        expansion = pieces['expansion'].isel(nVertLevels=edge_layer)
         specvol = (
-            float(expansion.alpha_0)
-            + float(expansion.alpha_theta)
-            * (theta - float(expansion.theta_ref))
-            + float(expansion.alpha_s) * (salinity - float(expansion.s_ref))
-            + float(expansion.alpha_p) * (probe - float(expansion.p_ref))
+            coefficients['alpha_0']
+            + coefficients['alpha_theta'] * (theta - coefficients['theta_ref'])
+            + coefficients['alpha_s'] * (salinity - coefficients['s_ref'])
+            + coefficients['alpha_p'] * (probe - coefficients['p_ref'])
         )
         correction[icell] = half * float(np.sum(weights * specvol))
 
-    return float(delta_z - (correction[1] - correction[0]) / Gravity)
+    anchor = float(delta_z - (correction[1] - correction[0]) / Gravity)
+
+    if own_interface != [interface, interface]:
+        # carried down to the edge's deepest interface with the
+        # matched-pressure integrand of that edge layer
+        bottom = pieces['edge_interface'][interface]
+        middle = 0.5 * (common + bottom)
+        half = 0.5 * (bottom - common)
+        probe = middle + half * nodes
+        shift = half * float(
+            np.sum(
+                weights
+                * delta_specvol_at_pressure(pieces, edge_layer, probe, guards)
+            )
+        )
+        anchor -= shift / Gravity
+
+    return anchor
 
 
 def column_scan(
