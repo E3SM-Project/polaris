@@ -16,13 +16,17 @@ The reader is deciding what to change.
 - No section on what already works. One line for all of it, if any.
 - Say what you could not check.
 
-## Calibration
+## Length
 
-Measured over review comments from 2023, before any agent wrote here.
-Review bodies run 14 words at the median, 55 at the ninetieth percentile,
-and 239 at the longest. Inline comments run 22 to 32 words at the median
-and 170 at the longest. A recent agent-written review ran 1117 words, with
-the findings starting 444 words in.
+Aim for what colleagues wrote before agents did. Review bodies run 14
+words at the median, 55 at the ninetieth percentile, and 239 at the
+longest. Inline comments run 22 to 32 words at the median and 170 at the
+longest. Past 55 words for a body, or 170 for an inline comment, cut. A
+recent agent-written review ran 1117 words, with the findings starting
+444 words in.
+
+These figures come from review comments from 2023. Use them as they are;
+there is no need to measure again.
 
 ## Enough
 

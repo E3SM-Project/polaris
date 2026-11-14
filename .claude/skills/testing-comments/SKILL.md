@@ -14,10 +14,13 @@ What you ran, where, and whether it passed.
 - Do not restate in prose what a table or a pasted result already shows.
 - Failures unrelated to the branch go under their own heading at the end.
 
-## Calibration
+## Length
 
-Measured over Testing comments from 2023, before any agent wrote here.
-They run 21 to 43 words. A recent agent-written one ran 606 words.
+Aim for what colleagues wrote before agents did. Testing comments run 21
+to 43 words. Past that, cut. A recent agent-written one ran 606 words.
+
+These figures come from Testing comments from 2023. Use them as they
+are; there is no need to measure again.
 
 ## Enough
 
