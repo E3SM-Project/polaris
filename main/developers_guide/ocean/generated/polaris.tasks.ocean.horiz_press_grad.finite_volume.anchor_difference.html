@@ -184,6 +184,20 @@ geometric heights and interface pressures imply, evaluated at a common
 pressure, and it is the deepest instance of the same fixed-pressure
 comparison the recurrence makes at every other interface.  A state only
 approximately at rest carries a real gradient, and the scheme reports it.</p>
+<p><strong>The shift to a common pressure never spans more than one layer.</strong>  The
+short integrals use one first-order expansion, so stretched across a floor
+offset of several layers – as terrain-following layers over a steep slope
+produce – they leave an error that grows with the cube of the offset and
+is the same at every depth.  Where the shallower floor’s pressure lies
+above the deeper column’s own layer <code class="docutils literal notranslate"><span class="pre">K</span></code>, the deeper column is represented
+instead by its own interface at or just below that pressure, its height
+there taken from <code class="docutils literal notranslate"><span class="pre">GeomZInterface</span></code>, and the expansion is shared by the two
+layers that meet there.  The result is then carried down to
+<span class="math notranslate nohighlight">\(\bar q_{K+1}\)</span> with the matched-pressure integrand, which vanishes
+on the exact set.  Where the floors are within one layer of each other,
+which includes every flat floor and every floor cut by partial cells
+beneath level interior layers, this is the comparison above unchanged.
+It mirrors Omega’s <code class="docutils literal notranslate"><span class="pre">PressureGrad::computeColumnScan</span></code>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">

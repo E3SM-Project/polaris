@@ -399,32 +399,32 @@ one where the scheme’s exact set is in play:</p>
 </thead>
 <tbody>
 <tr class="row-even"><td><p>0.05 m/km</p></td>
-<td><p>9.1e-08 m s⁻²</p></td>
-<td><p>1.8e-10 m s⁻²</p></td>
+<td><p>1.0e-07 m s⁻²</p></td>
+<td><p>1.3e-10 m s⁻²</p></td>
 </tr>
 <tr class="row-odd"><td><p>1 m/km</p></td>
-<td><p>1.8e-06 m s⁻²</p></td>
-<td><p>3.5e-09 m s⁻²</p></td>
+<td><p>2.0e-06 m s⁻²</p></td>
+<td><p>2.6e-09 m s⁻²</p></td>
 </tr>
 <tr class="row-even"><td><p>50 m/km</p></td>
-<td><p>6.9e-05 m s⁻²</p></td>
-<td><p>2.0e-07 m s⁻²</p></td>
+<td><p>6.1e-05 m s⁻²</p></td>
+<td><p>1.9e-07 m s⁻²</p></td>
 </tr>
 </tbody>
 </table>
-<p>at 256 m layers: a factor of 340 to 520, and 21 to 1050 across the full sweep.</p>
+<p>at 256 m layers: a factor of 320 to 790, and 320 to 890 across the full sweep.</p>
 <p><strong>Why this is not machine precision, though the profile is inside the exact
 set.</strong> The scheme’s column scan is anchored at the sea floor, and the anchor is
 the one quantity in it that comes from the model’s own geometry rather than
 from the scheme’s arithmetic.</p>
 <p>Both Polaris and Omega turn pressure into geometric height with a midpoint
 rule, summing <code class="docutils literal notranslate"><span class="pre">rho0</span> <span class="pre">*</span> <span class="pre">SpecVol</span> <span class="pre">*</span> <span class="pre">PseudoThickness</span></code> over layers.  At 256 m layers
-that truncates a 3500 m column by about 1.1 mm.  The initial condition holds
+that truncates a 3523 m column by about 1.1 mm.  The initial condition holds
 the sea floor at the prescribed bathymetry and solves for the bottom pressure
 that reproduces it, and each column converges exactly – to the pressure that
-makes <em>its own</em> midpoint sum come out at 3500 m.  A tilted coordinate puts the
+makes <em>its own</em> midpoint sum come out at 3523 m.  A tilted coordinate puts the
 two columns’ layer interfaces in different places, so their truncation errors
-differ slightly, by 7.1e-8 m.  At a common pressure the two columns’ heights
+differ slightly, by 5.3e-8 m.  At a common pressure the two columns’ heights
 therefore genuinely differ by that much, and the scheme reports it.</p>
 <p>The residual is <em>entirely</em> the anchor: every increment of the scan is zero to
 round-off, so the tendency is constant down the column and equals the anchor’s
@@ -433,8 +433,8 @@ intact; what these numbers measure at the bottom of the column is the initial
 condition, not the discretization.</p>
 <p>Away from that exact set the gain is real but far smaller, because the scheme
 is then second-order accurate rather than exact.  On the curved
-<code class="docutils literal notranslate"><span class="pre">hydrostatic_consistency</span></code> profile it is about six times better than centered at
-256 m layers and about twice as good at 64 m, both converging.  On
+<code class="docutils literal notranslate"><span class="pre">hydrostatic_consistency</span></code> profile it is about five to six times better than
+centered at every vertical resolution, both converging.  On
 <code class="docutils literal notranslate"><span class="pre">bathymetry_step</span></code>, the variant that most resembles the bottom-layer error seen
 in realistic global runs, it is roughly 400 times better.</p>
 <p>Nothing selects between the two fields yet: both are written, and which one the
@@ -551,7 +551,7 @@ three orders of magnitude finer than the ~250 m layers in the deep ocean of a
 realistic global run, and the centered scheme passes <code class="docutils literal notranslate"><span class="pre">ztilde_gradient</span></code> there
 with an RMS HPGA of ~7e-12 m s<span class="math notranslate nohighlight">\(^{-2}\)</span> — six orders of magnitude below the error
 the resting-state variants exist to measure.  Both new variants therefore use a
-3500 m column resolved at 64–256 m.</p>
+3523 m column resolved at 64–256 m.</p>
 <p>The analysis enforces a <strong>sensitivity gate</strong>: the largest RMS HPGA anywhere in
 the sweep must reach <code class="docutils literal notranslate"><span class="pre">resting_state_sensitivity_min_rms</span></code> (1e-6 m s<span class="math notranslate nohighlight">\(^{-2}\)</span> by
 default, the order of the global bottom-layer error).  A sweep that falls short

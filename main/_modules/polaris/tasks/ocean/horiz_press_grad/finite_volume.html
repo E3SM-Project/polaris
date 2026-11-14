@@ -1162,6 +1162,21 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">    comparison the recurrence makes at every other interface.  A state only</span>
 <span class="sd">    approximately at rest carries a real gradient, and the scheme reports it.</span>
 
+<span class="sd">    **The shift to a common pressure never spans more than one layer.**  The</span>
+<span class="sd">    short integrals use one first-order expansion, so stretched across a floor</span>
+<span class="sd">    offset of several layers -- as terrain-following layers over a steep slope</span>
+<span class="sd">    produce -- they leave an error that grows with the cube of the offset and</span>
+<span class="sd">    is the same at every depth.  Where the shallower floor's pressure lies</span>
+<span class="sd">    above the deeper column's own layer ``K``, the deeper column is represented</span>
+<span class="sd">    instead by its own interface at or just below that pressure, its height</span>
+<span class="sd">    there taken from ``GeomZInterface``, and the expansion is shared by the two</span>
+<span class="sd">    layers that meet there.  The result is then carried down to</span>
+<span class="sd">    :math:`\\bar q_{K+1}` with the matched-pressure integrand, which vanishes</span>
+<span class="sd">    on the exact set.  Where the floors are within one layer of each other,</span>
+<span class="sd">    which includes every flat floor and every floor cut by partial cells</span>
+<span class="sd">    beneath level interior layers, this is the comparison above unchanged.</span>
+<span class="sd">    It mirrors Omega's ``PressureGrad::computeColumnScan``.</span>
+
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    pieces : dict</span>
@@ -1191,14 +1206,72 @@ window.runMermaid = runMermaid;</script>
         <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">delta_z</span><span class="p">)</span>
 
     <span class="n">nodes</span><span class="p">,</span> <span class="n">weights</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">polynomial</span><span class="o">.</span><span class="n">legendre</span><span class="o">.</span><span class="n">leggauss</span><span class="p">(</span><span class="n">order</span><span class="p">)</span>
-    <span class="n">common</span> <span class="o">=</span> <span class="n">pieces</span><span class="p">[</span><span class="s1">'edge_interface'</span><span class="p">][</span><span class="n">interface</span><span class="p">]</span>
     <span class="c1"># the edge layer adjacent to the anchor interface supplies the shared</span>
     <span class="c1"># coefficients, as it does for every other interface in the scan</span>
     <span class="n">edge_layer</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">interface</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
 
+    <span class="c1"># each column's own interface the comparison is made at: the anchor</span>
+    <span class="c1"># interface itself unless the floors are more than a layer apart</span>
+    <span class="n">own_interface</span> <span class="o">=</span> <span class="p">[</span><span class="n">interface</span><span class="p">,</span> <span class="n">interface</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">interface</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">floor</span> <span class="o">=</span> <span class="n">pieces</span><span class="p">[</span><span class="s1">'interface'</span><span class="p">][:,</span> <span class="n">interface</span><span class="p">]</span>
+        <span class="n">deep</span> <span class="o">=</span> <span class="mi">1</span> <span class="k">if</span> <span class="n">floor</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">floor</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">else</span> <span class="mi">0</span>
+        <span class="c1"># the deeper column's layer containing the shallower floor's pressure,</span>
+        <span class="c1"># searched upward from the edge's deepest layer as Omega's</span>
+        <span class="c1"># findLayerForPress does from that hint</span>
+        <span class="n">layer</span> <span class="o">=</span> <span class="n">layer_containing_pressure</span><span class="p">(</span>
+            <span class="n">pieces</span><span class="p">,</span> <span class="n">deep</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">floor</span><span class="p">[</span><span class="mi">1</span> <span class="o">-</span> <span class="n">deep</span><span class="p">]])</span>
+        <span class="p">)</span>
+        <span class="n">own_interface</span><span class="p">[</span><span class="n">deep</span><span class="p">]</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">layer</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="n">edge_layer</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
+
+    <span class="k">if</span> <span class="n">own_interface</span> <span class="o">==</span> <span class="p">[</span><span class="n">interface</span><span class="p">,</span> <span class="n">interface</span><span class="p">]:</span>
+        <span class="n">common</span> <span class="o">=</span> <span class="n">pieces</span><span class="p">[</span><span class="s1">'edge_interface'</span><span class="p">][</span><span class="n">interface</span><span class="p">]</span>
+        <span class="n">expansion</span> <span class="o">=</span> <span class="n">pieces</span><span class="p">[</span><span class="s1">'expansion'</span><span class="p">]</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">nVertLevels</span><span class="o">=</span><span class="n">edge_layer</span><span class="p">)</span>
+        <span class="n">coefficients</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="n">name</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">expansion</span><span class="p">[</span><span class="n">name</span><span class="p">])</span>
+            <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="p">[</span>
+                <span class="s1">'alpha_0'</span><span class="p">,</span>
+                <span class="s1">'alpha_theta'</span><span class="p">,</span>
+                <span class="s1">'alpha_s'</span><span class="p">,</span>
+                <span class="s1">'alpha_p'</span><span class="p">,</span>
+                <span class="s1">'theta_ref'</span><span class="p">,</span>
+                <span class="s1">'s_ref'</span><span class="p">,</span>
+                <span class="s1">'p_ref'</span><span class="p">,</span>
+            <span class="p">]</span>
+        <span class="p">}</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">common</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span>
+            <span class="n">pieces</span><span class="p">[</span><span class="s1">'interface'</span><span class="p">][</span><span class="mi">0</span><span class="p">,</span> <span class="n">own_interface</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
+            <span class="o">+</span> <span class="n">pieces</span><span class="p">[</span><span class="s1">'interface'</span><span class="p">][</span><span class="mi">1</span><span class="p">,</span> <span class="n">own_interface</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span>
+        <span class="p">)</span>
+        <span class="c1"># shared by the two layers that meet where the comparison is made</span>
+        <span class="n">local</span> <span class="o">=</span> <span class="n">pieces</span><span class="p">[</span><span class="s1">'cell_local'</span><span class="p">]</span>
+        <span class="n">layers</span> <span class="o">=</span> <span class="p">[</span><span class="n">own_interface</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">own_interface</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span>
+        <span class="n">coefficients</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="n">name</span><span class="p">:</span> <span class="mf">0.5</span>
+            <span class="o">*</span> <span class="p">(</span>
+                <span class="nb">float</span><span class="p">(</span><span class="n">local</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">nCells</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">nVertLevels</span><span class="o">=</span><span class="n">layers</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+                <span class="o">+</span> <span class="nb">float</span><span class="p">(</span><span class="n">local</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">nCells</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">nVertLevels</span><span class="o">=</span><span class="n">layers</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+            <span class="p">)</span>
+            <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="p">[</span>
+                <span class="s1">'alpha_0'</span><span class="p">,</span>
+                <span class="s1">'alpha_theta'</span><span class="p">,</span>
+                <span class="s1">'alpha_s'</span><span class="p">,</span>
+                <span class="s1">'alpha_p'</span><span class="p">,</span>
+                <span class="s1">'theta_ref'</span><span class="p">,</span>
+                <span class="s1">'s_ref'</span><span class="p">,</span>
+                <span class="s1">'p_ref'</span><span class="p">,</span>
+            <span class="p">]</span>
+        <span class="p">}</span>
+
+    <span class="n">delta_z</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">pieces</span><span class="p">[</span><span class="s1">'interface_height'</span><span class="p">][</span><span class="mi">1</span><span class="p">,</span> <span class="n">own_interface</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span>
+        <span class="o">-</span> <span class="n">pieces</span><span class="p">[</span><span class="s1">'interface_height'</span><span class="p">][</span><span class="mi">0</span><span class="p">,</span> <span class="n">own_interface</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
+    <span class="p">)</span>
+
     <span class="n">correction</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">icell</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="p">):</span>
-        <span class="n">own</span> <span class="o">=</span> <span class="n">pieces</span><span class="p">[</span><span class="s1">'interface'</span><span class="p">][</span><span class="n">icell</span><span class="p">,</span> <span class="n">interface</span><span class="p">]</span>
+        <span class="n">own</span> <span class="o">=</span> <span class="n">pieces</span><span class="p">[</span><span class="s1">'interface'</span><span class="p">][</span><span class="n">icell</span><span class="p">,</span> <span class="n">own_interface</span><span class="p">[</span><span class="n">icell</span><span class="p">]]</span>
         <span class="n">middle</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="n">own</span> <span class="o">+</span> <span class="n">common</span><span class="p">)</span>
         <span class="n">half</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="n">common</span> <span class="o">-</span> <span class="n">own</span><span class="p">)</span>
         <span class="n">probe</span> <span class="o">=</span> <span class="n">middle</span> <span class="o">+</span> <span class="n">half</span> <span class="o">*</span> <span class="n">nodes</span>
@@ -1209,17 +1282,32 @@ window.runMermaid = runMermaid;</script>
         <span class="n">salinity</span> <span class="o">=</span> <span class="n">pieces</span><span class="p">[</span><span class="s1">'salinity'</span><span class="p">][</span><span class="n">icell</span><span class="p">,</span> <span class="n">level</span><span class="p">]</span> <span class="o">+</span> <span class="n">pieces</span><span class="p">[</span><span class="s1">'slope_salinity'</span><span class="p">][</span>
             <span class="n">icell</span><span class="p">,</span> <span class="n">level</span>
         <span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="n">probe</span> <span class="o">-</span> <span class="n">pieces</span><span class="p">[</span><span class="s1">'pressure_mid'</span><span class="p">][</span><span class="n">icell</span><span class="p">,</span> <span class="n">level</span><span class="p">])</span>
-        <span class="n">expansion</span> <span class="o">=</span> <span class="n">pieces</span><span class="p">[</span><span class="s1">'expansion'</span><span class="p">]</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">nVertLevels</span><span class="o">=</span><span class="n">edge_layer</span><span class="p">)</span>
         <span class="n">specvol</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="nb">float</span><span class="p">(</span><span class="n">expansion</span><span class="o">.</span><span class="n">alpha_0</span><span class="p">)</span>
-            <span class="o">+</span> <span class="nb">float</span><span class="p">(</span><span class="n">expansion</span><span class="o">.</span><span class="n">alpha_theta</span><span class="p">)</span>
-            <span class="o">*</span> <span class="p">(</span><span class="n">theta</span> <span class="o">-</span> <span class="nb">float</span><span class="p">(</span><span class="n">expansion</span><span class="o">.</span><span class="n">theta_ref</span><span class="p">))</span>
-            <span class="o">+</span> <span class="nb">float</span><span class="p">(</span><span class="n">expansion</span><span class="o">.</span><span class="n">alpha_s</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">salinity</span> <span class="o">-</span> <span class="nb">float</span><span class="p">(</span><span class="n">expansion</span><span class="o">.</span><span class="n">s_ref</span><span class="p">))</span>
-            <span class="o">+</span> <span class="nb">float</span><span class="p">(</span><span class="n">expansion</span><span class="o">.</span><span class="n">alpha_p</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">probe</span> <span class="o">-</span> <span class="nb">float</span><span class="p">(</span><span class="n">expansion</span><span class="o">.</span><span class="n">p_ref</span><span class="p">))</span>
+            <span class="n">coefficients</span><span class="p">[</span><span class="s1">'alpha_0'</span><span class="p">]</span>
+            <span class="o">+</span> <span class="n">coefficients</span><span class="p">[</span><span class="s1">'alpha_theta'</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="n">theta</span> <span class="o">-</span> <span class="n">coefficients</span><span class="p">[</span><span class="s1">'theta_ref'</span><span class="p">])</span>
+            <span class="o">+</span> <span class="n">coefficients</span><span class="p">[</span><span class="s1">'alpha_s'</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="n">salinity</span> <span class="o">-</span> <span class="n">coefficients</span><span class="p">[</span><span class="s1">'s_ref'</span><span class="p">])</span>
+            <span class="o">+</span> <span class="n">coefficients</span><span class="p">[</span><span class="s1">'alpha_p'</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="n">probe</span> <span class="o">-</span> <span class="n">coefficients</span><span class="p">[</span><span class="s1">'p_ref'</span><span class="p">])</span>
         <span class="p">)</span>
         <span class="n">correction</span><span class="p">[</span><span class="n">icell</span><span class="p">]</span> <span class="o">=</span> <span class="n">half</span> <span class="o">*</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">weights</span> <span class="o">*</span> <span class="n">specvol</span><span class="p">))</span>
 
-    <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">delta_z</span> <span class="o">-</span> <span class="p">(</span><span class="n">correction</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">correction</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">/</span> <span class="n">Gravity</span><span class="p">)</span></div>
+    <span class="n">anchor</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">delta_z</span> <span class="o">-</span> <span class="p">(</span><span class="n">correction</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">correction</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">/</span> <span class="n">Gravity</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">own_interface</span> <span class="o">!=</span> <span class="p">[</span><span class="n">interface</span><span class="p">,</span> <span class="n">interface</span><span class="p">]:</span>
+        <span class="c1"># carried down to the edge's deepest interface with the</span>
+        <span class="c1"># matched-pressure integrand of that edge layer</span>
+        <span class="n">bottom</span> <span class="o">=</span> <span class="n">pieces</span><span class="p">[</span><span class="s1">'edge_interface'</span><span class="p">][</span><span class="n">interface</span><span class="p">]</span>
+        <span class="n">middle</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="n">common</span> <span class="o">+</span> <span class="n">bottom</span><span class="p">)</span>
+        <span class="n">half</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="n">bottom</span> <span class="o">-</span> <span class="n">common</span><span class="p">)</span>
+        <span class="n">probe</span> <span class="o">=</span> <span class="n">middle</span> <span class="o">+</span> <span class="n">half</span> <span class="o">*</span> <span class="n">nodes</span>
+        <span class="n">shift</span> <span class="o">=</span> <span class="n">half</span> <span class="o">*</span> <span class="nb">float</span><span class="p">(</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span>
+                <span class="n">weights</span>
+                <span class="o">*</span> <span class="n">delta_specvol_at_pressure</span><span class="p">(</span><span class="n">pieces</span><span class="p">,</span> <span class="n">edge_layer</span><span class="p">,</span> <span class="n">probe</span><span class="p">,</span> <span class="n">guards</span><span class="p">)</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">anchor</span> <span class="o">-=</span> <span class="n">shift</span> <span class="o">/</span> <span class="n">Gravity</span>
+
+    <span class="k">return</span> <span class="n">anchor</span></div>
 
 
 

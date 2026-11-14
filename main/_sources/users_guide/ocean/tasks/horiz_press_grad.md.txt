@@ -263,11 +263,11 @@ one where the scheme's exact set is in play:
 
 | coordinate tilt | `HPGA` (centered) | `HPGAFiniteVolume` |
 | --- | --- | --- |
-| 0.05 m/km | 9.1e-08 m s⁻² | 1.8e-10 m s⁻² |
-| 1 m/km | 1.8e-06 m s⁻² | 3.5e-09 m s⁻² |
-| 50 m/km | 6.9e-05 m s⁻² | 2.0e-07 m s⁻² |
+| 0.05 m/km | 1.0e-07 m s⁻² | 1.3e-10 m s⁻² |
+| 1 m/km | 2.0e-06 m s⁻² | 2.6e-09 m s⁻² |
+| 50 m/km | 6.1e-05 m s⁻² | 1.9e-07 m s⁻² |
 
-at 256 m layers: a factor of 340 to 520, and 21 to 1050 across the full sweep.
+at 256 m layers: a factor of 320 to 790, and 320 to 890 across the full sweep.
 
 **Why this is not machine precision, though the profile is inside the exact
 set.** The scheme's column scan is anchored at the sea floor, and the anchor is
@@ -276,12 +276,12 @@ from the scheme's arithmetic.
 
 Both Polaris and Omega turn pressure into geometric height with a midpoint
 rule, summing `rho0 * SpecVol * PseudoThickness` over layers.  At 256 m layers
-that truncates a 3500 m column by about 1.1 mm.  The initial condition holds
+that truncates a 3523 m column by about 1.1 mm.  The initial condition holds
 the sea floor at the prescribed bathymetry and solves for the bottom pressure
 that reproduces it, and each column converges exactly -- to the pressure that
-makes *its own* midpoint sum come out at 3500 m.  A tilted coordinate puts the
+makes *its own* midpoint sum come out at 3523 m.  A tilted coordinate puts the
 two columns' layer interfaces in different places, so their truncation errors
-differ slightly, by 7.1e-8 m.  At a common pressure the two columns' heights
+differ slightly, by 5.3e-8 m.  At a common pressure the two columns' heights
 therefore genuinely differ by that much, and the scheme reports it.
 
 The residual is *entirely* the anchor: every increment of the scan is zero to
@@ -292,8 +292,8 @@ condition, not the discretization.
 
 Away from that exact set the gain is real but far smaller, because the scheme
 is then second-order accurate rather than exact.  On the curved
-`hydrostatic_consistency` profile it is about six times better than centered at
-256 m layers and about twice as good at 64 m, both converging.  On
+`hydrostatic_consistency` profile it is about five to six times better than
+centered at every vertical resolution, both converging.  On
 `bathymetry_step`, the variant that most resembles the bottom-layer error seen
 in realistic global runs, it is roughly 400 times better.
 
@@ -405,7 +405,7 @@ three orders of magnitude finer than the ~250 m layers in the deep ocean of a
 realistic global run, and the centered scheme passes `ztilde_gradient` there
 with an RMS HPGA of ~7e-12 m s$^{-2}$ — six orders of magnitude below the error
 the resting-state variants exist to measure.  Both new variants therefore use a
-3500 m column resolved at 64–256 m.
+3523 m column resolved at 64–256 m.
 
 The analysis enforces a **sensitivity gate**: the largest RMS HPGA anywhere in
 the sweep must reach `resting_state_sensitivity_min_rms` (1e-6 m s$^{-2}$ by
