@@ -105,10 +105,19 @@ baseline if one is provided when calling {ref}`dev-polaris-setup`.
 
 ## ekman
 
-The {py:class}`polaris.tasks.ocean.single_column.cvmix.CVMix`
-test performs a 5-day run on 1 cores.  Then, validation of `temperature`,
-`salinity`, `layerThickness` and `normalVelocity` are performed against a
-baseline if one is provided when calling {ref}`dev-polaris-setup`.
+The {py:class}`polaris.tasks.ocean.single_column.ekman.Ekman` task averages
+the final three inertial periods before evaluating the original steady spiral; see
+{ref}`ocean-single-column-ekman`.
+
+The {py:class}`polaris.tasks.ocean.single_column.ekman.analysis.Analysis`
+step reports a layer-overlap-weighted relative L2 error over the top third
+of the column and writes `velocity_comparison_steady.png`, with velocity
+profiles and model-minus-analytic differences. It uses model-written
+geometric interfaces when available and the shared vertical-coordinate
+helper to reconstruct them otherwise. Midpoints and interfaces are measured
+relative to the water-column surface. Omega history output includes
+`GeomZMid` and `GeomZInterface`; reconstruction uses Omega's vertical
+coordinate file or MPAS-Ocean's initial-condition file.
 
 ## ideal age
 
