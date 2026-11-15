@@ -48,6 +48,10 @@ DAILY_MEANS_STREAM = 'timeSeriesStatsDailyOutput'
 #: run may write
 SNAPSHOT_STREAM = 'layerThicknessSnapshotOutput'
 
+#: The ocean's stream of daily maxima, of the kinetic energy at cell centers,
+#: which a run may write
+CUSTOM_STREAM = 'timeSeriesStatsCustomOutput'
+
 
 class ConfiguredRun(NamedTuple):
     """

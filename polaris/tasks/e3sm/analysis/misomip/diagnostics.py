@@ -42,6 +42,7 @@ from polaris.ocean.overturning import (
     get_line_edges,
 )
 from polaris.tasks.e3sm.analysis.misomip.runs import (
+    CUSTOM_STREAM,
     DAILY_MEANS_STREAM,
     DAILY_STREAM,
     SNAPSHOT_STREAM,
@@ -67,6 +68,7 @@ INIT_FILENAME = 'init.nc'
 MESH_FILENAME = 'mesh.nc'
 LANDICE_FILENAME = 'landice.nc'
 LANDICE_INIT_FILENAME = 'landice_init.nc'
+PEAK_SPEED_FILENAME = 'peak_speed.nc'
 
 #: MALI's history stream
 LANDICE_STREAM = 'output'
@@ -178,6 +180,14 @@ class RunDiagnostics(Step):
         The local names of the files of the ocean's daily means, in order,
         empty if the run wrote none
 
+    custom_filenames : list of str
+        The local names of the files of the ocean's daily maxima of kinetic
+        energy, in order, empty if the run wrote none
+
+    has_peak_speed : bool
+        Whether the run wrote daily maxima of kinetic energy or global
+        statistics, from which the ocean's peak speed is found
+
     has_daily_volume : bool
         Whether the run wrote both daily global statistics and daily means,
         from which the ocean's daily volume budget is computed
@@ -271,6 +281,19 @@ class RunDiagnostics(Step):
         self.daily_mean_filenames = self._add_daily_inputs(
             daily_means, 'daily_means', first, last
         )
+        try:
+            custom = run.find_stream_files(CUSTOM_STREAM)
+        except ValueError:
+            # the run's streams file has no daily maxima
+            custom = []
+        self.custom_filenames = self._add_daily_inputs(
+            custom, 'custom', first, last
+        )
+        self.has_peak_speed = bool(
+            self.custom_filenames or self.daily_filenames
+        )
+        if self.has_peak_speed:
+            self.add_output_file(filename=PEAK_SPEED_FILENAME)
         if self.daily_mean_filenames:
             self.add_output_file(filename=DAILY_EXCHANGE_FILENAME)
         self.has_daily_volume = bool(
@@ -481,6 +504,9 @@ class RunDiagnostics(Step):
         if self.landice_filenames:
             write_netcdf(_assemble_landice(reduced), LANDICE_FILENAME)
 
+        if self.has_peak_speed:
+            write_netcdf(_assemble_peak_speed(reduced), PEAK_SPEED_FILENAME)
+
     def _year_inputs(self, options):
         """The inputs from which each year of the run is reduced"""
         step_dir = os.getcwd()
@@ -500,6 +526,9 @@ class RunDiagnostics(Step):
         ]
         landice = [
             (_file_year_month(name), name) for name in self.landice_filenames
+        ]
+        custom = [
+            (_file_year_month(name), name) for name in self.custom_filenames
         ]
         years = []
         for year, monthly in by_year.items():
@@ -524,6 +553,7 @@ class RunDiagnostics(Step):
                         if (year, 1) <= month <= after
                     ],
                     landice=[name for (y, _), name in landice if y == year],
+                    custom=[name for (y, _), name in custom if y == year],
                     step_dir=step_dir,
                     options=options,
                 )
@@ -644,6 +674,9 @@ class YearInputs:
     landice : list of str
         MALI's history in the year
 
+    custom : list of str
+        The ocean's daily maxima of kinetic energy in the year
+
     step_dir : str
         The diagnostics step's directory, which the files are relative to
 
@@ -658,6 +691,7 @@ class YearInputs:
     daily_means: list
     snapshots: list
     landice: list
+    custom: list
     step_dir: str
     options: dict
 
@@ -712,6 +746,11 @@ def reduce_year(inputs):
         ds_daily = ds_stats[fields + ['daysSinceStartOfSim']]
         _, unique = np.unique(ds_daily.daysSinceStartOfSim, return_index=True)
         datasets['daily'] = ds_daily.isel(Time=unique)
+        if 'normalVelocityMax' in ds_stats and 'normalVelocityMin' in ds_stats:
+            datasets['edge_speed'] = _edge_speed(ds_stats)
+
+    if inputs.custom:
+        datasets['cell_speed'] = _cell_speed(paths(inputs.custom))
 
     if inputs.daily_means:
         # a file a month, each one chunk, so that the 3D daily means of the
@@ -759,7 +798,16 @@ def reduce_year(inputs):
 
 
 #: The fields of the daily global statistics the diagnostics read
-DAILY_STATS_FIELDS = DAILY_FIELDS + ['daysSinceStartOfSim', 'xtime']
+DAILY_STATS_FIELDS = DAILY_FIELDS + [
+    'daysSinceStartOfSim',
+    'xtime',
+    'normalVelocityMax',
+    'normalVelocityMin',
+]
+
+#: The daily maxima of kinetic energy at cell centers, and the start of
+#: each day
+CUSTOM_FIELDS = ['xtime_startCustom', 'timeCustom_max_kineticEnergyCell']
 
 
 def _monthly_series(ds, ds_init, geometry, options):
@@ -1000,6 +1048,7 @@ def _year_files(inputs):
         + inputs.daily_means
         + inputs.snapshots
         + inputs.landice
+        + inputs.custom
     )
     if inputs.options['has_monthly_volume']:
         names.append(TIDAL_MASK_FILENAME)
@@ -1062,6 +1111,65 @@ def _assemble_daily_volume(reduced):
         ds_volume['landIceLoadChange'] = ('Time', change)
         ds_volume.landIceLoadChange.attrs = attrs
     return ds_volume
+
+
+def _edge_speed(ds_stats):
+    """The largest normal velocity on any edge at each of the global
+    statistics' records"""
+    ds = xr.Dataset()
+    ds['recordTime'] = ('nRecords', xtime_to_days(ds_stats.xtime.values))
+    ds.recordTime.attrs = dict(
+        long_name='time of the record', units='days since 0001-01-01'
+    )
+    ds['maxEdgeSpeed'] = (
+        'nRecords',
+        np.maximum(
+            ds_stats.normalVelocityMax.values,
+            -ds_stats.normalVelocityMin.values,
+        ),
+    )
+    ds.maxEdgeSpeed.attrs = dict(
+        long_name='largest normal velocity on any edge', units='m s-1'
+    )
+    return ds
+
+
+def _cell_speed(filenames):
+    """The speed of the largest kinetic energy at any cell center each day,
+    from the daily maxima"""
+    ds_custom = read_time_series(filenames, CUSTOM_FIELDS)
+    kinetic_energy = ds_custom.timeCustom_max_kineticEnergyCell
+    peak = kinetic_energy.max(dim=['nCells', 'nVertLevels']).values
+    ds = xr.Dataset()
+    ds['dayStart'] = (
+        'nDays',
+        np.floor(xtime_to_days(ds_custom.xtime_startCustom.values)),
+    )
+    ds.dayStart.attrs = dict(
+        long_name='start of the day', units='days since 0001-01-01'
+    )
+    ds['maxCellSpeed'] = ('nDays', np.sqrt(2.0 * peak))
+    ds.maxCellSpeed.attrs = dict(
+        long_name='speed of the largest kinetic energy at any cell center',
+        units='m s-1',
+    )
+    return ds
+
+
+def _assemble_peak_speed(reduced):
+    """The peak speed over every year, each day and record once"""
+    ds_speed = xr.Dataset()
+    for name, dim, time in [
+        ('cell_speed', 'nDays', 'dayStart'),
+        ('edge_speed', 'nRecords', 'recordTime'),
+    ]:
+        years = [datasets[name] for datasets in reduced if name in datasets]
+        if not years:
+            continue
+        ds = xr.concat(years, dim=dim)
+        _, unique = np.unique(ds[time].values, return_index=True)
+        ds_speed = xr.merge([ds_speed, ds.isel({dim: unique})])
+    return ds_speed
 
 
 def _assemble_landice(reduced):
