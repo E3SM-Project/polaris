@@ -1,0 +1,6 @@
+mpas-ocean:
+  split_explicit_ts:
+    # split RK4's potential-vorticity flux form of the Coriolis term between
+    # the barotropic and baroclinic modes, so that the Coriolis terms do no
+    # net work where layer thicknesses change across edges
+    config_split_pv_coriolis: true
