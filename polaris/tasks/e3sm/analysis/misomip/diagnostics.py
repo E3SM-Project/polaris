@@ -15,7 +15,10 @@ from polaris.landice.diagnostics import (
     grounding_line_points,
     thickness_above_flotation,
 )
-from polaris.mpas.time_series_stats import rename_time_series_stats
+from polaris.mpas.time_series_stats import (
+    MONTHLY_PREFIX,
+    read_time_series,
+)
 from polaris.ocean.ice_shelf.diagnostics import (
     compute_flux_sent_to_land_ice,
     compute_grounding_line_band_diagnostics,
@@ -92,8 +95,54 @@ DAILY_FIELDS = [
     'kineticEnergyCellAvg',
 ]
 
+#: The fields of the ocean's monthly means the diagnostics read, by their
+#: names without the prefix of time-series statistics.  It includes the
+#: fields used only where a run writes them.
+MONTHLY_MEAN_FIELDS = [
+    'daysSinceStartOfSim',
+    'ssh',
+    'layerThickness',
+    'temperature',
+    'salinity',
+    'density',
+    'velocityZonal',
+    'velocityMeridional',
+    'normalVelocity',
+    'normalLayerThicknessFlux',
+    'frazilLayerThicknessTendency',
+    'frazilIceFreshwaterFlux',
+    'landIceFreshwaterFlux',
+    'landIceFreshwaterFluxNotSentToGlc',
+    'landIceFraction',
+    'landIceFloatingFraction',
+    'landIceGlcFloatingFraction',
+    'landIceDraftForSsh',
+    'landIcePressure',
+    'landIceFrictionVelocity',
+    'landIceBoundaryLayerTemperature',
+    'landIceBoundaryLayerSalinity',
+    'landIceInterfaceTemperature',
+    'landIceInterfaceSalinity',
+]
+
 #: The prefix of the fields in the ocean's daily means
 DAILY_MEANS_PREFIX = 'timeDaily_avg_'
+
+#: The fields of the ocean's daily means the diagnostics read, without
+#: their prefix, including those used only where a run writes them
+DAILY_MEAN_FIELDS = [
+    'landIceFreshwaterFlux',
+    'frazilIceFreshwaterFlux',
+    'frazilLayerThicknessTendency',
+    'tidalLayerThicknessTendency',
+    'landIcePressure',
+    'landIceFreshwaterFluxNotSentToGlc',
+    'landIceFraction',
+    'landIceGlcFloatingFraction',
+]
+
+#: The fields of MALI's history the diagnostics read
+LANDICE_FIELDS = ['xtime', 'daysSinceStart', 'thickness']
 
 #: The seconds in a year of 365 days
 SECONDS_PER_YEAR = 365.0 * 86400.0
@@ -348,16 +397,11 @@ class RunDiagnostics(Step):
         config = self.config
         section = config['misomip_analysis']
         ds_init = read_initial_condition()
-        ds = rename_time_series_stats(
-            xr.open_mfdataset(
-                self.monthly_filenames,
-                combine='nested',
-                concat_dim='Time',
-                decode_times=False,
-                data_vars='minimal',
-            )
+        # each of the run's files is read once, keeping only the fields the
+        # diagnostics use
+        ds = read_time_series(
+            self.monthly_filenames, MONTHLY_MEAN_FIELDS, prefix=MONTHLY_PREFIX
         )
-        ds = ds.load()
         ds = _add_bottom_values(ds, ds_init)
         geometry = _geometry(ds, ds_init)
         ds = _add_wet_columns(ds, ds_init, geometry, self.min_thickness)
@@ -415,16 +459,32 @@ class RunDiagnostics(Step):
         ds_maps = _add_time(_monthly_maps(ds), ds)
         write_netcdf(ds_maps, MONTHLY_MAPS_FILENAME)
 
-        write_netcdf(self._daily(), DAILY_FILENAME)
+        ds_stats = None
+        if self.daily_filenames:
+            ds_stats = read_time_series(
+                self.daily_filenames,
+                DAILY_FIELDS + ['daysSinceStartOfSim', 'xtime'],
+            )
+        write_netcdf(self._daily(ds_stats), DAILY_FILENAME)
 
+        ds_daily_means = None
         if self.daily_mean_filenames:
+            # a file a month, each one chunk, so that the fields of only the
+            # first months (daily 3D means) are not filled out in memory
+            ds_daily_means = read_time_series(
+                self.daily_mean_filenames,
+                DAILY_MEAN_FIELDS,
+                prefix=DAILY_MEANS_PREFIX,
+                chunk=True,
+            )
             write_netcdf(
-                self._daily_exchange(ds_init), DAILY_EXCHANGE_FILENAME
+                self._daily_exchange(ds_init, ds_daily_means),
+                DAILY_EXCHANGE_FILENAME,
             )
 
         if self.has_daily_volume:
             write_netcdf(
-                self._daily_volume(ds_init),
+                self._daily_volume(ds_init, ds_daily_means, ds_stats),
                 DAILY_VOLUME_FILENAME,
             )
 
@@ -445,14 +505,8 @@ class RunDiagnostics(Step):
         ds_mesh = xr.open_dataset(LANDICE_INIT_FILENAME, decode_times=False)
         if 'Time' in ds_mesh.dims:
             ds_mesh = ds_mesh.isel(Time=0)
-        ds = xr.open_mfdataset(
-            self.landice_filenames,
-            combine='nested',
-            concat_dim='Time',
-            decode_times=False,
-            data_vars='minimal',
-        )
-        thickness = ds.thickness.load()
+        ds = read_time_series(self.landice_filenames, LANDICE_FIELDS)
+        thickness = ds.thickness
         ice_density, ocean_density = self.densities
         bed = ds_mesh.bedTopography
         ds_landice = compute_volume_and_area(
@@ -465,7 +519,7 @@ class RunDiagnostics(Step):
         ds_landice.xGL.attrs = dict(
             long_name=f'grounding line along y = {section_y:g} m', units='m'
         )
-        ds_landice['daysSinceStart'] = ds.daysSinceStart.load()
+        ds_landice['daysSinceStart'] = ds.daysSinceStart
         ds_landice['daysSince0001'] = (
             'Time',
             xtime_to_days(ds.xtime.values),
@@ -485,21 +539,11 @@ class RunDiagnostics(Step):
             )
         return ds_landice
 
-    def _daily_exchange(self, ds_init):
+    def _daily_exchange(self, ds_init, ds):
         """
         Compute the ocean's daily melt and the net flux it sends to the
         land-ice model from its daily means
         """
-        ds = rename_time_series_stats(
-            xr.open_mfdataset(
-                self.daily_mean_filenames,
-                combine='nested',
-                concat_dim='Time',
-                decode_times=False,
-                data_vars='minimal',
-            ),
-            prefix=DAILY_MEANS_PREFIX,
-        )
         ds_exchange = xr.Dataset()
         # the start is the first sample, which the compute interval puts
         # after the start of the day
@@ -533,7 +577,7 @@ class RunDiagnostics(Step):
             ]
             if name in ds
         ]
-        ds = ds[fields].load()
+        ds = ds[fields]
         area = ds_init.areaCell
         ds_exchange['totalMeltFlux'] = (ds.landIceFreshwaterFlux * area).sum(
             dim='nCells'
@@ -572,28 +616,11 @@ class RunDiagnostics(Step):
         )
         return ds_exchange
 
-    def _daily_volume(self, ds_init):
+    def _daily_volume(self, ds_init, ds_means, ds_stats):
         """
         Compute the ocean's daily volume budget from its daily global
         statistics and daily means
         """
-        ds_means = rename_time_series_stats(
-            xr.open_mfdataset(
-                self.daily_mean_filenames,
-                combine='nested',
-                concat_dim='Time',
-                decode_times=False,
-                data_vars='minimal',
-            ),
-            prefix=DAILY_MEANS_PREFIX,
-        )
-        ds_stats = xr.open_mfdataset(
-            self.daily_filenames,
-            combine='nested',
-            concat_dim='Time',
-            decode_times=False,
-            data_vars='minimal',
-        )
         missing = [
             name
             for name in [
@@ -663,19 +690,12 @@ class RunDiagnostics(Step):
             self.ref_density,
         )
 
-    def _daily(self):
+    def _daily(self, ds):
         """Gather the daily global statistics"""
-        if not self.daily_filenames:
+        if ds is None:
             return xr.Dataset()
-        ds = xr.open_mfdataset(
-            self.daily_filenames,
-            combine='nested',
-            concat_dim='Time',
-            decode_times=False,
-            data_vars='minimal',
-        )
         fields = [field for field in DAILY_FIELDS if field in ds]
-        ds_daily = ds[fields + ['daysSinceStartOfSim']].load()
+        ds_daily = ds[fields + ['daysSinceStartOfSim']]
         _, unique = np.unique(ds_daily.daysSinceStartOfSim, return_index=True)
         return ds_daily.isel(Time=unique)
 

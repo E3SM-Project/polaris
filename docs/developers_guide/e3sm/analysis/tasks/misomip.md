@@ -21,6 +21,12 @@ Each run gets two shared steps, named for the months it has:
 - {py:class}`polaris.tasks.e3sm.analysis.misomip.plots.RunPlots` plots them
   and describes each plot as a product.
 
+The diagnostics read each of the run's files once, keeping only the fields
+they use (`MONTHLY_MEAN_FIELDS`, `DAILY_MEAN_FIELDS`, `DAILY_FIELDS` and
+`LANDICE_FIELDS`), with {py:func}`polaris.mpas.read_time_series()`.  A field
+used only where a run writes it belongs in these lists too, since the
+diagnostics test for it by name.
+
 The diagnostics mark each month's columns that are wet, rather than holding
 only the thin film, as `wetColumn`, with
 {py:func}`polaris.ocean.ice_shelf.get_film_columns()` on that month's mean

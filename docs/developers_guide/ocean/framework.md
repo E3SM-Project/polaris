@@ -848,6 +848,10 @@ since a partly floating cell melts only over its floating fraction.  The
 functions take MPAS-Ocean's names with or without a `Time` dimension;
 monthly means are renamed first with
 {py:func}`polaris.mpas.rename_time_series_stats()`.
+{py:func}`polaris.mpas.read_time_series()` reads the fields a diagnostic
+needs from a series of files, one file at a time, and renames them.  Loading
+a dataset combined with `xarray.open_mfdataset()` from more files than
+xarray keeps open (128 by default) reopens a file for every variable.
 
 (dev-ocean-framework-vertical)=
 
