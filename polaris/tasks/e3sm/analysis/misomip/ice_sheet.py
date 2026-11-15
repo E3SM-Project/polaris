@@ -17,6 +17,7 @@ from polaris.landice.diagnostics import (
     grounding_line_on_row,
     thickness_above_flotation,
 )
+from polaris.mpas.time_series_stats import read_time_series
 from polaris.namelist import ingest
 from polaris.tasks.e3sm.analysis.misomip.diagnostics import (
     LANDICE_FILENAME,
@@ -462,17 +463,7 @@ def read_landice_history(filenames):
         ``xtime``, ``thickness`` and, where the history has it,
         ``bedTopography``, along ``Time``
     """
-    ds = xr.open_mfdataset(
-        filenames,
-        combine='nested',
-        concat_dim='Time',
-        decode_times=False,
-        data_vars='minimal',
-        coords='minimal',
-        compat='override',
-        preprocess=_history_fields,
-    )
-    return ds.load()
+    return read_time_series(filenames, ['xtime', 'thickness', 'bedTopography'])
 
 
 def read_landice_stats(filenames):
@@ -569,11 +560,3 @@ def _cornford_members(cornford, name, scale, start_year, offset):
                 )
             )
     return members
-
-
-def _history_fields(ds):
-    """The fields of a history file that locate the grounding line"""
-    names = [
-        name for name in ['xtime', 'thickness', 'bedTopography'] if name in ds
-    ]
-    return ds[names]

@@ -11,7 +11,10 @@ from mpas_tools.ocean import compute_barotropic_streamfunction
 from scipy.sparse import csr_matrix
 
 from polaris import Step
-from polaris.mpas.time_series_stats import rename_time_series_stats
+from polaris.mpas.time_series_stats import (
+    MONTHLY_PREFIX,
+    read_time_series,
+)
 from polaris.ocean.ice_shelf.diagnostics import (
     compute_haline_driving,
     compute_melt_rate,
@@ -173,15 +176,7 @@ class ProtocolFields(Step):
         """
         ds_init = read_initial_condition()
         ds_mesh = isomip_mesh(ds_init)
-        ds = rename_time_series_stats(
-            xr.open_mfdataset(
-                self.monthly_filenames,
-                combine='nested',
-                concat_dim='Time',
-                decode_times=False,
-                data_vars='minimal',
-            )
-        ).load()
+        ds = read_time_series(self.monthly_filenames, prefix=MONTHLY_PREFIX)
         ds_series = xr.open_dataset(TIME_SERIES_FILENAME)
         mapping = _read_map(MAP_FILENAME)
         count = ds.sizes['Time']
