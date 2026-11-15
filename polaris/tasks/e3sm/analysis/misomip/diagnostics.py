@@ -72,6 +72,7 @@ LANDICE_INIT_FILENAME = 'landice_init.nc'
 PEAK_SPEED_FILENAME = 'peak_speed.nc'
 CENTERLINE_FILENAME = 'centerline.nc'
 SNAPSHOTS_FILENAME = 'snapshots.nc'
+DAILY_MELT_FILENAME = 'daily_melt.nc'
 
 #: The ocean's restart stream, which holds its state at the start of each
 #: year
@@ -332,6 +333,7 @@ class RunDiagnostics(Step):
             self.add_output_file(filename=PEAK_SPEED_FILENAME)
         if self.daily_mean_filenames:
             self.add_output_file(filename=DAILY_EXCHANGE_FILENAME)
+            self.add_output_file(filename=DAILY_MELT_FILENAME)
         self.has_daily_volume = bool(
             self.daily_mean_filenames and self.daily_filenames
         )
@@ -590,6 +592,7 @@ class RunDiagnostics(Step):
                 _concat_years(reduced, 'daily_exchange'),
                 DAILY_EXCHANGE_FILENAME,
             )
+            write_netcdf(_assemble_daily_melt(reduced), DAILY_MELT_FILENAME)
 
         if self.has_daily_volume:
             write_netcdf(
@@ -921,6 +924,8 @@ def reduce_year(inputs):
         datasets['daily_exchange'] = _daily_exchange(
             ds_init, ds_means, options['min_floating_fraction'], messages
         ).load()
+        if 'landIceFreshwaterFlux' in ds_means:
+            datasets['daily_melt'] = _daily_melt(ds_means, ds_init)
         if options['has_daily_volume'] and ds_stats is not None:
             ds_volumes = ds_stats[['xtime', 'volumeCellGlobal']]
             if inputs.daily_context:
@@ -960,6 +965,9 @@ def reduce_year(inputs):
             options['densities'],
         )
         datasets['landice_snapshots'] = _landice_snapshots(ds_states)
+        datasets['landice_gl'] = _landice_grounding_lines(
+            ds_states, init_filename, options['densities']
+        )
         row = get_landice_row(init_filename, options['section_y'])
         datasets['landice_centerline'] = _landice_centerline(ds_states, row)
         if inputs.landice_daily:
@@ -1655,6 +1663,91 @@ def _landice_snapshots(ds):
         long_name='time of the record', units='days since 0001-01-01'
     )
     return ds_out
+
+
+def _daily_melt(ds_means, ds_init):
+    """The ocean's daily-mean melt flux on the cells under land ice in the
+    initial condition"""
+    cells = np.flatnonzero(ds_init.landIceFraction.values > 0.0)
+    ds_out = xr.Dataset()
+    ds_out['meltFlux'] = (
+        ('nDays', 'nIceCells'),
+        ds_means.landIceFreshwaterFlux.isel(nCells=cells).values,
+    )
+    ds_out.meltFlux.attrs = dict(
+        long_name='daily-mean land-ice freshwater flux', units='kg m-2 s-1'
+    )
+    ds_out['iceCell'] = ('nIceCells', cells)
+    ds_out['dayEnd'] = (
+        'nDays',
+        xtime_to_days(ds_means.xtime_endDaily.values),
+    )
+    ds_out.dayEnd.attrs = dict(
+        long_name='end of the day', units='days since 0001-01-01'
+    )
+    return ds_out
+
+
+def _landice_grounding_lines(ds, init_filename, densities):
+    """MALI's grounding-line points at each of its states, padded with NaN
+    to the most points"""
+    ds_mesh = _open_without_time(init_filename)
+    ice_density, ocean_density = densities
+    points = []
+    for index in range(ds.sizes['Time']):
+        haf = thickness_above_flotation(
+            ds.thickness.isel(Time=index),
+            ds_mesh.bedTopography,
+            ice_density,
+            ocean_density,
+        )
+        points.append(grounding_line_points(haf, ds_mesh))
+    count = max(len(x) for x, _ in points)
+    x_gl = np.full((len(points), count), np.nan)
+    y_gl = np.full((len(points), count), np.nan)
+    for index, (x, y) in enumerate(points):
+        x_gl[index, : len(x)] = x
+        y_gl[index, : len(y)] = y
+    ds_out = xr.Dataset()
+    ds_out['xGroundingLinePoints'] = (('nGlStates', 'nGlPoints'), x_gl)
+    ds_out['yGroundingLinePoints'] = (('nGlStates', 'nGlPoints'), y_gl)
+    ds_out['glStateTime'] = ('nGlStates', xtime_to_days(ds.xtime.values))
+    ds_out.glStateTime.attrs = dict(
+        long_name="time of MALI's state", units='days since 0001-01-01'
+    )
+    return ds_out
+
+
+def _assemble_daily_melt(reduced):
+    """The ocean's daily melt over every year, each day once, and MALI's
+    grounding lines over every year, each state once"""
+    datasets = []
+    for name, dim, time in [
+        ('daily_melt', 'nDays', 'dayEnd'),
+        ('landice_gl', 'nGlStates', 'glStateTime'),
+    ]:
+        years = [each[name] for each in reduced if name in each]
+        if not years:
+            continue
+        if name == 'landice_gl':
+            # pad every year to the most points
+            count = max(ds.sizes['nGlPoints'] for ds in years)
+            years = [
+                ds.pad(nGlPoints=(0, count - ds.sizes['nGlPoints']))
+                for ds in years
+            ]
+        ds = xr.concat(
+            years,
+            dim=dim,
+            data_vars='minimal',
+            coords='minimal',
+            compat='override',
+        )
+        _, unique = np.unique(ds[time].values, return_index=True)
+        datasets.append(ds.isel({dim: unique}))
+    if not datasets:
+        return xr.Dataset()
+    return xr.merge(datasets, compat='override')
 
 
 def _assemble_snapshots(reduced):

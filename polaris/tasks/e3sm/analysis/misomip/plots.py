@@ -18,10 +18,12 @@ from polaris.e3sm.analysis.calendar import (
 from polaris.tasks.e3sm.analysis.misomip.centerline import (
     plot_centerline_movie,
     plot_centerline_sections,
+    plot_melt_movie,
     plot_snapshots,
 )
 from polaris.tasks.e3sm.analysis.misomip.diagnostics import (
     CENTERLINE_FILENAME,
+    DAILY_MELT_FILENAME,
     LANDICE_FILENAME,
     LANDICE_INIT_FILENAME,
     PEAK_SPEED_FILENAME,
@@ -390,6 +392,9 @@ class RunPlots(ProductStep):
     has_peak_speed : bool
         Whether the run's peak speed is plotted
 
+    has_daily_melt : bool
+        Whether the movie of the daily melt is made
+
     landice_densities : tuple of float
         MALI's ice and ocean densities (kg m-3), where MALI ran
 
@@ -443,6 +448,12 @@ class RunPlots(ProductStep):
             self.add_input_file(
                 filename=filename,
                 work_dir_target=f'{diagnostics.path}/{filename}',
+            )
+        self.has_daily_melt = bool(diagnostics.daily_mean_filenames)
+        if self.has_daily_melt:
+            self.add_input_file(
+                filename=DAILY_MELT_FILENAME,
+                work_dir_target=f'{diagnostics.path}/{DAILY_MELT_FILENAME}',
             )
         self.has_landice = bool(diagnostics.landice_filenames)
         self.landice_densities = diagnostics.densities
@@ -505,6 +516,18 @@ class RunPlots(ProductStep):
         self._plot_centerline_movie(ds_init)
         self._plot_snapshots(ds_init)
         self._plot_grounding_line(ds_init, ds_mean, months)
+        if self.has_daily_melt:
+            ds_melt = xr.open_dataset(
+                DAILY_MELT_FILENAME, decode_times=False, decode_timedelta=False
+            )
+            if 'meltFlux' in ds_melt:
+                plot_melt_movie(ds_init, ds_melt, self.label, 'melt_movie.gif')
+                self.add_product(
+                    plot='melt_movie.gif',
+                    group=self.kind,
+                    gallery='melt',
+                    title='Daily-mean melt rate',
+                )
         if self.has_landice:
             # the times are days, not dates to decode
             ds_landice = xr.open_dataset(

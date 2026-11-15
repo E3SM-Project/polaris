@@ -958,3 +958,126 @@ class _Snapshots:
                 self._haf(day).expand_dims('Time'), self.ds_landice, y=y
             ).values[0]
         )
+
+
+def plot_melt_movie(ds_init, ds_melt, title, gif_filename, max_frames=180):
+    """
+    Animate the ocean's daily-mean melt rate under the ice, the thin film
+    included, with MALI's grounding line where it ran
+
+    Parameters
+    ----------
+    ds_init : xarray.Dataset
+        The ocean's initial condition and mesh
+
+    ds_melt : xarray.Dataset
+        The daily melt on the cells under the ice and MALI's grounding-line
+        points, from the diagnostics
+
+    title : str
+        The start of each frame's title, such as the run's label
+
+    gif_filename : str
+        The movie
+
+    max_frames : int, optional
+        The most frames, spread evenly over the days, the last included
+    """
+    water_density = get_constant('pure_water_density_reference')
+    n_cells = ds_init.sizes['nCells']
+    ice_cells = ds_melt.iceCell.values
+    melt = ds_melt.meltFlux.values / water_density * SECONDS_PER_YEAR
+    day_end = ds_melt.dayEnd.values
+    # the scale leaves out the first day, whose start-up melt can be far
+    # larger
+    later = melt[1:] if melt.shape[0] > 1 else melt
+    melt_max = float(np.nanpercentile(later, 99.5))
+    has_gl = 'glStateTime' in ds_melt
+    if has_gl:
+        gl_time = ds_melt.glStateTime.values
+    stride = max(1, int(np.ceil(len(day_end) / max_frames)))
+    frames = list(range(0, len(day_end), stride))
+    if frames[-1] != len(day_end) - 1:
+        frames.append(len(day_end) - 1)
+    floating = ds_init.landIceFloatingFraction.values > 0.0
+    x_cell = 1e-3 * ds_init.xIsomipCell.values
+    y_cell = 1e-3 * ds_init.yIsomipCell.values
+    ocean_mesh = isomip_mesh(ds_init)
+    for name in ['xCell', 'yCell', 'xVertex', 'yVertex']:
+        ocean_mesh[name] = 1e-3 * ocean_mesh[name]
+    descriptor = mosaic.Descriptor(ocean_mesh)
+
+    def melt_map(index):
+        # every cell under the ice, the thin film included, so the melt
+        # follows a grounding line that moves away from where it started
+        full = np.full(n_cells, np.nan)
+        full[ice_cells] = melt[index]
+        return full
+
+    xlim = (
+        float(x_cell[floating].min()) - MAP_MARGIN_UPSTREAM,
+        float(x_cell[floating].max()) + MAP_MARGIN_DOWNSTREAM,
+    )
+    ylim = (float(y_cell.min()), float(y_cell.max()))
+    # the figure has the map's aspect, so the map fills its width
+    map_width = 0.92 * FIG_WIDTH
+    height = map_width * (ylim[1] - ylim[0]) / (xlim[1] - xlim[0]) + 2.0
+    with mplstyle_context(dpi=PNG_DPI):
+        fig = Figure(figsize=(FIG_WIDTH, height), constrained_layout=True)
+        ax = fig.add_subplot(111)
+        collection = mosaic.polypcolor(
+            ax,
+            descriptor,
+            melt_map(0),
+            cmap=cmocean.cm.amp,
+            vmin=0.0,
+            vmax=melt_max,
+            edgecolor='face',
+        )
+        fig.colorbar(
+            collection,
+            ax=ax,
+            label='m yr$^{-1}$',
+            orientation='horizontal',
+            shrink=0.5,
+            pad=0.25,
+        )
+        ax.set_xlim(*xlim)
+        ax.set_ylim(*ylim)
+        ax.set_aspect('equal')
+        ax.set_xlabel('x (km)')
+        ax.set_ylabel('y (km)')
+        # lay the figure out once, with the longest title, and keep that
+        # layout, so the map and colorbar do not move from frame to frame
+        ax.set_title(
+            f'{title}: daily-mean melt rate, water equivalent, Year 10000, '
+            f'Mmm 30'
+        )
+        fig.canvas.draw()
+        fig.set_layout_engine('none')
+        (gl_line,) = ax.plot([], [], 'k.', markersize=1.0)
+
+        def frame(index):
+            collection.set_array(melt_map(index))
+            if has_gl:
+                # MALI's last state at or before the end of the day
+                state = int(
+                    np.searchsorted(gl_time, day_end[index] + 1e-6) - 1
+                )
+                state = max(state, 0)
+                gl_line.set_data(
+                    1e-3 * ds_melt.xGroundingLinePoints.values[state],
+                    1e-3 * ds_melt.yGroundingLinePoints.values[state],
+                )
+            ax.set_title(
+                f'{title}: daily-mean melt rate, water equivalent, '
+                f'{_date_text(day_end[index] - 1.0)}'
+            )
+            return [collection, gl_line]
+
+        anim = animation.FuncAnimation(fig, frame, frames=frames)
+        anim.save(
+            gif_filename,
+            writer=SharedPaletteGifWriter(fps=4 if len(frames) <= 40 else 12),
+            dpi=GIF_DPI,
+        )
