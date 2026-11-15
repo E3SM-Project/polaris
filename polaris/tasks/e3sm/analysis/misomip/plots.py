@@ -17,6 +17,7 @@ from polaris.e3sm.analysis.calendar import (
 )
 from polaris.tasks.e3sm.analysis.misomip.diagnostics import (
     LANDICE_FILENAME,
+    PEAK_SPEED_FILENAME,
     SECONDS_PER_YEAR,
     TIME_MEAN_FILENAME,
     TIME_SERIES_FILENAME,
@@ -372,6 +373,9 @@ class RunPlots(ProductStep):
     label : str
         A short description of the run for plot titles
 
+    has_peak_speed : bool
+        Whether the run's peak speed is plotted
+
     has_landice : bool
         Whether the run has MALI output to plot
     """
@@ -411,6 +415,12 @@ class RunPlots(ProductStep):
             self.add_input_file(
                 filename=filename,
                 work_dir_target=f'{diagnostics.path}/{filename}',
+            )
+        self.has_peak_speed = diagnostics.has_peak_speed
+        if self.has_peak_speed:
+            self.add_input_file(
+                filename=PEAK_SPEED_FILENAME,
+                work_dir_target=f'{diagnostics.path}/{PEAK_SPEED_FILENAME}',
             )
         self.has_landice = bool(diagnostics.landice_filenames)
         if self.has_landice:
@@ -462,6 +472,12 @@ class RunPlots(ProductStep):
             self._plot_sections(ds_mesh, ds_init, ds_mean, axis, value, months)
         self._plot_overturning(ds_mean, months)
         self._plot_melt_by_draft(ds_mean, months)
+        if self.has_peak_speed:
+            # the times are days, not dates to decode
+            ds_speed = xr.open_dataset(
+                PEAK_SPEED_FILENAME, decode_times=False, decode_timedelta=False
+            )
+            self._plot_peak_speed(ds_speed)
         if self.has_landice:
             # the times are days, not dates to decode
             ds_landice = xr.open_dataset(
@@ -706,6 +722,54 @@ class RunPlots(ProductStep):
             group=self.kind,
             gallery='melt',
             title='Melt rate by draft (no frazil)',
+        )
+
+    def _plot_peak_speed(self, ds_speed):
+        """Plot the ocean's peak speed: the largest normal velocity on any
+        edge at each record of the global statistics, and the speed of the
+        largest kinetic energy at any cell center each day"""
+        lines = []
+        if 'maxEdgeSpeed' in ds_speed:
+            lines.append(
+                Series(
+                    time=days_to_model_year(ds_speed.recordTime.values),
+                    values=ds_speed.maxEdgeSpeed.values,
+                    label='largest normal velocity on any edge, each record',
+                    color='tab:orange',
+                    linestyle=':',
+                    linewidth=0.8,
+                )
+            )
+        if 'maxCellSpeed' in ds_speed:
+            lines.append(
+                Series(
+                    # the middle of each day
+                    time=days_to_model_year(ds_speed.dayStart.values + 0.5),
+                    values=ds_speed.maxCellSpeed.values,
+                    label=r'$\sqrt{2 KE}$, daily maximum at cell centers',
+                    color='tab:blue',
+                    linewidth=1.2,
+                )
+            )
+        if not lines:
+            return
+        title = 'Peak ocean speed'
+        plot = 'peak_speed.png'
+        data = 'peak_speed.nc'
+        plot_time_series(
+            lines,
+            plot,
+            ylabel='speed (m s$^{-1}$)',
+            xlabel=MODEL_YEAR_LABEL,
+            title=f'{title}, {self.label}',
+        )
+        write_netcdf(ds_speed, data)
+        self.add_product(
+            plot=plot,
+            data=data,
+            group=self.kind,
+            gallery='time_series',
+            title=title,
         )
 
     def _plot_landice_series(self, ds_landice):
