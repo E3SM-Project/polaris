@@ -1325,6 +1325,9 @@ def _streamfunction_strengths(
     gyre_max = []
     gyre_min = []
     bottom_height = []
+    # the overturning of all the months at once, each month's elevations
+    # ending at its own top, as when computed alone
+    osf_months = _overturning(ds, ds_init, dx, dz)
     for t_index in range(ds.sizes['Time']):
         ds_month = ds.isel(Time=slice(t_index, t_index + 1))
         floating_month = floating
@@ -1349,7 +1352,7 @@ def _streamfunction_strengths(
             _area_mean_where(height, ds_init.areaCell, open_month)
             - _area_mean_where(height, ds_init.areaCell, restoring_month)
         )
-        osf = _overturning(ds_month, ds_init, dx, dz).isel(Time=0)
+        osf = osf_months.isel(Time=t_index)
         under_ice = osf.x <= _ice_front_x(ds_init, floating_month)
         osf_range.append(_range_where(osf, under_ice))
     ds_strength = xr.Dataset()
@@ -1540,10 +1543,6 @@ def _overturning(ds, ds_init, dx, dz):
     edge where the means hold it, and otherwise from the means of velocity
     and thickness
     """
-    ds_mesh = isomip_mesh(ds_init)
-    x_min = float(ds_mesh.xCell.min())
-    x_max = float(ds_mesh.xCell.max())
-    x_lines = dx * np.arange(np.floor(x_min / dx) + 1, np.ceil(x_max / dx))
     top = dz * np.ceil(max(float(ds.ssh.max()), 0.0) / dz)
     bottom = -dz * np.ceil(float(ds_init.bottomDepth.max()) / dz)
     z = top - dz * np.arange(int(round((top - bottom) / dz)) + 1)
@@ -1553,10 +1552,7 @@ def _overturning(ds, ds_init, dx, dz):
         layer_flux = _without_fill(ds.normalLayerThicknessFlux)
 
     columns = []
-    for x_line in x_lines:
-        line = get_line_edges(ds_mesh, 'x', x_line)
-        if line.sizes['nLineEdges'] == 0:
-            continue
+    for x_line, line in _overturning_lines(ds_init, dx):
         if has_flux:
             transport = (
                 layer_flux.isel(nEdges=line.edgeIndex)
@@ -1585,6 +1581,12 @@ def _overturning(ds, ds_init, dx, dz):
         columns.append(osf.expand_dims(x=[1e-3 * x_line]))
     overturning = 1e-6 * xr.concat(columns, dim='x')
     overturning = overturning.transpose('Time', 'nZInterfaces', 'x')
+    # each month's elevations end at the top it would have alone
+    ssh_max = ds.ssh.max(
+        dim=[dim for dim in ds.ssh.dims if dim != 'Time']
+    ).astype(float)
+    month_top = dz * np.ceil(np.maximum(ssh_max, 0.0) / dz)
+    overturning = overturning.where(overturning.zInterface <= month_top)
     overturning.attrs = dict(
         long_name=(
             'overturning streamfunction, minus the transport toward '
@@ -1600,6 +1602,23 @@ def _overturning(ds, ds_init, dx, dz):
     overturning.x.attrs = dict(long_name='x', units='km')
     overturning.zInterface.attrs = dict(long_name='elevation', units='m')
     return overturning.rename('overturningStreamfunction')
+
+
+def _overturning_lines(ds_init, dx):
+    """
+    The lines of constant x, in the protocol's coordinates, across which
+    the overturning is computed, each with the edges it crosses
+    """
+    ds_mesh = isomip_mesh(ds_init)
+    x_min = float(ds_mesh.xCell.min())
+    x_max = float(ds_mesh.xCell.max())
+    x_lines = dx * np.arange(np.floor(x_min / dx) + 1, np.ceil(x_max / dx))
+    lines = []
+    for x_line in x_lines:
+        line = get_line_edges(ds_mesh, 'x', x_line)
+        if line.sizes['nLineEdges'] > 0:
+            lines.append((x_line, line))
+    return lines
 
 
 def _ice_front_x(ds_init, floating):
