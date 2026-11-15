@@ -34,7 +34,7 @@ dependencies = [
     "gsw",
     "importlib_resources",
     "ipython",
-    "jigsawpy",
+    "jigsawpy>=1.1.1",
     "jinja2",
     "jupyter",
     "lxml",
