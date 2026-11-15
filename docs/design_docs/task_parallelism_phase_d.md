@@ -9,19 +9,24 @@ Contributors:
 
 ## Summary
 
-Phase C gives the node residents and their workers a fixed share of the
-allocation for the life of the run. Once the Python work is finished, they
-go on holding that share, and those nodes sit idle while model runs queue
-for resources that are right there.
+Phase C was first designed to give the node residents and their workers a
+fixed share of the allocation for the life of the run, which would go on
+holding nodes after the Python work finished. Phase D was to make that share
+change with the work: grow when Python work is ready, give nodes back when it
+drains.
 
-Phase D makes the share change with the work. When Python work is ready, the
-pool grows; when it drains, it gives nodes back.
+Phase C no longer holds a share. A step that hands out work reserves the
+cores its pieces run on and returns them when it ends, so there is nothing to
+grow or shrink, and the resizing this document describes is not needed. It
+stays recorded because that choice is tentative: if real testing brings back
+a shared pool, the requirements below on giving resources back, growing,
+damping changes and resizing safely apply to it as written.
 
-This is the phase that makes a mixed suite -- model runs and analysis in one
-job -- use the machine properly. It is also the phase most likely to be
-unnecessary. If suites do their analysis at the end, after the model runs,
-then a pool that appears late and holds resources until the job ends costs
-nothing. Test that before building this.
+Two things stand regardless. When ready model steps and ready Python work
+want the same free cores, Polaris should apply a stated rule rather than
+whichever the loop reaches first, and the run should report how much of the
+allocation sat reserved but idle. Both need a real mixed suite to tune, and
+neither is worth a phase of its own until there is one.
 
 Success in Phase D means a suite mixing model runs and analysis finishes in
 close to the time the work itself requires, with no long stretch where part

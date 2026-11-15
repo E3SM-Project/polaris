@@ -20,7 +20,9 @@ launcher, which puts the work where it says.  A step that is not launched
 does its work in the child itself, and nothing between the scheduler and
 that child acts on a placement -- so the child sets its own affinity, which
 it can only do on the node it is running on.  That is why the pool gives
-such a step cores on the scheduler's node.
+such a step cores on the scheduler's node, and why, when that node has no
+room for it, the step is forked by the resident on the node that does
+instead (see :py:func:`start_remote_step`).
 
 Forking safely requires the scheduler to hold no other thread; see
 `polaris/__init__.py`, which pins the numerical thread pools before numpy
@@ -29,13 +31,25 @@ does not give each running step a thread to wait on it.
 """
 
 import os
+import pickle
 import signal
 import sys
 import time
 import traceback
 from dataclasses import dataclass
-from typing import Dict, List, NoReturn, Optional
+from multiprocessing.connection import Connection, wait
+from typing import (
+    Dict,
+    List,
+    NoReturn,
+    Optional,
+    Sequence,
+    Tuple,
+    Union,
+    cast,
+)
 
+from polaris.run.connections import connect
 from polaris.run.pool import Reservation
 from polaris.run.serial import run_step_in_process
 
@@ -135,8 +149,134 @@ class RunningStep:
             pass
 
 
+class RemoteStep:
+    """
+    A step the resident on another node forked, which has not finished.
+
+    Attributes
+    ----------
+    step : polaris.Step
+        The step being run.
+
+    reservation : polaris.run.pool.Reservation
+        What it was given, which is handed back when it ends.
+
+    log_filename : str
+        Where its output is going.
+
+    node : str
+        The node it is running on.
+
+    connection : multiprocessing.connection.Connection
+        Where its resident says how it ended
+    """
+
+    def __init__(
+        self, step, reservation, log_filename, started, connection, node
+    ):
+        self.step = step
+        self.reservation = reservation
+        self.log_filename = log_filename
+        self.started = started
+        self.connection = connection
+        self.node = node
+
+    @property
+    def pid(self) -> Optional[int]:
+        """``None``: its process is on another node."""
+        return None
+
+    def kill(self) -> None:
+        """Stop the step: its resident kills it once this goes away."""
+        try:
+            self.connection.close()
+        except OSError:
+            pass
+
+    def outcome(self, path: str) -> 'StepOutcome':
+        """Hear from its resident how the step ended."""
+        try:
+            kind, _, payload = self.connection.recv()
+        except (EOFError, OSError):
+            kind, payload = 'lost', {}
+        self.kill()
+        seconds = time.time() - self.started
+        if kind == 'done':
+            return _outcome(path, 0, seconds, payload.get('work_seconds'))
+        if kind == 'died':
+            # how it died is not in its log, since it did not get to say
+            _say(
+                self.log_filename,
+                f'The step died on node {self.node} with exit code '
+                f'{payload["returncode"]}.',
+            )
+            return _outcome(path, payload['returncode'], seconds)
+        if kind == 'lost':
+            _say(
+                self.log_filename,
+                f'The step was lost when the resident on node {self.node} '
+                f'went away.',
+            )
+        # a step that raised has said why in its log already
+        return _outcome(path, 1, seconds)
+
+
+def start_remote_step(
+    step, reservation: Reservation, log_filename: str, directory
+) -> RemoteStep:
+    """
+    Have the resident on a step's node fork it there.
+
+    For a step that launches nothing, given a node other than the
+    scheduler's.  The resident forks it from what it imported once, binds
+    it to its cores, sends its output to its log and runs it through the
+    same lifecycle as a step the scheduler forks, so the step cannot tell
+    the difference.  The step itself travels pickled, as the scheduler
+    holds it.
+
+    Parameters
+    ----------
+    step : polaris.Step
+        The step to run, which must already be set up and sized
+
+    reservation : polaris.run.pool.Reservation
+        What the pool gave it, on one node
+
+    log_filename : str
+        Where to send its output
+
+    directory : polaris.run.residents.ResidentDirectory
+        How to reach the residents
+
+    Returns
+    -------
+    running : polaris.run.executor.RemoteStep
+        The started step
+    """
+    (node,) = list(reservation.cores)
+    os.makedirs(os.path.dirname(log_filename) or '.', exist_ok=True)
+    payload = {
+        'step': pickle.dumps(step),
+        'placement': reservation.placement,
+        'cores': list(reservation.cores[node]),
+        'memory': dict(reservation.memory),
+        'log': log_filename,
+    }
+    connection = connect(directory.address(node), directory.key)
+    started = time.time()
+    connection.send(('step', 0, payload))
+    return RemoteStep(
+        step, reservation, log_filename, started, connection, node
+    )
+
+
 def start_step(
-    step, reservation: Reservation, log_filename: str, local_node: str
+    step,
+    reservation: Reservation,
+    log_filename: str,
+    local_node: str,
+    residents=None,
+    keep_out: Sequence = (),
 ) -> RunningStep:
     """
     Start one step in a forked child.
@@ -163,13 +303,23 @@ def start_step(
         The node the scheduler is on, which is the only one whose cores a
         child can bind itself to
 
+    residents : polaris.run.residents.ResidentDirectory, optional
+        How to reach the residents, for a step that hands out work
+
+    keep_out : sequence, optional
+        Connections the child must close, which belong to the scheduler
+
     Returns
     -------
     running : polaris.run.executor.RunningStep
         The started step
     """
     os.makedirs(os.path.dirname(log_filename) or '.', exist_ok=True)
-    cores = _local_cores(reservation, local_node)
+    # a step that hands out work does it on its cores through the residents,
+    # and its own process is not reserved one, as an MPI step's is not
+    cores = (
+        None if step.hands_out_work else _local_cores(reservation, local_node)
+    )
 
     # anything still buffered here would be inherited and written twice
     sys.stdout.flush()
@@ -184,14 +334,32 @@ def start_step(
     pid = os.fork()
     if pid == 0:
         os.close(hearing)
-        _be_the_step(step, reservation.placement, log_filename, cores, saying)
+        _be_the_step(
+            step,
+            reservation.placement,
+            log_filename,
+            cores,
+            saying,
+            residents,
+            keep_out,
+            reservation.memory,
+        )
         # unreachable: _be_the_step never returns
 
     os.close(saying)
     return RunningStep(step, reservation, pid, log_filename, started, hearing)
 
 
-def _be_the_step(step, placement, log_filename, cores, saying) -> NoReturn:
+def _be_the_step(
+    step,
+    placement,
+    log_filename,
+    cores,
+    saying,
+    residents=None,
+    keep_out=(),
+    memory=None,
+) -> NoReturn:
     """
     Become the step, in the forked child, and never come back.
 
@@ -213,6 +381,15 @@ def _be_the_step(step, placement, log_filename, cores, saying) -> NoReturn:
     try:
         for caught in (signal.SIGINT, signal.SIGTERM, signal.SIGHUP):
             signal.signal(caught, signal.SIG_DFL)
+        # the scheduler's way of hearing that a child has exited, which
+        # this child's own children must not reach
+        signal.set_wakeup_fd(-1)
+        signal.signal(signal.SIGCHLD, signal.SIG_DFL)
+        for each in keep_out:
+            try:
+                each.close()
+            except OSError:
+                pass
 
         if cores:
             try:
@@ -243,6 +420,9 @@ def _be_the_step(step, placement, log_filename, cores, saying) -> NoReturn:
         os.chdir(step.work_dir)
         # this child *is* the separate process that flag asks for
         step.run_as_subprocess = False
+        # handed to the step the way its placement is, in the child
+        step.residents = residents
+        step.reserved_memory = memory
 
         began = time.time()
         run_step_in_process(step, placement)
@@ -297,6 +477,161 @@ def reap_one(running: Dict[str, 'RunningStep']) -> StepOutcome:
                 time.time() - run.started,
                 run.work_seconds(),
             )
+
+
+class ChildWakeup:
+    """
+    A pipe the kernel writes to when a child exits, so that the scheduler
+    can wait for a step to finish and for its residents at the same time.
+
+    Waiting on child processes and on sockets at once has no single call:
+    ``waitpid`` blocks on children alone and ``wait`` on files alone.  A
+    signal handler that does nothing, with Python's wake-up file set to this
+    pipe, turns every child's exit into a byte the loop can wait on beside
+    the residents' connections, without a thread -- which a scheduler that
+    forks cannot have.
+    """
+
+    def __init__(self):
+        self._read = -1
+        self._write = -1
+        self._previous_handler = None
+        self._previous_fd = -1
+
+    def __enter__(self) -> 'ChildWakeup':
+        self._read, self._write = os.pipe()
+        os.set_blocking(self._read, False)
+        os.set_blocking(self._write, False)
+        self._previous_handler = signal.signal(signal.SIGCHLD, _noticed)
+        self._previous_fd = signal.set_wakeup_fd(
+            self._write, warn_on_full_buffer=False
+        )
+        return self
+
+    def __exit__(self, *args) -> None:
+        signal.set_wakeup_fd(self._previous_fd)
+        signal.signal(signal.SIGCHLD, self._previous_handler)
+        os.close(self._read)
+        os.close(self._write)
+
+    def fileno(self) -> int:
+        return self._read
+
+    def drain(self) -> None:
+        """Empty the pipe, having heard what it had to say."""
+        try:
+            while os.read(self._read, 4096):
+                pass
+        except BlockingIOError:
+            pass
+
+
+def next_event(
+    running: Dict[str, Union['RunningStep', 'RemoteStep']],
+    residents,
+    wakeup: ChildWakeup,
+    timeout: Optional[float] = None,
+) -> Tuple[Optional['StepOutcome'], List[tuple]]:
+    """
+    Wait until a step finishes or the residents change, whichever is first.
+
+    Like :py:func:`reap_one`, this reaps in the scheduler's own loop rather
+    than with a thread per running step.
+
+    Parameters
+    ----------
+    running : dict of polaris.run.executor.RunningStep or RemoteStep
+        The steps currently running, by path, here or on other nodes
+
+    residents : polaris.run.residents.Residents or None
+        The run's residents, if it has any
+
+    wakeup : polaris.run.executor.ChildWakeup
+        What hears that a child has exited
+
+    timeout : float, optional
+        How long to wait for anything at all, in seconds
+
+    Returns
+    -------
+    outcome : polaris.run.executor.StepOutcome or None
+        What happened to a step that finished, if one did
+
+    notes : list of tuple
+        What changed among the residents: hellos, losses and the end of
+        their launch
+    """
+    by_pid = {
+        run.pid: (path, run)
+        for path, run in running.items()
+        if isinstance(run, RunningStep)
+    }
+    remote = {
+        run.connection: (path, run)
+        for path, run in running.items()
+        if isinstance(run, RemoteStep)
+    }
+    deadline = None if timeout is None else time.time() + timeout
+    while True:
+        notes: List[tuple] = []
+        while True:
+            try:
+                pid, status = os.waitpid(-1, os.WNOHANG)
+            except ChildProcessError:
+                break
+            if pid == 0:
+                break
+            if pid in by_pid:
+                path, run = by_pid[pid]
+                outcome = _outcome(
+                    path,
+                    _returncode(status),
+                    time.time() - run.started,
+                    run.work_seconds(),
+                )
+                return outcome, notes
+            if residents is not None and residents.owns(pid):
+                note = residents.exited(pid, _returncode(status))
+                if note is not None:
+                    notes.append(note)
+            # anything else is not ours, and is reaped and forgotten
+        if notes:
+            return None, notes
+
+        sources: list = [wakeup, *remote]
+        if residents is not None:
+            sources.extend(residents.sources())
+        remaining = None
+        if deadline is not None:
+            remaining = max(deadline - time.time(), 0.0)
+        ready = wait(sources, timeout=remaining)
+        for source in ready:
+            if source is wakeup:
+                wakeup.drain()
+            elif source in remote:
+                path, away = remote[cast(Connection, source)]
+                return away.outcome(path), notes
+            else:
+                note = residents.hear(source)
+                if note is not None:
+                    notes.append(note)
+        if notes:
+            return None, notes
+        if deadline is not None and time.time() >= deadline:
+            return None, notes
+
+
+def _say(log_filename: str, message: str) -> None:
+    """Add a line to a step's log, for what the step could not say."""
+    try:
+        with open(log_filename, 'a') as handle:
+            handle.write(f'{message}\n')
+    except OSError:
+        pass
+
+
+def _noticed(signum, frame) -> None:
+    """Hear that a child has exited; the wake-up pipe is what says so."""
 
 
 def _returncode(status: int) -> int:

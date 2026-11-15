@@ -31,6 +31,8 @@ dependencies = [
     "cartopy>=0.26.0",
     "cfchecker",
     "cmocean",
+    "cryptography",
+    "distributed>=2024.6.0",
     "gsw",
     "importlib_resources",
     "ipython",

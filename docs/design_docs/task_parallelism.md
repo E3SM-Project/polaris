@@ -249,32 +249,36 @@ node and is the bound Phase C lifts.
 
 This is where the regression-suite speedup lands.
 
-### Phase C -- Python worker pool
+### Phase C -- Python work across nodes
 
-[Task Parallelism Phase C: Python Worker Pool](task_parallelism_phase_c.md)
+[Task Parallelism Phase C: Python Work Across Nodes](task_parallelism_phase_c.md)
 
-Add a resident process on each node of the allocation, which forks children
-for work and hosts a pool of workers for Python work too fine-grained to be
-given a process of its own. This is what lifts the single-node ceiling that
-constrains MPAS-Analysis today, and it is the phase the analysis capability
-depends on. It also lifts Phase B's bound on where a non-MPI step runs,
-using the same mechanism rather than a second one.
+Add a resident process on each node of the allocation, which forks a whole
+step on whichever node has room and forks a child for each piece of work a
+step loops over inside itself. Analysis in Polaris will be many small Python steps, so
+forking them anywhere in the allocation is what lifts the single-node
+ceiling that constrains MPAS-Analysis today, and it is the phase the
+analysis capability depends on. The same mechanism lifts Phase B's bound on
+where a non-MPI step runs.
 
-Measurement has since confirmed the premise: a high-resolution analysis run
+Measurement has since shown what that needs: a high-resolution analysis run
 is fine-grained, with a median task of about five seconds and half of them
-shorter. Phase C records what else that run showed, including two of its
+shorter, so whatever a resident starts has to start cheaply. Phase C records
+what else that run showed, including two of its
 headline numbers that do not mean what they appear to. It is worth stating
-here that analysis is the pool's first demanding customer and not its
+here that analysis is this phase's first demanding customer and not its
 specification -- most Polaris workflows share no single large input, and a
-pool built around one would serve the general case badly.
+design built around one would serve the general case badly.
 
 ### Phase D -- Coexistence and elasticity
 
 [Task Parallelism Phase D: Coexistence and Elasticity](task_parallelism_phase_d.md)
 
-Let the worker pool and ordinary steps share an allocation, and let the pool
-grow and shrink as the amount of ready Python work changes, so that it does
-not hold nodes idle once that work drains.
+Decide what runs first when model steps and Python work want the same free
+cores, and report how much of the allocation sat reserved but idle. Growing
+and shrinking a shared pool was the rest of this phase. Since Phase C has a
+step reserve its own cores, that is needed only if real testing brings a
+shared pool back.
 
 ## Scope and non-goals
 

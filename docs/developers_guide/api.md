@@ -99,10 +99,15 @@ seaice/api
    pool.ResourcePool
    pool.Reservation
    executor.start_step
+   executor.start_remote_step
+   executor.RemoteStep
    executor.reap_one
+   executor.next_event
+   executor.ChildWakeup
    executor.RunningStep
    executor.StepOutcome
    confinement.check_confinement
+   confinement.record_mismatch
    memory.ProcessMemory
    memory.read_process_memory
    memory.reset_peak_memory
@@ -115,6 +120,26 @@ seaice/api
    serial.run_step_in_process
    results.TaskResult
    results.write_suite_results
+   connections.connect
+   connections.listen
+   connections.accept
+   connections.bind_address
+   connections.no_delay
+   connections.new_key
+   resident.serve
+   resident.fork
+   resident.die_with_parent
+   residents.Residents
+   residents.ResidentDirectory
+   residents.resident_options
+   residents.serial_resources
+   residents.start_serial_residents
+   residents.stop_serial_residents
+   pieces.Pieces
+   pieces.PieceFailed
+   pieces.slots_from
+   dask_workers.DaskWorkers
+   dask_workers.WorkerLost
 
 ```
 
@@ -198,6 +223,7 @@ seaice/api
    Step.setup
    Step.runtime_setup
    Step.run
+   Step.run_pieces
    Step.work_path
    Step.add_input_file
    Step.add_output_file

@@ -172,7 +172,7 @@ Four pieces do that work, and they are worth knowing apart:
   out cores, GPUs and a memory budget, and refuses a step that would not fit
   rather than overcommitting the machine.
 - {py:func}`polaris.run.executor.start_step()` forks a child for a step and
-  {py:func}`polaris.run.executor.reap_one()` waits for whichever finishes
+  {py:func}`polaris.run.executor.next_event()` waits for whichever finishes
   next.  The child inherits the scheduler's memory, so it imports nothing and
   reads no pickle of its own.
 
@@ -182,6 +182,22 @@ moment is held forever in the child.  That is why `polaris/__init__.py` pins
 the numerical thread pools before numpy can raise one thread per core, and
 why the scheduler reaps in its own loop rather than giving each running step
 a thread to wait on it.
+
+A run with a step that hands out pieces of its work starts a resident on
+each node to fork the pieces (see {ref}`dev-handing-out-work`).  A run on
+more than one node starts them, too, once a step that launches nothing is
+waiting for room on the scheduler's node, so that a resident on a node
+with room can fork it there.
+{py:class}`polaris.run.residents.Residents` starts them, with one launch
+across the allocation, and stops them when the run ends.  The scheduler
+hears from them in the same loop in which it reaps its children -- a
+resident saying hello, one going away, or a step it forked ending -- so
+that it never waits on one while another has something to say.
+{py:func}`polaris.run.executor.start_remote_step` has a resident fork a
+step, which then runs through the same lifecycle as one the scheduler
+forks.  A step that hands out work does so through
+{py:class}`polaris.run.pieces.Pieces`, which connects to the residents
+directly.
 
 Each step's output goes to its own log under `case_outputs`, since steps no
 longer take turns and cannot share a stream.  The scheduler also writes an

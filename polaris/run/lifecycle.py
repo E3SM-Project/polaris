@@ -27,6 +27,8 @@ from polaris.run import (
 )
 from polaris.run.confinement import check_confinement
 from polaris.run.memory import format_bytes
+from polaris.run.pieces import PIECES_SUMMARY, Pieces, slots_from
+from polaris.run.residents import serial_resources
 
 
 def run_step(task, step, new_log_file, available_resources, step_log_filename):
@@ -124,6 +126,11 @@ def run_step(task, step, new_log_file, available_resources, step_log_filename):
                         placement=step.placement,
                         memory_cap=step.memory,
                     )
+        elif step.hands_out_work:
+            step_logger.info('')
+            log_method_call(method=step.run_pieces, logger=step_logger)
+            step_logger.info('')
+            _run_pieces(step)
         else:
             step_logger.info('')
             log_method_call(method=step.run, logger=step_logger)
@@ -299,6 +306,40 @@ def _log_dependency_pickles(pickle_filenames, logger):
     for name, filename in pickle_filenames.items():
         size = format_bytes(os.path.getsize(filename))
         logger.info(f'loaded dependency {name} from {filename} ({size})')
+
+
+def _run_pieces(step):
+    """
+    Run a step that hands out work, through the residents on its cores.
+
+    Under ``polaris parallel`` the cores are the step's placement and the
+    residents are the run's, both handed to the step by the scheduler.
+    ``polaris serial`` gives a step neither, so the step's cores are laid
+    out over the allocation and the run's residents started here, the first
+    time a step needs them.  Either way the step sees the same thing.
+    """
+    residents = getattr(step, 'residents', None)
+    placement = step.placement
+    memory = getattr(step, 'reserved_memory', None)
+    if residents is None and placement is None:
+        residents, placement, memory = serial_resources(step)
+    elif residents is None:
+        raise RuntimeError(
+            f'Step {step.path} hands out work, but no residents were started '
+            f'to fork its pieces.'
+        )
+    elif placement is None:
+        raise RuntimeError(
+            f'Step {step.path} hands out work, but was given no cores to '
+            f'hand it out to.'
+        )
+    # a summary left by an earlier run describes that run and not this one
+    try:
+        os.remove(os.path.join(step.work_dir, PIECES_SUMMARY))
+    except OSError:
+        pass
+    with Pieces(step, slots_from(placement), residents, memory) as pieces:
+        step.run_pieces(pieces)
 
 
 def _log_sizing(step, step_resources, logger, when):

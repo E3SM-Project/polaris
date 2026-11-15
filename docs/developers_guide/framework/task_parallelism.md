@@ -2,9 +2,9 @@
 
 # Writing task-parallel-safe steps
 
-Polaris runs one step at a time today, and a step that changes the process
-working directory or mutates a module-level global is correct under that
-assumption.  It stops being correct as soon as two steps run concurrently in
+`polaris serial` runs one step at a time, and a step that changes the
+process working directory or mutates a module-level global is correct under
+that assumption.  It stops being correct as soon as two steps run concurrently in
 one process, and the failure is timing-dependent: it shows up as intermittent
 wrong answers rather than as a clean error.
 
@@ -131,8 +131,8 @@ There are two reasons:
   cores and GPUs given to other steps, and the placement check cannot see it,
   because its probe is launched with the placement.
 - A step without a command needs nothing from the scheduler's node, which is
-  what will let the scheduler run it on another node.  A launch from there
-  would start from inside a job step.
+  what lets the scheduler run it on another node when its own is full.  A
+  launch from there would start from inside a job step.
 
 `args` is a list of commands, which run one after another with the step's
 resources.  Small serial work the launch needs, such as writing SCRIP files,
@@ -166,6 +166,10 @@ it.  Use `self.cpus_per_task`:
 ```python
 n_workers = min(self.cpus_per_task, len(work_items))
 ```
+
+A pool a step starts itself stays on the step's own node.  A step whose work
+is a loop over independent items can instead hand out each item as a piece,
+which can run on any node of the allocation; see {ref}`dev-handing-out-work`.
 
 (dev-task-parallelism-status)=
 
