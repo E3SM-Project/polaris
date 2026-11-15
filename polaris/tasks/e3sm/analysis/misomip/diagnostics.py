@@ -1,4 +1,6 @@
+import hashlib
 import os
+from dataclasses import dataclass
 
 import numpy as np
 import xarray as xr
@@ -44,6 +46,12 @@ from polaris.tasks.e3sm.analysis.misomip.runs import (
     DAILY_STREAM,
     SNAPSHOT_STREAM,
     get_mean_months,
+)
+from polaris.tasks.e3sm.analysis.misomip.years import (
+    get_cache_key,
+    map_years,
+    read_cached_year,
+    write_cached_year,
 )
 
 #: The files a diagnostics step writes
@@ -390,314 +398,695 @@ class RunDiagnostics(Step):
         )
         self.add_output_file(filename=LANDICE_FILENAME)
 
+    def setup(self):
+        """
+        Set the processes the years are reduced in from the config
+        """
+        self.cpus_per_task = self.config.getint(
+            'misomip_analysis', 'diagnostics_cpus_per_task'
+        )
+
+    def constrain_resources(self, available_resources):
+        """
+        Constrain the processes the years are reduced in to the cores
+        available
+        """
+        self.cpus_per_task = self.config.getint(
+            'misomip_analysis', 'diagnostics_cpus_per_task'
+        )
+        super().constrain_resources(available_resources)
+
     def run(self):
         """
         Compute the diagnostics
         """
         config = self.config
         section = config['misomip_analysis']
-        ds_init = read_initial_condition()
-        # each of the run's files is read once, keeping only the fields the
-        # diagnostics use
-        ds = read_time_series(
-            self.monthly_filenames, MONTHLY_MEAN_FIELDS, prefix=MONTHLY_PREFIX
-        )
-        ds = _add_bottom_values(ds, ds_init)
-        geometry = _geometry(ds, ds_init)
-        ds = _add_wet_columns(ds, ds_init, geometry, self.min_thickness)
-
-        ds_series = _time_series(
-            ds,
-            ds_init,
-            geometry,
+        logger = self.logger
+        options = dict(
             deep_draft=section.getfloat('deep_draft'),
+            restoring_x=section.getfloat('restoring_x'),
+            overturning_dx=section.getfloat('overturning_dx'),
+            overturning_dz=section.getfloat('overturning_dz'),
+            bottom_slab_thickness=section.getfloat('bottom_slab_thickness'),
+            section_y=section.getfloat('section_y'),
             min_thickness=self.min_thickness,
             min_floating_fraction=self.min_floating_fraction,
-            restoring_x=section.getfloat('restoring_x'),
             ref_density=self.ref_density,
+            densities=list(self.densities),
+            tidal_forcing_type=self.tidal_forcing_type,
+            has_daily_volume=self.has_daily_volume,
+            has_monthly_volume=self.has_monthly_volume,
         )
-        self.logger.info('computing streamfunctions for each month')
-        strengths = _streamfunction_strengths(
-            ds,
-            ds_init,
-            geometry,
-            dx=section.getfloat('overturning_dx'),
-            dz=section.getfloat('overturning_dz'),
-            restoring_x=section.getfloat('restoring_x'),
-            bottom_slab=section.getfloat('bottom_slab_thickness'),
-        )
-        ds_series = xr.merge([ds_series, strengths])
-        ds_series['openOceanSshOffset'] = (
-            ds_series.openOceanSshResidual
-            - ds_series.openOceanBottomGeostrophicSsh
-        )
-        ds_series.openOceanSshOffset.attrs = dict(
-            long_name=(
-                "the open ocean's mean residual SSH less the geostrophic "
-                'height of its bottom flow'
-            ),
-            units='m',
-        )
-        ds_series = _add_time(ds_series, ds)
-        write_netcdf(ds_series, TIME_SERIES_FILENAME)
+        years = self._year_inputs(options)
+        results = self._reduce_years(years, section.get('cache_dir'))
+        messages = []
+        for _, year_messages in results:
+            for message in year_messages:
+                if message not in messages:
+                    messages.append(message)
+        for message in messages:
+            logger.info(message)
+        reduced = [datasets for datasets, _ in results]
 
-        count = min(get_mean_months(config, self.experiment), ds.sizes['Time'])
-        ds_end = ds.isel(Time=slice(-count, None))
-        ds_mean = _time_mean(
-            ds_end,
-            ds_init,
-            _geometry(ds_end, ds_init),
-            draft_bin_width=section.getfloat('draft_bin_width'),
-            dx=section.getfloat('overturning_dx'),
-            dz=section.getfloat('overturning_dz'),
-        )
-        ds_mean.attrs['first_month'] = _start_date(ds_end, 0)
-        ds_mean.attrs['last_month'] = _start_date(ds_end, -1)
-        ds_mean.attrs['month_count'] = count
-        write_netcdf(ds_mean, TIME_MEAN_FILENAME)
+        write_netcdf(_concat_years(reduced, 'series'), TIME_SERIES_FILENAME)
+        write_netcdf(_concat_years(reduced, 'maps'), MONTHLY_MAPS_FILENAME)
+        write_netcdf(self._time_mean(options), TIME_MEAN_FILENAME)
 
-        ds_maps = _add_time(_monthly_maps(ds), ds)
-        write_netcdf(ds_maps, MONTHLY_MAPS_FILENAME)
-
-        ds_stats = None
         if self.daily_filenames:
-            ds_stats = read_time_series(
-                self.daily_filenames,
-                DAILY_FIELDS + ['daysSinceStartOfSim', 'xtime'],
+            ds_daily = _concat_years(reduced, 'daily')
+            _, unique = np.unique(
+                ds_daily.daysSinceStartOfSim, return_index=True
             )
-        write_netcdf(self._daily(ds_stats), DAILY_FILENAME)
+            write_netcdf(ds_daily.isel(Time=unique), DAILY_FILENAME)
+        else:
+            write_netcdf(xr.Dataset(), DAILY_FILENAME)
 
-        ds_daily_means = None
         if self.daily_mean_filenames:
-            # a file a month, each one chunk, so that the fields of only the
-            # first months (daily 3D means) are not filled out in memory
-            ds_daily_means = read_time_series(
-                self.daily_mean_filenames,
-                DAILY_MEAN_FIELDS,
-                prefix=DAILY_MEANS_PREFIX,
-                chunk=True,
-            )
             write_netcdf(
-                self._daily_exchange(ds_init, ds_daily_means),
+                _concat_years(reduced, 'daily_exchange'),
                 DAILY_EXCHANGE_FILENAME,
             )
 
         if self.has_daily_volume:
             write_netcdf(
-                self._daily_volume(ds_init, ds_daily_means, ds_stats),
-                DAILY_VOLUME_FILENAME,
+                _assemble_daily_volume(reduced), DAILY_VOLUME_FILENAME
             )
 
         if self.has_monthly_volume:
-            write_netcdf(
-                self._monthly_volume(ds, ds_init), MONTHLY_VOLUME_FILENAME
-            )
+            ds_volume = _concat_years(reduced, 'monthly_volume')
+            _combine_frazil_sources(ds_volume, reduced, 'monthly_volume')
+            write_netcdf(ds_volume, MONTHLY_VOLUME_FILENAME)
 
         if self.landice_filenames:
-            section_y = section.getfloat('section_y')
-            write_netcdf(self._landice(section_y), LANDICE_FILENAME)
+            write_netcdf(_assemble_landice(reduced), LANDICE_FILENAME)
 
-    def _landice(self, section_y):
-        """
-        Compute the ice sheet's volume, volume above flotation, grounded area
-        and grounding line from MALI's thickness and bed
-        """
-        ds_mesh = xr.open_dataset(LANDICE_INIT_FILENAME, decode_times=False)
-        if 'Time' in ds_mesh.dims:
-            ds_mesh = ds_mesh.isel(Time=0)
-        ds = read_time_series(self.landice_filenames, LANDICE_FIELDS)
-        thickness = ds.thickness
-        ice_density, ocean_density = self.densities
-        bed = ds_mesh.bedTopography
-        ds_landice = compute_volume_and_area(
-            thickness, bed, ds_mesh.areaCell, ice_density, ocean_density
-        )
-        haf = thickness_above_flotation(
-            thickness, bed, ice_density, ocean_density
-        )
-        ds_landice['xGL'] = grounding_line_on_row(haf, ds_mesh, y=section_y)
-        ds_landice.xGL.attrs = dict(
-            long_name=f'grounding line along y = {section_y:g} m', units='m'
-        )
-        ds_landice['daysSinceStart'] = ds.daysSinceStart
-        ds_landice['daysSince0001'] = (
-            'Time',
-            xtime_to_days(ds.xtime.values),
-        )
-        ds_landice.daysSince0001.attrs = dict(
-            long_name='time of the record', units='days since 0001-01-01'
-        )
-        for label, t_index in [('First', 0), ('Last', -1)]:
-            x_gl, y_gl = grounding_line_points(haf.isel(Time=t_index), ds_mesh)
-            ds_landice[f'xGroundingLine{label}'] = (
-                f'nPointsGroundingLine{label}',
-                np.asarray(x_gl),
-            )
-            ds_landice[f'yGroundingLine{label}'] = (
-                f'nPointsGroundingLine{label}',
-                np.asarray(y_gl),
-            )
-        return ds_landice
-
-    def _daily_exchange(self, ds_init, ds):
-        """
-        Compute the ocean's daily melt and the net flux it sends to the
-        land-ice model from its daily means
-        """
-        ds_exchange = xr.Dataset()
-        # the start is the first sample, which the compute interval puts
-        # after the start of the day
-        ds_exchange['dayStart'] = (
-            'Time',
-            np.floor(xtime_to_days(ds.xtime_startDaily.values)),
-        )
-        ds_exchange['dayEnd'] = (
-            'Time',
-            xtime_to_days(ds.xtime_endDaily.values),
-        )
-        for name in ['dayStart', 'dayEnd']:
-            ds_exchange[name].attrs = dict(
-                long_name=f'{name[3:].lower()} of the day',
-                units='days since 0001-01-01',
-            )
-        if 'landIceFreshwaterFlux' not in ds:
-            self.logger.info(
-                "The ocean's daily means have no landIceFreshwaterFlux, so "
-                'the daily exchange is not computed.'
-            )
-            return ds_exchange
-        fields = [
-            name
-            for name in [
-                'landIceFreshwaterFlux',
-                'frazilIceFreshwaterFlux',
-                'landIceFreshwaterFluxNotSentToGlc',
-                'landIceFraction',
-                'landIceGlcFloatingFraction',
-            ]
-            if name in ds
+    def _year_inputs(self, options):
+        """The inputs from which each year of the run is reduced"""
+        step_dir = os.getcwd()
+        by_year: dict = dict()
+        for filename in self.monthly_filenames:
+            year, _ = _file_year_month(filename)
+            by_year.setdefault(year, []).append(filename)
+        daily = [
+            (_file_year_month(name), name) for name in self.daily_filenames
         ]
-        ds = ds[fields]
-        area = ds_init.areaCell
-        ds_exchange['totalMeltFlux'] = (ds.landIceFreshwaterFlux * area).sum(
-            dim='nCells'
-        )
-        ds_exchange.totalMeltFlux.attrs = dict(
-            long_name='total melt flux', units='kg s-1'
-        )
-        if (
-            'landIceFreshwaterFluxNotSentToGlc' not in ds
-            and 'landIceGlcFloatingFraction' not in ds
-        ):
-            self.logger.info(
-                "The ocean's daily means have neither "
-                'landIceFreshwaterFluxNotSentToGlc nor '
-                'landIceGlcFloatingFraction, so the daily flux sent to the '
-                'land-ice model is not computed.'
+        means = [
+            (_file_year_month(name), name)
+            for name in self.daily_mean_filenames
+        ]
+        snapshots = [
+            (_file_year_month(name), name) for name in self.snapshot_filenames
+        ]
+        landice = [
+            (_file_year_month(name), name) for name in self.landice_filenames
+        ]
+        years = []
+        for year, monthly in by_year.items():
+            before = (year - 1, 12)
+            after = (year + 1, 1)
+            years.append(
+                YearInputs(
+                    year=year,
+                    monthly=monthly,
+                    daily=[name for (y, _), name in daily if y == year],
+                    # the volumes at the ends of the year's first and last
+                    # days are in the months before and after it
+                    daily_context=[
+                        name
+                        for month, name in daily
+                        if month in (before, after)
+                    ],
+                    daily_means=[name for (y, _), name in means if y == year],
+                    snapshots=[
+                        name
+                        for month, name in snapshots
+                        if (year, 1) <= month <= after
+                    ],
+                    landice=[name for (y, _), name in landice if y == year],
+                    step_dir=step_dir,
+                    options=options,
+                )
             )
-            return ds_exchange
-        land_ice_fraction = ds_init.landIceFraction
-        if 'landIceFraction' in ds:
-            land_ice_fraction = ds.landIceFraction
-        coupled = ds_init.landIceFloatingFraction
-        if 'landIceGlcFloatingFraction' in ds:
-            coupled = ds.landIceGlcFloatingFraction
-        ds_exchange = xr.merge(
-            [
-                ds_exchange,
-                compute_flux_sent_to_land_ice(
-                    area,
-                    ds,
-                    land_ice_fraction,
-                    coupled,
-                    self.min_floating_fraction,
-                ),
-            ]
+        return years
+
+    def _reduce_years(self, years, cache_dir):
+        """
+        Reduce each year, from the cache where it holds the year reduced
+        with the same key, and otherwise in parallel processes, caching it
+        """
+        logger = self.logger
+        results: list = [None] * len(years)
+        keys: list = []
+        run_cache = None
+        if cache_dir:
+            run_dir = os.path.dirname(
+                os.path.realpath(self.monthly_filenames[0])
+            )
+            run_key = hashlib.sha256(run_dir.encode()).hexdigest()[:12]
+            run_name = os.path.basename(os.path.dirname(run_dir))
+            run_cache = os.path.join(cache_dir, f'{run_name}_{run_key}')
+        for index, inputs in enumerate(years):
+            if run_cache is None:
+                keys.append(None)
+                continue
+            key = get_cache_key(_year_files(inputs), inputs.options)
+            keys.append(key)
+            cached = read_cached_year(
+                os.path.join(run_cache, f'year_{inputs.year:04d}'), key
+            )
+            if cached is not None:
+                results[index] = (cached, [])
+        todo = [
+            index for index, result in enumerate(results) if result is None
+        ]
+        if run_cache is not None:
+            logger.info(
+                f'{len(years) - len(todo)} of {len(years)} years from the '
+                f'cache in {run_cache}'
+            )
+        logger.info(
+            f'reducing {len(todo)} years in up to {self.cpus_per_task} '
+            f'processes'
+        )
+        reduced = map_years(
+            reduce_year, [years[index] for index in todo], self.cpus_per_task
+        )
+        for index, result in zip(todo, reduced, strict=True):
+            results[index] = result
+            if run_cache is not None:
+                write_cached_year(
+                    os.path.join(run_cache, f'year_{years[index].year:04d}'),
+                    keys[index],
+                    result[0],
+                )
+        return results
+
+    def _time_mean(self, options):
+        """The time means over the months at the end of the run"""
+        section = self.config['misomip_analysis']
+        count = min(
+            get_mean_months(self.config, self.experiment),
+            len(self.monthly_filenames),
+        )
+        ds_init = read_initial_condition()
+        ds_end = read_time_series(
+            self.monthly_filenames[-count:],
+            MONTHLY_MEAN_FIELDS,
+            prefix=MONTHLY_PREFIX,
+        )
+        ds_end = _add_bottom_values(ds_end, ds_init)
+        geometry = _geometry(ds_end, ds_init)
+        ds_end = _add_wet_columns(
+            ds_end, ds_init, geometry, options['min_thickness']
+        )
+        ds_mean = _time_mean(
+            ds_end,
+            ds_init,
+            geometry,
+            draft_bin_width=section.getfloat('draft_bin_width'),
+            dx=options['overturning_dx'],
+            dz=options['overturning_dz'],
+        )
+        ds_mean.attrs['first_month'] = _start_date(ds_end, 0)
+        ds_mean.attrs['last_month'] = _start_date(ds_end, -1)
+        ds_mean.attrs['month_count'] = count
+        return ds_mean
+
+
+@dataclass
+class YearInputs:
+    """
+    The files and options from which one year of a run is reduced
+
+    Attributes
+    ----------
+    year : int
+        The year
+
+    monthly : list of str
+        The year's monthly means
+
+    daily : list of str
+        The year's daily global statistics
+
+    daily_context : list of str
+        The daily global statistics of the months before and after the
+        year, which hold the volume at the ends of its first and last days
+
+    daily_means : list of str
+        The year's daily means
+
+    snapshots : list of str
+        The snapshots of layer thickness from the start of the year to the
+        start of the next
+
+    landice : list of str
+        MALI's history in the year
+
+    step_dir : str
+        The diagnostics step's directory, which the files are relative to
+
+    options : dict
+        The config and namelist options the year is reduced with
+    """
+
+    year: int
+    monthly: list
+    daily: list
+    daily_context: list
+    daily_means: list
+    snapshots: list
+    landice: list
+    step_dir: str
+    options: dict
+
+
+def reduce_year(inputs):
+    """
+    Reduce one year of a run to its monthly time series and maps, its daily
+    global statistics, exchange and volume budget, its monthly volume
+    budget and the ice sheet in each of MALI's records
+
+    Each file is read once.  The values of each month, day and record
+    depend only on that month, day or record, so the years concatenated
+    are the run's values, except for what spans years, which
+    :py:class:`RunDiagnostics` assembles.
+
+    Parameters
+    ----------
+    inputs : YearInputs
+        The year's files and options
+
+    Returns
+    -------
+    datasets : dict of str to xarray.Dataset
+        The year's reduced values
+
+    messages : list of str
+        Notes on fields the year lacks, for the step's log
+    """
+    options = inputs.options
+    step_dir = inputs.step_dir
+
+    def paths(filenames):
+        return [os.path.join(step_dir, name) for name in filenames]
+
+    ds_init = read_initial_condition(prefix=os.path.join(step_dir, ''))
+    datasets = dict()
+    messages: list = []
+
+    ds = read_time_series(
+        paths(inputs.monthly), MONTHLY_MEAN_FIELDS, prefix=MONTHLY_PREFIX
+    )
+    ds = _add_bottom_values(ds, ds_init)
+    geometry = _geometry(ds, ds_init)
+    ds = _add_wet_columns(ds, ds_init, geometry, options['min_thickness'])
+    datasets['series'] = _monthly_series(ds, ds_init, geometry, options)
+    datasets['maps'] = _add_time(_monthly_maps(ds), ds)
+
+    ds_stats = None
+    if inputs.daily:
+        ds_stats = read_time_series(paths(inputs.daily), DAILY_STATS_FIELDS)
+        fields = [field for field in DAILY_FIELDS if field in ds_stats]
+        ds_daily = ds_stats[fields + ['daysSinceStartOfSim']]
+        _, unique = np.unique(ds_daily.daysSinceStartOfSim, return_index=True)
+        datasets['daily'] = ds_daily.isel(Time=unique)
+
+    if inputs.daily_means:
+        # a file a month, each one chunk, so that the 3D daily means of the
+        # first months are not filled out for every day
+        ds_means = read_time_series(
+            paths(inputs.daily_means),
+            DAILY_MEAN_FIELDS,
+            prefix=DAILY_MEANS_PREFIX,
+            chunk=True,
+        )
+        datasets['daily_exchange'] = _daily_exchange(
+            ds_init, ds_means, options['min_floating_fraction'], messages
+        ).load()
+        if options['has_daily_volume'] and ds_stats is not None:
+            ds_volumes = ds_stats[['xtime', 'volumeCellGlobal']]
+            if inputs.daily_context:
+                ds_context = read_time_series(
+                    paths(inputs.daily_context), ['xtime', 'volumeCellGlobal']
+                )
+                ds_volumes = xr.concat(
+                    [ds_context, ds_volumes], dim='Time', data_vars='minimal'
+                )
+            datasets['daily_volume'] = _daily_volume(
+                ds_init, ds_means, ds_volumes, options, messages
+            ).load()
+
+    if options['has_monthly_volume']:
+        datasets['monthly_volume'] = _monthly_volume(
+            ds,
+            ds_init,
+            paths(inputs.snapshots),
+            os.path.join(step_dir, TIDAL_MASK_FILENAME),
+            options['ref_density'],
+            messages,
+        )
+
+    if inputs.landice:
+        datasets['landice'] = _landice(
+            paths(inputs.landice),
+            os.path.join(step_dir, LANDICE_INIT_FILENAME),
+            options['densities'],
+            options['section_y'],
+        )
+    return datasets, messages
+
+
+#: The fields of the daily global statistics the diagnostics read
+DAILY_STATS_FIELDS = DAILY_FIELDS + ['daysSinceStartOfSim', 'xtime']
+
+
+def _monthly_series(ds, ds_init, geometry, options):
+    """The time series of each month"""
+    ds_series = _time_series(
+        ds,
+        ds_init,
+        geometry,
+        deep_draft=options['deep_draft'],
+        min_thickness=options['min_thickness'],
+        min_floating_fraction=options['min_floating_fraction'],
+        restoring_x=options['restoring_x'],
+        ref_density=options['ref_density'],
+    )
+    strengths = _streamfunction_strengths(
+        ds,
+        ds_init,
+        geometry,
+        dx=options['overturning_dx'],
+        dz=options['overturning_dz'],
+        restoring_x=options['restoring_x'],
+        bottom_slab=options['bottom_slab_thickness'],
+    )
+    ds_series = xr.merge([ds_series, strengths])
+    ds_series['openOceanSshOffset'] = (
+        ds_series.openOceanSshResidual
+        - ds_series.openOceanBottomGeostrophicSsh
+    )
+    ds_series.openOceanSshOffset.attrs = dict(
+        long_name=(
+            "the open ocean's mean residual SSH less the geostrophic "
+            'height of its bottom flow'
+        ),
+        units='m',
+    )
+    return _add_time(ds_series, ds)
+
+
+def _landice(filenames, init_filename, densities, section_y):
+    """
+    Compute the ice sheet's volume, volume above flotation, grounded area
+    and grounding line from MALI's thickness and bed
+    """
+    ds_mesh = xr.open_dataset(init_filename, decode_times=False)
+    if 'Time' in ds_mesh.dims:
+        ds_mesh = ds_mesh.isel(Time=0)
+    ds = read_time_series(filenames, LANDICE_FIELDS)
+    thickness = ds.thickness
+    ice_density, ocean_density = densities
+    bed = ds_mesh.bedTopography
+    ds_landice = compute_volume_and_area(
+        thickness, bed, ds_mesh.areaCell, ice_density, ocean_density
+    )
+    haf = thickness_above_flotation(thickness, bed, ice_density, ocean_density)
+    ds_landice['xGL'] = grounding_line_on_row(haf, ds_mesh, y=section_y)
+    ds_landice.xGL.attrs = dict(
+        long_name=f'grounding line along y = {section_y:g} m', units='m'
+    )
+    ds_landice['daysSinceStart'] = ds.daysSinceStart
+    ds_landice['daysSince0001'] = (
+        'Time',
+        xtime_to_days(ds.xtime.values),
+    )
+    ds_landice.daysSince0001.attrs = dict(
+        long_name='time of the record', units='days since 0001-01-01'
+    )
+    for label, t_index in [('First', 0), ('Last', -1)]:
+        x_gl, y_gl = grounding_line_points(haf.isel(Time=t_index), ds_mesh)
+        ds_landice[f'xGroundingLine{label}'] = (
+            f'nPointsGroundingLine{label}',
+            np.asarray(x_gl),
+        )
+        ds_landice[f'yGroundingLine{label}'] = (
+            f'nPointsGroundingLine{label}',
+            np.asarray(y_gl),
+        )
+    return ds_landice.load()
+
+
+def _daily_exchange(ds_init, ds, min_floating_fraction, messages):
+    """
+    Compute the ocean's daily melt and the net flux it sends to the
+    land-ice model from its daily means
+    """
+    ds_exchange = xr.Dataset()
+    # the start is the first sample, which the compute interval puts
+    # after the start of the day
+    ds_exchange['dayStart'] = (
+        'Time',
+        np.floor(xtime_to_days(ds.xtime_startDaily.values)),
+    )
+    ds_exchange['dayEnd'] = (
+        'Time',
+        xtime_to_days(ds.xtime_endDaily.values),
+    )
+    for name in ['dayStart', 'dayEnd']:
+        ds_exchange[name].attrs = dict(
+            long_name=f'{name[3:].lower()} of the day',
+            units='days since 0001-01-01',
+        )
+    if 'landIceFreshwaterFlux' not in ds:
+        messages.append(
+            "The ocean's daily means have no landIceFreshwaterFlux, so "
+            'the daily exchange is not computed.'
         )
         return ds_exchange
-
-    def _daily_volume(self, ds_init, ds_means, ds_stats):
-        """
-        Compute the ocean's daily volume budget from its daily global
-        statistics and daily means
-        """
-        missing = [
-            name
-            for name in [
-                'landIceFreshwaterFlux',
-                'landIcePressure',
-            ]
-            if name not in ds_means
+    fields = [
+        name
+        for name in [
+            'landIceFreshwaterFlux',
+            'frazilIceFreshwaterFlux',
+            'landIceFreshwaterFluxNotSentToGlc',
+            'landIceFraction',
+            'landIceGlcFloatingFraction',
         ]
-        if missing:
-            self.logger.info(
-                f"The ocean's daily means have no {', '.join(missing)}, so "
-                f'the daily volume budget leaves out the terms that need them.'
-            )
-        return compute_daily_volume_budget(
-            ds_means,
-            ds_stats[['xtime', 'volumeCellGlobal']],
-            ds_init,
-            self.ref_density,
-            self.tidal_forcing_type,
+        if name in ds
+    ]
+    ds = ds[fields]
+    area = ds_init.areaCell
+    ds_exchange['totalMeltFlux'] = (ds.landIceFreshwaterFlux * area).sum(
+        dim='nCells'
+    )
+    ds_exchange.totalMeltFlux.attrs = dict(
+        long_name='total melt flux', units='kg s-1'
+    )
+    if (
+        'landIceFreshwaterFluxNotSentToGlc' not in ds
+        and 'landIceGlcFloatingFraction' not in ds
+    ):
+        messages.append(
+            "The ocean's daily means have neither "
+            'landIceFreshwaterFluxNotSentToGlc nor '
+            'landIceGlcFloatingFraction, so the daily flux sent to the '
+            'land-ice model is not computed.'
         )
+        return ds_exchange
+    land_ice_fraction = ds_init.landIceFraction
+    if 'landIceFraction' in ds:
+        land_ice_fraction = ds.landIceFraction
+    coupled = ds_init.landIceFloatingFraction
+    if 'landIceGlcFloatingFraction' in ds:
+        coupled = ds.landIceGlcFloatingFraction
+    return xr.merge(
+        [
+            ds_exchange,
+            compute_flux_sent_to_land_ice(
+                area,
+                ds,
+                land_ice_fraction,
+                coupled,
+                min_floating_fraction,
+            ),
+        ]
+    )
 
-    def _monthly_volume(self, ds, ds_init):
-        """
-        Compute the volume budget of the cells outside the tidally forced
-        ones each month, from the snapshots of layer thickness and the
-        monthly means
-        """
-        ds_mask = _open_without_time(TIDAL_MASK_FILENAME)
-        interior = ds_mask.tidalInputMask.values == 0
-        area = ds_init.areaCell.values
-        days = []
-        volumes = []
-        if 'xtime' in ds_init:
-            start = ds_init.xtime.values.item()
-        else:
-            # an initial condition without a time is at the start of year 1
-            start = '0001-01-01_00:00:00'
-        days.append(xtime_to_days(start))
-        volumes.append(
-            _interior_volume(ds_init.layerThickness, area, interior)
+
+def _daily_volume(ds_init, ds_means, ds_stats, options, messages):
+    """
+    Compute the ocean's daily volume budget from its daily global
+    statistics and daily means
+    """
+    missing = [
+        name
+        for name in ['landIceFreshwaterFlux', 'landIcePressure']
+        if name not in ds_means
+    ]
+    if missing:
+        messages.append(
+            f"The ocean's daily means have no {', '.join(missing)}, so "
+            f'the daily volume budget leaves out the terms that need them.'
         )
-        for filename in self.snapshot_filenames:
-            ds_snapshot = xr.open_dataset(filename, decode_times=False)
+    return compute_daily_volume_budget(
+        ds_means,
+        ds_stats,
+        ds_init,
+        options['ref_density'],
+        options['tidal_forcing_type'],
+    )
+
+
+def _monthly_volume(
+    ds, ds_init, snapshot_filenames, mask_filename, ref_density, messages
+):
+    """
+    Compute the volume budget of the cells outside the tidally forced
+    ones each month, from the snapshots of layer thickness and the
+    monthly means
+    """
+    ds_mask = _open_without_time(mask_filename)
+    interior = ds_mask.tidalInputMask.values == 0
+    area = ds_init.areaCell.values
+    days = []
+    volumes = []
+    if 'xtime' in ds_init:
+        start = ds_init.xtime.values.item()
+    else:
+        # an initial condition without a time is at the start of year 1
+        start = '0001-01-01_00:00:00'
+    days.append(xtime_to_days(start))
+    volumes.append(_interior_volume(ds_init.layerThickness, area, interior))
+    for filename in snapshot_filenames:
+        with xr.open_dataset(filename, decode_times=False) as ds_snapshot:
             for t_index in range(ds_snapshot.sizes['Time']):
                 ds_one = ds_snapshot.isel(Time=t_index)
                 days.append(xtime_to_days(ds_one.xtime.values.item()))
                 volumes.append(
                     _interior_volume(ds_one.layerThickness, area, interior)
                 )
-        missing = [
-            name
-            for name in ['normalLayerThicknessFlux', 'landIceFreshwaterFlux']
-            if name not in ds
-        ]
-        if missing:
-            self.logger.info(
-                f"The ocean's monthly means have no {', '.join(missing)}, "
-                f'so the monthly volume budget leaves out the terms that '
-                f'need them.'
-            )
-        return compute_monthly_volume_budget(
-            ds,
-            np.array(days),
-            np.array(volumes),
-            ds_init,
-            interior,
-            self.ref_density,
+    missing = [
+        name
+        for name in ['normalLayerThicknessFlux', 'landIceFreshwaterFlux']
+        if name not in ds
+    ]
+    if missing:
+        messages.append(
+            f"The ocean's monthly means have no {', '.join(missing)}, "
+            f'so the monthly volume budget leaves out the terms that '
+            f'need them.'
         )
+    return compute_monthly_volume_budget(
+        ds,
+        np.array(days),
+        np.array(volumes),
+        ds_init,
+        interior,
+        ref_density,
+    )
 
-    def _daily(self, ds):
-        """Gather the daily global statistics"""
-        if ds is None:
-            return xr.Dataset()
-        fields = [field for field in DAILY_FIELDS if field in ds]
-        ds_daily = ds[fields + ['daysSinceStartOfSim']]
-        _, unique = np.unique(ds_daily.daysSinceStartOfSim, return_index=True)
-        return ds_daily.isel(Time=unique)
+
+def _year_files(inputs):
+    """Every file a year is reduced from"""
+    step_dir = inputs.step_dir
+    names = (
+        [INIT_FILENAME, MESH_FILENAME]
+        + inputs.monthly
+        + inputs.daily
+        + inputs.daily_context
+        + inputs.daily_means
+        + inputs.snapshots
+        + inputs.landice
+    )
+    if inputs.options['has_monthly_volume']:
+        names.append(TIDAL_MASK_FILENAME)
+    if inputs.landice:
+        names.append(LANDICE_INIT_FILENAME)
+    return [os.path.join(step_dir, name) for name in names]
+
+
+def _file_year_month(filename):
+    """The year and month of a file from the date in its name"""
+    date = os.path.basename(filename).split('.')[-2]
+    return int(date[0:4]), int(date[5:7])
+
+
+def _concat_years(reduced, name):
+    """One reduced dataset of each year, concatenated along Time"""
+    return xr.concat(
+        [datasets[name] for datasets in reduced if name in datasets],
+        dim='Time',
+        data_vars='minimal',
+        coords='minimal',
+        compat='override',
+        combine_attrs='override',
+    )
+
+
+def _combine_frazil_sources(ds_volume, reduced, name):
+    """Where the frazil of a budget over several years comes from: one
+    source if every year's is the same, otherwise mixed"""
+    if 'meltAndFrazilVolume' not in ds_volume:
+        return
+    sources = []
+    for datasets in reduced:
+        if name in datasets and 'meltAndFrazilVolume' in datasets[name]:
+            source = datasets[name].meltAndFrazilVolume.attrs['frazil']
+            if source not in sources:
+                sources.append(source)
+    ds_volume.meltAndFrazilVolume.attrs['frazil'] = (
+        sources[0] if len(sources) == 1 else 'mixed'
+    )
+
+
+def _assemble_daily_volume(reduced):
+    """
+    The daily volume budget of every year: each day once, and the change
+    in the land-ice load from the day before across the years
+    """
+    ds_volume = _concat_years(reduced, 'daily_volume')
+    _, unique = np.unique(ds_volume.dayEnd.values, return_index=True)
+    ds_volume = ds_volume.isel(Time=unique)
+    _combine_frazil_sources(ds_volume, reduced, 'daily_volume')
+    if 'landIceLoad' in ds_volume:
+        load = ds_volume.landIceLoad.values
+        day_start = ds_volume.dayStart.values
+        day_end = ds_volume.dayEnd.values
+        change = np.full(len(load), np.nan)
+        follows = day_start[1:] == day_end[:-1]
+        change[1:] = np.where(follows, load[1:] - load[:-1], np.nan)
+        attrs = ds_volume.landIceLoadChange.attrs
+        ds_volume['landIceLoadChange'] = ('Time', change)
+        ds_volume.landIceLoadChange.attrs = attrs
+    return ds_volume
+
+
+def _assemble_landice(reduced):
+    """
+    The ice sheet in every record, with the grounding line of the first
+    record and of the last
+    """
+    years = [
+        datasets['landice'] for datasets in reduced if 'landice' in datasets
+    ]
+    first_names = ['xGroundingLineFirst', 'yGroundingLineFirst']
+    last_names = ['xGroundingLineLast', 'yGroundingLineLast']
+    ds_landice = xr.concat(
+        [ds.drop_vars(first_names + last_names) for ds in years],
+        dim='Time',
+        data_vars='minimal',
+        coords='minimal',
+        compat='override',
+        combine_attrs='override',
+    )
+    for name in first_names:
+        ds_landice[name] = years[0][name]
+    for name in last_names:
+        ds_landice[name] = years[-1][name]
+    return ds_landice
 
 
 def compute_daily_volume_budget(
