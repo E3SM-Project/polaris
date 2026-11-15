@@ -6,6 +6,7 @@ import numpy as np
 import xarray as xr
 from mpas_tools.io import write_netcdf
 from mpas_tools.ocean import compute_barotropic_streamfunction
+from mpas_tools.ocean.viz.transect import compute_transect
 
 from polaris import Step
 from polaris.constants import get_constant
@@ -69,9 +70,13 @@ MESH_FILENAME = 'mesh.nc'
 LANDICE_FILENAME = 'landice.nc'
 LANDICE_INIT_FILENAME = 'landice_init.nc'
 PEAK_SPEED_FILENAME = 'peak_speed.nc'
+CENTERLINE_FILENAME = 'centerline.nc'
 
 #: MALI's history stream
 LANDICE_STREAM = 'output'
+
+#: MALI's stream of daily output, with the melt it applies
+LANDICE_DAILY_STREAM = 'dailyOutput'
 
 #: The fields of the ocean's state whose means over several months take
 #: only the months each column is wet, each with the field that weights
@@ -152,7 +157,7 @@ DAILY_MEAN_FIELDS = [
 ]
 
 #: The fields of MALI's history the diagnostics read
-LANDICE_FIELDS = ['xtime', 'daysSinceStart', 'thickness']
+LANDICE_FIELDS = ['xtime', 'daysSinceStart', 'thickness', 'lowerSurface']
 
 #: The seconds in a year of 365 days
 SECONDS_PER_YEAR = 365.0 * 86400.0
@@ -219,6 +224,10 @@ class RunDiagnostics(Step):
     landice_filenames : list of str
         The local names of MALI's history files in the years analyzed, empty
         for a run without MALI
+
+    landice_daily_filenames : list of str
+        The local names of MALI's daily output in the years analyzed, with
+        the melt it applies, empty if it wrote none
 
     densities : tuple of float
         MALI's ice and ocean densities (kg m-3) from its namelist, for the
@@ -332,9 +341,11 @@ class RunDiagnostics(Step):
             TIME_MEAN_FILENAME,
             MONTHLY_MAPS_FILENAME,
             DAILY_FILENAME,
+            CENTERLINE_FILENAME,
         ]:
             self.add_output_file(filename=filename)
         self.landice_filenames = []
+        self.landice_daily_filenames = []
         self.densities = (0.0, 0.0)
         if configured_run.kind == 'e3sm':
             self._add_landice_inputs(configured_run, first.year, last.year)
@@ -415,6 +426,18 @@ class RunDiagnostics(Step):
             )
             self.add_input_file(filename=filename, target=stream_file.path)
             self.landice_filenames.append(filename)
+        try:
+            daily_files = landice.find_stream_files(LANDICE_DAILY_STREAM)
+        except ValueError:
+            # MALI's streams file has no daily output
+            daily_files = []
+        for stream_file in daily_files:
+            if start_year <= stream_file.year <= end_year:
+                filename = os.path.join(
+                    'landice_daily', os.path.basename(stream_file.path)
+                )
+                self.add_input_file(filename=filename, target=stream_file.path)
+                self.landice_daily_filenames.append(filename)
         self.densities = (
             _fortran_float(landice.namelist_option('config_ice_density')),
             _fortran_float(landice.namelist_option('config_ocean_density')),
@@ -507,6 +530,8 @@ class RunDiagnostics(Step):
         if self.has_peak_speed:
             write_netcdf(_assemble_peak_speed(reduced), PEAK_SPEED_FILENAME)
 
+        write_netcdf(_assemble_centerline(reduced), CENTERLINE_FILENAME)
+
     def _year_inputs(self, options):
         """The inputs from which each year of the run is reduced"""
         step_dir = os.getcwd()
@@ -529,6 +554,10 @@ class RunDiagnostics(Step):
         ]
         custom = [
             (_file_year_month(name), name) for name in self.custom_filenames
+        ]
+        landice_daily = [
+            (_file_year_month(name), name)
+            for name in self.landice_daily_filenames
         ]
         years = []
         for year, monthly in by_year.items():
@@ -554,6 +583,9 @@ class RunDiagnostics(Step):
                     ],
                     landice=[name for (y, _), name in landice if y == year],
                     custom=[name for (y, _), name in custom if y == year],
+                    landice_daily=[
+                        name for (y, _), name in landice_daily if y == year
+                    ],
                     step_dir=step_dir,
                     options=options,
                 )
@@ -677,6 +709,9 @@ class YearInputs:
     custom : list of str
         The ocean's daily maxima of kinetic energy in the year
 
+    landice_daily : list of str
+        MALI's daily output in the year
+
     step_dir : str
         The diagnostics step's directory, which the files are relative to
 
@@ -692,6 +727,7 @@ class YearInputs:
     snapshots: list
     landice: list
     custom: list
+    landice_daily: list
     step_dir: str
     options: dict
 
@@ -738,6 +774,9 @@ def reduce_year(inputs):
     ds = _add_wet_columns(ds, ds_init, geometry, options['min_thickness'])
     datasets['series'] = _monthly_series(ds, ds_init, geometry, options)
     datasets['maps'] = _add_time(_monthly_maps(ds), ds)
+    datasets['centerline'] = _centerline(
+        ds, get_centerline_cells(ds_init, options['section_y'])
+    )
 
     ds_stats = None
     if inputs.daily:
@@ -788,12 +827,20 @@ def reduce_year(inputs):
         )
 
     if inputs.landice:
+        init_filename = os.path.join(step_dir, LANDICE_INIT_FILENAME)
+        ds_history = read_time_series(paths(inputs.landice), LANDICE_FIELDS)
         datasets['landice'] = _landice(
-            paths(inputs.landice),
-            os.path.join(step_dir, LANDICE_INIT_FILENAME),
+            ds_history,
+            init_filename,
             options['densities'],
             options['section_y'],
         )
+        row = get_landice_row(init_filename, options['section_y'])
+        datasets['landice_centerline'] = _landice_centerline(ds_history, row)
+        if inputs.landice_daily:
+            datasets['landice_applied'] = _landice_applied(
+                paths(inputs.landice_daily), row
+            )
     return datasets, messages
 
 
@@ -846,7 +893,7 @@ def _monthly_series(ds, ds_init, geometry, options):
     return _add_time(ds_series, ds)
 
 
-def _landice(filenames, init_filename, densities, section_y):
+def _landice(ds, init_filename, densities, section_y):
     """
     Compute the ice sheet's volume, volume above flotation, grounded area
     and grounding line from MALI's thickness and bed
@@ -854,7 +901,6 @@ def _landice(filenames, init_filename, densities, section_y):
     ds_mesh = xr.open_dataset(init_filename, decode_times=False)
     if 'Time' in ds_mesh.dims:
         ds_mesh = ds_mesh.isel(Time=0)
-    ds = read_time_series(filenames, LANDICE_FIELDS)
     thickness = ds.thickness
     ice_density, ocean_density = densities
     bed = ds_mesh.bedTopography
@@ -1049,6 +1095,7 @@ def _year_files(inputs):
         + inputs.snapshots
         + inputs.landice
         + inputs.custom
+        + inputs.landice_daily
     )
     if inputs.options['has_monthly_volume']:
         names.append(TIDAL_MASK_FILENAME)
@@ -1170,6 +1217,183 @@ def _assemble_peak_speed(reduced):
         _, unique = np.unique(ds[time].values, return_index=True)
         ds_speed = xr.merge([ds_speed, ds.isel({dim: unique})])
     return ds_speed
+
+
+def get_centerline_transect(ds_init, layer_thickness, y):
+    """
+    Get the ocean's transect along a line of constant y in the protocol's
+    coordinates, across the whole domain
+
+    Parameters
+    ----------
+    ds_init : xarray.Dataset
+        The initial condition and mesh
+
+    layer_thickness : xarray.DataArray
+        The layer thickness, on every cell
+
+    y : float
+        The line's y (m) in the protocol's coordinates
+
+    Returns
+    -------
+    ds_transect : xarray.Dataset
+        The transect from ``mpas_tools.ocean.viz.transect.compute_transect``
+    """
+    ds_mesh = isomip_mesh(ds_init)
+    x_start = float(ds_mesh.xCell.min())
+    x_end = float(ds_mesh.xCell.max())
+    return compute_transect(
+        x=xr.DataArray([x_start, x_end], dims=('nPoints',)),
+        y=xr.DataArray([y, y], dims=('nPoints',)),
+        ds_horiz_mesh=ds_mesh,
+        layer_thickness=layer_thickness,
+        bottom_depth=ds_init.bottomDepth,
+        min_level_cell=ds_init.minLevelCell - 1,
+        max_level_cell=ds_init.maxLevelCell - 1,
+        spherical=False,
+    )
+
+
+def get_centerline_cells(ds_init, y):
+    """
+    Get the cells a transect along a line of constant y reads: the cells it
+    crosses and those it interpolates from
+
+    Parameters
+    ----------
+    ds_init : xarray.Dataset
+        The initial condition and mesh
+
+    y : float
+        The line's y (m) in the protocol's coordinates
+
+    Returns
+    -------
+    cells : numpy.ndarray
+        The cells' indices, in order
+    """
+    ds_transect = get_centerline_transect(ds_init, ds_init.layerThickness, y)
+    indices = [
+        ds_transect[name].values.ravel()
+        for name in ds_transect.variables
+        if str(name).endswith('CellIndices')
+    ]
+    cells = np.unique(np.concatenate(indices))
+    return cells[cells >= 0]
+
+
+def get_landice_row(init_filename, y):
+    """
+    Get MALI's cells on a line of constant y, in order of x
+
+    Parameters
+    ----------
+    init_filename : str
+        MALI's initial condition, with its mesh
+
+    y : float
+        The line's y (m)
+
+    Returns
+    -------
+    row : numpy.ndarray
+        The cells' indices, in order of x
+    """
+    ds_mesh = _open_without_time(init_filename)
+    spacing = float(ds_mesh.dcEdge.min())
+    on_row = np.abs(ds_mesh.yCell.values - y) < 0.6 * spacing
+    cells = np.flatnonzero(on_row)
+    return cells[np.argsort(ds_mesh.xCell.values[cells])]
+
+
+def _centerline(ds, cells):
+    """The ocean's state and melt each month on the cells of the transect
+    along the centerline"""
+    ds_out = xr.Dataset()
+    for name in [
+        'layerThickness',
+        'temperature',
+        'salinity',
+        'landIceFreshwaterFlux',
+    ]:
+        ds_out[name] = (
+            ds[name].isel(nCells=cells).rename(nCells='nTransectCells')
+        )
+    ds_out['transectCell'] = ('nTransectCells', cells)
+    ds_out['monthEnd'] = ('Time', xtime_to_days(ds.xtime_endMonthly.values))
+    ds_out.monthEnd.attrs = dict(
+        long_name='end of the month', units='days since 0001-01-01'
+    )
+    return ds_out
+
+
+def _landice_centerline(ds, row):
+    """MALI's thickness and the elevation of its base at each record on
+    the row of cells along the centerline"""
+    ds_out = xr.Dataset()
+    for name in ['thickness', 'lowerSurface']:
+        ds_out[name] = (
+            ('nLandiceRecords', 'nRowCells'),
+            ds[name].isel(nCells=row).values,
+        )
+        ds_out[name].attrs = ds[name].attrs
+    ds_out['rowCell'] = ('nRowCells', row)
+    ds_out['recordTime'] = (
+        'nLandiceRecords',
+        xtime_to_days(ds.xtime.values),
+    )
+    ds_out.recordTime.attrs = dict(
+        long_name='time of the record', units='days since 0001-01-01'
+    )
+    return ds_out
+
+
+def _landice_applied(filenames, row):
+    """The melt MALI applies on the row of cells along the centerline,
+    averaged over each file's month, positive for melt"""
+    melt = []
+    month_end = []
+    for filename in filenames:
+        with xr.open_dataset(filename, decode_times=False) as ds:
+            applied = ds.floatingBasalMassBalApplied.isel(nCells=row).values
+            melt.append(-applied.mean(axis=0))
+            month_end.append(np.max(xtime_to_days(ds.xtime.values)))
+    ds_out = xr.Dataset()
+    ds_out['appliedMelt'] = (('nAppliedMonths', 'nRowCells'), np.array(melt))
+    ds_out.appliedMelt.attrs = dict(
+        long_name='melt MALI applies, averaged over the month',
+        units='kg m-2 s-1',
+    )
+    ds_out['appliedMonthEnd'] = ('nAppliedMonths', np.array(month_end))
+    ds_out.appliedMonthEnd.attrs = dict(
+        long_name="the end of MALI's last day in the month",
+        units='days since 0001-01-01',
+    )
+    return ds_out
+
+
+def _assemble_centerline(reduced):
+    """The ocean along the centerline in every month, with MALI there in
+    every record and its applied melt in every month, where it ran"""
+    ds_ocean = _concat_years(reduced, 'centerline')
+    datasets = [ds_ocean]
+    for name, dim in [
+        ('landice_centerline', 'nLandiceRecords'),
+        ('landice_applied', 'nAppliedMonths'),
+    ]:
+        years = [each[name] for each in reduced if name in each]
+        if years:
+            datasets.append(
+                xr.concat(
+                    years,
+                    dim=dim,
+                    data_vars='minimal',
+                    coords='minimal',
+                    compat='override',
+                )
+            )
+    return xr.merge(datasets, compat='override')
 
 
 def _assemble_landice(reduced):
