@@ -7,7 +7,7 @@ from jigsawpy.savejig import savejig
 from matplotlib.figure import Figure
 from mpas_tools.io import open_dataset, write_netcdf
 from mpas_tools.logging import check_call
-from mpas_tools.mesh.creation.jigsaw_to_netcdf import jigsaw_to_netcdf
+from mpas_tools.mesh.creation.util import circumcenter
 from mpas_tools.ocean.inject_meshDensity import inject_spherical_meshDensity
 from mpas_tools.viz.colormaps import register_sci_viz_colormaps
 from mpas_tools.viz.paraview_extractor import extract_vtk
@@ -177,7 +177,6 @@ class SphericalBaseStep(Step):
         config = self.config
         section = config['spherical_mesh']
         validate_vars = {
-            'jigsaw_mesh_filename': None,
             'mpas_mesh_filename': MPAS_MESH_VALIDATE_VARS,
             'cell_width_filename': CELL_WIDTH_VALIDATE_VARS,
         }
@@ -211,11 +210,10 @@ class SphericalBaseStep(Step):
         mpas_mesh_filename = self.work_path(section.get('mpas_mesh_filename'))
         triangles_filename = self.work_path('mesh_triangles.nc')
 
-        logger.info('Convert triangles from jigsaw format to netcdf')
-        jigsaw_to_netcdf(
-            msh_filename=jigsaw_mesh_filename,
-            output_name=triangles_filename,
-            on_sphere=True,
+        logger.info('Convert triangles from jigsaw format to MPAS format')
+        _write_mpas_triangles(
+            jigsaw_mesh_filename=jigsaw_mesh_filename,
+            triangles_filename=triangles_filename,
             sphere_radius=earth_radius,
         )
 
@@ -744,3 +742,60 @@ class IcosahedralMeshStep(SphericalBaseStep):
         triangle_area = earth_area / triangle_count
         cell_width = 1e-3 * np.sqrt(triangle_area * 4.0 / np.sqrt(3))
         return cell_width
+
+
+def _write_mpas_triangles(
+    jigsaw_mesh_filename, triangles_filename, sphere_radius
+):
+    """
+    Write a JIGSAW spherical triangulation as the triangle file that
+    ``MpasMeshConverter.x`` reads.
+
+    JIGSAW writes its output in NetCDF when the file name ends in ``.nc``
+    and in its text ``.msh`` format otherwise; ``jigsawpy.loadmsh()`` reads
+    either.  The triangulation's points become MPAS cell centers and its
+    triangles MPAS vertices, at the triangles' circumcenters.
+    """
+    mesh = jigsawpy.jigsaw_msh_t()
+    jigsawpy.loadmsh(jigsaw_mesh_filename, mesh)
+    if mesh.vert3 is None or mesh.vert3.size == 0:
+        raise ValueError(
+            f'{jigsaw_mesh_filename} has no 3D points.  Expected the '
+            f'Cartesian points of a spherical JIGSAW mesh.'
+        )
+
+    # JIGSAW works in km on a sphere whose radius we gave it in km
+    x_cell, y_cell, z_cell = 1e3 * mesh.vert3['coord'].T
+    cells_on_vertex = mesh.tria3['index'].astype(np.int32) + 1
+
+    cell_indices = cells_on_vertex - 1
+    x_tri = x_cell[cell_indices]
+    y_tri = y_cell[cell_indices]
+    z_tri = z_cell[cell_indices]
+    x_vertex, y_vertex, z_vertex = circumcenter(
+        True,
+        x_tri[:, 0],
+        y_tri[:, 0],
+        z_tri[:, 0],
+        x_tri[:, 1],
+        y_tri[:, 1],
+        z_tri[:, 1],
+        x_tri[:, 2],
+        y_tri[:, 2],
+        z_tri[:, 2],
+    )
+
+    ds = xr.Dataset(
+        data_vars=dict(
+            xCell=(('nCells',), x_cell),
+            yCell=(('nCells',), y_cell),
+            zCell=(('nCells',), z_cell),
+            xVertex=(('nVertices',), x_vertex),
+            yVertex=(('nVertices',), y_vertex),
+            zVertex=(('nVertices',), z_vertex),
+            cellsOnVertex=(('nVertices', 'vertexDegree'), cells_on_vertex),
+            meshDensity=(('nCells',), np.ones(x_cell.shape)),
+        ),
+        attrs={'on_a_sphere': 'YES', 'sphere_radius': sphere_radius},
+    )
+    write_netcdf(ds, triangles_filename)
