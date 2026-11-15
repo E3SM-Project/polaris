@@ -6,7 +6,8 @@ melt the ocean computes and MALI applies on the centerline, and MALI's
 thickness change since the start
 """
 
-import cmocean  # noqa: F401
+import cmocean
+import mosaic
 import numpy as np
 import xarray as xr
 from matplotlib import animation
@@ -14,9 +15,15 @@ from matplotlib.figure import Figure
 from mpas_tools.ocean.viz.transect import plot_transect
 
 from polaris.constants import get_constant
+from polaris.landice.diagnostics import (
+    grounding_line_on_row,
+    thickness_above_flotation,
+)
 from polaris.tasks.e3sm.analysis.misomip.diagnostics import (
     SECONDS_PER_YEAR,
     get_centerline_transect,
+    get_landice_row_from_mesh,
+    isomip_mesh,
 )
 from polaris.viz.animation import SharedPaletteGifWriter
 from polaris.viz.style import mplstyle_context
@@ -466,3 +473,474 @@ def _date_text(day):
         f'Year {year}, {MONTH_NAMES[month]} '
         f'{day_of_year - MONTH_STARTS[month] + 1}'
     )
+
+
+def pick_snapshot_days(days, count=5):
+    """
+    Pick the days of the snapshots: every one for up to ``count``, and
+    otherwise ``count`` spread over the run, the first and last included
+
+    Parameters
+    ----------
+    days : list of float
+        The days with snapshots, in order
+
+    count : int, optional
+        The most snapshots
+
+    Returns
+    -------
+    picked : list of float
+        The days picked, in order
+    """
+    days = sorted(days)
+    if len(days) <= count:
+        return days
+    span = days[-1] - days[0]
+    picked = set()
+    for target in days[0] + np.linspace(0.0, span, count):
+        nearest = int(np.argmin(np.abs(np.array(days) - target)))
+        picked.add(days[nearest])
+    return sorted(picked)
+
+
+def plot_snapshots(
+    ds_init,
+    ds_snapshots,
+    title,
+    png_filename,
+    ds_landice_mesh=None,
+    densities=None,
+):
+    """
+    Map the melt rate, MALI's thickness change where it ran, and the
+    thermal driving at the top cell at a few times spread over the run
+
+    Parameters
+    ----------
+    ds_init : xarray.Dataset
+        The ocean's initial condition and mesh
+
+    ds_snapshots : xarray.Dataset
+        The snapshots from the diagnostics
+
+    title : str
+        The figure's title
+
+    png_filename : str
+        The figure
+
+    ds_landice_mesh : xarray.Dataset, optional
+        MALI's initial condition, with its mesh, bed and thickness, if MALI
+        ran
+
+    densities : tuple of float, optional
+        MALI's ice and ocean densities (kg m-3), if MALI ran
+    """
+    snaps = _Snapshots(ds_init, ds_snapshots, ds_landice_mesh, densities)
+    days = snaps.days
+    columns = ['melt', 'dh', 'td'] if snaps.has_landice else ['melt', 'td']
+    melt_maps = [snaps.melt_map(day) for day in days]
+    melt_max = float(
+        np.nanpercentile(
+            np.concatenate([melt.ravel() for melt in melt_maps]), 99.5
+        )
+    )
+    td_maps = [snaps.thermal_driving(day) for day in days]
+    td_max = float(np.nanmax(np.concatenate([td.ravel() for td in td_maps])))
+    dh_maps = []
+    dh_max = 1e-3
+    if snaps.has_landice:
+        dh_maps = [snaps.thickness_change(day) for day in days]
+        dh_max = max(
+            dh_max,
+            float(
+                np.nanpercentile(
+                    np.abs(np.concatenate([dh.ravel() for dh in dh_maps])),
+                    99.5,
+                )
+            ),
+        )
+    nrow = len(days)
+    with mplstyle_context(dpi=PNG_DPI):
+        fig = Figure(
+            figsize=(FIG_WIDTH, 1.15 * nrow + 2.0), constrained_layout=True
+        )
+        axes = fig.subplots(
+            nrow, len(columns), sharex=True, sharey=True, squeeze=False
+        )
+        collections = dict()
+        for row, day in enumerate(days):
+            for col, column in enumerate(columns):
+                ax = axes[row, col]
+                if column == 'melt':
+                    collections[column] = mosaic.polypcolor(
+                        ax,
+                        snaps.ocean_descriptor,
+                        melt_maps[row],
+                        cmap=cmocean.cm.amp,
+                        vmin=0.0,
+                        vmax=melt_max,
+                        edgecolor='face',
+                    )
+                elif column == 'dh':
+                    collections[column] = mosaic.polypcolor(
+                        ax,
+                        snaps.landice_descriptor,
+                        dh_maps[row],
+                        cmap=cmocean.cm.balance_r,
+                        vmin=-dh_max,
+                        vmax=dh_max,
+                        edgecolor='face',
+                    )
+                else:
+                    collections[column] = mosaic.polypcolor(
+                        ax,
+                        snaps.ocean_descriptor,
+                        td_maps[row],
+                        cmap=cmocean.cm.thermal,
+                        vmin=0.0,
+                        vmax=td_max,
+                        edgecolor='face',
+                    )
+                if snaps.has_landice:
+                    snaps.draw_grounding_line(ax, day)
+                ax.set_xlim(snaps.x_start, snaps.x_end)
+                ax.set_ylim(snaps.y_min, snaps.y_max)
+                ax.set_aspect('equal')
+            axes[row, 0].set_ylabel('y (km)')
+            axes[row, 0].text(
+                0.02,
+                0.95,
+                _date_text(day),
+                transform=axes[row, 0].transAxes,
+                va='top',
+                ha='left',
+                fontsize=LEGEND_SIZE,
+                bbox=dict(facecolor='white', edgecolor='none', alpha=0.8),
+            )
+        titles = dict(
+            melt='melt rate',
+            dh='MALI thickness change',
+            td='top-cell thermal driving',
+        )
+        labels = dict(
+            melt='melt rate, water equivalent (m yr$^{-1}$)',
+            dh='m since the start',
+            td=r'$^\circ$C',
+        )
+        for col, column in enumerate(columns):
+            axes[0, col].set_title(titles[column])
+            axes[-1, col].set_xlabel('x (km)')
+            fig.colorbar(
+                collections[column],
+                ax=axes[:, col],
+                label=labels[column],
+                orientation='horizontal',
+                shrink=0.9,
+            )
+        fig.suptitle(title)
+        fig.savefig(png_filename)
+
+
+def plot_centerline_sections(
+    ds_init,
+    ds_snapshots,
+    y,
+    title,
+    png_filename,
+    ds_landice_mesh=None,
+    densities=None,
+):
+    """
+    Plot the temperature along a line of constant y, under MALI's ice where
+    it ran, at a few times spread over the run
+
+    Parameters
+    ----------
+    ds_init : xarray.Dataset
+        The ocean's initial condition and mesh
+
+    ds_snapshots : xarray.Dataset
+        The snapshots from the diagnostics
+
+    y : float
+        The line's y (m) in the protocol's coordinates
+
+    title : str
+        The figure's title
+
+    png_filename : str
+        The figure
+
+    ds_landice_mesh : xarray.Dataset, optional
+        MALI's initial condition, with its mesh, bed and thickness, if MALI
+        ran
+
+    densities : tuple of float, optional
+        MALI's ice and ocean densities (kg m-3), if MALI ran
+    """
+    snaps = _Snapshots(ds_init, ds_snapshots, ds_landice_mesh, densities)
+    days = snaps.days
+    transects = []
+    temps = []
+    for day in days:
+        thickness, temperature = snaps.section_fields(day)
+        transects.append(get_centerline_transect(ds_init, thickness, y))
+        temps.append(temperature)
+    line_cells = np.unique(
+        np.concatenate([ds.horizCellIndices.values for ds in transects])
+    )
+    values = np.concatenate(
+        [temp.values[line_cells].ravel() for temp in temps]
+    )
+    t_min = float(np.nanmin(values))
+    t_max = float(np.nanmax(values))
+    if snaps.has_landice:
+        row = get_landice_row_from_mesh(snaps.ds_landice, y)
+        x_row = 1e-3 * snaps.ds_landice.xCell.values[row]
+        bed_row = snaps.ds_landice.bedTopography.values[row]
+    nrow = len(days)
+    ticks = np.arange(
+        X_TICK_SPACING * np.ceil(snaps.x_start / X_TICK_SPACING),
+        snaps.x_end + 1.0,
+        X_TICK_SPACING,
+    )
+    with mplstyle_context(dpi=PNG_DPI):
+        fig = Figure(
+            figsize=(FIG_WIDTH, 2.2 * nrow + 1.2), constrained_layout=True
+        )
+        axes = fig.subplots(nrow, 1, sharex=True, squeeze=False)
+        for index, day in enumerate(days):
+            ax = axes[index, 0]
+            plot_transect(
+                ds_transect=transects[index],
+                mpas_field=temps[index],
+                ax=ax,
+                vmin=t_min,
+                vmax=t_max,
+                cmap='cmo.thermal',
+                colorbar_label=None,
+            )
+            if snaps.has_landice:
+                thick = snaps.landice_thickness(day)[row]
+                flotation = -snaps.ice_density / snaps.ocean_density * thick
+                lower = np.maximum(bed_row, flotation)
+                upper = lower + thick
+                has_ice = thick > 0.0
+                xs = x_row - snaps.x_start
+                ax.fill_between(
+                    xs,
+                    np.where(has_ice, lower, np.nan),
+                    np.where(has_ice, upper, np.nan),
+                    color='0.85',
+                    edgecolor='0.4',
+                    linewidth=0.6,
+                    label='MALI ice',
+                )
+                ax.plot(
+                    xs,
+                    bed_row,
+                    color='saddlebrown',
+                    linewidth=1.0,
+                    label='bed',
+                )
+                gl = 1e-3 * snaps.grounding_line_on_row(day, y)
+                ax.axvline(
+                    gl - snaps.x_start,
+                    color='k',
+                    linestyle='--',
+                    linewidth=0.8,
+                    label=f'MALI grounding line, {gl:.3f} km',
+                )
+                # the open ocean above sea level, at the top right, is empty
+                ax.legend(
+                    loc='upper right',
+                    ncol=3,
+                    fontsize=LEGEND_SIZE,
+                    framealpha=0.9,
+                )
+            ax.set_xlim(0.0, snaps.x_end - snaps.x_start)
+            ax.set_ylim(*ZLIM)
+            ax.set_ylabel('z (m)')
+            ax.set_xlabel('')
+            ax.text(
+                0.01,
+                0.04,
+                _date_text(day),
+                transform=ax.transAxes,
+                va='bottom',
+                ha='left',
+                fontsize=LEGEND_SIZE,
+                bbox=dict(facecolor='white', edgecolor='none', alpha=0.8),
+            )
+            ax.set_xticks(ticks - snaps.x_start)
+            ax.set_xticklabels([f'{x:g}' for x in ticks])
+        axes[0, 0].set_title(title)
+        axes[-1, 0].set_xlabel('x (km)')
+        fig.colorbar(
+            axes[0, 0].collections[0],
+            ax=axes[:, 0],
+            label=r'potential temperature ($^\circ$C)',
+            shrink=0.6,
+        )
+        fig.savefig(png_filename)
+
+
+class _Snapshots:
+    """The ocean, and MALI where it ran, at the snapshots picked"""
+
+    def __init__(self, ds_init, ds, ds_landice, densities):
+        self.ds_init = ds_init
+        self.ds = ds
+        self.n_cells = ds_init.sizes['nCells']
+        self.water_density = get_constant('pure_water_density_reference')
+        x_cell = 1e-3 * ds_init.xIsomipCell.values
+        y_cell = 1e-3 * ds_init.yIsomipCell.values
+        self.x_start = float(x_cell.min())
+        self.x_end = float(x_cell.max())
+        self.y_min = float(y_cell.min())
+        self.y_max = float(y_cell.max())
+        ocean_mesh = isomip_mesh(ds_init)
+        for name in ['xCell', 'yCell', 'xVertex', 'yVertex']:
+            ocean_mesh[name] = 1e-3 * ocean_mesh[name]
+        self.ocean_descriptor = mosaic.Descriptor(ocean_mesh)
+        ocean_days = np.round(ds.snapshotTime.values, 6)
+        self.has_landice = (
+            ds_landice is not None and 'landiceSnapshotTime' in ds
+        )
+        if self.has_landice:
+            self.ds_landice = ds_landice
+            self.ice_density, self.ocean_density = densities
+            landice_mesh = ds_landice.copy()
+            for name in ['xCell', 'yCell', 'xVertex', 'yVertex']:
+                landice_mesh[name] = 1e-3 * landice_mesh[name]
+            landice_mesh.attrs.update(on_a_sphere='NO', is_periodic='NO')
+            self.landice_descriptor = mosaic.Descriptor(landice_mesh)
+            landice_days = np.round(ds.landiceSnapshotTime.values, 6)
+            self.landice_index = {
+                day: index for index, day in enumerate(landice_days)
+            }
+            days = [day for day in ocean_days if day in self.landice_index]
+        else:
+            days = list(ocean_days)
+        self.ocean_index = {day: index for index, day in enumerate(ocean_days)}
+        self.days = pick_snapshot_days(days)
+
+    def _snapshot(self, day):
+        return self.ds.isel(nSnapshots=self.ocean_index[day])
+
+    def melt_map(self, day):
+        """The melt rate (m yr-1, water equivalent) over the day ending at
+        the snapshot, where the ice floats"""
+        snapshot = self._snapshot(day)
+        if 'meltDayFlux' not in snapshot:
+            return np.full(self.n_cells, np.nan)
+        melt = snapshot.meltDayFlux.values / self.water_density
+        floating = snapshot.landIceFloatingFraction.values > 0.0
+        return np.where(floating, melt * SECONDS_PER_YEAR, np.nan)
+
+    def thermal_driving(self, day):
+        """The thermal driving at the top cell where the ice floats"""
+        snapshot = self._snapshot(day)
+        floating = snapshot.landIceFloatingFraction.values > 0.0
+        return np.where(floating, snapshot.thermalDriving.values, np.nan)
+
+    def section_fields(self, day):
+        """The layer thickness and the temperature, where the column is more
+        than the thin film, on every cell, NaN off the transect's cells"""
+        snapshot = self._snapshot(day)
+        cells = self.ds.transectCell.values
+        thickness = np.full(
+            (self.n_cells, self.ds.sizes['nVertLevels']), np.nan
+        )
+        temperature = np.full_like(thickness, np.nan)
+        thickness[cells] = snapshot.layerThicknessSection.values
+        temperature[cells] = snapshot.temperatureSection.values
+        levels = np.arange(self.ds.sizes['nVertLevels'])
+        valid = np.logical_and(
+            levels >= self.ds_init.minLevelCell.values[:, np.newaxis] - 1,
+            levels <= self.ds_init.maxLevelCell.values[:, np.newaxis] - 1,
+        )
+        with np.errstate(invalid='ignore'):
+            mean_layer = np.nanmean(np.where(valid, thickness, np.nan), axis=1)
+        wet = np.logical_and(
+            valid, (mean_layer > THIN_FILM_LAYER)[:, np.newaxis]
+        )
+        dims = ('nCells', 'nVertLevels')
+        return (
+            xr.DataArray(thickness, dims=dims),
+            xr.DataArray(np.where(wet, temperature, np.nan), dims=dims),
+        )
+
+    def landice_thickness(self, day):
+        """MALI's thickness at the snapshot"""
+        index = self.landice_index[day]
+        return self.ds.thickness.isel(nLandiceSnapshots=index).values
+
+    def _haf(self, day):
+        thickness = xr.DataArray(self.landice_thickness(day), dims='nCells')
+        return thickness_above_flotation(
+            thickness,
+            self.ds_landice.bedTopography,
+            self.ice_density,
+            self.ocean_density,
+        )
+
+    def thickness_change(self, day):
+        """MALI's thickness change since the start, away from its initial
+        calving front"""
+        thick = self.landice_thickness(day)
+        thick0 = self.ds_landice.thickness.values
+        x_mali = 1e-3 * self.ds_landice.xCell.values
+        front_x = float(x_mali[thick0 > 0.0].max())
+        away = x_mali < front_x - FRONT_MARGIN
+        return np.where((thick > 0.0) & away, thick - thick0, np.nan)
+
+    def draw_grounding_line(self, ax, day):
+        """The grounding line and the calving front at the snapshot, and
+        the initial grounding line"""
+        x_mali = 1e-3 * self.ds_landice.xCell.values
+        y_mali = 1e-3 * self.ds_landice.yCell.values
+        thick = self.landice_thickness(day)
+        haf = np.where(thick > 0.0, self._haf(day).values, -1.0)
+        ax.tricontour(
+            x_mali, y_mali, haf, levels=[0.0], colors='k', linewidths=1.0
+        )
+        thick0 = self.ds_landice.thickness.values
+        haf0 = np.where(
+            thick0 > 0.0,
+            thickness_above_flotation(
+                self.ds_landice.thickness,
+                self.ds_landice.bedTopography,
+                self.ice_density,
+                self.ocean_density,
+            ).values,
+            -1.0,
+        )
+        ax.tricontour(
+            x_mali,
+            y_mali,
+            haf0,
+            levels=[0.0],
+            colors='0.5',
+            linewidths=0.8,
+            linestyles='--',
+        )
+        ax.tricontour(
+            x_mali,
+            y_mali,
+            thick,
+            levels=[1.0],
+            colors='k',
+            linewidths=0.6,
+            linestyles=':',
+        )
+
+    def grounding_line_on_row(self, day, y):
+        """The grounding line (m) on a line of constant y at the snapshot"""
+        return float(
+            grounding_line_on_row(
+                self._haf(day).expand_dims('Time'), self.ds_landice, y=y
+            ).values[0]
+        )

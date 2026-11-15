@@ -17,6 +17,8 @@ from polaris.e3sm.analysis.calendar import (
 )
 from polaris.tasks.e3sm.analysis.misomip.centerline import (
     plot_centerline_movie,
+    plot_centerline_sections,
+    plot_snapshots,
 )
 from polaris.tasks.e3sm.analysis.misomip.diagnostics import (
     CENTERLINE_FILENAME,
@@ -24,6 +26,7 @@ from polaris.tasks.e3sm.analysis.misomip.diagnostics import (
     LANDICE_INIT_FILENAME,
     PEAK_SPEED_FILENAME,
     SECONDS_PER_YEAR,
+    SNAPSHOTS_FILENAME,
     TIME_MEAN_FILENAME,
     TIME_SERIES_FILENAME,
     WET_MEAN_WEIGHTS,
@@ -430,10 +433,11 @@ class RunPlots(ProductStep):
                 filename=PEAK_SPEED_FILENAME,
                 work_dir_target=f'{diagnostics.path}/{PEAK_SPEED_FILENAME}',
             )
-        self.add_input_file(
-            filename=CENTERLINE_FILENAME,
-            work_dir_target=f'{diagnostics.path}/{CENTERLINE_FILENAME}',
-        )
+        for filename in [CENTERLINE_FILENAME, SNAPSHOTS_FILENAME]:
+            self.add_input_file(
+                filename=filename,
+                work_dir_target=f'{diagnostics.path}/{filename}',
+            )
         self.has_landice = bool(diagnostics.landice_filenames)
         self.landice_densities = diagnostics.densities
         if self.has_landice:
@@ -493,6 +497,7 @@ class RunPlots(ProductStep):
             )
             self._plot_peak_speed(ds_speed)
         self._plot_centerline_movie(ds_init)
+        self._plot_snapshots(ds_init)
         if self.has_landice:
             # the times are days, not dates to decode
             ds_landice = xr.open_dataset(
@@ -737,6 +742,56 @@ class RunPlots(ProductStep):
             group=self.kind,
             gallery='melt',
             title='Melt rate by draft (no frazil)',
+        )
+
+    def _landice_mesh(self):
+        """MALI's initial condition, with its mesh, where MALI ran"""
+        if not self.has_landice:
+            return None
+        ds_mesh = xr.open_dataset(LANDICE_INIT_FILENAME, decode_times=False)
+        if 'Time' in ds_mesh.dims:
+            ds_mesh = ds_mesh.isel(Time=0)
+        return ds_mesh
+
+    def _plot_snapshots(self, ds_init):
+        """Map the melt rate, MALI's thickness change and the top-cell
+        thermal driving, and plot the centerline's temperature, at a few
+        times spread over the run"""
+        ds_snapshots = xr.open_dataset(
+            SNAPSHOTS_FILENAME, decode_times=False, decode_timedelta=False
+        )
+        if 'snapshotTime' not in ds_snapshots:
+            return
+        ds_landice_mesh = self._landice_mesh()
+        y = self.config['misomip_analysis'].getfloat('section_y')
+        plot_snapshots(
+            ds_init,
+            ds_snapshots,
+            f'Snapshots, {self.label}',
+            'snapshots.png',
+            ds_landice_mesh=ds_landice_mesh,
+            densities=self.landice_densities,
+        )
+        self.add_product(
+            plot='snapshots.png',
+            group=self.kind,
+            gallery='melt',
+            title='Melt, thickness change and thermal driving over time',
+        )
+        plot_centerline_sections(
+            ds_init,
+            ds_snapshots,
+            y,
+            f'Potential temperature on y = {1e-3 * y:g} km, {self.label}',
+            'centerline_sections.png',
+            ds_landice_mesh=ds_landice_mesh,
+            densities=self.landice_densities,
+        )
+        self.add_product(
+            plot='centerline_sections.png',
+            group=self.kind,
+            gallery='water_masses',
+            title='Centerline temperature over time',
         )
 
     def _plot_centerline_movie(self, ds_init):
