@@ -39,6 +39,11 @@ FRONT_MARGIN = 3.0
 #: film, which the color ranges leave out
 THIN_FILM_LAYER = 0.1
 
+#: The distances (km) the snapshot maps extend upstream of the floating ice
+#: and downstream of it
+MAP_MARGIN_UPSTREAM = 75.0
+MAP_MARGIN_DOWNSTREAM = 20.0
+
 #: The spacing (km) of the ticks on the x axis
 X_TICK_SPACING = 50.0
 
@@ -547,7 +552,9 @@ def plot_snapshots(
         )
     )
     td_maps = [snaps.thermal_driving(day) for day in days]
-    td_max = float(np.nanmax(np.concatenate([td.ravel() for td in td_maps])))
+    td_max = float(
+        np.nanpercentile(np.concatenate([td.ravel() for td in td_maps]), 99.5)
+    )
     dh_maps = []
     dh_max = 1e-3
     if snaps.has_landice:
@@ -605,7 +612,7 @@ def plot_snapshots(
                     )
                 if snaps.has_landice:
                     snaps.draw_grounding_line(ax, day)
-                ax.set_xlim(snaps.x_start, snaps.x_end)
+                ax.set_xlim(*snaps.map_xlim)
                 ax.set_ylim(snaps.y_min, snaps.y_max)
                 ax.set_aspect('equal')
             axes[row, 0].set_ylabel('y (km)')
@@ -801,6 +808,13 @@ class _Snapshots:
         self.x_end = float(x_cell.max())
         self.y_min = float(y_cell.min())
         self.y_max = float(y_cell.max())
+        # the maps show the floating ice, from upstream of its grounding
+        # line to just past its front
+        floating = ds_init.landIceFloatingFraction.values > 0.0
+        self.map_xlim = (
+            float(x_cell[floating].min()) - MAP_MARGIN_UPSTREAM,
+            float(x_cell[floating].max()) + MAP_MARGIN_DOWNSTREAM,
+        )
         ocean_mesh = isomip_mesh(ds_init)
         for name in ['xCell', 'yCell', 'xVertex', 'yVertex']:
             ocean_mesh[name] = 1e-3 * ocean_mesh[name]
