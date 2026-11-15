@@ -15,8 +15,13 @@ from polaris.e3sm.analysis.calendar import (
     MODEL_YEAR_LABEL,
     days_to_model_year,
 )
+from polaris.tasks.e3sm.analysis.misomip.centerline import (
+    plot_centerline_movie,
+)
 from polaris.tasks.e3sm.analysis.misomip.diagnostics import (
+    CENTERLINE_FILENAME,
     LANDICE_FILENAME,
+    LANDICE_INIT_FILENAME,
     PEAK_SPEED_FILENAME,
     SECONDS_PER_YEAR,
     TIME_MEAN_FILENAME,
@@ -376,6 +381,9 @@ class RunPlots(ProductStep):
     has_peak_speed : bool
         Whether the run's peak speed is plotted
 
+    landice_densities : tuple of float
+        MALI's ice and ocean densities (kg m-3), where MALI ran
+
     has_landice : bool
         Whether the run has MALI output to plot
     """
@@ -422,12 +430,18 @@ class RunPlots(ProductStep):
                 filename=PEAK_SPEED_FILENAME,
                 work_dir_target=f'{diagnostics.path}/{PEAK_SPEED_FILENAME}',
             )
+        self.add_input_file(
+            filename=CENTERLINE_FILENAME,
+            work_dir_target=f'{diagnostics.path}/{CENTERLINE_FILENAME}',
+        )
         self.has_landice = bool(diagnostics.landice_filenames)
+        self.landice_densities = diagnostics.densities
         if self.has_landice:
-            self.add_input_file(
-                filename=LANDICE_FILENAME,
-                work_dir_target=f'{diagnostics.path}/{LANDICE_FILENAME}',
-            )
+            for filename in [LANDICE_FILENAME, LANDICE_INIT_FILENAME]:
+                self.add_input_file(
+                    filename=filename,
+                    work_dir_target=f'{diagnostics.path}/{filename}',
+                )
         self.add_dependency(diagnostics)
 
     def run(self):
@@ -478,6 +492,7 @@ class RunPlots(ProductStep):
                 PEAK_SPEED_FILENAME, decode_times=False, decode_timedelta=False
             )
             self._plot_peak_speed(ds_speed)
+        self._plot_centerline_movie(ds_init)
         if self.has_landice:
             # the times are days, not dates to decode
             ds_landice = xr.open_dataset(
@@ -724,6 +739,40 @@ class RunPlots(ProductStep):
             title='Melt rate by draft (no frazil)',
         )
 
+    def _plot_centerline_movie(self, ds_init):
+        """Plot the movie along the centerline, one frame a month, and its
+        last frame"""
+        ds_centerline = xr.open_dataset(
+            CENTERLINE_FILENAME, decode_times=False, decode_timedelta=False
+        )
+        ds_landice_mesh = None
+        if self.has_landice:
+            ds_landice_mesh = xr.open_dataset(
+                LANDICE_INIT_FILENAME, decode_times=False
+            )
+            if 'Time' in ds_landice_mesh.dims:
+                ds_landice_mesh = ds_landice_mesh.isel(Time=0)
+        y = self.config['misomip_analysis'].getfloat('section_y')
+        gif = 'centerline_transect.gif'
+        png = 'centerline_transect_last_month.png'
+        plot_centerline_movie(
+            ds_init,
+            ds_centerline,
+            y,
+            self.label,
+            gif,
+            png,
+            ds_landice_mesh=ds_landice_mesh,
+            densities=self.landice_densities,
+        )
+        for plot, title in [
+            (gif, 'Centerline section each month'),
+            (png, 'Centerline section in the last month'),
+        ]:
+            self.add_product(
+                plot=plot, group=self.kind, gallery='water_masses', title=title
+            )
+
     def _plot_peak_speed(self, ds_speed):
         """Plot the ocean's peak speed: the largest normal velocity on any
         edge at each record of the global statistics, and the speed of the
@@ -768,7 +817,7 @@ class RunPlots(ProductStep):
             plot=plot,
             data=data,
             group=self.kind,
-            gallery='time_series',
+            gallery='circulation',
             title=title,
         )
 
