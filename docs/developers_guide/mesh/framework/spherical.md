@@ -115,6 +115,10 @@ vtk_lat_lon = False
 # config options related to spherical mesh quality checks
 [spherical_mesh_quality]
 
+# whether to check that no floating-point variable in the MPAS mesh is NaN or
+# infinite
+check_finite = True
+
 # whether to check MPAS cell polygons for geometry that can trip remapping
 check_cell_geometry = True
 
@@ -168,10 +172,18 @@ afterward -- a unified mesh, for instance -- should turn them off, since
 culling renumbers cells and the weights have to be recomputed on the culled
 mesh anyway.
 
-## Cell-polygon quality checks
+## Mesh quality checks
 
-After the MPAS mesh is written, `SphericalBaseStep` checks its cell polygons
-for geometry that would trip remapping later on, using
+After the MPAS mesh is written, `SphericalBaseStep` first checks that none
+of its floating-point variables is NaN or infinite, using
+{py:func}`polaris.mesh.spherical.quality.check_finite_mesh_values()`, unless
+`check_finite` is `False`.  `MpasMeshConverter.x` in `mpas_tools` 2.2.1
+writes NaN kite areas and edge weights at some vertices of obtuse triangles,
+which river constraints produce on unified meshes
+([MPAS-Dev/MPAS-Tools#778](https://github.com/MPAS-Dev/MPAS-Tools/issues/778)).
+
+It then checks the cell polygons for geometry that would trip remapping later
+on, using
 {py:func}`polaris.mesh.spherical.quality.check_cell_polygon_quality()`.  The
 `[spherical_mesh_quality]` options above tune the check: `check_cell_geometry`
 turns it off, `minimum_edge_length_ratio` and `minimum_corner_sine` set the

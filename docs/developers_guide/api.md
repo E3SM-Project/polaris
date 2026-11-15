@@ -522,6 +522,7 @@ seaice/api
    IcosahedralMeshStep.get_cell_width
 
    spherical.quality.check_cell_polygon_quality
+   spherical.quality.check_finite_mesh_values
 ```
 
 ### Spherical Base Meshes

@@ -3,7 +3,10 @@ import pytest
 import xarray as xr
 
 from polaris.config import PolarisConfigParser
-from polaris.mesh.spherical.quality import check_cell_polygon_quality
+from polaris.mesh.spherical.quality import (
+    check_cell_polygon_quality,
+    check_finite_mesh_values,
+)
 
 
 def test_cell_polygon_quality_accepts_regular_hexagon():
@@ -78,6 +81,42 @@ def test_cell_polygon_quality_rejects_collinear_corner():
             minimum_corner_sine=1.0e-3,
             max_bad_cells_to_report=10,
         )
+
+
+def test_finite_mesh_values_accepts_finite_mesh():
+    ds_mesh = xr.Dataset(
+        {
+            'areaTriangle': ('nVertices', np.array([1.0, 2.0, 3.0])),
+            'cellsOnVertex': (
+                ('nVertices', 'vertexDegree'),
+                np.ones((3, 3), dtype=np.int32),
+            ),
+        }
+    )
+
+    check_finite_mesh_values(ds_mesh)
+
+
+def test_finite_mesh_values_names_each_nonfinite_variable():
+    ds_mesh = xr.Dataset(
+        {
+            'areaTriangle': ('nVertices', np.array([1.0, np.nan, np.nan])),
+            'weightsOnEdge': ('nEdges', np.array([np.inf, 0.5])),
+            'dcEdge': ('nEdges', np.array([1.0, 2.0])),
+        }
+    )
+
+    with pytest.raises(
+        ValueError, match=r'areaTriangle \(2\), weightsOnEdge \(1\)\.$'
+    ):
+        check_finite_mesh_values(ds_mesh)
+
+
+def test_shipped_config_checks_for_nonfinite_values():
+    config = PolarisConfigParser()
+    config.add_from_package('polaris.mesh.spherical', 'spherical.cfg')
+
+    assert config.getboolean('spherical_mesh_quality', 'check_finite')
 
 
 def test_shipped_edge_length_ratio_clears_the_river_constraint_floor():

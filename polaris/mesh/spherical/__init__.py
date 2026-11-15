@@ -19,7 +19,10 @@ from polaris.mesh.reconstruct import (
     compute_reconstruction_weights,
     get_reconstruction_validate_vars,
 )
-from polaris.mesh.spherical.quality import check_cell_polygon_quality
+from polaris.mesh.spherical.quality import (
+    check_cell_polygon_quality,
+    check_finite_mesh_values,
+)
 from polaris.mesh.validate import (
     CELL_WIDTH_VALIDATE_VARS,
     MPAS_MESH_VALIDATE_VARS,
@@ -227,6 +230,7 @@ class SphericalBaseStep(Step):
         ds_mesh = open_dataset(tmp_mesh_filename)
         write_netcdf(ds_mesh, mpas_mesh_filename)
 
+        self._check_finite_mesh_values(ds_mesh=ds_mesh)
         self._check_cell_polygon_quality(ds_mesh=ds_mesh)
 
         if section.getboolean('generate_reconstruction_weights'):
@@ -278,6 +282,22 @@ class SphericalBaseStep(Step):
             mesh_filename=mpas_mesh_filename,
             graph_filename=self.work_path('graph.info'),
         )
+
+    def _check_finite_mesh_values(self, ds_mesh):
+        """
+        Check the generated MPAS mesh for NaN or infinite values.
+
+        Parameters
+        ----------
+        ds_mesh : xarray.Dataset
+            MPAS mesh dataset
+        """
+        section = self.config['spherical_mesh_quality']
+        if not section.getboolean('check_finite'):
+            return
+
+        check_finite_mesh_values(ds_mesh=ds_mesh)
+        self.logger.info('Spherical mesh finite-value check passed.')
 
     def _check_cell_polygon_quality(self, ds_mesh):
         """
