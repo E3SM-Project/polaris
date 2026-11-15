@@ -1,4 +1,7 @@
-from polaris.tasks.e3sm.analysis.misomip.centerline import _date_text
+from polaris.tasks.e3sm.analysis.misomip.centerline import (
+    _date_text,
+    pick_snapshot_days,
+)
 
 
 def test_a_frame_is_dated_by_the_end_of_its_month():
@@ -6,3 +9,11 @@ def test_a_frame_is_dated_by_the_end_of_its_month():
     year 1"""
     assert _date_text(17 * 365.0) == 'Year 18, Jan 1'
     assert _date_text(59.0) == 'Year 1, Mar 1'
+
+
+def test_snapshots_are_spread_over_the_run_with_its_ends():
+    """Five of eleven yearly snapshots, the first and last included, the
+    earlier day where two are as near; every one of three"""
+    days = [365.0 * year for year in range(11)]
+    assert pick_snapshot_days(days) == [0.0, 730.0, 1825.0, 2555.0, 3650.0]
+    assert pick_snapshot_days(days[:3]) == days[:3]

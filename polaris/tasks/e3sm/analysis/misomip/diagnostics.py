@@ -71,6 +71,21 @@ LANDICE_FILENAME = 'landice.nc'
 LANDICE_INIT_FILENAME = 'landice_init.nc'
 PEAK_SPEED_FILENAME = 'peak_speed.nc'
 CENTERLINE_FILENAME = 'centerline.nc'
+SNAPSHOTS_FILENAME = 'snapshots.nc'
+
+#: The ocean's restart stream, which holds its state at the start of each
+#: year
+RESTART_STREAM = 'restart'
+
+#: The fields of the ocean's state at an instant the snapshots read
+STATE_FIELDS = [
+    'xtime',
+    'temperature',
+    'salinity',
+    'layerThickness',
+    'landIcePressure',
+    'landIceFloatingFraction',
+]
 
 #: MALI's history stream
 LANDICE_STREAM = 'output'
@@ -193,6 +208,14 @@ class RunDiagnostics(Step):
         Whether the run wrote daily maxima of kinetic energy or global
         statistics, from which the ocean's peak speed is found
 
+    restart_filenames : list of str
+        The local names of the ocean's restarts at the start of each year
+        analyzed and at the end of the last
+
+    freezing_coefficients : list of float or None
+        The coefficients of the freezing temperature under the ice, for its
+        constant, salinity, pressure and their product, from the namelist
+
     has_daily_volume : bool
         Whether the run wrote both daily global statistics and daily means,
         from which the ocean's daily volume budget is computed
@@ -224,6 +247,10 @@ class RunDiagnostics(Step):
     landice_filenames : list of str
         The local names of MALI's history files in the years analyzed, empty
         for a run without MALI
+
+    landice_restart_filenames : list of str
+        The local names of MALI's restarts at the start of each year
+        analyzed and at the end of the last
 
     landice_daily_filenames : list of str
         The local names of MALI's daily output in the years analyzed, with
@@ -319,6 +346,38 @@ class RunDiagnostics(Step):
                 )
         self.snapshot_filenames = self._add_snapshot_inputs(run, first, last)
         self.has_monthly_volume = bool(self.snapshot_filenames)
+        self.restart_filenames = []
+        try:
+            restarts = run.find_stream_files(RESTART_STREAM)
+        except ValueError:
+            restarts = []
+        for stream_file in restarts:
+            # the restarts at the start of each year analyzed and the one
+            # at the end of the last
+            if (
+                stream_file.month == 1
+                and first.year <= stream_file.year <= last.year + 1
+            ):
+                filename = os.path.join(
+                    'restarts', os.path.basename(stream_file.path)
+                )
+                self.add_input_file(filename=filename, target=stream_file.path)
+                self.restart_filenames.append(filename)
+        self.freezing_coefficients = None
+        try:
+            self.freezing_coefficients = [
+                _fortran_float(
+                    run.namelist_option(
+                        f'config_land_ice_cavity_freezing_temperature_coeff_'
+                        f'{key}'
+                    )
+                )
+                for key in ['0', 's', 'p', 'ps']
+            ]
+        except (KeyError, ValueError):
+            # the namelist has no freezing coefficients under the ice
+            pass
+        self.add_output_file(filename=SNAPSHOTS_FILENAME)
         if self.has_monthly_volume:
             self.add_input_file(
                 filename=TIDAL_MASK_FILENAME,
@@ -346,6 +405,7 @@ class RunDiagnostics(Step):
             self.add_output_file(filename=filename)
         self.landice_filenames = []
         self.landice_daily_filenames = []
+        self.landice_restart_filenames = []
         self.densities = (0.0, 0.0)
         if configured_run.kind == 'e3sm':
             self._add_landice_inputs(configured_run, first.year, last.year)
@@ -438,6 +498,22 @@ class RunDiagnostics(Step):
                 )
                 self.add_input_file(filename=filename, target=stream_file.path)
                 self.landice_daily_filenames.append(filename)
+        # MALI's restarts hold its state at the start of each year, which
+        # its history may lack where a segment starts
+        try:
+            restart_files = landice.find_stream_files(RESTART_STREAM)
+        except ValueError:
+            restart_files = []
+        for stream_file in restart_files:
+            if (
+                stream_file.month == 1
+                and start_year <= stream_file.year <= end_year + 1
+            ):
+                filename = os.path.join(
+                    'landice_restarts', os.path.basename(stream_file.path)
+                )
+                self.add_input_file(filename=filename, target=stream_file.path)
+                self.landice_restart_filenames.append(filename)
         self.densities = (
             _fortran_float(landice.namelist_option('config_ice_density')),
             _fortran_float(landice.namelist_option('config_ocean_density')),
@@ -481,6 +557,7 @@ class RunDiagnostics(Step):
             ref_density=self.ref_density,
             densities=list(self.densities),
             tidal_forcing_type=self.tidal_forcing_type,
+            freezing_coefficients=self.freezing_coefficients,
             has_daily_volume=self.has_daily_volume,
             has_monthly_volume=self.has_monthly_volume,
         )
@@ -532,6 +609,8 @@ class RunDiagnostics(Step):
 
         write_netcdf(_assemble_centerline(reduced), CENTERLINE_FILENAME)
 
+        write_netcdf(_assemble_snapshots(reduced), SNAPSHOTS_FILENAME)
+
     def _year_inputs(self, options):
         """The inputs from which each year of the run is reduced"""
         step_dir = os.getcwd()
@@ -559,6 +638,14 @@ class RunDiagnostics(Step):
             (_file_year_month(name), name)
             for name in self.landice_daily_filenames
         ]
+        restarts = [
+            (_file_year_month(name), name) for name in self.restart_filenames
+        ]
+        landice_restarts = [
+            (_file_year_month(name), name)
+            for name in self.landice_restart_filenames
+        ]
+        last_year = max(by_year)
         years = []
         for year, monthly in by_year.items():
             before = (year - 1, 12)
@@ -585,6 +672,23 @@ class RunDiagnostics(Step):
                     custom=[name for (y, _), name in custom if y == year],
                     landice_daily=[
                         name for (y, _), name in landice_daily if y == year
+                    ],
+                    # the restart at the start of the year and, for the
+                    # last, the one at its end
+                    restarts=[
+                        name
+                        for (y, _), name in restarts
+                        if y == year or (year == last_year and y == year + 1)
+                    ],
+                    landice_restarts=[
+                        name
+                        for (y, _), name in landice_restarts
+                        if y == year or (year == last_year and y == year + 1)
+                    ],
+                    # the daily means of the last month before the year,
+                    # with the day that ends at its start
+                    daily_means_context=[
+                        name for month, name in means if month == before
                     ],
                     step_dir=step_dir,
                     options=options,
@@ -712,6 +816,17 @@ class YearInputs:
     landice_daily : list of str
         MALI's daily output in the year
 
+    restarts : list of str
+        The ocean's restarts at the start of the year and, for the last
+        year, at its end
+
+    daily_means_context : list of str
+        The ocean's daily means in the month before the year
+
+    landice_restarts : list of str
+        MALI's restarts at the start of the year and, for the last year, at
+        its end
+
     step_dir : str
         The diagnostics step's directory, which the files are relative to
 
@@ -728,6 +843,9 @@ class YearInputs:
     landice: list
     custom: list
     landice_daily: list
+    restarts: list
+    daily_means_context: list
+    landice_restarts: list
     step_dir: str
     options: dict
 
@@ -774,9 +892,9 @@ def reduce_year(inputs):
     ds = _add_wet_columns(ds, ds_init, geometry, options['min_thickness'])
     datasets['series'] = _monthly_series(ds, ds_init, geometry, options)
     datasets['maps'] = _add_time(_monthly_maps(ds), ds)
-    datasets['centerline'] = _centerline(
-        ds, get_centerline_cells(ds_init, options['section_y'])
-    )
+    cells = get_centerline_cells(ds_init, options['section_y'])
+    datasets['centerline'] = _centerline(ds, cells)
+    datasets['snapshots'] = _snapshots(inputs, ds_init, cells, paths)
 
     ds_stats = None
     if inputs.daily:
@@ -835,8 +953,15 @@ def reduce_year(inputs):
             options['densities'],
             options['section_y'],
         )
+        ds_states = _landice_states(
+            ds_history,
+            paths(inputs.landice_restarts),
+            init_filename,
+            options['densities'],
+        )
+        datasets['landice_snapshots'] = _landice_snapshots(ds_states)
         row = get_landice_row(init_filename, options['section_y'])
-        datasets['landice_centerline'] = _landice_centerline(ds_history, row)
+        datasets['landice_centerline'] = _landice_centerline(ds_states, row)
         if inputs.landice_daily:
             datasets['landice_applied'] = _landice_applied(
                 paths(inputs.landice_daily), row
@@ -1096,6 +1221,9 @@ def _year_files(inputs):
         + inputs.landice
         + inputs.custom
         + inputs.landice_daily
+        + inputs.restarts
+        + inputs.daily_means_context
+        + inputs.landice_restarts
     )
     if inputs.options['has_monthly_volume']:
         names.append(TIDAL_MASK_FILENAME)
@@ -1300,7 +1428,26 @@ def get_landice_row(init_filename, y):
     row : numpy.ndarray
         The cells' indices, in order of x
     """
-    ds_mesh = _open_without_time(init_filename)
+    return get_landice_row_from_mesh(_open_without_time(init_filename), y)
+
+
+def get_landice_row_from_mesh(ds_mesh, y):
+    """
+    Get MALI's cells on a line of constant y, in order of x
+
+    Parameters
+    ----------
+    ds_mesh : xarray.Dataset
+        MALI's mesh
+
+    y : float
+        The line's y (m)
+
+    Returns
+    -------
+    row : numpy.ndarray
+        The cells' indices, in order of x
+    """
     spacing = float(ds_mesh.dcEdge.min())
     on_row = np.abs(ds_mesh.yCell.values - y) < 0.6 * spacing
     cells = np.flatnonzero(on_row)
@@ -1371,6 +1518,172 @@ def _landice_applied(filenames, row):
         units='days since 0001-01-01',
     )
     return ds_out
+
+
+def _snapshots(inputs, ds_init, cells, paths):
+    """
+    The ocean at the start of the year, and at its end for the last year:
+    the thermal driving at the top cell, the temperature and layer thickness
+    on the centerline's cells and the melt over the day that ends then
+    """
+    options = inputs.options
+    states = []
+    if inputs.year == 1:
+        state = ds_init[[name for name in STATE_FIELDS if name in ds_init]]
+        if 'xtime' not in state:
+            state['xtime'] = xr.DataArray(
+                np.array('0001-01-01_00:00:00', dtype='S64')
+            )
+        states.append(state)
+    for filename in paths(inputs.restarts):
+        with xr.open_dataset(filename, decode_times=False) as ds:
+            states.append(ds[STATE_FIELDS].isel(Time=0).load())
+    states = [
+        state
+        for state in states
+        if _file_days(state) >= 365.0 * (inputs.year - 1)
+    ]
+    ds_melt = None
+    names = inputs.daily_means_context + inputs.daily_means
+    if names:
+        ds_melt = read_time_series(
+            paths(names),
+            ['landIceFreshwaterFlux'],
+            prefix=DAILY_MEANS_PREFIX,
+        )
+    snapshots = []
+    for state in states:
+        day = _file_days(state)
+        ds_out = xr.Dataset()
+        ds_out['snapshotTime'] = day
+        ds_out['thermalDriving'] = _top_thermal_driving(
+            state, ds_init, options['freezing_coefficients']
+        )
+        ds_out['temperatureSection'] = state.temperature.isel(
+            nCells=cells
+        ).rename(nCells='nTransectCells')
+        ds_out['layerThicknessSection'] = state.layerThickness.isel(
+            nCells=cells
+        ).rename(nCells='nTransectCells')
+        floating = ds_init.landIceFloatingFraction
+        if 'landIceFloatingFraction' in state:
+            floating = state.landIceFloatingFraction
+        ds_out['landIceFloatingFraction'] = floating
+        if ds_melt is not None and 'landIceFreshwaterFlux' in ds_melt:
+            ds_out['meltDayFlux'] = _melt_on_day(ds_melt, day)
+        snapshots.append(ds_out)
+    if not snapshots:
+        return xr.Dataset()
+    ds = xr.concat(snapshots, dim='nSnapshots', data_vars='all')
+    ds['transectCell'] = ('nTransectCells', cells)
+    ds.snapshotTime.attrs = dict(
+        long_name='time of the snapshot', units='days since 0001-01-01'
+    )
+    return ds
+
+
+def _file_days(state):
+    """The time of a state, in days since 0001-01-01"""
+    return float(xtime_to_days(np.atleast_1d(state.xtime.values))[0])
+
+
+def _top_thermal_driving(state, ds_init, coefficients):
+    """The temperature of the top cell less the freezing temperature at its
+    salinity and the land-ice pressure, where the ice floats"""
+    top = ds_init.minLevelCell - 1
+    temperature = state.temperature.isel(nVertLevels=top)
+    salinity = state.salinity.isel(nVertLevels=top)
+    pressure = state.landIcePressure
+    if coefficients is None:
+        return xr.full_like(temperature, np.nan)
+    c0, cs, cp, cps = coefficients
+    freezing = c0 + cs * salinity + cp * pressure + cps * pressure * salinity
+    driving = temperature - freezing
+    driving.attrs = dict(
+        long_name='thermal driving at the top cell', units='degC'
+    )
+    return driving
+
+
+def _melt_on_day(ds_melt, day):
+    """The daily-mean melt flux over the day that ends at a time, or over
+    the first day if none does"""
+    day_end = xtime_to_days(ds_melt.xtime_endDaily.values)
+    matches = np.flatnonzero(np.abs(day_end - day) < 1e-6)
+    index = int(matches[0]) if len(matches) else 0
+    return ds_melt.landIceFreshwaterFlux.isel(Time=index).drop_vars(
+        [name for name in ds_melt.coords], errors='ignore'
+    )
+
+
+def _landice_states(ds_history, restart_filenames, init_filename, densities):
+    """
+    MALI's thickness and the elevation of its base at each record of its
+    history and at each restart; a restart has no base, so it is the bed
+    or the base of floating ice, whichever is higher
+    """
+    names = ['xtime', 'thickness', 'lowerSurface']
+    states = [ds_history[[name for name in names if name in ds_history]]]
+    if restart_filenames:
+        ds_restarts = read_time_series(
+            restart_filenames, ['xtime', 'thickness']
+        )
+        bed = _open_without_time(init_filename).bedTopography
+        ice_density, ocean_density = densities
+        floating_base = -ice_density / ocean_density * ds_restarts.thickness
+        ds_restarts['lowerSurface'] = np.maximum(bed, floating_base)
+        states.append(ds_restarts)
+    ds = xr.concat(states, dim='Time', data_vars='minimal', coords='minimal')
+    # in order of time, each time once, the history's where both have it
+    _, unique = np.unique(xtime_to_days(ds.xtime.values), return_index=True)
+    return ds.isel(Time=unique)
+
+
+def _landice_snapshots(ds):
+    """MALI's thickness at the records at the start of a year"""
+    days = xtime_to_days(ds.xtime.values)
+    at_start = np.flatnonzero(
+        np.abs(days / 365.0 - np.round(days / 365.0)) < 1e-6
+    )
+    ds_out = xr.Dataset()
+    ds_out['thickness'] = (
+        ('nLandiceSnapshots', 'nLandiceCells'),
+        ds.thickness.isel(Time=at_start).values,
+    )
+    ds_out['landiceSnapshotTime'] = ('nLandiceSnapshots', days[at_start])
+    ds_out.landiceSnapshotTime.attrs = dict(
+        long_name='time of the record', units='days since 0001-01-01'
+    )
+    return ds_out
+
+
+def _assemble_snapshots(reduced):
+    """The ocean and MALI at the start of every year and the end of the
+    last, each time once"""
+    datasets = []
+    for name, dim, time in [
+        ('snapshots', 'nSnapshots', 'snapshotTime'),
+        ('landice_snapshots', 'nLandiceSnapshots', 'landiceSnapshotTime'),
+    ]:
+        years = [
+            each[name]
+            for each in reduced
+            if name in each and dim in each[name].dims
+        ]
+        if not years:
+            continue
+        ds = xr.concat(
+            years,
+            dim=dim,
+            data_vars='minimal',
+            coords='minimal',
+            compat='override',
+        )
+        _, unique = np.unique(ds[time].values, return_index=True)
+        datasets.append(ds.isel({dim: unique}))
+    if not datasets:
+        return xr.Dataset()
+    return xr.merge(datasets, compat='override')
 
 
 def _assemble_centerline(reduced):
