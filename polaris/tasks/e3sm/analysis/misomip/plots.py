@@ -34,6 +34,12 @@ from polaris.tasks.e3sm.analysis.misomip.diagnostics import (
     isomip_mesh,
     read_initial_condition,
 )
+from polaris.tasks.e3sm.analysis.misomip.grounding_line import (
+    ocean_grounding_line,
+    plot_bottom_hovmoller,
+    plot_gl_plan_view,
+    plot_gl_zoom,
+)
 from polaris.viz import mplstyle_context, plot_horiz_field
 from polaris.viz.planar import plot_mask_boundary
 from polaris.viz.time_series import Series, plot_time_series
@@ -498,6 +504,7 @@ class RunPlots(ProductStep):
             self._plot_peak_speed(ds_speed)
         self._plot_centerline_movie(ds_init)
         self._plot_snapshots(ds_init)
+        self._plot_grounding_line(ds_init, ds_mean, months)
         if self.has_landice:
             # the times are days, not dates to decode
             ds_landice = xr.open_dataset(
@@ -743,6 +750,56 @@ class RunPlots(ProductStep):
             gallery='melt',
             title='Melt rate by draft (no frazil)',
         )
+
+    def _plot_grounding_line(self, ds_init, ds_mean, months):
+        """Plot the ocean near the grounding line: zoomed sections, the
+        bottom layer over time and a plan view"""
+        y = self.config['misomip_analysis'].getfloat('section_y')
+        if self.has_landice:
+            ds_landice = xr.open_dataset(
+                LANDICE_FILENAME, decode_times=False, decode_timedelta=False
+            )
+            x_gl = 1e-3 * ds_landice.xGL.values
+            gl = (float(x_gl[0]), float(x_gl[-1]))
+        else:
+            x_gl0 = ocean_grounding_line(ds_init, y)
+            gl = (x_gl0, x_gl0)
+        ds_centerline = xr.open_dataset(
+            CENTERLINE_FILENAME, decode_times=False, decode_timedelta=False
+        )
+        for plot, title, gallery_title, draw in [
+            (
+                'grounding_line_sections.png',
+                f'{self.label}, mean of {months}',
+                'Sections near the grounding line',
+                lambda title, plot: plot_gl_zoom(
+                    ds_init, ds_mean, gl, y, title, plot
+                ),
+            ),
+            (
+                'grounding_line_bottom_layer.png',
+                self.label,
+                'Bottom layer near the grounding line over time',
+                lambda title, plot: plot_bottom_hovmoller(
+                    ds_init, ds_centerline, gl, title, plot
+                ),
+            ),
+            (
+                'grounding_line_plan_view.png',
+                f'{self.label}, mean of {months}',
+                'Plan view near the grounding line',
+                lambda title, plot: plot_gl_plan_view(
+                    ds_init, ds_mean, gl, title, plot
+                ),
+            ),
+        ]:
+            draw(title, plot)
+            self.add_product(
+                plot=plot,
+                group=self.kind,
+                gallery='thin_film',
+                title=gallery_title,
+            )
 
     def _landice_mesh(self):
         """MALI's initial condition, with its mesh, where MALI ran"""
