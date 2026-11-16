@@ -206,6 +206,9 @@ seaice/api
    Step.add_property_check
    Step.add_cf_check
    Step.add_dependency
+   Step.add_setup_only_option
+   Step.record_setup_only_options
+   Step.check_setup_only_options
    Step.validate_baselines
    Step.check_properties
    Step.check_cf
