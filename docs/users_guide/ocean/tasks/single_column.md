@@ -352,7 +352,8 @@ $$
 
 Here, bars denote time averages, the subscript $E$ denotes the analytic
 spiral, and $w_k$ is the overlapping layer thickness. This is a diagnostic,
-not a pass/fail threshold; the velocity-reconstruction check is removed.
+and analysis fails if the error exceeds the configured `L2_error_norm_max`
+(5% by default).
 
 ### mesh
 
@@ -402,9 +403,10 @@ The time step is given in {ref}`ocean-single-column`. The steady `ekman`
 task runs for 20 days with output every 30 minutes. Analysis averages each
 velocity component over the final three inertial periods. It interpolates
 to the exact window boundaries and uses time-weighted integration.
-The average is compared with the original steady, semi-infinite Ekman
-spiral. Steady errors are diagnostic only. The window ends at the configured
-run duration, which must be long enough to contain the averaging window.
+The average is compared with the steady, semi-infinite Ekman spiral. The
+analysis fails if its relative L2 error exceeds the configured threshold.
+The window ends at the configured run duration, which must be long enough
+to contain the averaging window.
 
 The task checks mass conservation, but does not check salt or energy
 conservation.
@@ -421,6 +423,9 @@ vertical_viscosity = 1.e-3
 
 # Inertial periods per averaging window
 averaging_periods = 3
+
+# Maximum relative L2 error of the steady velocity profile
+L2_error_norm_max = 0.05
 ```
 
 All other config options derive from {ref}`ocean-single-column` and
