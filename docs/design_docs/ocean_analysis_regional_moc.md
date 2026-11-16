@@ -19,8 +19,9 @@ products the umbrella design defers from Phase 1
 
 Every streamfunction here has one definition: the transport across a line,
 summed over the mesh edges between the cells on either side and integrated
-to fixed elevations with each edge's own layer interfaces (D1, D2). The
-MISOMIP analysis uses the same definition on MPAS-Ocean
+to fixed elevations with each edge's own layer interfaces (D1, D2). It is
+Method B of [Sidorenko et al. (2020)](https://doi.org/10.5194/gmd-13-3337-2020).
+The MISOMIP analysis uses the same definition on MPAS-Ocean
 ([polaris#939](https://github.com/E3SM-Project/polaris/pull/939)). It needs
 no southern transect, and it holds where layers tilt.
 
@@ -28,7 +29,8 @@ The work comes in two stages (D7):
 
 - **Lines in Omega, now.** Omega computes the streamfunction across lines
   given in its YAML configuration, each a latitude and a longitude range
-  (D8). RAPID is 26.5°N from 100°W to 0°. Global lines span all longitudes.
+  (D8). The line at the RAPID array, `Atlantic26N`, is 26.5°N from 100°W to
+  0°. The global streamfunction uses lines across all longitudes.
   Neither needs an input file, so every Omega run on any mesh can produce the
   AMOC and the global streamfunction.
 - **Basins in Omega, later.** Basin streamfunctions need basin masks read
@@ -133,19 +135,20 @@ Every value is plotted and written at the latitude it represents.
 
 ### Requirement: Polaris plots an AMOC time series at the RAPID latitude
 
-Date last modified: 2026/11/08
+Date last modified: 2026/11/16
 
 Contributors: Xylar Asay-Davis, Claude
 
 The analysis shall produce a monthly time series of the maximum over
-elevation of the streamfunction across the RAPID line, with the data behind
-it. The line shall be a config option.
+elevation of the streamfunction across the line of the RAPID array, with the
+data behind it. Beside it, the analysis shall produce the wind-driven Ekman
+transport across the same line. The line shall be a config option.
 
 ## Algorithm Design
 
 ### Algorithm Design: The analysis produces the overturning of the global ocean and named basins
 
-Date last modified: 2026/11/08
+Date last modified: 2026/11/16
 
 Contributors: Xylar Asay-Davis, Claude
 
@@ -187,7 +190,10 @@ f_{e,k}(z) = \min\left(1, \max\left(0,
 $$
 
 This is the core MISOMIP uses, minus sign included, with lines of constant
-$x$ in place of latitudes. A streamfunction as a function of latitude is
+$x$ in place of latitudes. It is Method B of Sidorenko et al. (2020), who sum
+edge transports across lines of constant latitude on unstructured meshes and
+map each layer's flux to target levels with a linear distribution within the
+layer. A streamfunction as a function of latitude is
 $\Psi_\ell$ over a family of lines that share $m$ and $\Lambda$. Elevations
 above or below all the water on the edges of $E_\ell$ are not ocean and are
 masked.
@@ -207,7 +213,7 @@ masked.
 
 ### Algorithm Design: Omega computes the AMOC as it runs
 
-Date last modified: 2026/11/08
+Date last modified: 2026/11/16
 
 Contributors: Xylar Asay-Davis, Claude
 
@@ -216,9 +222,10 @@ $\tilde{h}_e u$ and interfaces, and averages it over the reduction period.
 The only approximation is that each edge's flux is spread evenly over its
 layer.
 
-The RAPID line is 26.5°N from 100°W to 0°. At that latitude, the range holds
-the Gulf of Mexico, the Florida Straits and the Atlantic, and no other ocean.
-It stands in for the Atlantic basin there without a mask.
+The line at the RAPID array, `Atlantic26N`, is 26.5°N from 100°W to 0°. At
+that latitude, the range holds the Gulf of Mexico, the Florida Straits and the
+Atlantic, and no other ocean. It stands in for the Atlantic basin there
+without a mask.
 
 ### Algorithm Design: Lines and basins are defined by data
 
@@ -240,7 +247,7 @@ cell dimension.
 
 ### Algorithm Design: The streamfunction is correct for any vertical coordinate
 
-Date last modified: 2026/11/08
+Date last modified: 2026/11/16
 
 Contributors: Xylar Asay-Davis, Claude
 
@@ -264,9 +271,16 @@ The normal transport velocity is the normal velocity plus any eddy-induced
 velocity. Offline, a run with an eddy-induced velocity needs that velocity's
 mean in its output.
 
-The latitudes and elevations are uniform (D4). Omega's elevations are every
-$\Delta z$ from 0 to the deepest sea floor, rounded down. Polaris's offline
-elevations are the same.
+The latitudes are uniform. The elevations are a configuration choice (D4),
+either of:
+
+- a spacing that may change at given depths, from 0 to the deepest sea
+  floor, such as every 10 m to 200 m and every 50 m below;
+- the reference layer interfaces of the simulation's vertical grid.
+
+Each $\Psi_\ell(z)$ is the whole transport below $z$, so the elevations
+decide only where the profile is sampled. Polaris's offline elevations are
+the ones the simulation's configuration gives Omega.
 
 > **Rationale.** Two other methods are set aside (D2). Interpolating each
 > column's vertical velocity to fixed $z$ is wrong where layers tilt, since
@@ -295,12 +309,13 @@ and Polaris both use this form.
 
 ### Algorithm Design: Coupled runs compute what the analysis needs
 
-Date last modified: 2026/11/08
+Date last modified: 2026/11/16
 
 Contributors: Xylar Asay-Davis, Claude
 
-Omega's coupled configuration defines the `Global` and `RAPID` lines. Neither
-needs a mask, so nothing is staged.
+Omega's coupled configuration defines the `Global` and `Atlantic26N` lines.
+Neither needs a mask, so nothing is staged. Its monthly means include the
+zonal wind stress, for the Ekman transport.
 
 ### Algorithm Design: Polaris plots each basin's streamfunction
 
@@ -331,7 +346,7 @@ with it.
 
 ### Algorithm Design: Polaris plots an AMOC time series at the RAPID latitude
 
-Date last modified: 2026/11/08
+Date last modified: 2026/11/16
 
 Contributors: Xylar Asay-Davis, Claude
 
@@ -341,19 +356,35 @@ $$
 \mathrm{AMOC}(t) = \max_z \Psi_R(z, t),
 $$
 
-where $\Psi_R$ is Omega's monthly-mean streamfunction across the RAPID line.
+where $\Psi_R$ is Omega's monthly-mean streamfunction across `Atlantic26N`.
 The maximum is over the whole column.
+
+The Ekman transport across the same line is
+
+$$
+T_{Ek}(t) = -\frac{1}{\rho_0 f_\ell} \sum_{e \in E_\ell} w_e\,
+\overline{\tau}_x(e, t),
+$$
+
+where $\overline{\tau}_x(e, t)$ is the mean of the two cells' monthly-mean
+zonal wind stress, $w_e$ is the edge's length projected onto the line and
+$f_\ell = 2\Omega \sin\phi_\ell$. It is northward-positive and, like
+$\Psi$, a mass transport divided by $\rho_0$.
 
 > **Rationale.** MPAS-Analysis takes the bin edge nearest 26.5°N. A line at
 > exactly 26.5°N needs neither that nor interpolation. The maximum over the
 > whole column of a monthly mean is what MPAS-Analysis computes, so the two
-> can be compared.
+> can be compared. No sampling of $\Psi$ separates the Ekman transport from
+> geostrophic flow in the same near-surface layer. The RAPID array and
+> [Beadling et al. (2018)](https://doi.org/10.1175/JCLI-D-17-0845.1), who
+> decompose the circulation at 26.5°N in CMIP5 models the same way, compute
+> it from the zonal wind stress (D10).
 
 ## Implementation
 
 ### Implementation: The analysis produces the overturning of the global ocean and named basins
 
-Date last modified: 2026/11/08
+Date last modified: 2026/11/16
 
 Contributors: Xylar Asay-Davis, Claude
 
@@ -369,17 +400,22 @@ Omega:
   Analysis:
     MOC:
       Enable: true
-      # elevations every ElevationSpacing (m), from 0 to the deepest sea floor
-      ElevationSpacing: 50.0
+      # elevations from 0 to the deepest sea floor: every ElevationSpacing[0]
+      # m down to SpacingBreakDepths[0] m, then every ElevationSpacing[1] m,
+      # and so on.  The default values come from the spacing test.
+      ElevationSpacing: [10.0, 50.0]
+      SpacingBreakDepths: [200.0]
+      # true to sample at the vertical grid's reference layer interfaces
+      UseReferenceInterfaces: false
       Lines:
         # every 0.5 degrees of latitude, across all longitudes
         Global:
           MinLat: -90.0
           MaxLat: 90.0
           LatSpacing: 0.5
-        # the RAPID array: at 26.5N, 100W to 0E holds only the Gulf of Mexico,
-        # the Florida Straits and the Atlantic
-        RAPID:
+        # the line of the RAPID array: at 26.5N, 100W to 0E holds only the
+        # Gulf of Mexico, the Florida Straits and the Atlantic
+        Atlantic26N:
           MinLat: 26.5
           MaxLat: 26.5
           MinLon: -100.0
@@ -445,12 +481,12 @@ by commas at the top level.
 
 ### Implementation: Lines and basins are defined by data
 
-Date last modified: 2026/11/08
+Date last modified: 2026/11/16
 
 Contributors: Xylar Asay-Davis, Claude
 
-- `Default.yml` defines the `Global` and `RAPID` families as above, with
-  comments, and leaves the `MOC` group disabled as today.
+- `Default.yml` defines the `Global` and `Atlantic26N` families as above,
+  with comments, and leaves the `MOC` group disabled as today.
 - Offline, a shared step runs polaris#592's `ComputeOceanFeatureMasksStep`
   for the `MOC Basins` group on `SimFiles.mesh_filename()`. Its southern
   transects are written but not read.
@@ -459,7 +495,7 @@ Contributors: Xylar Asay-Davis, Claude
 
 ### Implementation: The streamfunction is correct for any vertical coordinate
 
-Date last modified: 2026/11/08
+Date last modified: 2026/11/16
 
 Contributors: Xylar Asay-Davis, Claude
 
@@ -473,7 +509,9 @@ Contributors: Xylar Asay-Davis, Claude
   weighted by pseudo-thickness. It tells weighted means apart by the
   weighting Omega#687 records in each field's `cell_methods`. A simulation
   with neither is reported and its offline basins skipped.
-- `[ocean_analysis_moc]` holds the offline `dlat = 0.5` and `dz = 50` (m).
+- `[ocean_analysis_moc]` holds the offline `dlat = 0.5`. The offline
+  elevations come from the simulation's `MOC` configuration, which `SimFiles`
+  reads.
 
 ### Implementation: Overturning has one definition
 
@@ -515,13 +553,13 @@ Contributors: Xylar Asay-Davis, Claude
 
 ### Implementation: Coupled runs compute what the analysis needs
 
-Date last modified: 2026/11/08
+Date last modified: 2026/11/16
 
 Contributors: Xylar Asay-Davis, Claude
 
 [Omega#663](https://github.com/E3SM-Project/Omega/pull/663) turned on the
 `MOC` group for coupled runs. Its options there change to the two default
-families.
+families, and its `MonthlyAverages` fields gain `SfcStressZonal`.
 
 ### Implementation: Polaris plots each basin's streamfunction
 
@@ -542,21 +580,29 @@ Contributors: Xylar Asay-Davis, Claude
 
 ### Implementation: Polaris plots an AMOC time series at the RAPID latitude
 
-Date last modified: 2026/11/08
+Date last modified: 2026/11/16
 
 Contributors: Xylar Asay-Davis, Claude
 
 A new task, `ocean/analysis/amoc_time_series`, takes its years from
 `[ocean_analysis_time_series]` and joins the `omega_analysis` suite. Its step
-reads `MOC_streamfunction_RAPID_TimeMean1Month` from each monthly MOC file and
-takes the maximum over elevation. It writes `amoc.nc`, holding the series and
-the line's latitude and longitude range, and plots the series. A new section,
-`[ocean_analysis_amoc]`, holds `line = RAPID`. A simulation without that
-output is reported and the series skipped.
+reads `MOC_streamfunction_Atlantic26N_TimeMean1Month` from each monthly MOC
+file and takes the maximum over elevation. It also computes $T_{Ek}$ from
+`SfcStressZonal_TimeMean1Month` in the monthly means, on the line's edges
+from `get_latitude_edges()`, which also gives each edge's projected length.
+It writes `amoc.nc`, holding both series and the line's latitude and
+longitude range, and plots them together. A new section,
+`[ocean_analysis_amoc]`, holds `line = Atlantic26N`. A simulation without the
+streamfunction or the stress is reported and that series skipped.
+
+`SfcStressZonal` is the zonal surface stress Omega registers in its forcing
+fields. `analysis_output` and the coupled configuration add it to the
+`Fields` of `MonthlyAverages`. It is one value per cell, so reading it each
+month is cheap on any mesh.
 
 ### Implementation: order of work
 
-Date last modified: 2026/11/08
+Date last modified: 2026/11/16
 
 Contributors: Xylar Asay-Davis, Claude
 
@@ -568,13 +614,16 @@ In dependency order:
 3. Omega: `CellToEdge`, `LineCrossings`, `LineTransport`, the parser
    changes, the `MOC` group and `Default.yml`, with CTests against values
    from item 2.
-4. Polaris: `analysis_output` with the line families and the transport
-   field, comparing Omega's streamfunctions with the offline ones.
-5. Polaris: the global plot and the AMOC series from Omega's output, which
-   fixes polaris#926.
-6. Omega: the line families in the coupled configuration.
-7. Polaris: the mask step and `MocSeries`, for offline basin plots.
-8. Later, under its own design: basin masks in Omega (D7).
+4. Polaris: `analysis_output` with the line families, the transport field
+   and `SfcStressZonal`, comparing Omega's streamfunctions with the offline
+   ones.
+5. Polaris: the spacing test, which sets the default elevations (D4).
+6. Polaris: the global plot, and the AMOC and Ekman series from Omega's
+   output, which fixes polaris#926.
+7. Omega: the line families and `SfcStressZonal` in the coupled
+   configuration.
+8. Polaris: the mask step and `MocSeries`, for offline basin plots.
+9. Later, under its own design: basin masks in Omega (D7).
 
 ## Decisions
 
@@ -610,14 +659,18 @@ Set aside: keeping the binned global chain beside the line families. It
 would leave two global streamfunctions with different vertical axes, one of
 them plotted half a bin out of place.
 
-### D4: Latitudes and elevations are uniform
+### D4: Uniform latitudes, and configurable elevations
 
-Proposed, 2026/11/08. Lines every 0.5° and elevations every 50 m by default,
-in Omega and offline.
+Xylar, 2026/11/16. Lines every 0.5° by default. The elevations are a spacing
+that may change at given depths, or the vertical grid's reference layer
+interfaces, both YAML options. The spacing test sets the default. In Omega
+and offline, the elevations are the same.
 
-Set aside: the simulation's reference layer interfaces as the elevations,
-and spacing per basin. Neither is needed for plots cropped to each basin,
-and shared elevations keep every plot on one axis.
+Set aside: an explicit list of elevations in YAML, which Omega's `Config`
+can read but which would put about a hundred numbers in every
+configuration. Also set aside: elevations from an input file, which needs
+the input machinery of the second stage (D7), and spacing per basin, which
+plots cropped to each basin do not need.
 
 ### D5: The default offline basins are Atlantic, AtlanticMed and IndoPacific
 
@@ -654,12 +707,17 @@ makes the AMOC wait on the mask infrastructure.
 
 ### D8: A line is a latitude and a longitude range
 
-Xylar, 2026/11/08. Each is a YAML option, so the RAPID line is visible in the
-configuration rather than built into the code.
+Xylar, 2026/11/08. Each is a YAML option, so the line at the RAPID array is
+visible in the configuration rather than built into the code. The default
+family is named for the quantity, `Atlantic26N`, not for the array.
 
 Set aside: the RAPID line as the Atlantic basin's line at 26.5°N, which needs
 the basin mask. The longitude range does the same job at 26.5°N. It also
-serves other zonal arrays, such as SAMBA at 34.5°S, on any mesh.
+serves other zonal arrays, such as SAMBA at 34.5°S, on any mesh. Also set
+aside: a line given by two end points. A line of constant latitude is not a
+great circle, so two end points do not say which path to take. Sloped
+sections such as OSNAP could come later as a list of segments, with the same
+edge crossings.
 
 ### D9: Polaris's offline computation is the reference and the fallback
 
@@ -670,24 +728,34 @@ computation.
 Set aside: using it only as a reference, which would leave no basin plots
 until Omega reads masks.
 
+### D10: The Ekman transport comes from the zonal wind stress
+
+Xylar, 2026/11/16. Omega writes the monthly-mean zonal wind stress, and
+Polaris integrates it along the line. The transport is linear in the stress,
+so the monthly mean gives the exact mean transport.
+
+Set aside: reading the Ekman part from $\Psi$ near the surface, which mixes
+it with geostrophic flow in the same layer. Also set aside: an in-situ Ekman
+operator in Omega. A 2D monthly mean is cheap to read on any mesh.
+
 ## Testing
 
 ### Testing and Validation: The analysis produces the overturning of the global ocean and named basins
 
-Date last modified: 2026/11/08
+Date last modified: 2026/11/16
 
 Contributors: Xylar Asay-Davis, Claude
 
 - **Omega against Polaris.** On the coarsest mesh of
   `ocean/realistic_global/analysis_output`, Polaris recomputes the `Global`
-  and `RAPID` streamfunctions offline from the transport field and compares
-  them with Omega's. The two differ only by the monthly-mean interfaces
-  Polaris uses. The difference is reported, and the test fails if it exceeds
-  a tolerance set from the first runs.
+  and `Atlantic26N` streamfunctions offline from the transport field and
+  compares them with Omega's. The two differ only by the monthly-mean
+  interfaces Polaris uses. The difference is reported, and the test fails if
+  it exceeds a tolerance set from the first runs.
 - **Basins that tile.** Where AtlanticMed and IndoPacific hold every ocean
   edge across a latitude, their offline streamfunctions sum to the offline
   global one there to round-off.
-- **The RAPID line is the Atlantic's.** Offline, the RAPID line and the
+- **`Atlantic26N` is the Atlantic's line.** Offline, `Atlantic26N` and the
   Atlantic basin's line at 26.5°N have the same edges, so their
   streamfunctions agree to round-off.
 
@@ -757,12 +825,12 @@ Contributors: Xylar Asay-Davis, Claude
 
 ### Testing and Validation: Coupled runs compute what the analysis needs
 
-Date last modified: 2026/11/08
+Date last modified: 2026/11/16
 
 Contributors: Xylar Asay-Davis, Claude
 
-A short coupled run on oQU240 writes `MOC_streamfunction_RAPID` and
-`MOC_streamfunction_Global`.
+A short coupled run on oQU240 writes `MOC_streamfunction_Atlantic26N`,
+`MOC_streamfunction_Global` and the monthly-mean `SfcStressZonal`.
 
 ### Testing and Validation: Polaris plots each basin's streamfunction
 
@@ -777,12 +845,24 @@ Contributors: Xylar Asay-Davis, Claude
 
 ### Testing and Validation: Polaris plots an AMOC time series at the RAPID latitude
 
-Date last modified: 2026/11/08
+Date last modified: 2026/11/16
 
 Contributors: Xylar Asay-Davis, Claude
 
 - A unit test builds a synthetic streamfunction with a known maximum and
   checks the series.
+- A unit test checks $T_{Ek}$ for a uniform zonal stress against
+  $-\tau_x L / (\rho_0 f)$, with $L$ the line's length.
+- **The spacing test.** On a few years of `analysis_output`, and on a finer
+  mesh where Omega monthly output exists, Polaris computes $\Psi$ on
+  `Atlantic26N` offline at every edge interface. That is the exact
+  piecewise-linear profile, the reference. Against it, it compares uniform
+  spacings of 10, 25, 50 and 100 m, a spacing of 10 m above 200 m and 50 m
+  below, and the reference layer interfaces. The measures are the monthly
+  AMOC's bias and largest error, the depth of the maximum, the profile's
+  error in the top 200 m and the number of elevations, which sets the
+  in-situ cost. The default is the cheapest set whose AMOC error stays
+  below a threshold agreed in review, such as 0.05 Sv.
 - The series from an Omega run is compared by eye with MPAS-Analysis's for an
   MPAS-Ocean run on the same mesh. As in the umbrella design, this is a check
   of sign and magnitude made by a scientist, not an automated test.
