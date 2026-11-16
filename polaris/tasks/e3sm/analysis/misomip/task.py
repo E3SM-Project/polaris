@@ -23,8 +23,10 @@ from polaris.tasks.e3sm.analysis.misomip.runs import (
     COUPLED_EXPERIMENTS,
     get_configured_runs,
     get_mean_months,
+    get_summary_captions,
     runs_section,
 )
+from polaris.tasks.e3sm.analysis.misomip.summary import SummaryPage
 from polaris.tasks.e3sm.analysis.misomip.yung2026 import (
     EXPERIMENTS as PUBLISHED_EXPERIMENTS,
 )
@@ -213,6 +215,18 @@ class MisomipAnalysisTask(Task):
                             period=runs['e3sm'].period,
                         )
                     )
+        captions = get_summary_captions(
+            self.config, self.mesh_name, self.experiment
+        )
+        if runs and captions:
+            summary = SummaryPage(
+                component=self.component,
+                subdir=f'{self.subdir}/summary',
+                product_steps=products,
+                captions=captions,
+            )
+            self.add_step(summary)
+            products.append(summary)
         publish = MisomipPublish(
             component=self.component,
             subdir=f'{self.subdir}/publish',

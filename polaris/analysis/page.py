@@ -50,18 +50,25 @@ class Page:
         self.files: dict = {}
 
     def add_section(
-        self, title, text=None, entries=None, table=None, code=None
+        self,
+        title,
+        text=None,
+        entries=None,
+        table=None,
+        code=None,
+        links=None,
+        figures=None,
     ):
         """
         Add a section to the page
 
         Parameters
         ----------
-        title : str
-            The section's heading
+        title : str or None
+            The section's heading, or ``None`` for a section without one
 
-        text : str, optional
-            A paragraph under the heading
+        text : str or list of str, optional
+            A paragraph under the heading, or several
 
         entries : list of tuple, optional
             Labeled values, each ``(label, value)`` or
@@ -71,20 +78,37 @@ class Page:
         table : dict, optional
             A table, with ``columns``, a list of headings, and ``rows``, a
             list of rows of values, each value a string or a
-            ``(value, href)`` pair
+            ``(value, href)`` pair, and optionally ``caption``, a line
+            above it
 
         code : str, optional
             Text shown as it is, such as the commands that set up a case
 
+        links : list of tuple, optional
+            Links, each ``(text, href)``, with ``href`` relative to the page
+
+        figures : list of tuple, optional
+            Images shown at the width of the page, each ``(href, alt)``,
+            where ``href`` is the image relative to the page and ``alt``
+            describes it
+
         Returns
         -------
         section : dict
-            The section that was added
+            The section that was added, whose ``paragraphs``, ``links``
+            and ``figures`` may be added to
         """
-        section = {'title': title, 'text': text, 'code': code}
+        if text is None:
+            paragraphs = []
+        elif isinstance(text, str):
+            paragraphs = [text]
+        else:
+            paragraphs = list(text)
+        section = {'title': title, 'paragraphs': paragraphs, 'code': code}
         section['entries'] = [_entry(entry) for entry in entries or []]
         if table is not None:
             section['table'] = {
+                'caption': table.get('caption'),
                 'columns': list(table['columns']),
                 'rows': [
                     [_cell(value) for value in row] for row in table['rows']
@@ -92,6 +116,12 @@ class Page:
             }
         else:
             section['table'] = None
+        section['links'] = [
+            {'text': text, 'href': href} for text, href in links or []
+        ]
+        section['figures'] = [
+            {'href': href, 'alt': alt} for href, alt in figures or []
+        ]
         self.sections.append(section)
         return section
 

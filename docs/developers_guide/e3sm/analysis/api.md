@@ -84,6 +84,12 @@
    publish.MisomipPublish
    publish.MisomipPublish.setup
    publish.MisomipPublish.output_path
+   runs.get_summary_captions
+   summary.SummaryPage
+   summary.SummaryPage.run
+   summary.get_published_plots
+   summary.read_captions
+   summary.add_captions
 ```
 
 ## Framework

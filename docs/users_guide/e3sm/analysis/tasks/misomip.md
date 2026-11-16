@@ -339,3 +339,36 @@ the E3SM commit and libraries it was built with, the commands that created
 and changed the case, the options set in its `user_nl_*` files and its
 `SourceMods`, and copies of the namelists, streams files and Albany input
 the models read in its latest job.
+
+### A summary page
+
+A summary page, beside the galleries and linked from the footer of every
+page, shows notes, tables and chosen plots with their captions.  It comes
+from a captions file you write for the run, named in the section of the
+run's mesh:
+
+```cfg
+[misomip_analysis_misomip-o2km-li1km]
+ocean1_e3sm_case = /home/<user>/e3sm_cases/misomip/<case>
+ocean1_summary = /home/<user>/misomip/captions_ocean1.txt
+```
+
+Each line of the captions file is one of these:
+
+```text
+NOTE|About this run|The ocean is MPAS-Ocean on a 2 km mesh ...
+NOTE|-|A second paragraph under the same heading.
+TABLE|Monthly means over each year|Year ; Melt (Gt/yr)
+ROW|1 ; 3.1–12.8
+ROW|5 ; 23.6–24.3
+LINK|The run's provenance|../provenance/index.html
+e3sm_total_melt_flux.png|Total melt flux|Monthly means ...
+```
+
+A `NOTE` starts a new heading unless its heading is `-`.  A table and its
+rows go under the `NOTE` before them, with ` ; ` between cells.  A plot is
+named as it is in the gallery's `plots` directory, and appears under its
+own heading.  Links are relative to the summary page, which is in the
+`summary` directory beside `plots`.  A plot name the task doesn't publish
+is an error that lists the names it does.
+

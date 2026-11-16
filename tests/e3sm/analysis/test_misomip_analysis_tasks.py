@@ -218,6 +218,31 @@ def test_only_ocean0_to_ocean2_are_compared_with_published_results(tmp_path):
     ]
 
 
+def test_a_summary_page_is_made_only_from_a_captions_file(tmp_path):
+    """The summary page depends on the steps whose plots it may show, and
+    the publish step publishes it."""
+    case = _e3sm_case(tmp_path, months=[1], budgets='FALSE')
+    assert 'summary' not in _configure(tmp_path, e3sm_case=case).steps
+
+    component = Component(name='e3sm/analysis')
+    add_misomip_analysis_tasks(component)
+    task = component.tasks[TASK]
+    section = f'misomip_analysis_{MESH}'
+    task.config.set(section, 'ocean0_e3sm_case', case, user=True)
+    captions = str(tmp_path / 'captions.txt')
+    task.config.set(section, 'ocean0_summary', captions, user=True)
+    task.configure()
+
+    summary = task.steps['summary']
+    assert summary.captions == captions
+    prefix = TASK.replace('/', '_')
+    assert f'{prefix}_e3sm_plots_0001-01_0001-01' in summary.dependencies
+    assert f'{prefix}_e3sm_provenance_0001-01_0001-01' not in (
+        summary.dependencies
+    )
+    assert f'{prefix}_summary' in task.steps['publish'].dependencies
+
+
 def _short_names(task):
     """Step names, with the diagnostics' long names shortened to their kind"""
     names = []

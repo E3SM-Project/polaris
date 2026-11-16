@@ -257,7 +257,7 @@ def test_the_step_describes_and_copies_the_case(tmp_path):
     source_mods = sections['SourceMods']['table']['rows']
     assert [row[1]['value'] for row in source_mods] == ['streams.ocean']
     files = sections['Files the models read']
-    assert '0006-01-01-00000' in files['text']
+    assert '0006-01-01-00000' in files['paragraphs'][0]
     assert [entry['label'] for entry in files['entries']] == [
         'mpaso_in',
         'streams.ocean',
