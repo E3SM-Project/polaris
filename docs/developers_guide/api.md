@@ -316,6 +316,7 @@ seaice/api
    PublishStep
    PublishStep.run
    PublishStep.output_path
+   check_output_path
 ```
 
 #### analysis.thumbnail

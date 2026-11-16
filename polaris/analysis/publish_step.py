@@ -3,8 +3,8 @@ import os
 from polaris import Step
 from polaris.analysis.manifest import FRAGMENT_FILENAME
 from polaris.analysis.page import PAGE_FILENAME, publish_pages
-from polaris.analysis.publish import publish
-from polaris.analysis.site import generate_site
+from polaris.analysis.publish import MERGED_FILENAME, publish
+from polaris.analysis.site import INDEX_FILENAME, generate_site
 from polaris.provenance import get_summary
 
 #: The subdirectory the fragments are linked into, one per step
@@ -38,6 +38,10 @@ class PublishStep(Step):
     nothing: an empty product list is what a step with nothing to publish
     writes, and it is what lets the fragment be declared rather than looked
     for.
+
+    The step refuses to publish into a directory with a landing page that
+    Polaris did not publish, one without the merged manifest beside it,
+    such as a hand-written index above several galleries.
 
     A :py:class:`polaris.analysis.page.PageStep` among the product steps
     makes a page published beside the galleries, such as a run's
@@ -105,6 +109,7 @@ class PublishStep(Step):
         """
         section = self.config[self.section]
         output_path = self.output_path()
+        check_output_path(output_path)
 
         published, _ = publish(
             fragment_filenames=[
@@ -191,3 +196,27 @@ class PublishStep(Step):
             work_dir_target=f'{step.path}/{PAGE_FILENAME}',
         )
         self.page_filenames.append(filename)
+
+
+def check_output_path(output_path):
+    """
+    Refuse to publish into a directory with a landing page that Polaris did
+    not publish
+
+    Parameters
+    ----------
+    output_path : str
+        The root of the staging tree
+
+    Raises
+    ------
+    ValueError
+        If the directory has an ``index.html`` but no merged manifest
+    """
+    index = os.path.join(output_path, INDEX_FILENAME)
+    manifest = os.path.join(output_path, MERGED_FILENAME)
+    if os.path.exists(index) and not os.path.exists(manifest):
+        raise ValueError(
+            f'{index} was not published by Polaris, which would replace it. '
+            f'Choose another output path.'
+        )
