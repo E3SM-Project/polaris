@@ -77,6 +77,29 @@ def days_to_model_year(days):
     return 1.0 + np.asarray(days, dtype=float) / 365.0
 
 
+def days_to_date(days):
+    """
+    Convert days since ``0001-01-01`` to the date they fall on
+
+    Parameters
+    ----------
+    days : float
+        Days since ``0001-01-01_00:00:00`` of the 365-day calendar
+
+    Returns
+    -------
+    date : str
+        The date, as ``YYYY-MM-DD``
+    """
+    day = int(np.floor(days + 1e-6))
+    year, day_of_year = 1 + day // 365, day % 365
+    month = 0
+    while day_of_year >= DAYS_IN_MONTH[month]:
+        day_of_year -= DAYS_IN_MONTH[month]
+        month += 1
+    return f'{year:04d}-{month + 1:02d}-{day_of_year + 1:02d}'
+
+
 def _one_xtime_to_days(xtime):
     """Convert one xtime string"""
     if isinstance(xtime, bytes):

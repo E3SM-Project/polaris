@@ -231,6 +231,26 @@ and, with memory profiling at level 3, the driver's memory profiles:
 memory are left out where `sacct` isn't available.  Set the task up again
 as a run goes on to add its new segments.
 
+## The health of a run
+
+Each run gets a page beside its galleries, `<kind>_run_health`, with three
+checks as tables:
+
+- Fast cells: the days on which a cell's daily largest kinetic energy at
+  its center, as the speed $\sqrt{2 \, \mathrm{KE}}$, is above
+  `spike_speed`, 3 m/s by default, with the fastest cells.  It needs the
+  daily maxima of kinetic energy.
+- Salt above the source: the largest monthly salinity of each year above
+  the largest the run starts with or restores to, the cells more than
+  0.1 PSU above it, and the salt above it in PSU km³ near the grounding
+  line (within `salt_near_distance`, 10 km, of a partly floating cell),
+  under the rest of the ice shelf and beyond the ice front at
+  `ice_front_x`, 640 km.
+- Dry columns: at the start of each year and the end of the last, the
+  columns with every layer at the minimum thickness of wetting and drying,
+  and each one's deficit: the column its land-ice pressure calls for, at
+  the namelist's `config_land_ice_rho_ocean`, less its actual column.
+
 ## Coupled experiments
 
 In IceOcean1r and IceOcean1ra, where MALI evolves, a `model_exchange` step

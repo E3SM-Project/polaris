@@ -42,6 +42,12 @@ from polaris.ocean.overturning import (
     compute_overturning_from_edge_transport,
     get_line_edges,
 )
+from polaris.tasks.e3sm.analysis.misomip.health import (
+    compute_dry_cells,
+    compute_salt_excess,
+    compute_spike_cells,
+    get_source_max_salinity,
+)
 from polaris.tasks.e3sm.analysis.misomip.runs import (
     CUSTOM_STREAM,
     DAILY_MEANS_STREAM,
@@ -73,6 +79,8 @@ PEAK_SPEED_FILENAME = 'peak_speed.nc'
 CENTERLINE_FILENAME = 'centerline.nc'
 SNAPSHOTS_FILENAME = 'snapshots.nc'
 DAILY_MELT_FILENAME = 'daily_melt.nc'
+RUN_HEALTH_FILENAME = 'run_health.nc'
+RESTORING_FILENAME = 'interior_restoring.nc'
 
 #: The ocean's restart stream, which holds its state at the start of each
 #: year
@@ -90,6 +98,9 @@ STATE_FIELDS = [
 
 #: MALI's history stream
 LANDICE_STREAM = 'output'
+
+#: The ocean's input stream of interior restoring
+RESTORING_STREAM = 'interior_restoring'
 
 #: MALI's stream of daily output, with the melt it applies
 LANDICE_DAILY_STREAM = 'dailyOutput'
@@ -245,6 +256,16 @@ class RunDiagnostics(Step):
         The reference density (kg m-3) of the run's hydrostatic balance,
         from its namelist
 
+    land_ice_ocean_density : float
+        The density (kg m-3) of the seawater the land ice displaces, from
+        the run's namelist, which converts the land-ice pressure to the
+        column it calls for
+
+    has_restoring : bool
+        Whether the run restores its interior salinity, whose largest
+        restoring value counts toward the salinity it starts with or
+        restores to
+
     landice_filenames : list of str
         The local names of MALI's history files in the years analyzed, empty
         for a run without MALI
@@ -397,12 +418,23 @@ class RunDiagnostics(Step):
         self.ref_density = _fortran_float(
             run.namelist_option('config_density0')
         )
+        self.land_ice_ocean_density = _fortran_float(
+            run.namelist_option('config_land_ice_rho_ocean')
+        )
+        self.has_restoring = False
+        if _restores_tracers(run):
+            self.add_input_file(
+                filename=RESTORING_FILENAME,
+                target=run.input_filename(RESTORING_STREAM),
+            )
+            self.has_restoring = True
         for filename in [
             TIME_SERIES_FILENAME,
             TIME_MEAN_FILENAME,
             MONTHLY_MAPS_FILENAME,
             DAILY_FILENAME,
             CENTERLINE_FILENAME,
+            RUN_HEALTH_FILENAME,
         ]:
             self.add_output_file(filename=filename)
         self.landice_filenames = []
@@ -547,6 +579,14 @@ class RunDiagnostics(Step):
         config = self.config
         section = config['misomip_analysis']
         logger = self.logger
+        ds_restoring = None
+        if self.has_restoring:
+            ds_restoring = xr.open_dataset(
+                RESTORING_FILENAME, decode_times=False
+            )
+        source_max_salinity = get_source_max_salinity(
+            read_initial_condition(), ds_restoring
+        )
         options = dict(
             deep_draft=section.getfloat('deep_draft'),
             restoring_x=section.getfloat('restoring_x'),
@@ -557,6 +597,11 @@ class RunDiagnostics(Step):
             min_thickness=self.min_thickness,
             min_floating_fraction=self.min_floating_fraction,
             ref_density=self.ref_density,
+            land_ice_ocean_density=self.land_ice_ocean_density,
+            source_max_salinity=source_max_salinity,
+            spike_speed=section.getfloat('spike_speed'),
+            salt_near_distance=section.getfloat('salt_near_distance'),
+            ice_front_x=section.getfloat('ice_front_x'),
             densities=list(self.densities),
             tidal_forcing_type=self.tidal_forcing_type,
             freezing_coefficients=self.freezing_coefficients,
@@ -613,6 +658,18 @@ class RunDiagnostics(Step):
         write_netcdf(_assemble_centerline(reduced), CENTERLINE_FILENAME)
 
         write_netcdf(_assemble_snapshots(reduced), SNAPSHOTS_FILENAME)
+
+        ds_health = _assemble_run_health(reduced)
+        ds_health.attrs.update(
+            source_max_salinity=source_max_salinity,
+            spike_speed=options['spike_speed'],
+            salt_near_distance=options['salt_near_distance'],
+            ice_front_x=options['ice_front_x'],
+            min_thickness=self.min_thickness,
+            land_ice_ocean_density=self.land_ice_ocean_density,
+            has_custom=int(bool(self.custom_filenames)),
+        )
+        write_netcdf(ds_health, RUN_HEALTH_FILENAME)
 
     def _year_inputs(self, options):
         """The inputs from which each year of the run is reduced"""
@@ -897,7 +954,19 @@ def reduce_year(inputs):
     datasets['maps'] = _add_time(_monthly_maps(ds), ds)
     cells = get_centerline_cells(ds_init, options['section_y'])
     datasets['centerline'] = _centerline(ds, cells)
-    datasets['snapshots'] = _snapshots(inputs, ds_init, cells, paths)
+    states = _year_states(inputs, ds_init, paths)
+    datasets['snapshots'] = _snapshots(inputs, ds_init, states, cells, paths)
+    datasets['salt_excess'] = _add_time(
+        compute_salt_excess(
+            ds,
+            ds_init,
+            options['source_max_salinity'],
+            options['salt_near_distance'],
+            options['ice_front_x'],
+        ),
+        ds,
+    )
+    datasets['dry_cells'] = _dry_cells(states, ds_init, options)
 
     ds_stats = None
     if inputs.daily:
@@ -910,7 +979,14 @@ def reduce_year(inputs):
             datasets['edge_speed'] = _edge_speed(ds_stats)
 
     if inputs.custom:
-        datasets['cell_speed'] = _cell_speed(paths(inputs.custom))
+        ds_custom = read_time_series(paths(inputs.custom), CUSTOM_FIELDS)
+        datasets['cell_speed'] = _cell_speed(ds_custom)
+        datasets['spikes'] = compute_spike_cells(
+            ds_custom.timeCustom_max_kineticEnergyCell,
+            _day_starts(ds_custom),
+            options['spike_speed'],
+            ds_init,
+        )
 
     if inputs.daily_means:
         # a file a month, each one chunk, so that the 3D daily means of the
@@ -1317,17 +1393,13 @@ def _edge_speed(ds_stats):
     return ds
 
 
-def _cell_speed(filenames):
+def _cell_speed(ds_custom):
     """The speed of the largest kinetic energy at any cell center each day,
     from the daily maxima"""
-    ds_custom = read_time_series(filenames, CUSTOM_FIELDS)
     kinetic_energy = ds_custom.timeCustom_max_kineticEnergyCell
     peak = kinetic_energy.max(dim=['nCells', 'nVertLevels']).values
     ds = xr.Dataset()
-    ds['dayStart'] = (
-        'nDays',
-        np.floor(xtime_to_days(ds_custom.xtime_startCustom.values)),
-    )
+    ds['dayStart'] = ('nDays', _day_starts(ds_custom))
     ds.dayStart.attrs = dict(
         long_name='start of the day', units='days since 0001-01-01'
     )
@@ -1337,6 +1409,12 @@ def _cell_speed(filenames):
         units='m s-1',
     )
     return ds
+
+
+def _day_starts(ds_custom):
+    """The start of each day of the daily maxima, in days since
+    0001-01-01"""
+    return np.floor(xtime_to_days(ds_custom.xtime_startCustom.values))
 
 
 def _assemble_peak_speed(reduced):
@@ -1528,13 +1606,12 @@ def _landice_applied(filenames, row):
     return ds_out
 
 
-def _snapshots(inputs, ds_init, cells, paths):
+def _year_states(inputs, ds_init, paths):
     """
-    The ocean at the start of the year, and at its end for the last year:
-    the thermal driving at the top cell, the temperature and layer thickness
-    on the centerline's cells and the melt over the day that ends then
+    The ocean's state at the start of the year, from the initial condition
+    in the first year and the restarts after, and at its end for the last
+    year
     """
-    options = inputs.options
     states = []
     if inputs.year == 1:
         state = ds_init[[name for name in STATE_FIELDS if name in ds_init]]
@@ -1546,11 +1623,20 @@ def _snapshots(inputs, ds_init, cells, paths):
     for filename in paths(inputs.restarts):
         with xr.open_dataset(filename, decode_times=False) as ds:
             states.append(ds[STATE_FIELDS].isel(Time=0).load())
-    states = [
+    return [
         state
         for state in states
         if _file_days(state) >= 365.0 * (inputs.year - 1)
     ]
+
+
+def _snapshots(inputs, ds_init, states, cells, paths):
+    """
+    The ocean at the start of the year, and at its end for the last year:
+    the thermal driving at the top cell, the temperature and layer thickness
+    on the centerline's cells and the melt over the day that ends then
+    """
+    options = inputs.options
     ds_melt = None
     names = inputs.daily_means_context + inputs.daily_means
     if names:
@@ -1586,6 +1672,31 @@ def _snapshots(inputs, ds_init, cells, paths):
     ds['transectCell'] = ('nTransectCells', cells)
     ds.snapshotTime.attrs = dict(
         long_name='time of the snapshot', units='days since 0001-01-01'
+    )
+    return ds
+
+
+def _dry_cells(states, ds_init, options):
+    """The census of dry columns of each state"""
+    censuses = []
+    for state in states:
+        if 'landIcePressure' not in state:
+            continue
+        ds = compute_dry_cells(
+            state,
+            ds_init,
+            options['min_thickness'],
+            options['land_ice_ocean_density'],
+        )
+        ds['dryTime'] = _file_days(state)
+        censuses.append(ds)
+    if not censuses:
+        return xr.Dataset()
+    ds = xr.concat(
+        censuses, dim='nDryStates', coords='minimal', compat='override'
+    )
+    ds.dryTime.attrs = dict(
+        long_name='time of the state', units='days since 0001-01-01'
     )
     return ds
 
@@ -1776,6 +1887,32 @@ def _assemble_snapshots(reduced):
         datasets.append(ds.isel({dim: unique}))
     if not datasets:
         return xr.Dataset()
+    return xr.merge(datasets, compat='override')
+
+
+def _assemble_run_health(reduced):
+    """The checks of the run's health over every year: the fast cells each
+    day, the salt above the source maximum each month and the census of dry
+    columns at each state, once"""
+    datasets = []
+    spikes = [each['spikes'] for each in reduced if 'spikes' in each]
+    if spikes:
+        ds_spikes = xr.concat(spikes, dim='nSpikes')
+        # a dimension of size zero would be a second unlimited one
+        if ds_spikes.sizes['nSpikes'] > 0:
+            datasets.append(ds_spikes)
+    datasets.append(_concat_years(reduced, 'salt_excess'))
+    dry = [
+        each['dry_cells']
+        for each in reduced
+        if 'nDryStates' in each.get('dry_cells', xr.Dataset()).dims
+    ]
+    if dry:
+        ds = xr.concat(
+            dry, dim='nDryStates', coords='minimal', compat='override'
+        )
+        _, unique = np.unique(ds.dryTime.values, return_index=True)
+        datasets.append(ds.isel(nDryStates=unique))
     return xr.merge(datasets, compat='override')
 
 
@@ -2157,6 +2294,22 @@ def _melt_and_frazil(ds_means, area, ref_density):
     else:
         source = 'freshwater flux'
     return sum(terms), source
+
+
+def _restores_tracers(run):
+    """Whether a run's namelist turns on the interior restoring of its
+    active tracers"""
+    # E3SM writes the namelist's options in lower case
+    for option in [
+        'config_use_activeTracers_interior_restoring',
+        'config_use_activetracers_interior_restoring',
+    ]:
+        try:
+            value = run.namelist_option(option)
+        except KeyError:
+            continue
+        return value.strip().strip('\'"').lower() in ('.true.', 'true', 't')
+    return False
 
 
 def _has_tidal_forcing(run):

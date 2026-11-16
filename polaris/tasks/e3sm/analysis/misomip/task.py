@@ -8,6 +8,7 @@ from polaris.tasks.e3sm.analysis.misomip.conservation import (
 )
 from polaris.tasks.e3sm.analysis.misomip.diagnostics import RunDiagnostics
 from polaris.tasks.e3sm.analysis.misomip.exchange import ModelExchange
+from polaris.tasks.e3sm.analysis.misomip.health_page import RunHealthPage
 from polaris.tasks.e3sm.analysis.misomip.ice_sheet import IceSheetComparison
 from polaris.tasks.e3sm.analysis.misomip.performance import RunPerformance
 from polaris.tasks.e3sm.analysis.misomip.plots import RunPlots
@@ -109,6 +110,15 @@ class MisomipAnalysisTask(Task):
                 self._add_shared_step(
                     RunPlots,
                     f'{self.subdir}/{kind}/plots_{run.key}',
+                    diagnostics=diagnostics[kind],
+                    kind=kind,
+                    label=label,
+                )
+            )
+            products.append(
+                self._add_shared_step(
+                    RunHealthPage,
+                    f'{self.subdir}/{kind}/run_health_{run.key}',
                     diagnostics=diagnostics[kind],
                     kind=kind,
                     label=label,

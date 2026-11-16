@@ -79,6 +79,19 @@ products.  It reads their fragments to find the name each plot is
 published under, and links each plot it shows at `../plots/<name>`, where
 the publish step puts it, rather than copying it.
 
+Each run also gets a
+{py:class}`polaris.tasks.e3sm.analysis.misomip.health_page.RunHealthPage`,
+a page of the checks of the run's health that the diagnostics step
+computes year by year with the functions in
+{py:mod}`polaris.tasks.e3sm.analysis.misomip.health`.  That module is one
+of the reducing modules in `years.py`, so a change to it makes the cached
+years stale.  The page's tables are in a module of their own, so changing
+them does not.  The checks read the density of the seawater the land ice
+displaces, `config_land_ice_rho_ocean`, and the minimum thickness of
+wetting and drying from the run's namelist, and the restoring salinity
+from the run's `interior_restoring` stream where the namelist turns
+interior restoring on.
+
 With `write_protocol_fields = True`, each run also gets a
 {py:class}`polaris.tasks.e3sm.analysis.misomip.protocol.ProtocolMapStep`,
 which writes SCRIP files of the run's mesh and the protocol's grid in
