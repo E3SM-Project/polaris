@@ -17,11 +17,8 @@ from pr_test_rows import MODEL_LABELS, Row
 MARKER_SCHEMA = 2
 
 #: the signature that Polaris's AGENTS.md prescribes for posts made by an
-#: agent on someone's behalf
-SIGNATURE = (
-    "*Posted by {agent} on @{user}'s behalf. The testing, analysis and "
-    'wording above are AI-authored; please check them accordingly.*'
-)
+#: agent on someone's behalf, on its own line at the top of the comment
+SIGNATURE = "*Posted by {agent} on @{user}'s behalf*"
 
 _CTEST_COUNTS = re.compile(
     r'(\d+)% tests passed, (\d+) tests failed out of (\d+)'
@@ -474,14 +471,18 @@ def assemble(
         The agent's or tester's notes
 
     agent : str, optional
-        The agent posting the comment, which adds the signature
+        The agent posting the comment, which adds the signature at the
+        top
 
     Returns
     -------
     text : str
         The comment
     """
-    parts = [f'## {heading}\n{marker}']
+    parts = []
+    if agent:
+        parts.append(SIGNATURE.format(agent=agent, user=requester))
+    parts.append(f'## {heading}\n{marker}')
     parts.extend(section.strip('\n') for section in sections)
     note_lines = []
     if requester_notes:
@@ -490,9 +491,6 @@ def assemble(
         note_lines.append(notes.strip())
     if note_lines:
         parts.append('### Notes\n\n' + '\n\n'.join(note_lines))
-    if agent:
-        signature = SIGNATURE.format(agent=agent, user=requester)
-        parts.append(f'---\n\n{signature}')
     return '\n\n'.join(parts) + '\n'
 
 
