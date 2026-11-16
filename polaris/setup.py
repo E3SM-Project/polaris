@@ -6,6 +6,8 @@ import sys
 import warnings
 from typing import Dict, List
 
+import numpy as np
+
 from polaris import Task, provenance
 from polaris.component_graph import (
     get_components_in_use,
@@ -16,7 +18,11 @@ from polaris.io import symlink
 from polaris.job import write_job_script
 from polaris.machines import discover_machine
 from polaris.parallel import set_parallel_systems
+from polaris.run.graph import build_step_graph
 from polaris.tasks import get_components
+
+# the widths of steps are counted in thousandths of a core or GPU
+_WIDTH_SCALE = 1000
 
 
 def setup_tasks(
@@ -294,7 +300,6 @@ def setup_tasks(
         max_of_min_cores,
         max_gpus,
         max_of_min_gpus,
-        sum_of_min_cores,
     ) = _get_required_resources(tasks)
 
     print(f'target cores: {max_cores}')
@@ -308,6 +313,10 @@ def setup_tasks(
         suite_config = _get_suite_config(
             basic_config, suite_component, suite_name
         )
+        concurrent = _run_steps_concurrently(suite_config)
+        concurrent_cores, concurrent_gpus = (
+            _get_concurrent_resources(tasks) if concurrent else (None, None)
+        )
         job_options = write_job_script(
             config=suite_config,
             machine=machine,
@@ -315,10 +324,11 @@ def setup_tasks(
             min_cores=max_of_min_cores,
             target_gpus=max_gpus,
             min_gpus=max_of_min_gpus,
-            sum_min_cores=sum_of_min_cores,
+            concurrent_cores=concurrent_cores,
+            concurrent_gpus=concurrent_gpus,
             work_dir=work_dir,
             suite=suite_name,
-            concurrent=_run_steps_concurrently(suite_config),
+            concurrent=concurrent,
         )
 
     # Rewrite provenance (it was written earlier so that it exists even if
@@ -444,8 +454,13 @@ def setup_task(
             max_of_min_cores,
             max_gpus,
             max_of_min_gpus,
-            sum_of_min_cores,
         ) = _get_required_resources({path: task})
+        concurrent = _run_steps_concurrently(task.config)
+        concurrent_cores, concurrent_gpus = (
+            _get_concurrent_resources({path: task})
+            if concurrent
+            else (None, None)
+        )
         write_job_script(
             config=task.config,
             machine=machine,
@@ -453,9 +468,10 @@ def setup_task(
             min_cores=max_of_min_cores,
             target_gpus=max_gpus,
             min_gpus=max_of_min_gpus,
-            sum_min_cores=sum_of_min_cores,
+            concurrent_cores=concurrent_cores,
+            concurrent_gpus=concurrent_gpus,
             work_dir=task_dir,
-            concurrent=_run_steps_concurrently(task.config),
+            concurrent=concurrent,
         )
 
 
@@ -1147,25 +1163,60 @@ def _get_required_resources(tasks):
     Get target and minimum CPU and GPU resource counts across task steps.
 
     The maxima describe the widest single step, which is what bounds a run
-    that takes one step at a time.  The sum of the minimum cores describes
-    every step at once at its smallest, which is what a run taking steps at
-    the same time can put to use, and it is what lets an allocation grow as
-    a suite gains tests rather than staying fixed at its widest step.  It is
-    cores only: the same sum in GPUs asks for far too much, since the
-    smallest GPU step is a quarter of a node where the smallest CPU step is
-    a hundredth of one.
-
-    A step shared between tasks appears once per task that runs it but is
-    run once, so it is counted once here.  That makes no difference to a
-    maximum and a large one to a sum: `omega_pr` shares enough steps that
-    counting them per task overstates its minima by a node's worth.
+    that takes one step at a time.
     """
 
     max_cores = 0
     max_of_min_cores = 0
     max_gpus = 0
     max_of_min_gpus = 0
-    sum_of_min_cores = 0
+    for step in _steps_to_size(tasks):
+        max_cores = max(max_cores, step.cores)
+        max_of_min_cores = max(max_of_min_cores, step.min_cores)
+        max_gpus = max(max_gpus, step.gpus)
+        max_of_min_gpus = max(max_of_min_gpus, step.min_gpus)
+
+    return (
+        max_cores,
+        max_of_min_cores,
+        max_gpus,
+        max_of_min_gpus,
+    )
+
+
+def _get_concurrent_resources(tasks):
+    """
+    Get the cores and GPUs for a job whose steps run at the same time.
+
+    Each step is given a width, the geometric mean of its target and its
+    minimum.  The allocation is the geometric mean of two extremes: the
+    widest single step, as if the steps took turns, and the widest set of
+    steps that could all run at once given their dependencies.  For a
+    single step both are that step's own width, so a one-step job is sized
+    exactly as it would be serially.  The allocation grows as the square
+    root of how much of a suite can run at once, and steps that have to
+    wait for one another add nothing to it.
+
+    A step shared between tasks appears once per task that runs it but is
+    run once, so it is counted once.
+    """
+    steps = _steps_to_size(tasks)
+    graph = build_step_graph(steps)
+    core_widths = {}
+    gpu_widths = {}
+    for step in steps:
+        core_widths[step.path] = _width(step.cores, step.min_cores)
+        gpu_widths[step.path] = _width(step.gpus, step.min_gpus)
+    cores = _concurrent_allocation(graph, core_widths)
+    gpus = _concurrent_allocation(graph, gpu_widths)
+    return cores, gpus
+
+
+def _steps_to_size(tasks):
+    """
+    The steps that will run, once each, checking that they have resources.
+    """
+    steps = []
     counted = set()
     for task in tasks.values():
         for step_name in task.steps_to_run:
@@ -1183,23 +1234,31 @@ def _get_required_resources(tasks):
                     f'The number of CPUs per task (cpus_per_task) was never '
                     f'set for {task.path} step {step_name}'
                 )
-            cores = step.cores
-            min_cores = step.min_cores
-            gpus = step.gpus
-            min_gpus = step.min_gpus
-            max_cores = max(max_cores, cores)
-            max_of_min_cores = max(max_of_min_cores, min_cores)
-            max_gpus = max(max_gpus, gpus)
-            max_of_min_gpus = max(max_of_min_gpus, min_gpus)
-            sum_of_min_cores += min_cores
+            steps.append(step)
+    return steps
 
-    return (
-        max_cores,
-        max_of_min_cores,
-        max_gpus,
-        max_of_min_gpus,
-        sum_of_min_cores,
-    )
+
+def _width(target, minimum):
+    """
+    The geometric mean of a step's target and minimum, in thousandths.
+
+    The graph adds widths up as integers.  Counting in thousandths of a core
+    or GPU keeps the rounding of each step from adding up across a suite of
+    hundreds, while rounding up still keeps a one-step job at least as large
+    as it would be serially.
+    """
+    return int(np.ceil(np.sqrt(target * minimum) * _WIDTH_SCALE))
+
+
+def _concurrent_allocation(graph, widths):
+    """
+    The geometric mean of the widest step and the widest concurrent set.
+    """
+    widest_step = max(widths.values(), default=0)
+    if widest_step == 0:
+        return 0
+    widest_set = graph.widest_concurrent(widths)
+    return float(np.sqrt(widest_step * widest_set)) / _WIDTH_SCALE
 
 
 def __get_machine_and_check_params(

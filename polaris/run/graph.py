@@ -23,6 +23,10 @@ reported at the start.
 import os
 from typing import Dict, FrozenSet, Iterable, List, Optional, Tuple
 
+import numpy as np
+from scipy.sparse import csr_matrix
+from scipy.sparse.csgraph import maximum_flow
+
 from polaris.run.lifecycle import step_is_complete
 from polaris.step import Step
 
@@ -119,6 +123,57 @@ class StepGraph:
             found.add(current)
             pending.extend(self._dependents[current])
         return frozenset(found)
+
+    def widest_concurrent(self, weights: Dict[str, int]) -> int:
+        """
+        The largest total weight of steps that could all run at once.
+
+        Two steps can run at the same time only if neither is downstream of
+        the other, so this is the heaviest set of steps no two of which are
+        ordered (an antichain).  By the weighted form of Dilworth's theorem
+        that equals the total weight less a maximum flow from each step to
+        every step downstream of it, which is exact and takes polynomial
+        time.
+
+        Parameters
+        ----------
+        weights : dict of int
+            A non-negative weight for each step, keyed by path.  A step
+            left out has no weight but still orders the steps around it.
+
+        Returns
+        -------
+        widest : int
+            The largest total weight of steps that could all run at once
+        """
+        paths = [path for path in self.nodes if weights.get(path, 0) > 0]
+        if not paths:
+            return 0
+        index = {path: i for i, path in enumerate(paths)}
+        count = len(paths)
+        total = sum(weights[path] for path in paths)
+        source = 2 * count
+        sink = source + 1
+        rows: List[int] = []
+        cols: List[int] = []
+        capacities: List[int] = []
+        for i, path in enumerate(paths):
+            weight = weights[path]
+            rows.extend([source, count + i])
+            cols.extend([i, sink])
+            capacities.extend([weight, weight])
+            for downstream in self.descendants(path):
+                if downstream in index:
+                    rows.append(i)
+                    cols.append(count + index[downstream])
+                    capacities.append(total)
+        network = csr_matrix(
+            (capacities, (rows, cols)),
+            shape=(sink + 1, sink + 1),
+            dtype=np.int32,
+        )
+        flow = maximum_flow(network, source, sink).flow_value
+        return total - int(flow)
 
 
 def build_step_graph(steps: Iterable[Step]) -> StepGraph:

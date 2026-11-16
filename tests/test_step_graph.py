@@ -8,13 +8,15 @@ they were listed in, and that a graph which cannot be run is rejected
 before anything starts rather than discovered partway through.
 """
 
+import itertools
 import os
+import random
 
 import pytest
 
 from polaris import Component, Step
 from polaris.run import STEP_COMPLETE_LOG
-from polaris.run.graph import build_step_graph
+from polaris.run.graph import StepGraph, StepNode, build_step_graph
 
 
 def _make_step(tmp_path, name, inputs=(), outputs=(), cached=False):
@@ -334,3 +336,60 @@ def test_a_step_may_consume_what_it_produces(tmp_path):
     graph = build_step_graph([step])
 
     assert graph.nodes['ocean/step'].requires == frozenset()
+
+
+def _graph_of(requires):
+    """A graph straight from which steps require which, with no steps."""
+    nodes = {
+        path: StepNode(
+            path=path,
+            step=None,
+            requires=frozenset(needs),
+            satisfied=False,
+        )
+        for path, needs in requires.items()
+    }
+    return StepGraph(nodes)
+
+
+def test_widest_concurrent_takes_the_heavier_side_of_a_diamond():
+    """
+    Two steps between a first and a last can run together, and nothing
+    else can run beside any of them.
+    """
+    graph = _graph_of({'a': [], 'b': ['a'], 'c': ['a'], 'd': ['b', 'c']})
+    assert graph.widest_concurrent({'a': 6, 'b': 2, 'c': 3, 'd': 4}) == 6
+    assert graph.widest_concurrent({'a': 1, 'b': 2, 'c': 3, 'd': 4}) == 5
+
+
+def test_widest_concurrent_follows_order_through_unweighted_steps():
+    """A step with no weight still keeps the steps on either side apart."""
+    graph = _graph_of({'a': [], 'x': ['a'], 'b': ['x'], 'c': []})
+    assert graph.widest_concurrent({'a': 5, 'b': 7, 'c': 1}) == 8
+
+
+def test_widest_concurrent_of_nothing_is_zero():
+    graph = _graph_of({'a': [], 'b': ['a']})
+    assert graph.widest_concurrent({}) == 0
+
+
+def test_widest_concurrent_matches_brute_force():
+    """Every subset of small random graphs, checked for being unordered."""
+    rng = random.Random(0)
+    for _ in range(50):
+        count = rng.randint(1, 9)
+        paths = [f's{i}' for i in range(count)]
+        requires = {
+            path: [paths[j] for j in range(i) if rng.random() < 0.3]
+            for i, path in enumerate(paths)
+        }
+        weights = {path: rng.randint(0, 20) for path in paths}
+        graph = _graph_of(requires)
+        below = {path: graph.descendants(path) for path in paths}
+        best = 0
+        for size in range(1, count + 1):
+            for subset in itertools.combinations(paths, size):
+                if any(b in below[a] for a in subset for b in subset):
+                    continue
+                best = max(best, sum(weights[p] for p in subset))
+        assert graph.widest_concurrent(weights) == best
