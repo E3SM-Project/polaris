@@ -23,6 +23,7 @@ from polaris.tasks.e3sm.analysis.misomip.published import (
 from polaris.tasks.e3sm.analysis.misomip.runs import (
     COUPLED_EXPERIMENTS,
     get_configured_runs,
+    get_final_year,
     get_mean_months,
     get_summary_captions,
     runs_section,
@@ -234,6 +235,11 @@ class MisomipAnalysisTask(Task):
                 subdir=f'{self.subdir}/summary',
                 product_steps=products,
                 captions=captions,
+                run=runs.get('e3sm', next(iter(runs.values()))),
+                resolution=resolution,
+                final_year=get_final_year(
+                    self.config, self.mesh_name, self.experiment
+                ),
             )
             self.add_step(summary)
             products.append(summary)
@@ -242,6 +248,7 @@ class MisomipAnalysisTask(Task):
             subdir=f'{self.subdir}/publish',
             product_steps=products,
             relative_path=f'{self.mesh_name}/{self.experiment}',
+            title=get_experiment_name(self.experiment),
             missing=(
                 f'No runs of {self.experiment} on {self.mesh_name} are '
                 f'configured.  Set {self.experiment}_e3sm_case or '
@@ -325,10 +332,28 @@ def get_run_label(kind, experiment, resolution):
     label : str
         The run's label
     """
+    name = get_experiment_name(experiment)
+    return f'{name} ({RUN_LABELS[kind]}, {resolution.replace("km", " km")})'
+
+
+def get_experiment_name(experiment):
+    """
+    Get an experiment's name as the protocol writes it
+
+    Parameters
+    ----------
+    experiment : str
+        The experiment, such as ``iceocean1r``
+
+    Returns
+    -------
+    name : str
+        The name, such as ``IceOcean1r``
+    """
     name = experiment.replace('iceocean', 'IceOcean').replace('ocean', 'Ocean')
     if name == experiment:
         name = experiment.capitalize()
-    return f'{name} ({RUN_LABELS[kind]}, {resolution.replace("km", " km")})'
+    return name
 
 
 def get_resolution(mesh_name):

@@ -354,7 +354,19 @@ The `publish` step won't replace an `index.html` that Polaris didn't
 publish, such as a hand-written page above several galleries; it stops
 with an error instead.
 
-With an E3SM run, the footer of every page links to the run's provenance:
+Every page is titled with the run's name, such as Ocean3, and has the same
+bar of links at its top and in its footer: Summary, Gallery, Run health,
+Provenance and All runs, leaving out the page it is on and any page the
+task doesn't make.  All runs links to a page above the task's gallery,
+such as a hand-written page of every run, if you give it, relative to the
+gallery's directory or as a full URL:
+
+```cfg
+[misomip_analysis]
+all_runs_href = ../../../index.html
+```
+
+With an E3SM run, the Provenance page records:
 the E3SM commit and libraries it was built with, the commands that created
 and changed the case, the options set in its `user_nl_*` files and its
 `SourceMods`, and copies of the namelists, streams files and Albany input
@@ -362,8 +374,8 @@ the models read in its latest job.
 
 ### A summary page
 
-A summary page, beside the galleries and linked from the footer of every
-page, shows notes, tables and chosen plots with their captions.  It comes
+A summary page, beside the galleries and first in the bar of links, shows
+notes, tables and chosen plots with their captions.  It comes
 from a captions file you write for the run, named in the section of the
 run's mesh:
 
@@ -391,4 +403,16 @@ named as it is in the gallery's `plots` directory, and appears under its
 own heading.  Links are relative to the summary page, which is in the
 `summary` directory beside `plots`.  A plot name the task doesn't publish
 is an error that lists the names it does.
+
+The page starts with how the run was made, in bold, from the run itself:
+MALI's mode (static, data mode or prognostic), the ocean's time integrator
+and its resolution.  Then come the years it covers, such as "years 1–5".
+Give the model year the E3SM run is to end with, and the page also says
+whether the run is finished, as "years 1–20, finished" or "years 1–5 of
+100, running":
+
+```cfg
+[misomip_analysis_misomip-o2km-li1km]
+ocean1_e3sm_final_year = 20
+```
 

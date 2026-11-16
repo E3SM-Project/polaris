@@ -1,12 +1,16 @@
 import os
+from types import SimpleNamespace
 
 import pytest
 
 from polaris.analysis import generate_site, publish
 from polaris.analysis.page import PAGE_FILENAME, Page, publish_pages
+from polaris.tasks.e3sm.analysis.misomip.publish import get_site_links
 from polaris.tasks.e3sm.analysis.misomip.summary import (
     add_captions,
     get_published_plots,
+    get_run_highlights,
+    get_years_text,
     read_captions,
 )
 from tests.analysis.test_site import PROVENANCE, _make_step, _read
@@ -91,3 +95,59 @@ def test_a_captions_file_that_does_not_fit_names_its_line(
         add_captions(
             Page('summary', 'Summary'), _captions(tmp_path, text), plots
         )
+
+
+def test_a_run_s_years_say_whether_it_is_finished():
+    assert get_years_text(1, 5) == 'years 1–5'
+    assert get_years_text(1, 1, 100) == 'year 1 of 100, running'
+    assert get_years_text(1, 5, 100) == 'years 1–5 of 100, running'
+    assert get_years_text(1, 20, 20) == 'years 1–20, finished'
+
+
+def test_the_highlights_name_mali_s_mode_the_integrator_and_resolution():
+    for mode, text in [
+        ('static', 'MALI static'),
+        ('data', 'MALI data mode'),
+        ('prognostic', 'MALI prognostic'),
+    ]:
+        run = SimpleNamespace(
+            kind='e3sm',
+            run=SimpleNamespace(
+                case=SimpleNamespace(landice_mode=mode),
+                namelist_option=lambda option: "'split_explicit'",
+            ),
+        )
+        assert get_run_highlights(run, '2km') == [
+            text,
+            'split-explicit',
+            '2 km',
+        ]
+    run = SimpleNamespace(
+        kind='standalone',
+        run=SimpleNamespace(namelist_option=lambda option: 'RK4'),
+    )
+    assert get_run_highlights(run, '4km') == [
+        'standalone MPAS-Ocean',
+        'RK4',
+        '4 km',
+    ]
+
+
+def test_every_run_has_the_same_links_in_the_same_order():
+    pages = [
+        {'name': name, 'title': name, 'href': f'{name}/index.html'}
+        for name in ['provenance', 'e3sm_run_health', 'summary']
+    ]
+    assert get_site_links(pages, '../../../index.html') == [
+        ('Summary', 'summary/index.html'),
+        ('Gallery', 'index.html'),
+        ('Run health', 'e3sm_run_health/index.html'),
+        ('Provenance', 'provenance/index.html'),
+        ('All runs', '../../../index.html'),
+    ]
+    # without a summary or a page of all runs, the rest keep their order
+    assert [text for text, _ in get_site_links(pages[:2])] == [
+        'Gallery',
+        'Run health',
+        'Provenance',
+    ]
