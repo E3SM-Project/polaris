@@ -135,7 +135,9 @@ antarctic_boundary_convention = grounding_line
 
 This applies to the `init` and `dynamic_adjustment` tasks on any base or
 unified mesh, and their work directories are the same as without cavities, so
-use a separate work directory for each convention.  Ice-shelf cavities are
+use a separate work directory for each convention.  The convention can only be
+set in a user config file passed to `polaris setup`: a step refuses to run if
+it has been changed in the work directory since setup.  Ice-shelf cavities are
 supported for MPAS-Ocean only.
 
 Under the ice, the treatment follows the ISOMIP+ tasks.  The land-ice pressure

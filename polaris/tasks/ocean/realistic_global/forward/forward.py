@@ -3,6 +3,7 @@ from typing import List, Optional
 
 import numpy as np
 
+from polaris.mesh.spherical.coastline import add_convention_setup_only_option
 from polaris.mpas.time import duration_to_seconds
 from polaris.ocean.ice_shelf import add_wetting_drying_yaml_files
 from polaris.ocean.model import OceanModelStep
@@ -144,6 +145,7 @@ class Forward(OceanModelStep):
             update_eos=update_eos,
             graph_target=init_condition.graph_target,
         )
+        add_convention_setup_only_option(self)
         self.init_condition = init_condition
         self.stage = stage
         self.package = package

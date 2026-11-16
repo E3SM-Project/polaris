@@ -4,6 +4,7 @@ import numpy as np
 import xarray as xr
 
 from polaris.coriolis import add_coriolis_to_dataset
+from polaris.mesh.spherical.coastline import add_convention_setup_only_option
 from polaris.ocean.init_state import (
     add_density_from_specvol,
     add_quiescent_normal_velocity,
@@ -85,6 +86,7 @@ class InitialStateStep(OceanIOStep):
             ntasks=1,
             min_tasks=1,
         )
+        add_convention_setup_only_option(self)
         self.pstar_init_step = pstar_init_step
         self.cull_mesh_step = cull_mesh_step
 

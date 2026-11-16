@@ -10,11 +10,11 @@ under all ice whose bed is below sea level, with a thin film under grounded
 ice.  The last two are what this package calls ice-shelf cavities.
 """
 
-from polaris.mesh.spherical.coastline import CONVENTIONS
-
-#: The section and option holding the Antarctic boundary convention
-CONVENTION_SECTION = 'spherical_mesh'
-CONVENTION_OPTION = 'antarctic_boundary_convention'
+from polaris.mesh.spherical.coastline import (
+    CONVENTION_OPTION,
+    CONVENTION_SECTION,
+    CONVENTIONS,
+)
 
 #: The convention that gives an ocean ending at the calving front
 DEFAULT_CONVENTION = 'calving_front'

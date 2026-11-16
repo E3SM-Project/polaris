@@ -1,6 +1,7 @@
 import os
 
 from polaris import Step
+from polaris.mesh.spherical.coastline import add_convention_setup_only_option
 from polaris.tasks.ocean.realistic_global.cavities import (
     has_ice_shelf_cavities,
 )
@@ -94,6 +95,7 @@ class StageCheck(Step):
         super().__init__(
             component=component, name=f'{stage.name}_check', subdir=subdir
         )
+        add_convention_setup_only_option(self)
         self.stage = stage
         self.sequence_start = sequence_start
         self.min_res = min_res

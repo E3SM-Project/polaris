@@ -7,6 +7,7 @@ from mpas_tools.io import write_netcdf
 
 from polaris.cf import add_cf_conventions
 from polaris.mesh.attrs import add_mesh_var_attrs
+from polaris.mesh.spherical.coastline import add_convention_setup_only_option
 from polaris.ocean.eos import compute_specvol
 from polaris.ocean.ice_shelf import (
     compute_freezing_temperature,
@@ -100,6 +101,7 @@ class RealisticPStarInitStep(PStarInitStep):
             ntasks=1,
             min_tasks=1,
         )
+        add_convention_setup_only_option(self)
         self.remap_woa23_step = remap_woa23_step
         self.cull_mesh_step = cull_mesh_step
         self.cull_topo_step = cull_topo_step
