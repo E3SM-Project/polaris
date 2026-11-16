@@ -104,8 +104,9 @@ These rules apply to anything a colleague reads: GitHub comments, pull
 request descriptions, issues, plans, design notes. Not code comments or
 commit messages, where a reader who wants the mechanism is already in the
 right place. Per-artifact rules and worked examples are in
-`.claude/skills/<artifact>/SKILL.md`, as plain markdown. Claude Code loads
-the matching one automatically; other agents should read it before writing.
+`.agents/skills/<artifact>/SKILL.md`, as plain markdown. Agents that do not
+load skills by themselves should read the matching one before writing.
+(`.claude/skills` is a link to the same directory.)
 
 Assume that the audience or readership is a polaris developer with
 familiarity at a high level with the overall structure and intention of the
