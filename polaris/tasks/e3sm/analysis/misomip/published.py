@@ -5,6 +5,7 @@ from mpas_tools.io import write_netcdf
 
 from polaris.analysis.product_step import ProductStep
 from polaris.e3sm.analysis.calendar import MODEL_YEAR_LABEL
+from polaris.tasks.e3sm.analysis.misomip.colors import get_signed_colors
 from polaris.tasks.e3sm.analysis.misomip.diagnostics import (
     SECONDS_PER_YEAR,
     TIME_MEAN_FILENAME,
@@ -20,6 +21,9 @@ from polaris.viz.time_series import Series, plot_time_series
 
 #: The units of melt rates in plots and their data
 MELT_RATE_UNITS = 'm yr$^{-1}$'
+
+#: The color bar's label on the maps of melt rate
+MELT_MAP_LABEL = 'melt rate, water equivalent (m yr$^{-1}$)'
 
 #: Labels of the runs, which use E3SM's physics rather than the protocol's
 #: COM physics
@@ -359,6 +363,11 @@ class PublishedComparison(ProductStep):
             [float(np.nanpercentile(ensemble.values, 99))]
             + [float(field.max()) for field in fields.values()]
         )
+        vmin = min(
+            [float(np.nanpercentile(ensemble.values, 1))]
+            + [float(field.min()) for field in fields.values()]
+        )
+        cmap, norm, ticks = get_signed_colors('melt', vmin, vmax)
         count = len(self.kinds) + 1
         with mplstyle_context():
             fig = Figure(figsize=(10.0, 2.6 * count))
@@ -370,9 +379,8 @@ class PublishedComparison(ProductStep):
                 x,
                 y,
                 ensemble.values,
-                cmap='cmo.amp',
-                vmin=0.0,
-                vmax=vmax,
+                cmap=cmap,
+                norm=norm,
                 shading='nearest',
             )
             ax.set_aspect('equal')
@@ -384,10 +392,11 @@ class PublishedComparison(ProductStep):
                 'Mean of the COM models (Yung et al. 2026), '
                 f'{_com_period(ds_pub, self.experiment)}'
             )
-            fig.colorbar(mesh, ax=ax, shrink=0.7).set_label(
-                'melt rate, water equivalent (m yr$^{-1}$)'
+            fig.colorbar(mesh, ax=ax, shrink=0.7, ticks=ticks).set_label(
+                MELT_MAP_LABEL
             )
-            floating = ds_init.landIceFloatingFraction > 0.0
+            # the melt under the ice, the thin film included
+            under_ice = ds_init.landIceFraction > 0.0
             descriptor = None
             for index, kind in enumerate(self.kinds):
                 ax = fig.add_subplot(count, 1, index + 2)
@@ -395,11 +404,11 @@ class PublishedComparison(ProductStep):
                     ds_mesh,
                     fields[kind],
                     ax=ax,
-                    vmin=0.0,
-                    vmax=vmax,
-                    cmap='cmo.amp',
-                    cmap_title='melt rate, water equivalent (m yr$^{-1}$)',
-                    field_mask=floating,
+                    cmap=cmap,
+                    norm=norm,
+                    cbar_ticks=ticks,
+                    cmap_title=MELT_MAP_LABEL,
+                    field_mask=under_ice,
                     descriptor=descriptor,
                 )
                 ax.set_title(f'{LABELS[kind]}, {_run_period(means[kind])}')

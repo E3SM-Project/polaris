@@ -16,11 +16,15 @@ from polaris.e3sm.analysis.calendar import (
     days_to_model_year,
 )
 from polaris.tasks.e3sm.analysis.misomip.centerline import (
+    MOSTLY_ICE_FRACTION,
+    MOSTLY_ICE_LABEL,
+    SectionColors,
     plot_centerline_movie,
     plot_centerline_sections,
     plot_melt_movie,
     plot_snapshots,
 )
+from polaris.tasks.e3sm.analysis.misomip.colors import get_signed_colors
 from polaris.tasks.e3sm.analysis.misomip.diagnostics import (
     CENTERLINE_FILENAME,
     DAILY_MELT_FILENAME,
@@ -185,10 +189,16 @@ TIME_SERIES: list[tuple[str, str, str, str, list[tuple]]] = [
     ),
 ]
 
+#: The maps whose sign matters, and the kind of colors each takes, which
+#: replace the colormap in ``MAPS``
+SIGNED_MAPS = {'meltRate': 'melt', 'thermalDriving': 'thermal_driving'}
+
 #: The maps of time means plotted for each run: the gallery, the variable,
 #: the title, the scale, the color bar's label, the colormap, and where the
-#: field is shown: ``floating`` under floating ice, ``open`` where there is
-#: no land ice or ``all``
+#: field is shown: ``floating`` under floating ice, ``ice`` under the ice,
+#: the thin film included, ``mostly_ice`` where ice covers at least
+#: ``MOSTLY_ICE_FRACTION`` of the cell, ``open`` where there is no land ice
+#: or ``all``
 MAPS = [
     (
         'melt',
@@ -197,7 +207,7 @@ MAPS = [
         SECONDS_PER_YEAR,
         'm yr$^{-1}$',
         'cmo.amp',
-        'floating',
+        'ice',
     ),
     (
         'melt',
@@ -206,7 +216,7 @@ MAPS = [
         1.0,
         r'$^\circ$C',
         'cmo.thermal',
-        'floating',
+        'mostly_ice',
     ),
     (
         'melt',
@@ -302,6 +312,10 @@ MAPS = [
 
 #: The option in ``[misomip_analysis_color_ranges]`` for each field plotted
 #: in maps and sections
+#: The maps whose color range from the data includes the thin film, so its
+#: water below freezing shows in the range's colors
+FILM_IN_RANGE = {'thermalDriving'}
+
 RANGE_OPTIONS = {
     'meltRate': 'melt_rate',
     'thermalDriving': 'thermal_driving',
@@ -590,10 +604,16 @@ class RunPlots(ProductStep):
         hatched = None
         if 'nCells' in field.dims:
             mask = get_map_mask(ds_mean, where)
-            counted = get_range_mask(ds_mean, mask)
+            counted = get_range_mask(
+                ds_mean, mask, include_film=name in FILM_IN_RANGE
+            )
             hatched = get_hatched_cells(ds_mean, name, mask)
         vmin, vmax = get_color_range(self.config, name, field, counted)
         norm, ticks = get_color_norm(self.config, name, cmap)
+        if name in SIGNED_MAPS:
+            cmap, norm, ticks = get_signed_colors(
+                SIGNED_MAPS[name], vmin, vmax
+            )
         plot = f'{name}_map.png'
         data = f'{name}_map.nc'
         with mplstyle_context():
@@ -618,6 +638,7 @@ class RunPlots(ProductStep):
             ax.set_title(f'{title}, {self.label}')
             fig.savefig(plot, bbox_inches='tight', pad_inches=0.2)
         ds_data = field.to_dataset()
+        title = get_map_caption(title, where)
         if hatched is not None:
             ds_data['partlyWetColumn'] = ds_mean.partlyWetColumn
             title = f'{title}; {HATCH_LABEL}'
@@ -856,7 +877,10 @@ class RunPlots(ProductStep):
             plot='snapshots.png',
             group=self.kind,
             gallery='melt',
-            title='Melt, thickness change and thermal driving over time',
+            title=(
+                'Melt, thickness change and thermal driving over time; '
+                f'{MOSTLY_ICE_LABEL}'
+            ),
         )
         plot_centerline_sections(
             ds_init,
@@ -866,6 +890,9 @@ class RunPlots(ProductStep):
             'centerline_sections.png',
             ds_landice_mesh=ds_landice_mesh,
             densities=self.landice_densities,
+            temperature_range=get_section_colors(
+                self.config
+            ).temperature_range,
         )
         self.add_product(
             plot='centerline_sections.png',
@@ -899,6 +926,7 @@ class RunPlots(ProductStep):
             png,
             ds_landice_mesh=ds_landice_mesh,
             densities=self.landice_densities,
+            colors=get_section_colors(self.config),
         )
         for plot, title in [
             (gif, 'Centerline section each month'),
@@ -1091,8 +1119,10 @@ def get_map_mask(ds, where):
     ds : xarray.Dataset
         A dataset with ``landIceFraction`` and ``landIceFloatingFraction``
 
-    where : {'floating', 'open', 'all'}
-        Under floating ice, where there is no land ice, or everywhere
+    where : {'floating', 'ice', 'mostly_ice', 'open', 'all'}
+        Under floating ice, under the ice with the thin film, where ice
+        covers at least ``MOSTLY_ICE_FRACTION`` of the cell, where there is
+        no land ice, or everywhere
 
     Returns
     -------
@@ -1103,15 +1133,43 @@ def get_map_mask(ds, where):
         return None
     if where == 'floating':
         return ds.landIceFloatingFraction > 0.0
+    if where == 'ice':
+        return ds.landIceFraction > 0.0
+    if where == 'mostly_ice':
+        return ds.landIceFraction >= MOSTLY_ICE_FRACTION
     if where == 'open':
         return ds.landIceFraction == 0.0
     raise ValueError(f'Unexpected place to show a field: {where}')
 
 
-def get_range_mask(ds, mask=None):
+def get_map_caption(title, where):
+    """
+    Get a map's caption: its title, and the cells it leaves out where that
+    needs saying
+
+    Parameters
+    ----------
+    title : str
+        The map's title
+
+    where : str
+        Where the map shows its field, as for :py:func:`get_map_mask`
+
+    Returns
+    -------
+    caption : str
+        The caption
+    """
+    if where == 'mostly_ice':
+        return f'{title}; {MOSTLY_ICE_LABEL}'
+    return title
+
+
+def get_range_mask(ds, mask=None, include_film=False):
     """
     Get the cells whose values count toward a color range taken from the
-    data: those shown, less the columns that hold only the thin film
+    data: those shown, less the columns that hold only the thin film unless
+    it is included
 
     The film keeps the initial condition's water, so its values would set
     the range of the cavity's.  It is still drawn.
@@ -1126,11 +1184,18 @@ def get_range_mask(ds, mask=None):
     mask : xarray.DataArray, optional
         Where the field is shown, everywhere by default
 
+    include_film : bool, optional
+        Whether the film's values count toward the range too
+
     Returns
     -------
     counted : xarray.DataArray
         The cells whose values set the range
     """
+    if include_film:
+        if mask is None:
+            return xr.ones_like(ds.landIceFraction, dtype=bool)
+        return mask
     if 'filmColumn' in ds:
         film = ds.filmColumn > 0
     else:
@@ -1217,6 +1282,34 @@ def get_color_range(config, name, field=None, counted=None):
         limit = limit if limit > 0.0 else 1.0
         vmin, vmax = -limit, limit
     return vmin, vmax
+
+
+def get_section_colors(config):
+    """
+    Get the colors of temperature and salinity in the sections along the
+    centerline, from ``[misomip_analysis_color_ranges]``
+
+    Parameters
+    ----------
+    config : polaris.config.PolarisConfigParser
+        The config options
+
+    Returns
+    -------
+    colors : polaris.tasks.e3sm.analysis.misomip.centerline.SectionColors
+        The colors, each from the data where its options are blank
+    """
+    temperature_range = get_color_range(config, 'temperature')
+    salinity_range = get_color_range(config, 'salinity')
+    norm, ticks = get_color_norm(config, 'salinity', 'cmo.haline')
+    return SectionColors(
+        temperature_range=(
+            None if temperature_range[0] is None else temperature_range
+        ),
+        salinity_range=None if salinity_range[0] is None else salinity_range,
+        salinity_norm=norm,
+        salinity_ticks=ticks,
+    )
 
 
 def get_color_norm(config, name, cmap):

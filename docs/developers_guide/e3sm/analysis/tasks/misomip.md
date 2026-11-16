@@ -61,7 +61,7 @@ coupler log and memory profile.  It splits the ocean's and MALI's run times
 into the parts its `RUN_TIME_PARTS` names, from the models' timers.  In the coupled experiments, IceOcean1r and
 IceOcean1ra,
 {py:class}`polaris.tasks.e3sm.analysis.misomip.exchange.ModelExchange`
-compares the flux the ocean sends with the melt MALI applies over the
+compares the flux the ocean sends with the melt + frazil MALI applies over the
 same period, from MALI's global statistics, and
 {py:class}`polaris.tasks.e3sm.analysis.misomip.ice_sheet.IceSheetComparison`
 compares MALI's ice sheet with standalone MALI runs of MISMIP+ and the

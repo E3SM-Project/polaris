@@ -1040,7 +1040,9 @@ def reduce_year(inputs):
             init_filename,
             options['densities'],
         )
-        datasets['landice_snapshots'] = _landice_snapshots(ds_states)
+        datasets['landice_snapshots'] = _landice_snapshots(
+            ds_states, paths(inputs.landice_daily)
+        )
         datasets['landice_gl'] = _landice_grounding_lines(
             ds_states, init_filename, options['densities']
         )
@@ -1583,8 +1585,8 @@ def _landice_centerline(ds, row):
 
 
 def _landice_applied(filenames, row):
-    """The melt MALI applies on the row of cells along the centerline,
-    averaged over each file's month, positive for melt"""
+    """The melt + frazil MALI applies on the row of cells along the
+    centerline, averaged over each file's month, positive for melt"""
     melt = []
     month_end = []
     for filename in filenames:
@@ -1595,7 +1597,7 @@ def _landice_applied(filenames, row):
     ds_out = xr.Dataset()
     ds_out['appliedMelt'] = (('nAppliedMonths', 'nRowCells'), np.array(melt))
     ds_out.appliedMelt.attrs = dict(
-        long_name='melt MALI applies, averaged over the month',
+        long_name='melt + frazil MALI applies, averaged over the month',
         units='kg m-2 s-1',
     )
     ds_out['appliedMonthEnd'] = ('nAppliedMonths', np.array(month_end))
@@ -1634,7 +1636,8 @@ def _snapshots(inputs, ds_init, states, cells, paths):
     """
     The ocean at the start of the year, and at its end for the last year:
     the thermal driving at the top cell, the temperature and layer thickness
-    on the centerline's cells and the melt over the day that ends then
+    on the centerline's cells, and the melt and the melt plus the frazil
+    under the ice over the day that ends then
     """
     options = inputs.options
     ds_melt = None
@@ -1642,7 +1645,11 @@ def _snapshots(inputs, ds_init, states, cells, paths):
     if names:
         ds_melt = read_time_series(
             paths(names),
-            ['landIceFreshwaterFlux'],
+            [
+                'landIceFreshwaterFlux',
+                'frazilIceFreshwaterFlux',
+                'landIceFraction',
+            ],
             prefix=DAILY_MEANS_PREFIX,
         )
     snapshots = []
@@ -1664,7 +1671,13 @@ def _snapshots(inputs, ds_init, states, cells, paths):
             floating = state.landIceFloatingFraction
         ds_out['landIceFloatingFraction'] = floating
         if ds_melt is not None and 'landIceFreshwaterFlux' in ds_melt:
-            ds_out['meltDayFlux'] = _melt_on_day(ds_melt, day)
+            ds_out['meltDayFlux'] = _on_day(
+                ds_melt, 'landIceFreshwaterFlux', day
+            )
+            if 'frazilIceFreshwaterFlux' in ds_melt:
+                ds_out['meltFrazilDayFlux'] = _melt_and_frazil_on_day(
+                    ds_melt, ds_init, day
+                )
         snapshots.append(ds_out)
     if not snapshots:
         return xr.Dataset()
@@ -1724,15 +1737,39 @@ def _top_thermal_driving(state, ds_init, coefficients):
     return driving
 
 
-def _melt_on_day(ds_melt, day):
-    """The daily-mean melt flux over the day that ends at a time, or over
-    the first day if none does"""
+def _on_day(ds_melt, name, day):
+    """A daily mean over the day that ends at a time, or over the first
+    day if none does"""
     day_end = xtime_to_days(ds_melt.xtime_endDaily.values)
     matches = np.flatnonzero(np.abs(day_end - day) < 1e-6)
     index = int(matches[0]) if len(matches) else 0
-    return ds_melt.landIceFreshwaterFlux.isel(Time=index).drop_vars(
-        [name for name in ds_melt.coords], errors='ignore'
+    return (
+        ds_melt[name]
+        .isel(Time=index)
+        .drop_vars(list(ds_melt.coords), errors='ignore')
     )
+
+
+def _melt_and_frazil_on_day(ds_melt, ds_init, day):
+    """The melt flux plus the frazil flux under the land ice, the net
+    flux out of the ice's base the ocean computes, over the day that ends
+    at a time"""
+    if 'landIceFraction' in ds_melt:
+        under_ice = _on_day(ds_melt, 'landIceFraction', day) > 0.0
+    else:
+        under_ice = ds_init.landIceFraction > 0.0
+    frazil = _on_day(ds_melt, 'frazilIceFreshwaterFlux', day)
+    flux = _on_day(ds_melt, 'landIceFreshwaterFlux', day) + frazil.where(
+        under_ice, 0.0
+    )
+    flux.attrs = dict(
+        long_name=(
+            'daily-mean land-ice freshwater flux plus the frazil freshwater '
+            'flux under the land ice, positive out of the ice'
+        ),
+        units='kg m-2 s-1',
+    )
+    return flux
 
 
 def _landice_states(ds_history, restart_filenames, init_filename, densities):
@@ -1758,8 +1795,12 @@ def _landice_states(ds_history, restart_filenames, init_filename, densities):
     return ds.isel(Time=unique)
 
 
-def _landice_snapshots(ds):
-    """MALI's thickness at the records at the start of a year"""
+def _landice_snapshots(ds, daily_filenames):
+    """
+    MALI's thickness at the records at the start of a year and, where MALI
+    writes its daily output, the basal mass balance it applies to its
+    floating ice from its daily record nearest each, within a day
+    """
     days = xtime_to_days(ds.xtime.values)
     at_start = np.flatnonzero(
         np.abs(days / 365.0 - np.round(days / 365.0)) < 1e-6
@@ -1769,11 +1810,57 @@ def _landice_snapshots(ds):
         ('nLandiceSnapshots', 'nLandiceCells'),
         ds.thickness.isel(Time=at_start).values,
     )
+    if daily_filenames:
+        ds_out['appliedBasalMassBal'] = (
+            ('nLandiceSnapshots', 'nLandiceCells'),
+            _applied_on_days(
+                daily_filenames, days[at_start], ds.sizes['nCells']
+            ),
+        )
+        ds_out.appliedBasalMassBal.attrs = dict(
+            long_name=(
+                'basal mass balance MALI applies to its floating ice, from '
+                'its daily record nearest the snapshot within a day, '
+                'negative for melt'
+            ),
+            units='kg m-2 s-1',
+        )
     ds_out['landiceSnapshotTime'] = ('nLandiceSnapshots', days[at_start])
     ds_out.landiceSnapshotTime.attrs = dict(
         long_name='time of the record', units='days since 0001-01-01'
     )
     return ds_out
+
+
+def _applied_on_days(filenames, days, n_cells):
+    """
+    MALI's applied basal mass balance on its floating ice from its daily
+    record at each time or, failing that, the nearest within a day, before
+    rather than after; NaN where there is none.  A job that starts at a
+    time writes no record then, and the record the day before is in the
+    previous year's files.
+    """
+    applied = np.full((len(days), n_cells), np.nan)
+    best = np.full(len(days), np.inf)
+    for filename in filenames:
+        with xr.open_dataset(filename, decode_times=False) as ds:
+            if 'floatingBasalMassBalApplied' not in ds:
+                continue
+            record_days = xtime_to_days(ds.xtime.values)
+            for index, day in enumerate(days):
+                lag = day - record_days
+                # a record after the time ranks behind one as far before
+                rank = np.where(lag >= -1e-6, np.abs(lag), np.abs(lag) + 0.5)
+                valid = np.flatnonzero(np.abs(lag) < 1.0 + 1e-6)
+                if len(valid) == 0:
+                    continue
+                record = valid[np.argmin(rank[valid])]
+                if rank[record] < best[index]:
+                    best[index] = rank[record]
+                    applied[index] = ds.floatingBasalMassBalApplied.isel(
+                        Time=record
+                    ).values
+    return applied
 
 
 def _daily_melt(ds_means, ds_init):
