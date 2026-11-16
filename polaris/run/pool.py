@@ -196,13 +196,46 @@ class ResourcePool:
         reservation : polaris.run.pool.Reservation or None
             What it was given, or ``None`` if it does not fit yet
         """
-        if step.may_span_nodes:
-            layout = self._fit_across_nodes(step)
-        else:
-            layout = self._fit_on_one_node(step)
+        layout = self._fit(step)
         if layout is None:
             return None
         return self._take(step, layout)
+
+    def fits(self, step) -> bool:
+        """
+        Whether a step would fit in what is free, without reserving it.
+
+        Parameters
+        ----------
+        step : polaris.Step
+            The step to ask about, with its resources already constrained
+
+        Returns
+        -------
+        fits : bool
+            Whether :py:meth:`reserve` would succeed for it right now
+        """
+        return self._fit(step) is not None
+
+    def free_cores(self, may_span_nodes: bool) -> int:
+        """
+        How many cores are free where a step could take them.
+
+        Parameters
+        ----------
+        may_span_nodes : bool
+            Whether the step may take cores from every node, rather than
+            only from the scheduler's own
+
+        Returns
+        -------
+        cores : int
+            The number of free cores it could draw on
+        """
+        if may_span_nodes:
+            return sum(len(node.free_cores) for node in self._nodes)
+        node = self._by_name.get(self.local_node)
+        return 0 if node is None else len(node.free_cores)
 
     def release(self, reservation: Reservation) -> None:
         """
@@ -261,6 +294,12 @@ class ResourcePool:
             )
             for node in self._nodes
         ]
+
+    def _fit(self, step):
+        """Lay a step out in what is free, or say it does not fit."""
+        if step.may_span_nodes:
+            return self._fit_across_nodes(step)
+        return self._fit_on_one_node(step)
 
     def _fit_on_one_node(self, step):
         """Fit a step that has to take everything from the scheduler's node."""

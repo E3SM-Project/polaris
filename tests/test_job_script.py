@@ -1,5 +1,6 @@
 import argparse
 import inspect
+import math
 import os
 import sys
 
@@ -10,6 +11,7 @@ from polaris.__main__ import main as polaris_main
 from polaris.config import PolarisConfigParser
 from polaris.job import write_job_script
 from polaris.setup import (
+    _get_concurrent_resources,
     _get_required_resources,
     _run_steps_concurrently,
     add_concurrent_steps_args,
@@ -422,122 +424,67 @@ def _nodes_in(text):
     raise AssertionError(f'no node count in:\n{text}')
 
 
+def _node_shape(machine):
+    """Cores and GPUs per node, as the machine's config gives them."""
+    config = get_config(machine)
+    cores = config.getint('parallel', 'cores_per_node')
+    gpus = 0
+    if config.has_option('parallel', 'gpus_per_node'):
+        gpus = config.getint('parallel', 'gpus_per_node')
+    return cores, gpus
+
+
 def test_a_serial_job_is_sized_by_its_widest_step(tmp_path):
     """One step at a time means only the widest step can use the machine."""
-    # sqrt(800 * 36) = 169.7 cores, which is 3 of Chrysalis' 64-core nodes
+    cores_per_node, _ = _node_shape('chrysalis')
     text = _sized_job(
         tmp_path,
         concurrent=False,
         target_cores=800,
         min_cores=36,
-        sum_min_cores=310,
+        concurrent_cores=10 * cores_per_node,
     )
-    assert _nodes_in(text) == 3
+    assert _nodes_in(text) == math.ceil(math.sqrt(800 * 36) / cores_per_node)
 
 
-def test_a_concurrent_job_holds_every_step_at_once(tmp_path):
-    """Steps running together can use more than the widest of them."""
-    # the same suite, whose steps need 310 cores between them at their
-    # smallest: 5 nodes rather than 3
+def test_a_concurrent_job_is_sized_for_the_whole_suite(tmp_path):
+    """Steps running together are sized by what setup found for them all."""
+    cores_per_node, _ = _node_shape('chrysalis')
     text = _sized_job(
         tmp_path,
         concurrent=True,
         target_cores=800,
         min_cores=36,
-        sum_min_cores=310,
+        concurrent_cores=4.5 * cores_per_node,
     )
     assert _nodes_in(text) == 5
 
 
-def test_a_concurrent_job_grows_as_a_suite_gains_steps(tmp_path):
-    """The point of the sum: more tests ask for more of the machine."""
-    smaller = _sized_job(
-        tmp_path,
-        concurrent=True,
-        target_cores=800,
-        min_cores=36,
-        sum_min_cores=310,
-    )
-    larger = _sized_job(
-        tmp_path,
-        concurrent=True,
-        target_cores=800,
-        min_cores=36,
-        sum_min_cores=620,
-    )
-    assert _nodes_in(larger) == 2 * _nodes_in(smaller)
-
-
-def test_one_step_is_sized_the_same_either_way(tmp_path):
+def test_a_gpu_machine_is_sized_by_gpus_or_cores(tmp_path):
     """
-    With one step the sum is that step's own minimum, which the geometric
-    mean already exceeds, so concurrency cannot change the answer.
+    GPUs size the job unless the steps' cores need more nodes, since steps
+    that run on CPUs alone need cores whatever the GPUs come to.
     """
-    resources = dict(target_cores=800, min_cores=36, sum_min_cores=36)
-    serial = _sized_job(tmp_path, concurrent=False, **resources)
-    concurrent = _sized_job(tmp_path, concurrent=True, **resources)
-    assert _nodes_in(serial) == _nodes_in(concurrent) == 3
-
-
-def test_a_gpu_machine_takes_the_sum_in_cores(tmp_path):
-    """
-    Perlmutter GPU, with omega_pr's own figures: 51 of its 63 GPU steps
-    need one GPU each, so summing the minimum GPUs asked for 29 nodes of
-    a 4-GPU machine.  A one-GPU step is a quarter of a node there where a
-    one-core step is a hundredth of one, which is why the sum is taken in
-    cores on every machine.  In cores the same suite is 3 nodes, and the
-    widest GPU step still fits through the geometric mean.
-    """
-    resources = dict(
-        target_cores=24,
-        min_cores=4,
-        target_gpus=24,
-        min_gpus=4,
-        sum_min_cores=168,
-    )
-    serial = _sized_job(
-        tmp_path, concurrent=False, machine='pm-gpu', **resources
-    )
-    concurrent = _sized_job(
-        tmp_path, concurrent=True, machine='pm-gpu', **resources
-    )
-    # sqrt(24 * 4) = 9.8 GPUs on 4-GPU nodes
-    assert _nodes_in(serial) == 3
-    # 168 cores on 64-core nodes, not 116 GPUs on 4-GPU nodes
-    assert _nodes_in(concurrent) == 3
-
-
-def test_a_gpu_machine_still_grows_with_the_suite(tmp_path):
-    """Taking the sum in cores keeps the elasticity; it changes the unit."""
+    cores_per_node, gpus_per_node = _node_shape('pm-gpu')
     resources = dict(target_cores=24, min_cores=4, target_gpus=24, min_gpus=4)
-    smaller = _sized_job(
+    by_gpus = _sized_job(
         tmp_path,
         concurrent=True,
         machine='pm-gpu',
-        sum_min_cores=320,
+        concurrent_gpus=3 * gpus_per_node,
+        concurrent_cores=cores_per_node,
         **resources,
     )
-    larger = _sized_job(
+    by_cores = _sized_job(
         tmp_path,
         concurrent=True,
         machine='pm-gpu',
-        sum_min_cores=640,
+        concurrent_gpus=3 * gpus_per_node,
+        concurrent_cores=5 * cores_per_node,
         **resources,
     )
-    assert _nodes_in(smaller) == 5
-    assert _nodes_in(larger) == 10
-
-
-def test_a_concurrent_job_never_asks_for_less_than_the_widest_step(tmp_path):
-    """A suite of tiny steps is still sized to run its one big one."""
-    text = _sized_job(
-        tmp_path,
-        concurrent=True,
-        target_cores=800,
-        min_cores=36,
-        sum_min_cores=40,
-    )
-    assert _nodes_in(text) == 3
+    assert _nodes_in(by_gpus) == 3
+    assert _nodes_in(by_cores) == 5
 
 
 def _task_using(component, name, steps):
@@ -547,38 +494,100 @@ def _task_using(component, name, steps):
     return task
 
 
-def test_a_shared_step_is_counted_once(tmp_path):
+def _sized_step(tmp_path, component, name, ntasks, min_tasks, cached=False):
+    """A step with resources and no files, as setup would leave it."""
+    step = Step(
+        component=component,
+        name=name,
+        subdir=name,
+        ntasks=ntasks,
+        cpus_per_task=1,
+        min_tasks=min_tasks,
+        min_cpus_per_task=1,
+        cached=cached,
+    )
+    step.work_dir = str(tmp_path / name)
+    os.makedirs(step.work_dir, exist_ok=True)
+    step.inputs = []
+    step.outputs = []
+    return step
+
+
+def _chain(steps):
+    """Make each step depend on the one before it."""
+    for before, after in zip(steps[:-1], steps[1:], strict=True):
+        after.add_dependency(before, name=before.name)
+        # the files add_dependency() declares are setup's to resolve
+        after.inputs = []
+        before.outputs = []
+
+
+def test_one_step_is_sized_the_same_either_way(tmp_path):
+    """For a single step both extremes are that step's own width."""
+    component = Component(name='ocean')
+    step = _sized_step(tmp_path, component, 'only', ntasks=800, min_tasks=36)
+    tasks = {'task': _task_using(component, 'task', [step])}
+    cores, _ = _get_concurrent_resources(tasks)
+    serial = math.sqrt(800 * 36)
+    assert serial <= cores < serial + 0.01
+
+
+def test_independent_steps_grow_the_allocation(tmp_path):
     """
-    A step shared between tasks runs once, so the sum of the minima has to
-    count it once.  It appears once per task that runs it, which makes no
-    difference to a maximum and inflates a sum.
+    Four steps of width 16 that can all run at once: the geometric mean of
+    16, one at a time, and 64, all at once.
     """
     component = Component(name='ocean')
-    shared = Step(
-        component=component,
-        name='shared',
-        subdir='shared',
-        ntasks=8,
-        cpus_per_task=1,
-        min_tasks=4,
-        min_cpus_per_task=1,
-    )
-    own = Step(
-        component=component,
-        name='own',
-        subdir='own',
-        ntasks=2,
-        cpus_per_task=1,
-        min_tasks=1,
-        min_cpus_per_task=1,
-    )
+    steps = [
+        _sized_step(tmp_path, component, f's{i}', ntasks=64, min_tasks=4)
+        for i in range(4)
+    ]
+    tasks = {'task': _task_using(component, 'task', steps)}
+    cores, gpus = _get_concurrent_resources(tasks)
+    assert cores == pytest.approx(32)
+    assert gpus == 0
+
+
+def test_steps_that_wait_for_each_other_add_nothing(tmp_path):
+    """The same four steps in a chain can only ever run one at a time."""
+    component = Component(name='ocean')
+    steps = [
+        _sized_step(tmp_path, component, f's{i}', ntasks=64, min_tasks=4)
+        for i in range(4)
+    ]
+    _chain(steps)
+    tasks = {'task': _task_using(component, 'task', steps)}
+    cores, _ = _get_concurrent_resources(tasks)
+    assert cores == pytest.approx(16)
+
+
+def test_a_shared_step_is_counted_once(tmp_path):
+    """
+    A step shared between tasks runs once, so it is counted once.  It
+    appears once per task that runs it, which would make two copies of it
+    look as if they could run at the same time.
+    """
+    component = Component(name='ocean')
+    shared = _sized_step(tmp_path, component, 'shared', ntasks=64, min_tasks=4)
+    own = _sized_step(tmp_path, component, 'own', ntasks=64, min_tasks=4)
     tasks = {
         'one': _task_using(component, 'one', [shared, own]),
         'two': _task_using(component, 'two', [shared]),
     }
-    _, max_of_min_cores, _, _, sum_of_min_cores = _get_required_resources(
-        tasks
-    )
-    # 4 for the shared step and 1 for the other, not 4 + 1 + 4
-    assert sum_of_min_cores == 5
+    cores, _ = _get_concurrent_resources(tasks)
+    # widths of 16 each: sqrt(16 x 32), not sqrt(16 x 48)
+    assert cores == pytest.approx(math.sqrt(16 * 32))
+    _, max_of_min_cores, _, _ = _get_required_resources(tasks)
     assert max_of_min_cores == 4
+
+
+def test_a_cached_step_is_not_sized(tmp_path):
+    """A cached step will not run, so it takes no part in the allocation."""
+    component = Component(name='ocean')
+    cached = _sized_step(
+        tmp_path, component, 'cached', ntasks=640, min_tasks=256, cached=True
+    )
+    run = _sized_step(tmp_path, component, 'run', ntasks=64, min_tasks=4)
+    tasks = {'task': _task_using(component, 'task', [cached, run])}
+    cores, _ = _get_concurrent_resources(tasks)
+    assert cores == pytest.approx(16)

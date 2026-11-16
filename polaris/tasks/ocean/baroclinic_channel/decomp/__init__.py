@@ -1,4 +1,5 @@
 from polaris import Task as Task
+from polaris.ocean.model import omega_runs_on_gpus
 from polaris.tasks.ocean.baroclinic_channel.forward import Forward as Forward
 from polaris.tasks.ocean.baroclinic_channel.validate import (
     Validate as Validate,
@@ -8,7 +9,8 @@ from polaris.tasks.ocean.baroclinic_channel.validate import (
 class Decomp(Task):
     """
     A baroclinic channel decomposition task, which makes sure the model
-    produces identical results on 1 and 4 cores.
+    produces identical results on 4 and 8 cores, or on 1 and 2 GPUs when
+    Omega runs on GPUs.
     """
 
     def __init__(self, component, resolution, indir, init):
@@ -34,9 +36,11 @@ class Decomp(Task):
 
         self.add_step(init, symlink='init')
 
+        self.gpu_counts = dict()
         subdirs = list()
-        for procs in [4, 8]:
+        for procs, gpus in [(4, 1), (8, 2)]:
             name = f'{procs}proc'
+            self.gpu_counts[name] = gpus
 
             self.add_step(
                 Forward(
@@ -58,3 +62,14 @@ class Decomp(Task):
                 component=component, step_subdirs=subdirs, indir=self.subdir
             )
         )
+
+    def configure(self):
+        """
+        Run each step on its GPU count instead when Omega runs on GPUs
+        """
+        super().configure()
+        if omega_runs_on_gpus(self.config, self.component):
+            for name, gpus in self.gpu_counts.items():
+                step = self.steps[name]
+                step.ntasks = gpus
+                step.min_tasks = gpus
