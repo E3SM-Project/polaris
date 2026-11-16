@@ -305,7 +305,7 @@ See {ref}`ocean-baroclinic-channel`.
 ### cores
 
 This test is run on 4 cores for the `4proc` step and 8 cores for the `8proc`
-step.
+step.  When Omega runs on GPUs, the steps run on 1 and 2 GPUs instead.
 
 ## threads
 
