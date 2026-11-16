@@ -86,25 +86,45 @@ These resolutions are intended for different downstream uses:
    E3SM v4 unified MPAS mesh across land, river, ocean, and sea-ice.
 
 A series of standalone tasks are available to create each topography dataset
-on its own:
+on its own, for each Antarctic dataset in `ANTARCTIC_DATASETS`
+(`bedmap3` and `bedmachinev4`):
 
-- `e3sm/init/topo/combine_bedmap3_gebco2023/cubed_sphere/ne3000/task`
-- `e3sm/init/topo/combine_bedmap3_gebco2023/cubed_sphere/ne120/task`
-- `e3sm/init/topo/combine_bedmap3_gebco2023/lat_lon/1.00000_degree/task`
-- `e3sm/init/topo/combine_bedmap3_gebco2023/lat_lon/0.25000_degree/task`
-- `e3sm/init/topo/combine_bedmap3_gebco2023/lat_lon/0.12500_degree/task`
-- `e3sm/init/topo/combine_bedmap3_gebco2023/lat_lon/0.06250_degree/task`
-- `e3sm/init/topo/combine_bedmap3_gebco2023/lat_lon/0.03125_degree/task`
+- `e3sm/init/topo/combine_<antarctic>_gebco2023/cubed_sphere/ne3000/task`
+- `e3sm/init/topo/combine_<antarctic>_gebco2023/cubed_sphere/ne120/task`
+- `e3sm/init/topo/combine_<antarctic>_gebco2023/lat_lon/1.00000_degree/task`
+- `e3sm/init/topo/combine_<antarctic>_gebco2023/lat_lon/0.25000_degree/task`
+- `e3sm/init/topo/combine_<antarctic>_gebco2023/lat_lon/0.12500_degree/task`
+- `e3sm/init/topo/combine_<antarctic>_gebco2023/lat_lon/0.06250_degree/task`
+- `e3sm/init/topo/combine_<antarctic>_gebco2023/lat_lon/0.03125_degree/task`
 
 Downstream workflows such as topography remapping to the MPAS mesh,
 extrapolation of the WOA23 dataset and defining mesh resolution for unified
 E3SM v4 meshes will use shared `topo/combine` steps referenced by their
-grid and resolution.
+grid and resolution.  They use the default Antarctic dataset,
+`ANTARCTIC` in `polaris.tasks.e3sm.init.topo.combine.files` (currently
+`bedmap3`), unless they pass another as `antarctic_dataset` to
+`get_cubed_sphere_topo_steps()` or `get_lat_lon_topo_steps()`.
+
+## Ice-equivalent thickness
+
+The combined `ice_thickness` is an ice-equivalent thickness, without the air
+in the firn, which is what MALI uses and what MPAS-Ocean's land-ice pressure
+should come from.  BedMachine Antarctica provides its thickness this way.
+Bedmap3's thickness is the total thickness of the ice column, so the prepare
+step subtracts BedMachine Antarctica v4's firn air content from it,
+interpolated bilinearly to the Bedmap3 grid with
+{py:func}`polaris.tasks.e3sm.init.topo.combine.interp_firn_air_content`.
+The `ice_draft` of both datasets is the surface elevation minus the total
+thickness.
+
+BedMachine Antarctica v4 (NSIDC-0756 version 4.1) needs an Earthdata login
+to download, so the prepare step cannot download it.  It must already be in
+the `topo` database for either Antarctic dataset.
 
 ## Key Features
 
 - **Dataset Support**: Supports multiple datasets, including `bedmap3`,
-  `bedmachinev3`, and `gebco2023`.
+  `bedmachinev3`, `bedmachinev4` and `gebco2023`.
 - **Grid Types**: Handles both lat-lon and cubed-sphere target grids.
 - **Blending**: Blends global and Antarctic datasets across a configurable
   latitude range.
@@ -119,6 +139,9 @@ grid and resolution.
 
 The `CombineStep` step is configured through the `[combine_topo]` section in
 the configuration file. Key options include:
+
+- `antarctic_dataset`: The Antarctic dataset, set from the task or shared
+  steps because it is part of their paths.
 
 - `resolution_latlon`: Target resolution for lat-lon grids (in degrees).
 - `resolution_cubedsphere`: Target resolution for cubed-sphere grids (e.g.,

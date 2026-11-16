@@ -31,18 +31,26 @@ combine step (such as remap or ocean hydrography tasks) will automatically
 use cached outputs when they are available, without needing to opt in
 explicitly.
 
-Standalone tasks are available to create each combined topography product:
+Standalone tasks are available to create each combined topography product,
+with Antarctic topography from either Bedmap3 (`bedmap3`) or BedMachine
+Antarctica v4 (`bedmachinev4`):
 
-- `e3sm/init/topo/combine_bedmap3_gebco2023/cubed_sphere/ne3000/task`
-- `e3sm/init/topo/combine_bedmap3_gebco2023/cubed_sphere/ne120/task`
-- `e3sm/init/topo/combine_bedmap3_gebco2023/lat_lon/1.00000_degree/task`
-- `e3sm/init/topo/combine_bedmap3_gebco2023/lat_lon/0.25000_degree/task`
-- `e3sm/init/topo/combine_bedmap3_gebco2023/lat_lon/0.12500_degree/task`
-- `e3sm/init/topo/combine_bedmap3_gebco2023/lat_lon/0.06250_degree/task`
-- `e3sm/init/topo/combine_bedmap3_gebco2023/lat_lon/0.03125_degree/task`
+- `e3sm/init/topo/combine_<antarctic>_gebco2023/cubed_sphere/ne3000/task`
+- `e3sm/init/topo/combine_<antarctic>_gebco2023/cubed_sphere/ne120/task`
+- `e3sm/init/topo/combine_<antarctic>_gebco2023/lat_lon/1.00000_degree/task`
+- `e3sm/init/topo/combine_<antarctic>_gebco2023/lat_lon/0.25000_degree/task`
+- `e3sm/init/topo/combine_<antarctic>_gebco2023/lat_lon/0.12500_degree/task`
+- `e3sm/init/topo/combine_<antarctic>_gebco2023/lat_lon/0.06250_degree/task`
+- `e3sm/init/topo/combine_<antarctic>_gebco2023/lat_lon/0.03125_degree/task`
 
-The remap and cull tasks reuse these shared products when generating inputs
+The remap and cull tasks reuse the `bedmap3` products when generating inputs
 for MPAS base meshes.
+
+The combined ice thickness is ice-equivalent: it leaves out the air in the
+firn.  BedMachine provides it that way, and BedMachine Antarctica v4's firn
+air content is subtracted from Bedmap3's thickness.  Both datasets therefore
+need BedMachine Antarctica v4, which needs an Earthdata login to download and
+must already be in the `topo` database.
 
 Remap and cull tasks are available for both simple (quasi-uniform and
 icosahedral) base meshes and for named unified meshes (see
@@ -70,6 +78,7 @@ Combine tasks use the `[combine_topo]` section.
 The following options are set automatically from the task path and normally
 should not be changed by hand:
 
+- `antarctic_dataset`
 - `target_grid`
 - `resolution_latlon`
 - `resolution_cubedsphere`

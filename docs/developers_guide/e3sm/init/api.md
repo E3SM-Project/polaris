@@ -95,6 +95,7 @@
    PrepareCombineStep
    PrepareCombineStep.setup
    PrepareCombineStep.run
+   interp_firn_air_content
    CombineWeightsStep
    CombineWeightsStep.setup
    CombineWeightsStep.constrain_resources
