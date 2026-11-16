@@ -112,6 +112,9 @@ class Analysis(OceanIOStep):
                 'single_column_forcing', 'wind_stress_zonal'
             )
             nu = config.getfloat('single_column_ekman', 'vertical_viscosity')
+            error_tolerance = config.getfloat(
+                'single_column_ekman', 'L2_error_norm_max'
+            )
 
             filename = (
                 self.get_vert_coord_filename()
@@ -124,11 +127,7 @@ class Analysis(OceanIOStep):
             z_mid, z_interface = surface_relative_vertical_coords(ds, ds_vert)
             z_mid = z_mid.mean(dim='nCells').values
             z_interface = z_interface.mean(dim='nCells').values
-            if 'density' in ds.keys():
-                rho_0 = (
-                    ds['density'].mean(dim='nCells').isel(nVertLevels=0).values
-                )
-            elif 'SpecVol' in ds.keys():
+            if config.get('ocean', 'model') == 'omega':
                 rho_0 = np.divide(
                     1,
                     ds['SpecVol']
@@ -192,6 +191,14 @@ class Analysis(OceanIOStep):
                 f'{label}: relative L2 error of Ekman profile over the top '
                 f'third: {analytic_error:.3%}'
             )
+            if analytic_error > error_tolerance:
+                logger.error(
+                    f'{label}: relative L2 error {analytic_error:.3%} '
+                    f'exceeds tolerance {error_tolerance:.3%}'
+                )
+                raise ValueError(
+                    f'{label}: relative L2 error exceeds tolerance'
+                )
 
 
 def _exact_solution(depth, nu, f, u_g=0.0, v_g=0.0, tau_x=0.0, tau_y=0.0):
