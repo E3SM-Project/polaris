@@ -114,6 +114,9 @@ config file passed to `polaris setup`.  It can only be set at setup:
 antarctic_dataset = bedmachinev4
 ```
 
+The WOA23 initial condition is then extrapolated using BedMachine's ocean
+mask, too.
+
 (ocean-realistic-global-woa23)=
 
 ## woa23

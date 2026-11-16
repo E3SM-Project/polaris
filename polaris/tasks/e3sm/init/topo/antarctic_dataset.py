@@ -2,13 +2,15 @@
 The choice of Antarctic topography dataset.
 
 The ``[remap_topography] antarctic_dataset`` config option selects which
-combined topography is remapped to an MPAS mesh.  Each dataset has its own
-combine steps, with their own paths and cached outputs, so the choice
+combined topography is remapped to an MPAS mesh and which the WOA23
+extrapolation uses.  Each dataset has its own combine steps, with their own
+paths and cached outputs, and so does the WOA23 extrapolation, so the choice
 decides which steps a task has.  Polaris builds tasks before it reads a
-user's config file, so the steps start out with the default dataset, and
-the e3sm/init component's ``configure()`` swaps in the steps for the
-dataset in the user's config before anything is set up.  The option can
-therefore only be set in a user config file passed to ``polaris setup``.
+user's config file, so the steps start out with the default dataset, and the
+``configure()`` methods of the e3sm/init and ocean components swap in the
+steps for the dataset in the user's config before anything is set up.  The
+option can therefore only be set in a user config file passed to
+``polaris setup``.
 """
 
 from polaris.step import Step

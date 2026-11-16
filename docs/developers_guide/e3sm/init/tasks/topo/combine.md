@@ -105,16 +105,18 @@ grid and resolution.  They are built with the default Antarctic dataset,
 `bedmap3`), unless they pass another as `antarctic_dataset` to
 `get_cubed_sphere_topo_steps()` or `get_lat_lon_topo_steps()`.
 
-Remapping topography to an MPAS mesh follows the
+Remapping topography to an MPAS mesh and the WOA23 extrapolation follow the
 `[remap_topography] antarctic_dataset` config option instead.  Polaris builds
 tasks before it reads a user's config file, so
-{py:meth}`polaris.tasks.e3sm.init.E3smInit.configure` swaps the combine steps
-for the dataset in the user's config into every task that has the remap
-steps, before any task is configured or step set up (see
+{py:meth}`polaris.tasks.e3sm.init.E3smInit.configure` and
+{py:meth}`polaris.tasks.ocean.Ocean.configure` swap in the steps for the
+dataset in the user's config, in every task that has them, before any task is
+configured or step set up (see
 {py:func}`polaris.tasks.e3sm.init.topo.antarctic_dataset.replace_steps`).
-The option is therefore setup-only (see {ref}`dev-step-setup-only-options`).
-Other users of combined topography, such as the WOA23 extrapolation and the
-unified-mesh coastlines, keep the default dataset.
+The WOA23 extrapolation has its own path for each dataset other than the
+default, since its output is cached.  The option is therefore setup-only (see
+{ref}`dev-step-setup-only-options`).  The unified-mesh coastlines keep the
+default dataset.
 
 ## Ice-equivalent thickness
 

@@ -7,6 +7,7 @@
    :toctree: generated/
 
    Ocean
+   Ocean.configure
    Ocean.map_to_native_model_vars
    Ocean.map_var_list_to_native_model
    Ocean.write_model_dataset
@@ -839,6 +840,7 @@
 
    Woa23
    get_woa23_steps
+   select_woa23_antarctic_dataset
 
    month.get_woa23_month
    month.get_month_abbreviation

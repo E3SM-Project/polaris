@@ -107,9 +107,10 @@ The following options can only be set in a user config file passed to
 directory since setup; set up again in a new work directory instead.
 
 - `antarctic_dataset` (in `[remap_topography]`): The Antarctic topography
-	dataset, `bedmap3` (the default) or `bedmachinev4`.  Each has its own
-	combined topography, which must be in the cache or set up free-running
-	with `--free_running`.
+	dataset, `bedmap3` (the default) or `bedmachinev4`, for remapping to the
+	mesh and for the WOA23 extrapolation in `realistic_global`.  Each has its
+	own combined topography and WOA23 extrapolation, which must be in the
+	cache or set up free-running with `--free_running`.
 
 Common user-tunable options are:
 

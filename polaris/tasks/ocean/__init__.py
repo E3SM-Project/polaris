@@ -93,6 +93,20 @@ class Ocean(Component):
             The steps this component owns among those being set up.  These may
             belong to tasks in another component.
         """
+        # imported here because the WOA23 steps import from this package
+        from polaris.tasks.e3sm.init.topo.antarctic_dataset import (
+            get_antarctic_dataset,
+        )
+        from polaris.tasks.ocean.realistic_global.hydrography import woa23
+
+        # the WOA23 extrapolation follows the Antarctic dataset in a user's
+        # config, which is only known now
+        woa23.select_woa23_antarctic_dataset(
+            component=self,
+            steps=steps,
+            antarctic_dataset=get_antarctic_dataset(config),
+        )
+
         section = config['ocean']
         model = section.get('model')
         has_ocean_io_steps, has_ocean_model_steps = (
