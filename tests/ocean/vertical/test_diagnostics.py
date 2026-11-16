@@ -19,6 +19,7 @@ from polaris.ocean.vertical.diagnostics import (
     location_for_field,
     pseudothickness_from_ds,
     spec_vol_from_ds,
+    surface_relative_vertical_coords,
     vert_pseudo_velocity_from_ds,
     vert_velocity_top_from_ds,
     vertical_coord_from_location,
@@ -244,6 +245,37 @@ def test_vertical_coord_from_location_reconstruct():
         ds, 'cell-top', allow_reconstruct=True, ds_vert=ds_vert
     )
     np.testing.assert_allclose(z_top.values, [[0.0, -10.0]])
+
+
+def test_surface_relative_vertical_coords_with_partial_and_dry_columns():
+    ds = xr.Dataset(
+        data_vars=dict(
+            layerThickness=(
+                ('nCells', 'nVertLevels'),
+                [[99.0, 5.0, 5.0], [0.0, 0.0, 0.0]],
+            )
+        )
+    )
+    ds_vert = xr.Dataset(
+        data_vars=dict(
+            bottomDepth=('nCells', [20.0, 20.0]),
+            minLevelCell=('nCells', [2, 1]),
+            maxLevelCell=('nCells', [3, 0]),
+        )
+    )
+
+    z_mid, z_interface = surface_relative_vertical_coords(ds, ds_vert)
+
+    np.testing.assert_allclose(
+        z_mid.values,
+        [[np.nan, -2.5, -7.5], [np.nan, np.nan, np.nan]],
+        equal_nan=True,
+    )
+    np.testing.assert_allclose(
+        z_interface.values,
+        [[np.nan, 0.0, -5.0, -10.0], [np.nan, np.nan, np.nan, np.nan]],
+        equal_nan=True,
+    )
 
 
 def test_reconstruct_from_omega_state():
