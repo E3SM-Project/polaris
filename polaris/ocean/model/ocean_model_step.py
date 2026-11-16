@@ -64,6 +64,36 @@ UNSET_TIME_VALUES = frozenset({'', 'none', 'None'})
 STOP_OPTIONS = frozenset({'config_run_duration', 'config_stop_time'})
 
 
+def omega_runs_on_gpus(config, component) -> bool:
+    """
+    Whether the ocean model is Omega running on GPUs
+
+    Omega runs on GPUs on any machine whose parallel config has GPUs, with
+    one GPU per MPI task.  MPAS-Ocean never does.
+
+    Parameters
+    ----------
+    config : polaris.config.PolarisConfigParser
+        The config options of the task or step asking
+
+    component : polaris.Component
+        The component of the task or step asking, whose parallel system has
+        been set
+
+    Returns
+    -------
+    on_gpus : bool
+        Whether Omega is the ocean model and will run on GPUs
+    """
+    if config.get('ocean', 'model') != 'omega':
+        return False
+    parallel_system = component.parallel_system
+    if parallel_system is None:
+        return False
+    gpus_per_node = parallel_system.get_config_int('gpus_per_node', default=0)
+    return gpus_per_node > 0
+
+
 def _is_set(value: OptionValue) -> bool:
     """Whether a time option holds a value, as opposed to being left unset"""
     return str(value).strip() not in UNSET_TIME_VALUES
@@ -899,18 +929,7 @@ class OceanModelStep(OceanModelFilesMixin, ModelStep):
         Whether to use GPU resources based on whether gpus are available and
         the model is Omega
         """
-        config = self.config
-
-        model = config.get('ocean', 'model')
-
-        gpus_per_node = 0
-        parallel_system = self.component.parallel_system
-        if parallel_system is not None:
-            gpus_per_node = parallel_system.get_config_int(
-                'gpus_per_node', default=0
-            )
-
-        return model == 'omega' and gpus_per_node > 0
+        return omega_runs_on_gpus(self.config, self.component)
 
     def _read_config_map(self) -> None:
         """

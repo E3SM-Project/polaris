@@ -31,7 +31,7 @@ regression testing.
 Another task, `cosine_bell/decomp`, performs two runs of the Cosine Bell
 test at coarse resolution, once with 12 and once with 24 cores, to verify the
 bit-for-bit identical results for tracer advection across different core
-counts.
+counts.  When Omega runs on GPUs, the two runs use 1 and 2 GPUs instead.
 
 A final task, `cosine_bell/restart`, performs two time steps of the Cosine Bell
 test at coarse resolution, then performs reruns the second time step,

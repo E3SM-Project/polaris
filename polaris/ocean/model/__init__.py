@@ -12,6 +12,9 @@ from polaris.ocean.model.ocean_model_files_mixin import (
 from polaris.ocean.model.ocean_model_step import (
     OceanModelStep as OceanModelStep,
 )
+from polaris.ocean.model.ocean_model_step import (
+    omega_runs_on_gpus as omega_runs_on_gpus,
+)
 from polaris.ocean.model.time import days_per_year as days_per_year
 from polaris.ocean.model.time import (
     get_simulation_years as get_simulation_years,
