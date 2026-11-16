@@ -116,7 +116,7 @@ segment's wall-clock stamp.
 
 {py:class}`polaris.e3sm.analysis.provenance.CaseProvenance` is a
 {py:class}`polaris.analysis.page.PageStep` that records what made a case's
-run on a page of its own, which the footer of every gallery page links to:
+run on a page of its own, which the bar of links on every page links to:
 
 - the code, from the `GIT_*` files and `build_environment.txt` CIME writes
   in the build directory, including where Albany and Trilinos were found;

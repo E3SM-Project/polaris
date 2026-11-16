@@ -269,6 +269,7 @@ seaice/api
    :toctree: generated/
 
    Page
+   Page.set_lead
    Page.add_section
    Page.add_file
    Page.write
@@ -316,6 +317,9 @@ seaice/api
    PublishStep
    PublishStep.run
    PublishStep.output_path
+   PublishStep.site_title
+   PublishStep.site_links
+   PublishStep.site_home
    check_output_path
 ```
 

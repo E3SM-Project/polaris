@@ -1,6 +1,5 @@
 {% extends "base.template" %}
 {% block content %}
-<p class="back"><a href="{{ index_href }}">&larr; All results</a></p>
 <h2>{{ gallery.title }}</h2>
 <ul class="grid">
 {% for product in gallery.products %}
