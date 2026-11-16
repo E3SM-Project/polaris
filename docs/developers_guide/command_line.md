@@ -449,6 +449,13 @@ to its cores by the child itself, which can only be done on the node the
 scheduler is running on -- so such steps are given cores there, and Python
 concurrency is bounded by one node's worth of cores.
 
+A step starts once its width, the geometric mean of its target and its
+minimum, is free, and it is given everything free up to its target.  On an
+idle allocation a step grows to its target; on a busy one it starts at its
+width rather than waiting for its target.  How many tasks a step runs on
+therefore depends on what else is running, which model steps are tested to
+tolerate: their results are bit-for-bit identical across task counts.
+
 ### Choosing a serial or concurrent job script
 
 `polaris setup` and `polaris suite` write a `polaris parallel` job script by
