@@ -13,6 +13,20 @@ FRAGMENTS_DIRNAME = 'fragments'
 #: What separates the cells of a table's row in a captions file
 CELL_SEPARATOR = ' ; '
 
+#: How the summary names each of MALI's modes
+MALI_MODES = {
+    'static': 'MALI static',
+    'data': 'MALI data mode',
+    'prognostic': 'MALI prognostic',
+}
+
+#: How the summary names the ocean's time integrators
+TIME_INTEGRATORS = {
+    'split_explicit': 'split-explicit',
+    'split_explicit_ab2': 'split-explicit AB2',
+    'RK4': 'RK4',
+}
+
 
 class SummaryPage(PageStep):
     """
@@ -42,6 +56,10 @@ class SummaryPage(PageStep):
         A plot the task publishes, under its own heading.  The plot is
         named as it is in the ``plots`` directory of the published tree.
 
+    The page starts with how the run was made, in bold: MALI's mode, the
+    ocean's time integrator and its resolution, then the years the page
+    covers and whether the run is finished.
+
     Attributes
     ----------
     captions : str
@@ -50,9 +68,24 @@ class SummaryPage(PageStep):
     fragment_filenames : list of str
         The product steps' manifest fragments, as local paths within this
         step's work directory
+
+    highlights : list of str
+        How the run was made, in bold at the start of the page
+
+    years : str
+        The years the page covers, and whether the run is finished
     """
 
-    def __init__(self, component, subdir, product_steps, captions):
+    def __init__(
+        self,
+        component,
+        subdir,
+        product_steps,
+        captions,
+        run,
+        resolution,
+        final_year=None,
+    ):
         """
         Create the step
 
@@ -69,6 +102,15 @@ class SummaryPage(PageStep):
 
         captions : str
             The captions file
+
+        run : polaris.tasks.e3sm.analysis.misomip.runs.ConfiguredRun
+            The run the page is about
+
+        resolution : str
+            The ocean's resolution, such as ``2km``
+
+        final_year : int, optional
+            The model year the run is to end with, if known
         """
         super().__init__(
             component=component,
@@ -93,6 +135,10 @@ class SummaryPage(PageStep):
                 work_dir_target=f'{step.path}/{FRAGMENT_FILENAME}',
             )
             self.fragment_filenames.append(filename)
+        self.highlights = get_run_highlights(run, resolution)
+        self.years = get_years_text(
+            run.monthly[0].year, run.monthly[-1].year, final_year
+        )
 
     def run(self):
         """
@@ -102,8 +148,74 @@ class SummaryPage(PageStep):
             [self.work_path(name) for name in self.fragment_filenames]
         )
         lines = read_captions(self.work_path(CAPTIONS_FILENAME))
+        self.page.set_lead(self.highlights, self.years)
         add_captions(self.page, lines, plots)
         self.write_page()
+
+
+def get_run_highlights(run, resolution):
+    """
+    Get how a run was made: MALI's mode in an E3SM run, the ocean's time
+    integrator and its resolution
+
+    Parameters
+    ----------
+    run : polaris.tasks.e3sm.analysis.misomip.runs.ConfiguredRun
+        The run
+
+    resolution : str
+        The ocean's resolution, such as ``2km``
+
+    Returns
+    -------
+    highlights : list of str
+        Such as ``['MALI data mode', 'split-explicit', '2 km']``
+    """
+    highlights = []
+    if run.kind == 'e3sm':
+        mode = run.run.case.landice_mode
+        highlights.append(MALI_MODES.get(mode, f'MALI {mode}'))
+    else:
+        highlights.append('standalone MPAS-Ocean')
+    integrator = run.run.namelist_option('config_time_integrator')
+    integrator = integrator.strip('\'"')
+    highlights.append(
+        TIME_INTEGRATORS.get(integrator, integrator.replace('_', '-'))
+    )
+    highlights.append(resolution.replace('km', ' km'))
+    return highlights
+
+
+def get_years_text(first_year, last_year, final_year=None):
+    """
+    Get the years a page covers, and whether the run is finished
+
+    Parameters
+    ----------
+    first_year : int
+        The first year the page covers
+
+    last_year : int
+        The last year the page covers
+
+    final_year : int, optional
+        The model year the run is to end with, if known
+
+    Returns
+    -------
+    text : str
+        Such as ``years 1–20, finished``, ``years 1–5 of 100, running``
+        or ``years 1–5``
+    """
+    if first_year == last_year:
+        text = f'year {first_year}'
+    else:
+        text = f'years {first_year}–{last_year}'
+    if final_year is None:
+        return text
+    if last_year >= final_year:
+        return f'{text}, finished'
+    return f'{text} of {final_year}, running'
 
 
 def get_published_plots(fragment_filenames):

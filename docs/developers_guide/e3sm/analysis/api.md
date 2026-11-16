@@ -81,12 +81,20 @@
    comparisons.MisomipResolutionsTask.configure
    task.get_diagnostics_steps
    task.get_resolution
+   task.get_experiment_name
    publish.MisomipPublish
    publish.MisomipPublish.setup
    publish.MisomipPublish.output_path
+   publish.MisomipPublish.site_title
+   publish.MisomipPublish.site_links
+   publish.MisomipPublish.site_home
+   publish.get_site_links
    runs.get_summary_captions
+   runs.get_final_year
    summary.SummaryPage
    summary.SummaryPage.run
+   summary.get_run_highlights
+   summary.get_years_text
    summary.get_published_plots
    summary.read_captions
    summary.add_captions

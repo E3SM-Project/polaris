@@ -207,6 +207,31 @@ def get_mean_months(config, experiment):
     return config.getint('misomip_analysis', option)
 
 
+def get_final_year(config, mesh_name, experiment):
+    """
+    Get the model year an experiment's E3SM run is to end with
+
+    Parameters
+    ----------
+    config : polaris.config.PolarisConfigParser
+        The config shared by the MISOMIP analysis tasks
+
+    mesh_name : str
+        The pair of meshes
+
+    experiment : str
+        The experiment
+
+    Returns
+    -------
+    final_year : int or None
+        The year, or ``None`` if the config doesn't give it
+    """
+    section = config[runs_section(mesh_name)]
+    value = section.get(f'{experiment}_e3sm_final_year', '').strip()
+    return int(value) if value else None
+
+
 def get_summary_captions(config, mesh_name, experiment):
     """
     Get the captions file of an experiment's summary page

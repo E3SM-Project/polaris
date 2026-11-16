@@ -23,7 +23,10 @@ STREAMS = """<streams>
 </streams>
 """
 
-NAMELIST = """&wetting_drying
+NAMELIST = """&time_integration
+    config_time_integrator = 'split_explicit'
+/
+&wetting_drying
     config_drying_min_cell_height = 1.0d-3
 /
 &coupling
@@ -71,6 +74,7 @@ def _e3sm_case(tmp_path, months, budgets):
                 'DOUT_S_ROOT': str(tmp_path / 'archive'),
                 'MPASO_IC_FILE': str(tmp_path / 'ic.nc'),
                 'BUDGETS': budgets,
+                'MALI_PROGNOSTIC_MODE': 'STATIC',
             }
         },
     )
@@ -242,10 +246,14 @@ def test_a_summary_page_is_made_only_from_a_captions_file(tmp_path):
     task.config.set(section, 'ocean0_e3sm_case', case, user=True)
     captions = str(tmp_path / 'captions.txt')
     task.config.set(section, 'ocean0_summary', captions, user=True)
+    task.config.set(section, 'ocean0_e3sm_final_year', '3', user=True)
     task.configure()
 
     summary = task.steps['summary']
     assert summary.captions == captions
+    assert summary.highlights[:2] == ['MALI static', 'split-explicit']
+    assert summary.years == 'year 1 of 3, running'
+    assert task.steps['publish'].title == 'Ocean0'
     prefix = TASK.replace('/', '_')
     assert f'{prefix}_e3sm_plots_0001-01_0001-01' in summary.dependencies
     assert f'{prefix}_e3sm_provenance_0001-01_0001-01' not in (
