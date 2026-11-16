@@ -111,11 +111,11 @@ directory since setup; set up again in a new work directory instead.
 	mesh and for the WOA23 extrapolation in `realistic_global`.  Each has its
 	own combined topography and WOA23 extrapolation, which must be in the
 	cache or set up free-running with `--free_running`.
+- `antarctic_boundary_convention` (in `[spherical_mesh]`): Antarctic
+	coastline convention used to mask topography before remapping.
 
 Common user-tunable options are:
 
-- `antarctic_boundary_convention`: Antarctic coastline convention used to
-	mask topography before remapping.
 - `description`: Metadata description written to the remapped product.
 - `ntasks` and `min_tasks`: Target and minimum MPI task counts for remapping.
 - `renorm_threshold`: Minimum land or ocean area fraction required before

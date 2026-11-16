@@ -590,7 +590,10 @@ seaice/api
    :toctree: generated/
 
    CONVENTIONS
+   CONVENTION_SECTION
+   CONVENTION_OPTION
    COASTLINE_VALIDATE_VARS
+   add_convention_setup_only_option
    build_coastline_datasets
    build_coastline_dataset
    signed_distance_from_ocean_mask

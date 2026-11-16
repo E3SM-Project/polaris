@@ -67,6 +67,11 @@ class MaskTopoStep(Step):
         super().__init__(component, name=name, subdir=subdir)
         self.combine_topo_step = combine_topo_step
         add_antarctic_dataset_option(self)
+        # the masks depend on the convention, and nothing in the step's path
+        # does
+        self.add_setup_only_option(
+            'spherical_mesh', 'antarctic_boundary_convention'
+        )
         self.add_output_file(
             filename='topography_masked.nc',
             validate_vars=get_masked_topo_validate_vars(),

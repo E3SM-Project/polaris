@@ -6,6 +6,7 @@ from geometric_features import GeometricFeatures
 
 from polaris.cf import add_cf_conventions, add_lat_lon_attrs
 from polaris.mesh.spherical.coastline import (
+    add_convention_setup_only_option,
     rasterize_critical_transects,
     signed_distance_from_ocean_mask,
 )
@@ -104,6 +105,7 @@ class BuildSizingFieldStep(Step):
             name='sizing_field',
             subdir=subdir,
         )
+        add_convention_setup_only_option(self)
         self.coastline_step = coastline_step
         self.river_step = river_step
         self.fine_topo_step = fine_topo_step
