@@ -2,12 +2,18 @@ import json
 import logging
 import os
 
+import pytest
+
 from polaris import Component
 from polaris.analysis.manifest import FRAGMENT_FILENAME
 from polaris.analysis.page import PAGE_FILENAME, PageStep
 from polaris.analysis.product_step import ProductStep
 from polaris.analysis.publish import MERGED_FILENAME, PLOTS_DIRNAME
-from polaris.analysis.publish_step import PAGES_DIRNAME, PublishStep
+from polaris.analysis.publish_step import (
+    PAGES_DIRNAME,
+    PublishStep,
+    check_output_path,
+)
 from polaris.analysis.site import INDEX_FILENAME
 from polaris.config import PolarisConfigParser
 from tests.analysis.test_publish import write_plot
@@ -184,3 +190,18 @@ def test_a_publish_step_publishes_a_page_step_s_page(tmp_path):
     page = os.path.join(str(tmp_path / 'output'), 'provenance', 'index.html')
     with open(page) as text:
         assert 'v3.2.0' in text.read()
+
+
+def test_a_publish_step_never_replaces_a_page_it_did_not_publish(tmp_path):
+    """A hand-written landing page above several galleries stays as it is;
+    a gallery published before is published again."""
+    output_path = str(tmp_path / 'output')
+    os.makedirs(output_path)
+    with open(os.path.join(output_path, INDEX_FILENAME), 'w') as out:
+        out.write('<p>runs</p>')
+    with pytest.raises(ValueError, match='was not published by Polaris'):
+        check_output_path(output_path)
+
+    with open(os.path.join(output_path, MERGED_FILENAME), 'w') as out:
+        out.write('{"products": []}')
+    check_output_path(output_path)

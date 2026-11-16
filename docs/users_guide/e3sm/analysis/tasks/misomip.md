@@ -330,6 +330,9 @@ Each task's `publish` step copies its plots into a gallery under
 `[misomip_analysis] output_path`, in a directory for the mesh and the
 experiment.  Set `copy_netcdf = True` to publish the data of each plot as
 well.
+The `publish` step won't replace an `index.html` that Polaris didn't
+publish, such as a hand-written page above several galleries; it stops
+with an error instead.
 
 With an E3SM run, the footer of every page links to the run's provenance:
 the E3SM commit and libraries it was built with, the commands that created
