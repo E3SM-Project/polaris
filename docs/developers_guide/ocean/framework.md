@@ -1426,8 +1426,11 @@ A page that is not a gallery, such as a run's provenance, comes from a
 {py:class}`polaris.analysis.page.PageStep`.  The step fills in a
 {py:class}`polaris.analysis.page.Page` of sections and files and writes its
 description; the publish step copies the files into the page's directory,
-renders the page in the gallery's style, and links to it from the footer of
-every page.
+renders the page in the gallery's style, and links to it from the bar of
+links at the top and in the footer of every page.  The bar leaves out the
+page it is on.  A subclass of `PublishStep` may override `site_title()`,
+`site_links()` and `site_home()` to give every page its own heading, its own
+bar of links, or a page other than the gallery as the site's home.
 
 A step describes what it made as it makes it, and writes no fragment itself:
 

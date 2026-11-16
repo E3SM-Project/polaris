@@ -1,5 +1,6 @@
 import os
 from datetime import datetime
+from urllib.parse import urlparse
 
 from jinja2 import Environment, PackageLoader, select_autoescape
 
@@ -14,14 +15,22 @@ GALLERIES_DIRNAME = 'galleries'
 
 
 def generate_site(
-    published, output_path, simulation_name, provenance=None, pages=None
+    published,
+    output_path,
+    simulation_name,
+    provenance=None,
+    pages=None,
+    title=None,
+    links=None,
+    home=None,
 ):
     """
     Generate the static site over the products that have been published
 
     The site is a landing page of gallery groups, plus one page of thumbnails
     per gallery, and any pages published beside the galleries, such as a
-    run's provenance, which the footer of every page links to.  It is
+    run's provenance.  Every page has the same bar of links to the others
+    at its top and in its footer, leaving out the page itself.  It is
     rendered from the merged manifest alone, so that a facet added later, a
     richer presentation, or a different visual design costs nothing
     anywhere else: no step, no manifest fragment already written, and no
@@ -53,6 +62,20 @@ def generate_site(
         :py:func:`polaris.analysis.page.publish_pages` returned them, each
         rendered as ``index.html`` in its directory
 
+    title : str, optional
+        The heading of every page, by default ``Analysis of`` the
+        simulation's name
+
+    links : list of tuple, optional
+        The bar of links on every page, each ``(text, href)``, with
+        ``href`` relative to the root of the staging tree or a full URL.
+        By default, the landing page as ``Gallery``, then each page by its
+        title.
+
+    home : str, optional
+        The name of a page that is the site's home, whose title is the
+        site's alone, with no subtitle
+
     Returns
     -------
     filenames : list of str
@@ -74,12 +97,19 @@ def generate_site(
     if pages is None:
         pages = []
 
+    if title is None:
+        title = f'Analysis of {simulation_name}'
+        name = simulation_name
+    else:
+        name = title
+    if links is None:
+        links = [('Gallery', INDEX_FILENAME)] + [
+            (page['title'], page['href']) for page in pages
+        ]
+
     shared = {
-        'title': f'Analysis of {simulation_name}',
+        'title': title,
         'provenance': list(provenance.items()),
-        'pages': [
-            {'title': page['title'], 'href': page['href']} for page in pages
-        ],
     }
 
     filenames = [
@@ -87,10 +117,11 @@ def generate_site(
             environment=environment,
             template_name='index.template',
             filename=os.path.join(output_path, INDEX_FILENAME),
-            page_title=f'Analysis of {simulation_name}',
+            page_title=title if home is None else f'{name}: Gallery',
             subtitle=_index_subtitle(published),
             groups=groups,
             prefix='',
+            bar=_bar(links, INDEX_FILENAME, prefix=''),
             **shared,
         )
     ]
@@ -104,25 +135,30 @@ def generate_site(
                     environment=environment,
                     template_name='gallery.template',
                     filename=os.path.join(galleries_path, gallery['filename']),
-                    page_title=f'{simulation_name}: {gallery["title"]}',
+                    page_title=f'{name}: {gallery["title"]}',
                     subtitle=_gallery_subtitle(group, gallery),
-                    index_href=f'../{INDEX_FILENAME}',
                     gallery=gallery,
                     prefix='../',
+                    bar=_bar(
+                        links,
+                        f'{GALLERIES_DIRNAME}/{gallery["filename"]}',
+                        prefix='../',
+                    ),
                     **shared,
                 )
             )
     for page in pages:
+        is_home = page['name'] == home
         filenames.append(
             _render(
                 environment=environment,
                 template_name='page.template',
                 filename=os.path.join(output_path, page['href']),
-                page_title=f'{simulation_name}: {page["title"]}',
-                subtitle=page['title'],
-                index_href=f'../{INDEX_FILENAME}',
+                page_title=name if is_home else f'{name}: {page["title"]}',
+                subtitle=None if is_home else page['title'],
                 page=page,
                 prefix='../',
+                bar=_bar(links, page['href'], prefix='../'),
                 **shared,
             )
         )
@@ -253,6 +289,24 @@ def _gallery_subtitle(group, gallery):
 def _count(number, noun):
     """A count of something, with the noun made plural if it needs to be"""
     return f'{number} {noun}' if number == 1 else f'{number} {noun}s'
+
+
+def _bar(links, href, prefix):
+    """The bar of links on a page, leaving out the page itself, each link
+    relative to the page"""
+    return [
+        {'text': text, 'href': _relative(target, prefix)}
+        for text, target in links
+        if target != href
+    ]
+
+
+def _relative(href, prefix):
+    """A link relative to the root of the staging tree, made relative to a
+    page, or a full URL as it is"""
+    if href.startswith('/') or urlparse(href).scheme:
+        return href
+    return f'{prefix}{href}'
 
 
 def _render(environment, template_name, filename, **context):

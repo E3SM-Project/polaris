@@ -46,7 +46,10 @@ class PublishStep(Step):
     A :py:class:`polaris.analysis.page.PageStep` among the product steps
     makes a page published beside the galleries, such as a run's
     provenance.  Its description is declared as an input in the same way,
-    and the footer of every page links to it.
+    and the bar of links at the top and in the footer of every page links
+    to it.  A subclass may give the pages its own heading, bar of links and
+    home page, through :py:meth:`site_title`, :py:meth:`site_links` and
+    :py:meth:`site_home`.
 
     The step reads its options from one config section, which holds
     ``output_path``, ``simulation_name``, ``copy_netcdf``,
@@ -140,8 +143,58 @@ class PublishStep(Step):
             simulation_name=section.get('simulation_name'),
             provenance=get_summary(config=self.config),
             pages=pages,
+            title=self.site_title(),
+            links=self.site_links(pages),
+            home=self.site_home(pages),
         )
         self.logger.info(f'published to {output_path}')
+
+    def site_title(self):
+        """
+        Get the heading of every page, which a subclass may override
+
+        Returns
+        -------
+        title : str or None
+            The heading, or ``None`` for ``Analysis of`` the simulation's
+            name
+        """
+        return None
+
+    def site_links(self, pages):
+        """
+        Get the bar of links on every page, which a subclass may override
+
+        Parameters
+        ----------
+        pages : list of dict
+            The pages published beside the galleries, each with its
+            ``name``, ``title`` and ``href``
+
+        Returns
+        -------
+        links : list of tuple or None
+            The links, each ``(text, href)`` with ``href`` relative to the
+            root of the staging tree or a full URL, or ``None`` for the
+            landing page and then each page
+        """
+        return None
+
+    def site_home(self, pages):
+        """
+        Get the page that is the site's home, which a subclass may override
+
+        Parameters
+        ----------
+        pages : list of dict
+            The pages published beside the galleries
+
+        Returns
+        -------
+        home : str or None
+            The page's name, or ``None`` if the landing page is the home
+        """
+        return None
 
     def output_path(self):
         """

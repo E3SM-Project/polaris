@@ -15,8 +15,9 @@ header, main, footer { max-width: 76rem; margin: 0 auto; }
 header { padding: 1.5rem 0 1rem; border-bottom: 1px solid var(--edge); }
 h1 { font-size: 1.5rem; margin: 0 0 0.25rem; }
 h2 { font-size: 1.15rem; margin: 2rem 0 0.75rem; }
-p.subtitle, p.back { color: var(--muted); margin: 0.25rem 0; }
-p.back { padding-top: 1rem; }
+p.subtitle { color: var(--muted); margin: 0.25rem 0; }
+nav.bar { margin: 0.75rem 0 0; }
+nav.bar a { margin-right: 1rem; }
 p.empty { color: var(--muted); padding: 2rem 0; }
 ul.grid { display: flex; flex-wrap: wrap; gap: 1rem;
           list-style: none; margin: 0; padding: 0; }
@@ -63,6 +64,13 @@ pre { background: #f5f7f9; border: 1px solid var(--edge);
 {% if subtitle %}
 <p class="subtitle">{{ subtitle }}</p>
 {% endif %}
+{% if bar %}
+<nav class="bar">
+{% for link in bar %}
+<a href="{{ link.href }}">{{ link.text }}</a>
+{% endfor %}
+</nav>
+{% endif %}
 </header>
 <main>
 {% block content %}{% endblock %}
@@ -74,10 +82,10 @@ pre { background: #f5f7f9; border: 1px solid var(--edge);
 <dt>{{ label }}</dt><dd>{{ value }}</dd>
 {% endfor %}
 </dl>
-{% if pages %}
+{% if bar %}
 <p class="pages">
-{% for page in pages %}
-<a href="{{ prefix }}{{ page.href }}">{{ page.title }}</a>{{ ' · ' if not loop.last }}
+{% for link in bar %}
+<a href="{{ link.href }}">{{ link.text }}</a>{{ ' · ' if not loop.last }}
 {% endfor %}
 </p>
 {% endif %}

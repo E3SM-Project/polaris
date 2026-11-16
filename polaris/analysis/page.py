@@ -21,8 +21,11 @@ class Page:
         name in links
 
     title : str
-        The page's heading and the text of the link to it in the footer of
-        every gallery page
+        The page's heading and the text of the link to it in the bar of
+        links on every page
+
+    lead : dict or None
+        The page's first paragraph, as :py:meth:`set_lead` makes it
 
     sections : list of dict
         The sections, in order, as :py:meth:`add_section` makes them
@@ -46,8 +49,24 @@ class Page:
         """
         self.name = name
         self.title = title
+        self.lead: dict | None = None
         self.sections: list = []
         self.files: dict = {}
+
+    def set_lead(self, highlights, text=None):
+        """
+        Set the page's first paragraph, above its sections: a few facts in
+        bold, separated by commas, then text after a colon
+
+        Parameters
+        ----------
+        highlights : list of str
+            The facts shown in bold
+
+        text : str, optional
+            The rest of the paragraph
+        """
+        self.lead = {'highlights': list(highlights), 'text': text}
 
     def add_section(
         self,
@@ -179,11 +198,13 @@ class Page:
         Returns
         -------
         page : dict
-            The page's ``name``, ``title``, ``sections`` and ``files``
+            The page's ``name``, ``title``, ``lead``, ``sections`` and
+            ``files``
         """
         return {
             'name': self.name,
             'title': self.title,
+            'lead': self.lead,
             'sections': self.sections,
             'files': self.files,
         }
@@ -197,7 +218,7 @@ class PageStep(Step):
     :py:meth:`write_page` at the end, and a
     :py:class:`polaris.analysis.publish_step.PublishStep` that lists it
     among its product steps publishes the page and links to it from the
-    footer of every page.  A step that also derives from another kind of
+    bar of links on every page.  A step that also derives from another kind of
     step lists this class first, as with
     :py:class:`polaris.analysis.product_step.ProductStep`.
 

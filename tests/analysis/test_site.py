@@ -279,7 +279,7 @@ def test_publishing_nothing_still_generates_a_page(tmp_path):
 
 def test_a_page_beside_the_galleries_is_rendered_and_linked(tmp_path):
     """A page's sections are rendered in its own directory, its files are
-    copied beside it, and every page's footer links to it."""
+    copied beside it, and every page's bar links to it."""
     work_dir = str(tmp_path / 'work')
     fragment = _make_step(work_dir, 'maps')
     step_path = os.path.join(work_dir, 'provenance')
@@ -347,3 +347,74 @@ def test_a_page_published_again_drops_files_it_no_longer_has(tmp_path):
         publish_pages([os.path.join(step_path, PAGE_FILENAME)], output_path)
 
     assert os.listdir(os.path.join(output_path, 'provenance')) == ['new']
+
+
+def test_every_page_has_the_same_bar_without_itself(tmp_path):
+    """The bar leads every page, the home page has the site's title alone,
+    and a link outside the tree is made relative to each page."""
+    work_dir = str(tmp_path / 'work')
+    fragment = _make_step(work_dir, 'maps', seasons=['ANN'])
+    pages = []
+    for name, title in [('summary', 'Summary'), ('provenance', 'Provenance')]:
+        step_path = os.path.join(work_dir, name)
+        os.makedirs(step_path)
+        page = Page(name=name, title=title)
+        if name == 'summary':
+            page.set_lead(['MALI data mode', '2 km'], 'years 1–5')
+        page.write(step_path)
+        pages.append(os.path.join(step_path, PAGE_FILENAME))
+
+    output_path = str(tmp_path / 'output')
+    published, _ = publish([fragment], output_path)
+    pages = publish_pages(pages, output_path)
+    generate_site(
+        published,
+        output_path,
+        simulation_name='misomip',
+        provenance=PROVENANCE,
+        pages=pages,
+        title='Ocean3',
+        links=[
+            ('Summary', 'summary/index.html'),
+            ('Gallery', INDEX_FILENAME),
+            ('Provenance', 'provenance/index.html'),
+            ('All runs', '../index.html'),
+            ('Elsewhere', 'https://example.org/'),
+        ],
+        home='summary',
+    )
+
+    def bar(filename):
+        text = _read(filename)
+        nav = re.search(r'<nav class="bar">(.*?)</nav>', text, re.DOTALL)
+        assert nav is not None
+        return text, re.findall(r'>([^<]+)</a>', nav.group(1)), nav.group(1)
+
+    summary, labels, nav = bar(
+        os.path.join(output_path, 'summary', 'index.html')
+    )
+    assert labels == ['Gallery', 'Provenance', 'All runs', 'Elsewhere']
+    assert _hrefs(nav) == [
+        '../index.html',
+        '../provenance/index.html',
+        '../../index.html',
+        'https://example.org/',
+    ]
+    assert '<title>Ocean3</title>' in summary
+    assert '<h1>Ocean3</h1>' in summary
+    assert 'class="subtitle"' not in summary
+    assert (
+        '<p class="lead"><strong>MALI data mode</strong>, '
+        '<strong>2 km</strong>: years 1–5</p>'
+    ) in summary
+
+    index, labels, _ = bar(os.path.join(output_path, INDEX_FILENAME))
+    assert labels == ['Summary', 'Provenance', 'All runs', 'Elsewhere']
+    assert '<title>Ocean3: Gallery</title>' in index
+    assert 'All results' not in index
+
+    provenance, labels, _ = bar(
+        os.path.join(output_path, 'provenance', 'index.html')
+    )
+    assert labels == ['Summary', 'Gallery', 'All runs', 'Elsewhere']
+    assert '<title>Ocean3: Provenance</title>' in provenance

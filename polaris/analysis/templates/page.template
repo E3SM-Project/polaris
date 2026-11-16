@@ -1,6 +1,8 @@
 {% extends "base.template" %}
 {% block content %}
-<p class="back"><a href="{{ index_href }}">&larr; All results</a></p>
+{% if page.lead %}
+<p class="lead">{% for highlight in page.lead.highlights %}<strong>{{ highlight }}</strong>{{ ', ' if not loop.last }}{% endfor %}{% if page.lead.text %}: {{ page.lead.text }}{% endif %}</p>
+{% endif %}
 {% for section in page.sections %}
 <section>
 {% if section.title %}
