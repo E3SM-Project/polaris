@@ -32,6 +32,9 @@ NAMELIST = """&wetting_drying
 &ocean_constants
     config_density0 = 1026.0
 /
+&land_ice_fluxes
+    config_land_ice_rho_ocean = 1028
+/
 """
 
 
@@ -107,10 +110,12 @@ def test_each_run_gets_steps_named_for_its_months(tmp_path):
         f'{TASK}/e3sm/performance_0001-01_0001-02',
         f'{TASK}/e3sm/plots_0001-01_0001-02',
         f'{TASK}/e3sm/provenance_0001-01_0001-02',
+        f'{TASK}/e3sm/run_health_0001-01_0001-02',
         f'{TASK}/publish',
         f'{TASK}/published_0001-01_0001-02_0001-01_0001-01',
         f'{TASK}/standalone/diagnostics_0001-01_0001-01',
         f'{TASK}/standalone/plots_0001-01_0001-01',
+        f'{TASK}/standalone/run_health_0001-01_0001-01',
         'misomip/yung2026/ocean0',
     ]
     diagnostics = task.steps[
@@ -127,8 +132,10 @@ def test_each_run_gets_steps_named_for_its_months(tmp_path):
         f'{prefix}_e3sm_performance_0001-01_0001-02',
         f'{prefix}_e3sm_plots_0001-01_0001-02',
         f'{prefix}_e3sm_provenance_0001-01_0001-02',
+        f'{prefix}_e3sm_run_health_0001-01_0001-02',
         f'{prefix}_published_0001-01_0001-02_0001-01_0001-01',
         f'{prefix}_standalone_plots_0001-01_0001-01',
+        f'{prefix}_standalone_run_health_0001-01_0001-01',
     ]
     # setup gives each step its task's config
     publish.config = task.config
@@ -146,6 +153,7 @@ def test_a_case_without_budgets_has_no_conservation_step(tmp_path):
     assert sorted(_short_names(task)) == [
         'e3sm_diagnostics',
         'e3sm_plots',
+        'e3sm_run_health',
         'performance',
         'provenance',
         'publish',
@@ -177,12 +185,14 @@ def test_runs_over_the_same_months_get_distinct_steps(tmp_path):
         'comparison',
         'e3sm_diagnostics',
         'e3sm_plots',
+        'e3sm_run_health',
         'performance',
         'provenance',
         'publish',
         'published',
         'standalone_diagnostics',
         'standalone_plots',
+        'standalone_run_health',
         'yung2026_ocean0',
     ]
 
@@ -215,6 +225,7 @@ def test_only_ocean0_to_ocean2_are_compared_with_published_results(tmp_path):
         'publish',
         'standalone_diagnostics',
         'standalone_plots',
+        'standalone_run_health',
     ]
 
 
@@ -403,6 +414,7 @@ def test_a_coupled_run_compares_both_models_melt_and_ice_sheet(tmp_path):
         'conservation',
         'e3sm_diagnostics',
         'e3sm_plots',
+        'e3sm_run_health',
         'ice_sheet_comparison',
         'model_exchange',
         'performance',

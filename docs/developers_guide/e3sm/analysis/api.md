@@ -90,6 +90,13 @@
    summary.get_published_plots
    summary.read_captions
    summary.add_captions
+   health.get_source_max_salinity
+   health.compute_spike_cells
+   health.compute_salt_excess
+   health.compute_dry_cells
+   health_page.RunHealthPage
+   health_page.RunHealthPage.run
+   health_page.add_health_sections
 ```
 
 ## Framework
@@ -181,6 +188,7 @@
 
    xtime_to_days
    month_start_days
+   days_to_date
 ```
 
 ### runs

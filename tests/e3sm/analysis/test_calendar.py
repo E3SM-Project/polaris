@@ -2,6 +2,7 @@ import numpy as np
 import pytest
 
 from polaris.e3sm.analysis.calendar import (
+    days_to_date,
     days_to_model_year,
     month_start_days,
     xtime_to_days,
@@ -39,3 +40,9 @@ def test_a_date_plots_at_its_model_year():
     np.testing.assert_allclose(
         days_to_model_year(days), [18.0, 1.0 + 1.5 / 365.0]
     )
+
+
+def test_days_fall_on_dates_of_the_365_day_calendar():
+    assert days_to_date(0.0) == '0001-01-01'
+    assert days_to_date(59.5) == '0001-03-01'
+    assert days_to_date(17 * 365.0 + 364.0) == '0018-12-31'

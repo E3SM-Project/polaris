@@ -1,7 +1,9 @@
 import numpy as np
 import xarray as xr
 
+from polaris.mpas.time_series_stats import read_time_series
 from polaris.tasks.e3sm.analysis.misomip.diagnostics import (
+    CUSTOM_FIELDS,
     _cell_speed,
     _edge_speed,
 )
@@ -42,6 +44,6 @@ def test_the_peak_speed_is_the_largest_anywhere(tmp_path):
         9.96921e36
     )
     ds.to_netcdf(filename)
-    ds_cell = _cell_speed([filename])
+    ds_cell = _cell_speed(read_time_series([filename], CUSTOM_FIELDS))
     np.testing.assert_allclose(ds_cell.dayStart, [365.0, 366.0])
     np.testing.assert_allclose(ds_cell.maxCellSpeed, [2.0, 4.0])

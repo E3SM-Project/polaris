@@ -19,6 +19,7 @@ import xarray as xr
 #: the cached years stale
 REDUCING_MODULES = [
     'polaris.tasks.e3sm.analysis.misomip.diagnostics',
+    'polaris.tasks.e3sm.analysis.misomip.health',
     'polaris.ocean.ice_shelf.diagnostics',
     'polaris.ocean.overturning',
     'polaris.landice.diagnostics',
