@@ -140,6 +140,10 @@ set in a user config file passed to `polaris setup`: a step refuses to run if
 it has been changed in the work directory since setup.  Ice-shelf cavities are
 supported for MPAS-Ocean only.
 
+With either Antarctic dataset, the land-ice pressure comes from an
+ice-equivalent thickness at MALI's ice density (see
+{ref}`e3sm-init-topo-tasks`).
+
 Under the ice, the treatment follows the ISOMIP+ tasks.  The land-ice pressure
 comes from the ice thickness and does not change.  The sea-surface height
 starts at the draft of ice floating with that pressure.  A column the ice would
