@@ -42,6 +42,7 @@
    plots.get_hatched_cells
    plots.get_color_range
    plots.get_color_norm
+   plots.get_section_colors
    plots.plot_section
    comparison.RunComparison
    comparison.RunComparison.run

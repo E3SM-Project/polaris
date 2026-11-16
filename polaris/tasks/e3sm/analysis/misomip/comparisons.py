@@ -10,6 +10,7 @@ from mpas_tools.io import write_netcdf
 from polaris import Task
 from polaris.analysis.product_step import ProductStep
 from polaris.e3sm.analysis.calendar import MODEL_YEAR_LABEL
+from polaris.tasks.e3sm.analysis.misomip.colors import get_signed_colors
 from polaris.tasks.e3sm.analysis.misomip.diagnostics import (
     TIME_MEAN_FILENAME,
     TIME_SERIES_FILENAME,
@@ -18,11 +19,14 @@ from polaris.tasks.e3sm.analysis.misomip.diagnostics import (
     read_initial_condition,
 )
 from polaris.tasks.e3sm.analysis.misomip.plots import (
+    FILM_IN_RANGE,
     MAPS,
+    SIGNED_MAPS,
     SYMMETRIC_FIELDS,
     TIME_SERIES,
     get_color_norm,
     get_color_range,
+    get_map_caption,
     get_map_mask,
     get_range_mask,
     scale_with_units,
@@ -176,7 +180,11 @@ class SeriesComparison(ProductStep):
                 for ds_mean, cells in zip(means, on_cells, strict=True)
             ]
             counted = [
-                get_range_mask(ds_mean, mask) if cells else None
+                get_range_mask(
+                    ds_mean, mask, include_film=name in FILM_IN_RANGE
+                )
+                if cells
+                else None
                 for ds_mean, mask, cells in zip(
                     means, shown, on_cells, strict=True
                 )
@@ -186,6 +194,10 @@ class SeriesComparison(ProductStep):
                 masks = shown
             vmin, vmax = _shared_range(self.config, name, fields, counted)
             norm, ticks = get_color_norm(self.config, name, cmap)
+            if name in SIGNED_MAPS:
+                cmap, norm, ticks = get_signed_colors(
+                    SIGNED_MAPS[name], vmin, vmax
+                )
             stem = f'{name}_maps'
             plot = f'{stem}.png'
             data = f'{stem}.nc'
@@ -216,7 +228,7 @@ class SeriesComparison(ProductStep):
                 data=data,
                 group=self.kind,
                 gallery=gallery,
-                title=title,
+                title=get_map_caption(title, where),
             )
 
 

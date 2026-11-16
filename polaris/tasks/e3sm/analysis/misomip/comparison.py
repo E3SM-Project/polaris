@@ -7,6 +7,7 @@ from polaris.e3sm.analysis.calendar import (
     MODEL_YEAR_LABEL,
     days_to_model_year,
 )
+from polaris.tasks.e3sm.analysis.misomip.colors import get_signed_colors
 from polaris.tasks.e3sm.analysis.misomip.diagnostics import (
     DAILY_FILENAME,
     MONTHLY_MAPS_FILENAME,
@@ -18,10 +19,13 @@ from polaris.tasks.e3sm.analysis.misomip.diagnostics import (
     read_initial_condition,
 )
 from polaris.tasks.e3sm.analysis.misomip.plots import (
+    FILM_IN_RANGE,
     MAPS,
+    SIGNED_MAPS,
     TIME_SERIES,
     get_color_norm,
     get_color_range,
+    get_map_caption,
     get_map_mask,
     get_range_mask,
     scale_with_units,
@@ -238,7 +242,9 @@ class RunComparison(ProductStep):
             counted = None
             if 'nCells' in fields[0].dims:
                 mask = get_map_mask(ds_init, where)
-                counted = get_range_mask(ds_init, mask)
+                counted = get_range_mask(
+                    ds_init, mask, include_film=name in FILM_IN_RANGE
+                )
             ranges = [
                 get_color_range(self.config, name, field, counted)
                 for field in fields
@@ -246,6 +252,10 @@ class RunComparison(ProductStep):
             vmin = min(low for low, _ in ranges)
             vmax = max(high for _, high in ranges)
             norm, ticks = get_color_norm(self.config, name, cmap)
+            if name in SIGNED_MAPS:
+                cmap, norm, ticks = get_signed_colors(
+                    SIGNED_MAPS[name], vmin, vmax
+                )
             stem = f'{name}_comparison'
             plot = f'{stem}.png'
             data = f'{stem}.nc'
@@ -283,7 +293,7 @@ class RunComparison(ProductStep):
                 data=data,
                 group='comparison',
                 gallery='maps',
-                title=f'{title}, E3SM and standalone',
+                title=get_map_caption(f'{title}, E3SM and standalone', where),
             )
         self._write_table(rows, months)
 

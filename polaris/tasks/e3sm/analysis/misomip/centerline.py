@@ -6,11 +6,15 @@ melt the ocean computes and MALI applies on the centerline, and MALI's
 thickness change since the start
 """
 
+from dataclasses import dataclass
+
 import cmocean
 import mosaic
 import numpy as np
 import xarray as xr
 from matplotlib import animation
+from matplotlib.collections import QuadMesh
+from matplotlib.colors import Normalize
 from matplotlib.figure import Figure
 from mpas_tools.ocean.viz.transect import plot_transect
 
@@ -18,6 +22,10 @@ from polaris.constants import get_constant
 from polaris.landice.diagnostics import (
     grounding_line_on_row,
     thickness_above_flotation,
+)
+from polaris.tasks.e3sm.analysis.misomip.colors import (
+    get_signed_colors,
+    get_signed_range,
 )
 from polaris.tasks.e3sm.analysis.misomip.diagnostics import (
     SECONDS_PER_YEAR,
@@ -44,6 +52,25 @@ THIN_FILM_LAYER = 0.1
 MAP_MARGIN_UPSTREAM = 75.0
 MAP_MARGIN_DOWNSTREAM = 20.0
 
+#: The share of a cell ice must cover for the thermal driving at its top
+#: cell to be shown: mostly open cells at the ice's edges take the freezing
+#: point of the surface from their small cell-mean ice pressure
+MOSTLY_ICE_FRACTION = 0.5
+
+#: The caption of the cells a thermal-driving map leaves out
+MOSTLY_ICE_LABEL = (
+    f'thermal driving only where ice covers at least '
+    f'{MOSTLY_ICE_FRACTION:.0%} of the cell'
+)
+
+#: The title of the map of melt plus frazil, by where it comes from: what
+#: MALI applies to its floating ice, or, where MALI does not evolve, what
+#: the ocean sends to MALI
+MELT_FRAZIL_TITLES = {
+    'mali': 'melt + frazil, applied by MALI',
+    'ocean': 'melt + frazil, sent by the ocean',
+}
+
 #: The spacing (km) of the ticks on the x axis
 X_TICK_SPACING = 50.0
 
@@ -53,20 +80,6 @@ PNG_DPI = 150
 GIF_DPI = 80
 
 MONTH_STARTS = [0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334]
-MONTH_NAMES = [
-    'Jan',
-    'Feb',
-    'Mar',
-    'Apr',
-    'May',
-    'Jun',
-    'Jul',
-    'Aug',
-    'Sep',
-    'Oct',
-    'Nov',
-    'Dec',
-]
 
 
 def plot_centerline_movie(
@@ -79,10 +92,16 @@ def plot_centerline_movie(
     ds_landice_mesh=None,
     densities=None,
     fps=None,
+    colors=None,
 ):
     """
     Plot the movie of the ocean, and of MALI where it ran, along a line of
-    constant y, and its last frame
+    constant y, and its last frame.  MALI's thickness change has a panel
+    where its ice changes.
+
+    Each month of the ocean is a frame, with MALI's latest record at or
+    before the month's end, which is MALI's geometry over the month where
+    it is static or prescribed.
 
     Parameters
     ----------
@@ -116,9 +135,13 @@ def plot_centerline_movie(
     fps : int, optional
         The frames per second; by default 3 for a year of frames and 12 for
         more
+
+    colors : SectionColors, optional
+        The colors of temperature and salinity, from the data where not
+        given
     """
     movie = _CenterlineMovie(
-        ds_init, ds_centerline, y, title, ds_landice_mesh, densities
+        ds_init, ds_centerline, y, title, ds_landice_mesh, densities, colors
     )
     frames = movie.frame_days
     if fps is None:
@@ -133,12 +156,74 @@ def plot_centerline_movie(
         anim.save(gif_filename, writer=writer, dpi=GIF_DPI)
 
 
+@dataclass
+class SectionColors:
+    """
+    The colors of the sections of temperature and salinity, the same in
+    every run
+
+    Attributes
+    ----------
+    temperature_range : tuple of float or None
+        The range of temperature (degC), from the data if ``None``
+
+    salinity_range : tuple of float or None
+        The range of salinity (PSU), from the data if ``None`` and there is
+        no norm
+
+    salinity_norm : matplotlib.colors.Normalize or None
+        The norm of salinity's colors in uneven bins, in place of its range
+
+    salinity_ticks : list of float or None
+        The ticks of salinity's color bar
+    """
+
+    temperature_range: tuple | None = None
+    salinity_range: tuple | None = None
+    salinity_norm: Normalize | None = None
+    salinity_ticks: list | None = None
+
+
+def pick_landice_records(days, record_days):
+    """
+    Pick MALI's record for each day: the latest at or before it, and the
+    first written of records at the same time, as a restart writes the
+    record it starts from again
+
+    Parameters
+    ----------
+    days : list of float
+        The days, such as the ends of the ocean's months, in days since
+        0001-01-01
+
+    record_days : numpy.ndarray
+        The times of MALI's records, in days since 0001-01-01
+
+    Returns
+    -------
+    records : dict of float to int
+        The index of each day's record, leaving out the days before MALI's
+        first record
+    """
+    first: dict = dict()
+    for index, day in enumerate(np.round(record_days, 6)):
+        first.setdefault(float(day), index)
+    times = np.array(sorted(first))
+    records = dict()
+    for day in days:
+        position = np.searchsorted(times, day + 1e-6, side='right') - 1
+        if position >= 0:
+            records[day] = first[float(times[position])]
+    return records
+
+
 class _CenterlineMovie:
     """The data and figure of the movie along the centerline"""
 
     def __init__(
-        self, ds_init, ds_centerline, y, title, ds_landice, densities
+        self, ds_init, ds_centerline, y, title, ds_landice, densities, colors
     ):
+        self.colors = SectionColors() if colors is None else colors
         self.ds_init = ds_init
         self.ds = ds_centerline
         self.y = y
@@ -170,13 +255,16 @@ class _CenterlineMovie:
         )
         if self.has_landice:
             self._init_landice(ds_landice, densities)
+            self.mali_index = pick_landice_records(
+                list(month_end), ds_centerline.recordTime.values
+            )
             frame_days = [day for day in month_end if day in self.mali_index]
         else:
             frame_days = list(month_end)
         self.frame_days = frame_days
         self._set_limits()
 
-        panels = 4 if self.has_landice else 3
+        panels = 4 if self.ice_changes else 3
         ratios = [3.0, 3.0, 1.4, 1.4][:panels]
         self.fig = Figure(
             figsize=(FIG_WIDTH, 2.7 * sum(ratios) / 2.0 + 1.0),
@@ -187,7 +275,7 @@ class _CenterlineMovie:
         self.ax_salt = self.fig.add_subplot(grid[1], sharex=self.ax_temp)
         self.ax_melt = self.fig.add_subplot(grid[2], sharex=self.ax_temp)
         self.ax_dh = None
-        if self.has_landice:
+        if self.ice_changes:
             self.ax_dh = self.fig.add_subplot(grid[3], sharex=self.ax_temp)
         self.colorbars: dict = dict()
 
@@ -202,11 +290,6 @@ class _CenterlineMovie:
         self.thick0_row = ds_landice.thickness.values[row]
         front_x = float(self.x_row[self.thick0_row > 0.0].max())
         self.away_from_front = self.x_row < front_x - FRONT_MARGIN
-        record_time = np.round(ds.recordTime.values, 6)
-        # a restart writes the record it starts from again; take the first
-        self.mali_index: dict = dict()
-        for index, day in enumerate(record_time):
-            self.mali_index.setdefault(day, index)
         self.applied_end = None
         if 'appliedMelt' in ds:
             self.applied_end = ds.appliedMonthEnd.values
@@ -238,8 +321,8 @@ class _CenterlineMovie:
         return flux / self.water_density * SECONDS_PER_YEAR
 
     def _applied_melt(self, day):
-        """MALI's applied melt rate (m yr-1, water equivalent) over the
-        month ending nearest the day, or None"""
+        """The melt + frazil MALI applies (m yr-1, water equivalent) over
+        the month ending nearest the day, or None"""
         if self.applied_end is None:
             return None
         index = int(np.argmin(np.abs(self.applied_end - day)))
@@ -247,7 +330,7 @@ class _CenterlineMovie:
         return melt / self.water_density * SECONDS_PER_YEAR
 
     def _mali_row(self, name, day):
-        """A field of MALI on the row at the record of a day"""
+        """A field of MALI on the row at its record for a day"""
         record = self.mali_index[day]
         return self.ds[name].isel(nLandiceRecords=record).values
 
@@ -265,6 +348,7 @@ class _CenterlineMovie:
         temp_values = []
         salt_values = []
         melt_max = 0.0
+        melt_min = 0.0
         dh_max = 0.0
         for day in self.frame_days:
             layer_thickness = self._full('layerThickness', day)
@@ -273,12 +357,15 @@ class _CenterlineMovie:
             salt = self._full('salinity', day).values[self.line_cells]
             temp_values.append(temp[wet])
             salt_values.append(salt[wet])
-            melt_max = max(melt_max, float(np.nanmax(self._ocean_melt(day))))
+            ocean_melt = self._ocean_melt(day)
+            melt_max = max(melt_max, float(np.nanmax(ocean_melt)))
+            melt_min = min(melt_min, float(np.nanmin(ocean_melt)))
             if self.has_landice:
                 applied = self._applied_melt(day)
                 if applied is not None:
                     away = np.where(self.away_from_front, applied, 0.0)
                     melt_max = max(melt_max, float(np.nanmax(away)))
+                    melt_min = min(melt_min, float(np.nanmin(away)))
                 thick = self._mali_row('thickness', day)
                 dh = np.where(
                     (thick > 0.0) & self.away_from_front,
@@ -286,18 +373,33 @@ class _CenterlineMovie:
                     0.0,
                 )
                 dh_max = max(dh_max, float(np.max(np.abs(dh))))
-        # the full range of temperature, so the restoring region's warm
-        # water, a small share of the cells, keeps its color
-        temp_all = np.concatenate(temp_values)
-        self.temp_range = (
-            float(np.nanmin(temp_all)),
-            float(np.nanmax(temp_all)),
-        )
-        self.salt_range = tuple(
-            np.nanpercentile(np.concatenate(salt_values), [0.5, 99.5])
-        )
+        colors = self.colors
+        if colors.temperature_range is not None:
+            self.temp_range = tuple(colors.temperature_range)
+        else:
+            # the full range of temperature, so the restoring region's warm
+            # water, a small share of the cells, keeps its color
+            temp_all = np.concatenate(temp_values)
+            self.temp_range = (
+                float(np.nanmin(temp_all)),
+                float(np.nanmax(temp_all)),
+            )
+        if colors.salinity_norm is not None:
+            norm = colors.salinity_norm
+            self.salt_range = (norm.vmin, norm.vmax)
+        elif colors.salinity_range is not None:
+            self.salt_range = tuple(colors.salinity_range)
+        else:
+            self.salt_range = tuple(
+                np.nanpercentile(np.concatenate(salt_values), [0.5, 99.5])
+            )
         self.melt_max = max(melt_max, 0.1) * 1.1
+        # freezing, if any, shows below zero
+        self.melt_min = 1.1 * melt_min
         self.dh_max = max(dh_max, 0.1) * 1.1
+        # MALI's thickness change is left out where its ice never changes,
+        # as when MALI is static
+        self.ice_changes = dh_max > 0.0
 
     def _to_transect(self, x):
         """Protocol x (km) to the distance along the transect (km)"""
@@ -367,9 +469,18 @@ class _CenterlineMovie:
                 cmap=cmap,
                 colorbar_label=None,
             )
+            mesh = next(
+                child
+                for child in ax.collections
+                if isinstance(child, QuadMesh)
+            )
+            ticks = None
+            if name == 'salinity' and self.colors.salinity_norm is not None:
+                mesh.set_norm(self.colors.salinity_norm)
+                ticks = self.colors.salinity_ticks
             if name not in self.colorbars:
                 self.colorbars[name] = self.fig.colorbar(
-                    ax.collections[0], ax=ax, label=label, extend='both'
+                    mesh, ax=ax, label=label, extend='both', ticks=ticks
                 )
             if gl_x is not None:
                 self._draw_ice(ax, thick, lower, gl_x)
@@ -392,7 +503,7 @@ class _CenterlineMovie:
             where='mid',
             color='tab:blue',
             linewidth=1.2,
-            label='ocean, per cell area',
+            label='melt, ocean, per cell area',
         )
         if self.has_landice:
             applied = self._applied_melt(day)
@@ -406,7 +517,7 @@ class _CenterlineMovie:
                     ),
                     color='tab:red',
                     linewidth=1.0,
-                    label='MALI, applied',
+                    label='melt + frazil, applied by MALI',
                 )
             ax.axvline(
                 self._to_transect(gl_x),
@@ -414,10 +525,12 @@ class _CenterlineMovie:
                 linestyle='--',
                 linewidth=0.8,
             )
-        ax.set_ylim(0.0, self.melt_max)
+        ax.axhline(0.0, color='0.5', linewidth=0.6)
+        ax.set_ylim(self.melt_min, self.melt_max)
         ax.set_ylabel('m yr$^{-1}$')
         ax.set_title(
-            'melt rate, water equivalent, on the centerline, monthly mean'
+            'melt rate, water equivalent, on the centerline, monthly mean '
+            '(negative for freezing)'
         )
         ax.legend(loc='upper right', fontsize=LEGEND_SIZE)
 
@@ -470,13 +583,16 @@ class _CenterlineMovie:
 
 
 def _date_text(day):
-    """'Year N, Mon D' for days since 0001-01-01 of the 365-day calendar"""
+    """
+    'YYYY-MM-DD' for days since 0001-01-01 of the 365-day calendar, all
+    numbers so an animation's title keeps its width from frame to frame
+    """
     day = int(round(day))
     year, day_of_year = 1 + day // 365, day % 365
     month = max(m for m in range(12) if MONTH_STARTS[m] <= day_of_year)
     return (
-        f'Year {year}, {MONTH_NAMES[month]} '
-        f'{day_of_year - MONTH_STARTS[month] + 1}'
+        f'{year:04d}-{month + 1:02d}-'
+        f'{day_of_year - MONTH_STARTS[month] + 1:02d}'
     )
 
 
@@ -518,8 +634,11 @@ def plot_snapshots(
     densities=None,
 ):
     """
-    Map the melt rate, MALI's thickness change where it ran, and the
-    thermal driving at the top cell at a few times spread over the run
+    Map the melt rate, the melt plus the frazil under the ice where MALI
+    ran, MALI's thickness change where its ice changes, and the thermal
+    driving at the top cell at a few times spread over the run.  Melt and
+    thermal driving keep their sign: freezing is blue, and water below its
+    freezing point has colors of its own.
 
     Parameters
     ----------
@@ -544,26 +663,42 @@ def plot_snapshots(
     """
     snaps = _Snapshots(ds_init, ds_snapshots, ds_landice_mesh, densities)
     days = snaps.days
-    columns = ['melt', 'dh', 'td'] if snaps.has_landice else ['melt', 'td']
-    melt_maps = [snaps.melt_map(day) for day in days]
-    melt_max = float(
-        np.nanpercentile(
-            np.concatenate([melt.ravel() for melt in melt_maps]), 99.5
-        )
+    maps = dict(
+        melt=[snaps.melt_map(day) for day in days],
+        td=[snaps.thermal_driving(day) for day in days],
     )
-    td_maps = [snaps.thermal_driving(day) for day in days]
-    td_max = float(
-        np.nanpercentile(np.concatenate([td.ravel() for td in td_maps]), 99.5)
-    )
-    dh_maps = []
-    dh_max = 1e-3
     if snaps.has_landice:
-        dh_maps = [snaps.thickness_change(day) for day in days]
+        maps['dh'] = [snaps.thickness_change(day) for day in days]
+    # MALI's thickness change is left out where its ice never changes, as
+    # when MALI is static
+    ice_changes = 'dh' in maps and any(
+        np.any(np.nan_to_num(dh) != 0.0) for dh in maps['dh']
+    )
+    columns = ['melt']
+    if snaps.melt_frazil_source is not None:
+        columns.append('melt_frazil')
+    if ice_changes:
+        columns.append('dh')
+    columns.append('td')
+    if 'melt_frazil' in columns:
+        maps['melt_frazil'] = [snaps.melt_frazil_map(day) for day in days]
+    colors = dict()
+    # melt and melt plus frazil share their colors, so they compare
+    melt_kinds = [kind for kind in ['melt', 'melt_frazil'] if kind in maps]
+    melt_arrays = [array for kind in melt_kinds for array in maps[kind]]
+    melt_colors = get_signed_colors('melt', *get_signed_range(melt_arrays))
+    for kind in melt_kinds:
+        colors[kind] = melt_colors
+    colors['td'] = get_signed_colors(
+        'thermal_driving', *get_signed_range(maps['td'])
+    )
+    dh_max = 1e-3
+    if ice_changes:
         dh_max = max(
             dh_max,
             float(
                 np.nanpercentile(
-                    np.abs(np.concatenate([dh.ravel() for dh in dh_maps])),
+                    np.abs(np.concatenate([dh.ravel() for dh in maps['dh']])),
                     99.5,
                 )
             ),
@@ -571,7 +706,11 @@ def plot_snapshots(
     nrow = len(days)
     with mplstyle_context(dpi=PNG_DPI):
         fig = Figure(
-            figsize=(FIG_WIDTH, 1.15 * nrow + 2.0), constrained_layout=True
+            figsize=(
+                FIG_WIDTH * max(len(columns), 3) / 3.0,
+                1.15 * nrow + 2.0,
+            ),
+            constrained_layout=True,
         )
         axes = fig.subplots(
             nrow, len(columns), sharex=True, sharey=True, squeeze=False
@@ -580,36 +719,29 @@ def plot_snapshots(
         for row, day in enumerate(days):
             for col, column in enumerate(columns):
                 ax = axes[row, col]
-                if column == 'melt':
-                    collections[column] = mosaic.polypcolor(
-                        ax,
-                        snaps.ocean_descriptor,
-                        melt_maps[row],
-                        cmap=cmocean.cm.amp,
-                        vmin=0.0,
-                        vmax=melt_max,
-                        edgecolor='face',
-                    )
-                elif column == 'dh':
-                    collections[column] = mosaic.polypcolor(
-                        ax,
-                        snaps.landice_descriptor,
-                        dh_maps[row],
-                        cmap=cmocean.cm.balance_r,
-                        vmin=-dh_max,
-                        vmax=dh_max,
-                        edgecolor='face',
+                on_landice = column == 'dh' or (
+                    column == 'melt_frazil'
+                    and snaps.melt_frazil_source == 'mali'
+                )
+                descriptor = (
+                    snaps.landice_descriptor
+                    if on_landice
+                    else snaps.ocean_descriptor
+                )
+                if column == 'dh':
+                    style = dict(
+                        cmap=cmocean.cm.balance_r, vmin=-dh_max, vmax=dh_max
                     )
                 else:
-                    collections[column] = mosaic.polypcolor(
-                        ax,
-                        snaps.ocean_descriptor,
-                        td_maps[row],
-                        cmap=cmocean.cm.thermal,
-                        vmin=0.0,
-                        vmax=td_max,
-                        edgecolor='face',
-                    )
+                    cmap, norm, _ = colors[column]
+                    style = dict(cmap=cmap, norm=norm)
+                collections[column] = mosaic.polypcolor(
+                    ax,
+                    descriptor,
+                    maps[column][row],
+                    edgecolor='face',
+                    **style,
+                )
                 if snaps.has_landice:
                     snaps.draw_grounding_line(ax, day)
                 ax.set_xlim(*snaps.map_xlim)
@@ -626,25 +758,31 @@ def plot_snapshots(
                 fontsize=LEGEND_SIZE,
                 bbox=dict(facecolor='white', edgecolor='none', alpha=0.8),
             )
+        melt_label = 'm yr$^{-1}$, water equivalent\n(negative: freezing)'
         titles = dict(
-            melt='melt rate',
+            melt='melt rate (no frazil)',
+            melt_frazil=MELT_FRAZIL_TITLES.get(snaps.melt_frazil_source or ''),
             dh='MALI thickness change',
             td='top-cell thermal driving',
         )
         labels = dict(
-            melt='melt rate, water equivalent (m yr$^{-1}$)',
+            melt=melt_label,
+            melt_frazil=melt_label,
             dh='m since the start',
             td=r'$^\circ$C',
         )
         for col, column in enumerate(columns):
             axes[0, col].set_title(titles[column])
             axes[-1, col].set_xlabel('x (km)')
+            ticks = None if column == 'dh' else colors[column][2]
             fig.colorbar(
                 collections[column],
                 ax=axes[:, col],
                 label=labels[column],
                 orientation='horizontal',
                 shrink=0.9,
+                ticks=ticks,
+                extend='both' if column != 'dh' else 'neither',
             )
         fig.suptitle(title)
         fig.savefig(png_filename)
@@ -658,6 +796,7 @@ def plot_centerline_sections(
     png_filename,
     ds_landice_mesh=None,
     densities=None,
+    temperature_range=None,
 ):
     """
     Plot the temperature along a line of constant y, under MALI's ice where
@@ -686,6 +825,9 @@ def plot_centerline_sections(
 
     densities : tuple of float, optional
         MALI's ice and ocean densities (kg m-3), if MALI ran
+
+    temperature_range : tuple of float, optional
+        The range of temperature (degC), from the data by default
     """
     snaps = _Snapshots(ds_init, ds_snapshots, ds_landice_mesh, densities)
     days = snaps.days
@@ -701,8 +843,11 @@ def plot_centerline_sections(
     values = np.concatenate(
         [temp.values[line_cells].ravel() for temp in temps]
     )
-    t_min = float(np.nanmin(values))
-    t_max = float(np.nanmax(values))
+    if temperature_range is not None:
+        t_min, t_max = temperature_range
+    else:
+        t_min = float(np.nanmin(values))
+        t_max = float(np.nanmax(values))
     if snaps.has_landice:
         row = get_landice_row_from_mesh(snaps.ds_landice, y)
         x_row = 1e-3 * snaps.ds_landice.xCell.values[row]
@@ -815,6 +960,10 @@ class _Snapshots:
             float(x_cell[floating].min()) - MAP_MARGIN_UPSTREAM,
             float(x_cell[floating].max()) + MAP_MARGIN_DOWNSTREAM,
         )
+        # the ice's cover in the initial condition: the melt is shown on
+        # every cell under it, the thin film included, and the thermal
+        # driving where it covers most of the cell
+        self.ice_fraction = ds_init.landIceFraction.values
         ocean_mesh = isomip_mesh(ds_init)
         for name in ['xCell', 'yCell', 'xVertex', 'yVertex']:
             ocean_mesh[name] = 1e-3 * ocean_mesh[name]
@@ -840,25 +989,53 @@ class _Snapshots:
             days = list(ocean_days)
         self.ocean_index = {day: index for index, day in enumerate(ocean_days)}
         self.days = pick_snapshot_days(days)
+        # melt plus frazil is for runs with MALI: what MALI applies where
+        # it wrote it, otherwise what the ocean computes under the ice
+        self.melt_frazil_source = None
+        if self.has_landice and 'appliedBasalMassBal' in ds:
+            self.melt_frazil_source = 'mali'
+        elif self.has_landice and 'meltFrazilDayFlux' in ds:
+            self.melt_frazil_source = 'ocean'
 
     def _snapshot(self, day):
         return self.ds.isel(nSnapshots=self.ocean_index[day])
 
     def melt_map(self, day):
         """The melt rate (m yr-1, water equivalent) over the day ending at
-        the snapshot, where the ice floats"""
+        the snapshot, under the ice, the thin film included"""
         snapshot = self._snapshot(day)
         if 'meltDayFlux' not in snapshot:
             return np.full(self.n_cells, np.nan)
         melt = snapshot.meltDayFlux.values / self.water_density
-        floating = snapshot.landIceFloatingFraction.values > 0.0
-        return np.where(floating, melt * SECONDS_PER_YEAR, np.nan)
+        under_ice = self.ice_fraction > 0.0
+        return np.where(under_ice, melt * SECONDS_PER_YEAR, np.nan)
+
+    def melt_frazil_map(self, day):
+        """The melt plus the frazil under the ice (m yr-1, water
+        equivalent), positive out of the ice: on MALI's mesh, what MALI
+        applies to its ice at the snapshot; otherwise on the ocean's, over
+        the day ending at the snapshot under the ice, the thin film
+        included"""
+        if self.melt_frazil_source == 'mali':
+            index = self.landice_index[day]
+            applied = self.ds.appliedBasalMassBal.isel(
+                nLandiceSnapshots=index
+            ).values
+            under_ice = self.landice_thickness(day) > 0.0
+            flux = -applied
+        else:
+            snapshot = self._snapshot(day)
+            under_ice = self.ice_fraction > 0.0
+            flux = snapshot.meltFrazilDayFlux.values
+        flux = flux / self.water_density * SECONDS_PER_YEAR
+        return np.where(under_ice, flux, np.nan)
 
     def thermal_driving(self, day):
-        """The thermal driving at the top cell where the ice floats"""
+        """The thermal driving at the top cell where ice covers most of
+        the cell"""
         snapshot = self._snapshot(day)
-        floating = snapshot.landIceFloatingFraction.values > 0.0
-        return np.where(floating, snapshot.thermalDriving.values, np.nan)
+        mostly_ice = self.ice_fraction >= MOSTLY_ICE_FRACTION
+        return np.where(mostly_ice, snapshot.thermalDriving.values, np.nan)
 
     def section_fields(self, day):
         """The layer thickness and the temperature, where the column is more
@@ -991,7 +1168,7 @@ def plot_melt_movie(ds_init, ds_melt, title, gif_filename, max_frames=180):
     # the scale leaves out the first day, whose start-up melt can be far
     # larger
     later = melt[1:] if melt.shape[0] > 1 else melt
-    melt_max = float(np.nanpercentile(later, 99.5))
+    cmap, norm, ticks = get_signed_colors('melt', *get_signed_range([later]))
     has_gl = 'glStateTime' in ds_melt
     if has_gl:
         gl_time = ds_melt.glStateTime.values
@@ -1029,15 +1206,16 @@ def plot_melt_movie(ds_init, ds_melt, title, gif_filename, max_frames=180):
             ax,
             descriptor,
             melt_map(0),
-            cmap=cmocean.cm.amp,
-            vmin=0.0,
-            vmax=melt_max,
+            cmap=cmap,
+            norm=norm,
             edgecolor='face',
         )
         fig.colorbar(
             collection,
             ax=ax,
-            label='m yr$^{-1}$',
+            label='m yr$^{-1}$, negative for freezing',
+            ticks=ticks,
+            extend='both',
             orientation='horizontal',
             shrink=0.5,
             pad=0.25,

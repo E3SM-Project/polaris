@@ -42,7 +42,8 @@ CHECKED_SHIFTS = [0, 1, 2]
 class ModelExchange(ProductStep):
     """
     A step that compares the net mass flux out of the ice shelves that the
-    ocean sends with the melt MALI applies, each from its own model's output
+    ocean sends with the melt + frazil MALI applies, each from its own
+    model's output
 
     MALI's step over each glc coupling interval applies the coupler's
     average of what the ocean sent over the same interval, so each of the
@@ -333,8 +334,9 @@ def read_landice_steps(filenames):
 
 def compare_with_landice(ds_ocean, steps, interval, start, shift=0):
     """
-    Compare the ocean's flux in each period with the melt MALI applies over
-    the same period, or over it shifted later by whole coupling intervals
+    Compare the ocean's flux in each period with the melt + frazil MALI
+    applies over the same period, or over it shifted later by whole
+    coupling intervals
 
     Parameters
     ----------
@@ -394,8 +396,8 @@ def compare_with_landice(ds_ocean, steps, interval, start, shift=0):
         ),
         oceanMelt=("the ocean's total melt flux", 'kg s-1'),
         landiceApplied=(
-            f'basal melt of floating ice MALI applies, {shift} coupling '
-            f'intervals later',
+            f'melt + frazil of floating ice MALI applies, {shift} '
+            f'coupling intervals later',
             'kg s-1',
         ),
         landiceCoverage=(
