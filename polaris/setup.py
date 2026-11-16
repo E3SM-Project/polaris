@@ -1007,6 +1007,8 @@ def _configure_tasks_and_add_step_configs(
             task.configure()
             _set_steps_to_run(task)
 
+    _drop_skipped_tasks(tasks)
+
     # add configs to steps after calling task.configure() on all tasks in case
     # new steps were added
     configs = dict()
@@ -1036,6 +1038,20 @@ def _configure_tasks_and_add_step_configs(
         config.setup()
 
     return configs
+
+
+def _drop_skipped_tasks(tasks):
+    """
+    Leave out the tasks that said in configure() that they do not apply.
+    """
+    skipped = [path for path, task in tasks.items() if task.skip_reason]
+    for path in skipped:
+        print(f'Skipping {path}: {tasks[path].skip_reason}')
+        del tasks[path]
+    if skipped and not tasks:
+        raise ValueError(
+            'None of the requested tasks apply to this machine and model.'
+        )
 
 
 def _set_steps_to_run(task):
