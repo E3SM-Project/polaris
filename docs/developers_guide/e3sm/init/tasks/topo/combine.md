@@ -100,10 +100,21 @@ on its own, for each Antarctic dataset in `ANTARCTIC_DATASETS`
 Downstream workflows such as topography remapping to the MPAS mesh,
 extrapolation of the WOA23 dataset and defining mesh resolution for unified
 E3SM v4 meshes will use shared `topo/combine` steps referenced by their
-grid and resolution.  They use the default Antarctic dataset,
+grid and resolution.  They are built with the default Antarctic dataset,
 `ANTARCTIC` in `polaris.tasks.e3sm.init.topo.combine.files` (currently
 `bedmap3`), unless they pass another as `antarctic_dataset` to
 `get_cubed_sphere_topo_steps()` or `get_lat_lon_topo_steps()`.
+
+Remapping topography to an MPAS mesh follows the
+`[remap_topography] antarctic_dataset` config option instead.  Polaris builds
+tasks before it reads a user's config file, so
+{py:meth}`polaris.tasks.e3sm.init.E3smInit.configure` swaps the combine steps
+for the dataset in the user's config into every task that has the remap
+steps, before any task is configured or step set up (see
+{py:func}`polaris.tasks.e3sm.init.topo.antarctic_dataset.replace_steps`).
+The option is therefore setup-only (see {ref}`dev-step-setup-only-options`).
+Other users of combined topography, such as the WOA23 extrapolation and the
+unified-mesh coastlines, keep the default dataset.
 
 ## Ice-equivalent thickness
 

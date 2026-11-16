@@ -6,6 +6,8 @@
 .. autosummary::
    :toctree: generated/
 
+   E3smInit
+   E3smInit.configure
    add_tasks.add_e3sm_init_tasks
 ```
 
@@ -83,6 +85,22 @@
 ```
 
 ### topo
+
+#### Antarctic dataset
+
+```{eval-rst}
+.. currentmodule:: polaris.tasks.e3sm.init.topo.antarctic_dataset
+
+.. autosummary::
+   :toctree: generated/
+
+   get_antarctic_dataset
+   add_antarctic_dataset_option
+   check_combine_topo_dataset
+   select_antarctic_dataset
+   get_combine_step_replacements
+   replace_steps
+```
 
 #### combine
 

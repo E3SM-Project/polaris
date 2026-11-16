@@ -43,8 +43,9 @@ Antarctica v4 (`bedmachinev4`):
 - `e3sm/init/topo/combine_<antarctic>_gebco2023/lat_lon/0.06250_degree/task`
 - `e3sm/init/topo/combine_<antarctic>_gebco2023/lat_lon/0.03125_degree/task`
 
-The remap and cull tasks reuse the `bedmap3` products when generating inputs
-for MPAS base meshes.
+The remap and cull tasks reuse these products when generating inputs for
+MPAS base meshes, by default the `bedmap3` ones (see `antarctic_dataset`
+below).
 
 The combined ice thickness is ice-equivalent: it leaves out the air in the
 firn.  BedMachine provides it that way, and BedMachine Antarctica v4's firn
@@ -100,6 +101,15 @@ normalization settings.
 
 Remap tasks use the shared `[spherical_mesh]` section together with
 `[remap_topography]`.
+
+The following options can only be set in a user config file passed to
+`polaris setup`.  A step refuses to run if one has been changed in the work
+directory since setup; set up again in a new work directory instead.
+
+- `antarctic_dataset` (in `[remap_topography]`): The Antarctic topography
+	dataset, `bedmap3` (the default) or `bedmachinev4`.  Each has its own
+	combined topography, which must be in the cache or set up free-running
+	with `--free_running`.
 
 Common user-tunable options are:
 
