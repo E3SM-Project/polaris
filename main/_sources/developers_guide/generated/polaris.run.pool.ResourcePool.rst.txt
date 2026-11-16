@@ -14,6 +14,8 @@
    .. autosummary::
    
       ~ResourcePool.__init__
+      ~ResourcePool.fits
+      ~ResourcePool.free_cores
       ~ResourcePool.release
       ~ResourcePool.reserve
       ~ResourcePool.resident

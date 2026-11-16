@@ -440,7 +440,10 @@ same time:</p>
 </pre></div>
 </div>
 <p>The corresponding <code class="docutils literal notranslate"><span class="pre">[ocean]</span></code> config options are <code class="docutils literal notranslate"><span class="pre">goal_cells_per_gpu</span></code> and
-<code class="docutils literal notranslate"><span class="pre">max_cells_per_gpu</span></code>.</p>
+<code class="docutils literal notranslate"><span class="pre">max_cells_per_gpu</span></code>.  A task or step that needs to know whether Omega will run
+on GPUs, for example to change a fixed task count, can call
+<a class="reference internal" href="generated/polaris.ocean.model.omega_runs_on_gpus.html#polaris.ocean.model.omega_runs_on_gpus" title="polaris.ocean.model.omega_runs_on_gpus"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.ocean.model.omega_runs_on_gpus()</span></code></a> from <code class="docutils literal notranslate"><span class="pre">configure()</span></code> or
+later.</p>
 </section>
 </section>
 <section id="setting-time-intervals-in-model-config-options">

@@ -496,6 +496,10 @@ window.runMermaid = runMermaid;</script>
 <span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">FrozenSet</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span>
 
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">scipy.sparse</span><span class="w"> </span><span class="kn">import</span> <span class="n">csr_matrix</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">scipy.sparse.csgraph</span><span class="w"> </span><span class="kn">import</span> <span class="n">maximum_flow</span>
+
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.run.lifecycle</span><span class="w"> </span><span class="kn">import</span> <span class="n">step_is_complete</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.step</span><span class="w"> </span><span class="kn">import</span> <span class="n">Step</span>
 
@@ -602,7 +606,58 @@ window.runMermaid = runMermaid;</script>
                 <span class="k">continue</span>
             <span class="n">found</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">current</span><span class="p">)</span>
             <span class="n">pending</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_dependents</span><span class="p">[</span><span class="n">current</span><span class="p">])</span>
-        <span class="k">return</span> <span class="nb">frozenset</span><span class="p">(</span><span class="n">found</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="nb">frozenset</span><span class="p">(</span><span class="n">found</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">widest_concurrent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">weights</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        The largest total weight of steps that could all run at once.</span>
+
+<span class="sd">        Two steps can run at the same time only if neither is downstream of</span>
+<span class="sd">        the other, so this is the heaviest set of steps no two of which are</span>
+<span class="sd">        ordered (an antichain).  By the weighted form of Dilworth's theorem</span>
+<span class="sd">        that equals the total weight less a maximum flow from each step to</span>
+<span class="sd">        every step downstream of it, which is exact and takes polynomial</span>
+<span class="sd">        time.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        weights : dict of int</span>
+<span class="sd">            A non-negative weight for each step, keyed by path.  A step</span>
+<span class="sd">            left out has no weight but still orders the steps around it.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        widest : int</span>
+<span class="sd">            The largest total weight of steps that could all run at once</span>
+<span class="sd">        """</span>
+        <span class="n">paths</span> <span class="o">=</span> <span class="p">[</span><span class="n">path</span> <span class="k">for</span> <span class="n">path</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">nodes</span> <span class="k">if</span> <span class="n">weights</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">]</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">paths</span><span class="p">:</span>
+            <span class="k">return</span> <span class="mi">0</span>
+        <span class="n">index</span> <span class="o">=</span> <span class="p">{</span><span class="n">path</span><span class="p">:</span> <span class="n">i</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">path</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">paths</span><span class="p">)}</span>
+        <span class="n">count</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">paths</span><span class="p">)</span>
+        <span class="n">total</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">weights</span><span class="p">[</span><span class="n">path</span><span class="p">]</span> <span class="k">for</span> <span class="n">path</span> <span class="ow">in</span> <span class="n">paths</span><span class="p">)</span>
+        <span class="n">source</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">count</span>
+        <span class="n">sink</span> <span class="o">=</span> <span class="n">source</span> <span class="o">+</span> <span class="mi">1</span>
+        <span class="n">rows</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">cols</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">capacities</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">path</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">paths</span><span class="p">):</span>
+            <span class="n">weight</span> <span class="o">=</span> <span class="n">weights</span><span class="p">[</span><span class="n">path</span><span class="p">]</span>
+            <span class="n">rows</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="n">source</span><span class="p">,</span> <span class="n">count</span> <span class="o">+</span> <span class="n">i</span><span class="p">])</span>
+            <span class="n">cols</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="n">i</span><span class="p">,</span> <span class="n">sink</span><span class="p">])</span>
+            <span class="n">capacities</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="n">weight</span><span class="p">,</span> <span class="n">weight</span><span class="p">])</span>
+            <span class="k">for</span> <span class="n">downstream</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">descendants</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">downstream</span> <span class="ow">in</span> <span class="n">index</span><span class="p">:</span>
+                    <span class="n">rows</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+                    <span class="n">cols</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">count</span> <span class="o">+</span> <span class="n">index</span><span class="p">[</span><span class="n">downstream</span><span class="p">])</span>
+                    <span class="n">capacities</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">total</span><span class="p">)</span>
+        <span class="n">network</span> <span class="o">=</span> <span class="n">csr_matrix</span><span class="p">(</span>
+            <span class="p">(</span><span class="n">capacities</span><span class="p">,</span> <span class="p">(</span><span class="n">rows</span><span class="p">,</span> <span class="n">cols</span><span class="p">)),</span>
+            <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">sink</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">sink</span> <span class="o">+</span> <span class="mi">1</span><span class="p">),</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">flow</span> <span class="o">=</span> <span class="n">maximum_flow</span><span class="p">(</span><span class="n">network</span><span class="p">,</span> <span class="n">source</span><span class="p">,</span> <span class="n">sink</span><span class="p">)</span><span class="o">.</span><span class="n">flow_value</span>
+        <span class="k">return</span> <span class="n">total</span> <span class="o">-</span> <span class="nb">int</span><span class="p">(</span><span class="n">flow</span><span class="p">)</span></div>
 
 
 

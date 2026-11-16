@@ -168,6 +168,8 @@ the task, e.g. from a config file stored in the task’s python
 package.  If a task overrides this method, it should assume that
 the <code class="docutils literal notranslate"><span class="pre">&lt;self.name&gt;.cfg</span></code> file in its package has already been added
 to the config options prior to calling <code class="docutils literal notranslate"><span class="pre">configure()</span></code>.</p>
+<p>A task that does not apply to the machine or model being set up
+sets <code class="docutils literal notranslate"><span class="pre">skip_reason</span></code> here, and setup leaves it out.</p>
 </dd></dl>
 
 </section>

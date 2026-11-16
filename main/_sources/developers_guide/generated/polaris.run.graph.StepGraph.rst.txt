@@ -16,6 +16,7 @@
       ~StepGraph.__init__
       ~StepGraph.dependents
       ~StepGraph.descendants
+      ~StepGraph.widest_concurrent
    
    
 

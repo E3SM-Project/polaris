@@ -493,7 +493,8 @@ window.runMermaid = runMermaid;</script>
     <span class="n">min_cores</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="n">target_gpus</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="n">min_gpus</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-    <span class="n">sum_min_cores</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">concurrent_cores</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">concurrent_gpus</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="n">suite</span><span class="o">=</span><span class="s1">''</span><span class="p">,</span>
     <span class="n">script_filename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="n">run_command</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
@@ -533,11 +534,14 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">        The minimum number of GPUs for the job to use if ``nodes`` not</span>
 <span class="sd">        provided</span>
 
-<span class="sd">    sum_min_cores : int, optional</span>
-<span class="sd">        The minimum cores of every step added together, used when the job</span>
-<span class="sd">        is ``concurrent`` and it asks for more nodes than the target and</span>
-<span class="sd">        minimum figures do.  Ignored otherwise.  Taken in cores on every</span>
-<span class="sd">        machine, including one sized by GPUs; see the note in the body.</span>
+<span class="sd">    concurrent_cores : float, optional</span>
+<span class="sd">        The cores a job whose steps run at the same time should have, used</span>
+<span class="sd">        in place of the geometric mean of ``target_cores`` and</span>
+<span class="sd">        ``min_cores`` when the job is ``concurrent``.  Ignored otherwise.</span>
+<span class="sd">        Setup finds it from every step's resources and dependencies.</span>
+
+<span class="sd">    concurrent_gpus : float, optional</span>
+<span class="sd">        The same as ``concurrent_cores``, in GPUs</span>
 
 <span class="sd">    suite : str, optional</span>
 <span class="sd">        The name of the suite</span>
@@ -595,41 +599,21 @@ window.runMermaid = runMermaid;</script>
             <span class="ow">and</span> <span class="n">min_gpus</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
             <span class="ow">and</span> <span class="nb">max</span><span class="p">(</span><span class="n">target_gpus</span><span class="p">,</span> <span class="n">min_gpus</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span>
         <span class="p">)</span>
-        <span class="c1"># The allocation is the geometric mean of what the widest step wants</span>
-        <span class="c1"># and what it can be squeezed to, which is the right question when</span>
-        <span class="c1"># steps run one at a time: nothing else is running, so only that step</span>
-        <span class="c1"># can use the machine.</span>
-        <span class="c1">#</span>
-        <span class="c1"># Steps running at the same time can use more than the widest of them,</span>
-        <span class="c1"># and how much more depends on how many steps there are rather than on</span>
-        <span class="c1"># how big the biggest is.  So a concurrent job also asks for enough to</span>
-        <span class="c1"># hold every step at once at its smallest, and takes whichever is</span>
-        <span class="c1"># larger.  For one step the sum is that step's own minimum and the</span>
-        <span class="c1"># geometric mean already exceeds it, so a single-step job is sized</span>
-        <span class="c1"># exactly as it was before.</span>
-        <span class="c1">#</span>
-        <span class="c1"># This is what lets an allocation follow a suite that gains tests.</span>
-        <span class="c1"># Measured on Chrysalis, wall time falls as the inverse square root of</span>
-        <span class="c1"># the nodes, so growing the nodes with the suite means its wall time</span>
-        <span class="c1"># grows as the square root of what it contains rather than in</span>
-        <span class="c1"># proportion to it.</span>
-        <span class="c1">#</span>
-        <span class="c1"># The sum is taken in cores on every machine, including one whose</span>
-        <span class="c1"># nodes are counted by GPUs.  Holding every step at once is cheap in</span>
-        <span class="c1"># cores because the smallest step is a hundredth of a node; in GPUs</span>
-        <span class="c1"># the smallest step is a quarter of one, and a suite of many small</span>
-        <span class="c1"># GPU steps comes to a great many nodes for very little work.</span>
-        <span class="c1"># Measured on Perlmutter GPU, where 51 one-GPU steps of omega_pr</span>
-        <span class="c1"># made the sum ask for 29 nodes.  In cores the same suite asks for</span>
-        <span class="c1"># 3, its small GPU steps take a few turns each, and the widest GPU</span>
-        <span class="c1"># step still fits, since that is what the geometric mean is for.</span>
+        <span class="c1"># A job whose steps take turns is sized for its widest step: the</span>
+        <span class="c1"># geometric mean of what that step wants and what it can be squeezed</span>
+        <span class="c1"># to.  A job whose steps run at the same time is given the size its</span>
+        <span class="c1"># caller found for the whole suite, which for a single step is the</span>
+        <span class="c1"># same thing.  On a GPU machine the cores have to be enough as well,</span>
+        <span class="c1"># for the steps that run on CPUs alone.</span>
         <span class="k">if</span> <span class="n">use_gpu_nodes</span><span class="p">:</span>
             <span class="k">assert</span> <span class="n">target_gpus</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
             <span class="k">assert</span> <span class="n">min_gpus</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
             <span class="n">gpus</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">target_gpus</span> <span class="o">*</span> <span class="n">min_gpus</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">concurrent</span> <span class="ow">and</span> <span class="n">concurrent_gpus</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">gpus</span> <span class="o">=</span> <span class="n">concurrent_gpus</span>
             <span class="n">nodes</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">gpus</span> <span class="o">/</span> <span class="n">gpus_per_node</span><span class="p">))</span>
-            <span class="k">if</span> <span class="n">concurrent</span> <span class="ow">and</span> <span class="n">sum_min_cores</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">cores_per_node</span><span class="p">:</span>
-                <span class="n">by_cores</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">sum_min_cores</span> <span class="o">/</span> <span class="n">cores_per_node</span><span class="p">))</span>
+            <span class="k">if</span> <span class="n">concurrent</span> <span class="ow">and</span> <span class="n">concurrent_cores</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">cores_per_node</span><span class="p">:</span>
+                <span class="n">by_cores</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">concurrent_cores</span> <span class="o">/</span> <span class="n">cores_per_node</span><span class="p">))</span>
                 <span class="n">nodes</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">nodes</span><span class="p">,</span> <span class="n">by_cores</span><span class="p">)</span>
             <span class="n">nodes</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">nodes</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
@@ -639,8 +623,8 @@ window.runMermaid = runMermaid;</script>
                     <span class="s1">'CPU resources'</span>
                 <span class="p">)</span>
             <span class="n">cores</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">target_cores</span> <span class="o">*</span> <span class="n">min_cores</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">concurrent</span> <span class="ow">and</span> <span class="n">sum_min_cores</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="n">cores</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">cores</span><span class="p">,</span> <span class="n">sum_min_cores</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">concurrent</span> <span class="ow">and</span> <span class="n">concurrent_cores</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">cores</span> <span class="o">=</span> <span class="n">concurrent_cores</span>
             <span class="n">nodes</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">cores</span> <span class="o">/</span> <span class="n">cores_per_node</span><span class="p">))</span>
             <span class="n">nodes</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">nodes</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
 

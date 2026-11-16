@@ -460,7 +460,7 @@
 <td><p>The default baroclinic channel test case simply creates the mesh and initial condition, then performs a short forward run on 4 cores.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.baroclinic_channel.decomp.Decomp.html#polaris.tasks.ocean.baroclinic_channel.decomp.Decomp" title="polaris.tasks.ocean.baroclinic_channel.decomp.Decomp"><code class="xref py py-obj docutils literal notranslate"><span class="pre">decomp.Decomp</span></code></a>(component, resolution, indir, init)</p></td>
-<td><p>A baroclinic channel decomposition task, which makes sure the model produces identical results on 1 and 4 cores.</p></td>
+<td><p>A baroclinic channel decomposition task, which makes sure the model produces identical results on 4 and 8 cores, or on 1 and 2 GPUs when Omega runs on GPUs.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.baroclinic_channel.restart.Restart.html#polaris.tasks.ocean.baroclinic_channel.restart.Restart" title="polaris.tasks.ocean.baroclinic_channel.restart.Restart"><code class="xref py py-obj docutils literal notranslate"><span class="pre">restart.Restart</span></code></a>(component, resolution, ...)</p></td>
 <td><p>A baroclinic channel restart test case, which makes sure the model produces identical results with one longer run and two shorter runs with a restart in between.</p></td>
@@ -2291,22 +2291,25 @@
 <tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.model.OceanModelStep.map_yaml_configs.html#polaris.ocean.model.OceanModelStep.map_yaml_configs" title="polaris.ocean.model.OceanModelStep.map_yaml_configs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">OceanModelStep.map_yaml_configs</span></code></a>(configs, ...)</p></td>
 <td><p>A mapping between model sections and config options from MPAS-Ocean to Omega</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.model.OceanModelFilesMixin.html#polaris.ocean.model.OceanModelFilesMixin" title="polaris.ocean.model.OceanModelFilesMixin"><code class="xref py py-obj docutils literal notranslate"><span class="pre">OceanModelFilesMixin</span></code></a>()</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.model.omega_runs_on_gpus.html#polaris.ocean.model.omega_runs_on_gpus" title="polaris.ocean.model.omega_runs_on_gpus"><code class="xref py py-obj docutils literal notranslate"><span class="pre">omega_runs_on_gpus</span></code></a>(config, component)</p></td>
+<td><p>Whether the ocean model is Omega running on GPUs</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.model.OceanModelFilesMixin.html#polaris.ocean.model.OceanModelFilesMixin" title="polaris.ocean.model.OceanModelFilesMixin"><code class="xref py py-obj docutils literal notranslate"><span class="pre">OceanModelFilesMixin</span></code></a>()</p></td>
 <td><p>Mixin providing access to the <code class="docutils literal notranslate"><span class="pre">[ocean_staged_files]</span></code> config section and the shared placeholder mechanism for the canonical ocean dataset files (horizontal mesh, vertical coordinate, initial state, surface forcing).</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.model.get_layer_mass.html#polaris.ocean.model.get_layer_mass" title="polaris.ocean.model.get_layer_mass"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_layer_mass</span></code></a>(ds, config)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.model.get_layer_mass.html#polaris.ocean.model.get_layer_mass" title="polaris.ocean.model.get_layer_mass"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_layer_mass</span></code></a>(ds, config)</p></td>
 <td><p>Get the mass per unit area of each layer</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.model.get_time_since_start.html#polaris.ocean.model.get_time_since_start" title="polaris.ocean.model.get_time_since_start"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_time_since_start</span></code></a>(ds, units)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.model.get_time_since_start.html#polaris.ocean.model.get_time_since_start" title="polaris.ocean.model.get_time_since_start"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_time_since_start</span></code></a>(ds, units)</p></td>
 <td><p>Ocean model output may or may not include 'daysSinceStartOfSim'.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.model.get_simulation_years.html#polaris.ocean.model.get_simulation_years" title="polaris.ocean.model.get_simulation_years"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_simulation_years</span></code></a>(ds[, time_var])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.model.get_simulation_years.html#polaris.ocean.model.get_simulation_years" title="polaris.ocean.model.get_simulation_years"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_simulation_years</span></code></a>(ds[, time_var])</p></td>
 <td><p>Get the time axis of a dataset in decimal simulation years</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.model.days_per_year.html#polaris.ocean.model.days_per_year" title="polaris.ocean.model.days_per_year"><code class="xref py py-obj docutils literal notranslate"><span class="pre">days_per_year</span></code></a>(calendar)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.model.days_per_year.html#polaris.ocean.model.days_per_year" title="polaris.ocean.model.days_per_year"><code class="xref py py-obj docutils literal notranslate"><span class="pre">days_per_year</span></code></a>(calendar)</p></td>
 <td><p>Get the length of a year in days in a given calendar</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.ocean.model.get_time_interval_string.html#polaris.ocean.model.get_time_interval_string" title="polaris.ocean.model.get_time_interval_string"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_time_interval_string</span></code></a>([days, seconds])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.ocean.model.get_time_interval_string.html#polaris.ocean.model.get_time_interval_string" title="polaris.ocean.model.get_time_interval_string"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_time_interval_string</span></code></a>([days, seconds])</p></td>
 <td><p>Convert a time interval in days and/or seconds to a string for use in a model config option.</p></td>
 </tr>
 </tbody>

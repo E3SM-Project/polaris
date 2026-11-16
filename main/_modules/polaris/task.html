@@ -548,6 +548,11 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">        but not over an explicit ``--cached`` or a suite's ``cached`` lines.</span>
 <span class="sd">        Add step subdirs here during ``__init__`` rather than setting</span>
 <span class="sd">        ``step.cached = False`` directly.</span>
+
+<span class="sd">    skip_reason : str or None</span>
+<span class="sd">        Why this task does not apply to the machine or model being set up,</span>
+<span class="sd">        if it does not.  A task sets this in ``configure()``, and setup then</span>
+<span class="sd">        leaves the task out and says why.</span>
 <span class="sd">    """</span>
 
 <div class="viewcode-block" id="Task.__init__">
@@ -590,6 +595,7 @@ window.runMermaid = runMermaid;</script>
         <span class="bp">self</span><span class="o">.</span><span class="n">step_symlinks</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">steps_to_run</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">free_running_steps</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">skip_reason</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
 
         <span class="c1"># these will be set during setup, dummy values for now</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">work_dir</span> <span class="o">=</span> <span class="s1">''</span>
@@ -612,6 +618,9 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">        package.  If a task overrides this method, it should assume that</span>
 <span class="sd">        the ``&lt;self.name&gt;.cfg`` file in its package has already been added</span>
 <span class="sd">        to the config options prior to calling ``configure()``.</span>
+
+<span class="sd">        A task that does not apply to the machine or model being set up</span>
+<span class="sd">        sets ``skip_reason`` here, and setup leaves it out.</span>
 <span class="sd">        """</span>
         <span class="k">pass</span></div>
 

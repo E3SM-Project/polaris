@@ -489,10 +489,9 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">the largest steps are started early by the stable order; if starvation shows</span>
 <span class="sd">up in practice, that is the point to add a rule, with evidence for it.</span>
 
-<span class="sd">A step's width is decided once, from the whole allocation, exactly as</span>
-<span class="sd">`polaris serial` decides it, and the loop waits until that much is free.</span>
-<span class="sd">Handing a step whatever happened to be free would make an MPI step's</span>
-<span class="sd">decomposition depend on scheduling timing, and its results with it.</span>
+<span class="sd">A step starts once its own width, the geometric mean of its target and its</span>
+<span class="sd">minimum, is free, and it is given everything free up to its target.</span>
+<span class="sd">:py:mod:`polaris.run.width` says why.</span>
 <span class="sd">"""</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">argparse</span>
@@ -543,6 +542,7 @@ window.runMermaid = runMermaid;</script>
     <span class="n">start_time_color</span><span class="p">,</span>
     <span class="n">success_str</span><span class="p">,</span>
 <span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.run.width</span><span class="w"> </span><span class="kn">import</span> <span class="n">StepWidths</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.validate</span><span class="w"> </span><span class="kn">import</span> <span class="n">merge_diff_summary</span>
 
 
@@ -631,7 +631,11 @@ window.runMermaid = runMermaid;</script>
     <span class="c1"># report is what the sizes have to be taken from</span>
     <span class="n">nodes</span> <span class="o">=</span> <span class="n">read_allocation</span><span class="p">(</span><span class="n">component</span><span class="p">,</span> <span class="n">logger</span><span class="p">)</span>
     <span class="n">available</span> <span class="o">=</span> <span class="n">_credit_memory</span><span class="p">(</span><span class="n">component</span><span class="o">.</span><span class="n">get_available_resources</span><span class="p">(),</span> <span class="n">nodes</span><span class="p">)</span>
+    <span class="n">to_run</span> <span class="o">=</span> <span class="p">[</span><span class="n">node</span><span class="o">.</span><span class="n">step</span> <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">graph</span><span class="o">.</span><span class="n">nodes</span><span class="o">.</span><span class="n">values</span><span class="p">()</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">node</span><span class="o">.</span><span class="n">satisfied</span><span class="p">]</span>
+    <span class="n">widths</span> <span class="o">=</span> <span class="n">StepWidths</span><span class="p">()</span>
+    <span class="n">widths</span><span class="o">.</span><span class="n">record_widths</span><span class="p">(</span><span class="n">to_run</span><span class="p">)</span>
     <span class="n">_size_steps</span><span class="p">(</span><span class="n">graph</span><span class="p">,</span> <span class="n">available</span><span class="p">)</span>
+    <span class="n">widths</span><span class="o">.</span><span class="n">record_targets</span><span class="p">(</span><span class="n">to_run</span><span class="p">,</span> <span class="n">available</span><span class="p">)</span>
 
     <span class="n">support</span> <span class="o">=</span> <span class="n">component</span><span class="o">.</span><span class="n">parallel_system</span><span class="o">.</span><span class="n">placement_support</span>
     <span class="n">pool</span> <span class="o">=</span> <span class="n">ResourcePool</span><span class="p">(</span>
@@ -679,7 +683,7 @@ window.runMermaid = runMermaid;</script>
     <span class="p">)</span>
     <span class="n">started</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
     <span class="n">outcomes</span><span class="p">,</span> <span class="n">mismatched</span> <span class="o">=</span> <span class="n">_loop</span><span class="p">(</span>
-        <span class="n">graph</span><span class="p">,</span> <span class="n">pool</span><span class="p">,</span> <span class="n">steps</span><span class="p">,</span> <span class="n">logger</span><span class="p">,</span> <span class="n">events</span><span class="p">,</span> <span class="n">work_dir</span><span class="p">,</span> <span class="n">quiet</span><span class="p">,</span> <span class="n">tracker</span>
+        <span class="n">graph</span><span class="p">,</span> <span class="n">pool</span><span class="p">,</span> <span class="n">steps</span><span class="p">,</span> <span class="n">logger</span><span class="p">,</span> <span class="n">events</span><span class="p">,</span> <span class="n">work_dir</span><span class="p">,</span> <span class="n">quiet</span><span class="p">,</span> <span class="n">tracker</span><span class="p">,</span> <span class="n">widths</span>
     <span class="p">)</span>
     <span class="n">elapsed</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">started</span>
 
@@ -812,8 +816,20 @@ window.runMermaid = runMermaid;</script>
     <span class="k">return</span> <span class="n">nodes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">name</span> <span class="k">if</span> <span class="n">nodes</span> <span class="k">else</span> <span class="s1">''</span>
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">_loop</span><span class="p">(</span><span class="n">graph</span><span class="p">,</span> <span class="n">pool</span><span class="p">,</span> <span class="n">steps</span><span class="p">,</span> <span class="n">logger</span><span class="p">,</span> <span class="n">events</span><span class="p">,</span> <span class="n">work_dir</span><span class="p">,</span> <span class="n">quiet</span><span class="p">,</span> <span class="n">tracker</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_loop</span><span class="p">(</span>
+    <span class="n">graph</span><span class="p">,</span>
+    <span class="n">pool</span><span class="p">,</span>
+    <span class="n">steps</span><span class="p">,</span>
+    <span class="n">logger</span><span class="p">,</span>
+    <span class="n">events</span><span class="p">,</span>
+    <span class="n">work_dir</span><span class="p">,</span>
+    <span class="n">quiet</span><span class="p">,</span>
+    <span class="n">tracker</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">widths</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<span class="p">):</span>
 <span class="w">    </span><span class="sd">"""Start what fits, wait for what finishes, and keep going."""</span>
+    <span class="k">if</span> <span class="n">widths</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">widths</span> <span class="o">=</span> <span class="n">StepWidths</span><span class="p">()</span>
     <span class="n">succeeded</span> <span class="o">=</span> <span class="p">{</span><span class="n">path</span> <span class="k">for</span> <span class="n">path</span><span class="p">,</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">graph</span><span class="o">.</span><span class="n">nodes</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">node</span><span class="o">.</span><span class="n">satisfied</span><span class="p">}</span>
     <span class="k">for</span> <span class="n">path</span> <span class="ow">in</span> <span class="n">succeeded</span><span class="p">:</span>
         <span class="n">events</span><span class="o">.</span><span class="n">record</span><span class="p">(</span><span class="s1">'step_skipped'</span><span class="p">,</span> <span class="n">step</span><span class="o">=</span><span class="n">path</span><span class="p">,</span> <span class="n">reason</span><span class="o">=</span><span class="s1">'already satisfied'</span><span class="p">)</span>
@@ -831,6 +847,7 @@ window.runMermaid = runMermaid;</script>
             <span class="n">started_any</span> <span class="o">=</span> <span class="n">_start_what_fits</span><span class="p">(</span>
                 <span class="n">graph</span><span class="p">,</span>
                 <span class="n">pool</span><span class="p">,</span>
+                <span class="n">widths</span><span class="p">,</span>
                 <span class="n">waiting</span><span class="p">,</span>
                 <span class="n">running</span><span class="p">,</span>
                 <span class="n">succeeded</span><span class="p">,</span>
@@ -907,6 +924,7 @@ window.runMermaid = runMermaid;</script>
 <span class="k">def</span><span class="w"> </span><span class="nf">_start_what_fits</span><span class="p">(</span>
     <span class="n">graph</span><span class="p">,</span>
     <span class="n">pool</span><span class="p">,</span>
+    <span class="n">widths</span><span class="p">,</span>
     <span class="n">waiting</span><span class="p">,</span>
     <span class="n">running</span><span class="p">,</span>
     <span class="n">succeeded</span><span class="p">,</span>
@@ -923,7 +941,7 @@ window.runMermaid = runMermaid;</script>
             <span class="k">continue</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">node</span><span class="o">.</span><span class="n">requires</span> <span class="o">&lt;=</span> <span class="n">succeeded</span><span class="p">:</span>
             <span class="k">continue</span>
-        <span class="n">reservation</span> <span class="o">=</span> <span class="n">pool</span><span class="o">.</span><span class="n">reserve</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">step</span><span class="p">)</span>
+        <span class="n">reservation</span> <span class="o">=</span> <span class="n">widths</span><span class="o">.</span><span class="n">reserve</span><span class="p">(</span><span class="n">pool</span><span class="p">,</span> <span class="n">node</span><span class="o">.</span><span class="n">step</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">reservation</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">blocked</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">path</span><span class="p">)</span> <span class="o">!=</span> <span class="s1">'resources'</span><span class="p">:</span>
                 <span class="n">blocked</span><span class="p">[</span><span class="n">path</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'resources'</span>
@@ -948,7 +966,11 @@ window.runMermaid = runMermaid;</script>
             <span class="n">log</span><span class="o">=</span><span class="n">log_filename</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">quiet</span><span class="p">:</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">'  * </span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s1">: started on </span><span class="si">{</span><span class="nb">list</span><span class="p">(</span><span class="n">reservation</span><span class="o">.</span><span class="n">cores</span><span class="p">)</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
+            <span class="n">cores</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">cores</span><span class="p">)</span> <span class="k">for</span> <span class="n">cores</span> <span class="ow">in</span> <span class="n">reservation</span><span class="o">.</span><span class="n">cores</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s1">'  * </span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s1">: started on </span><span class="si">{</span><span class="nb">list</span><span class="p">(</span><span class="n">reservation</span><span class="o">.</span><span class="n">cores</span><span class="p">)</span><span class="si">}</span><span class="s1"> with '</span>
+                <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">cores</span><span class="si">}</span><span class="s1"> cores'</span>
+            <span class="p">)</span>
     <span class="k">return</span> <span class="n">started_any</span>
 
 

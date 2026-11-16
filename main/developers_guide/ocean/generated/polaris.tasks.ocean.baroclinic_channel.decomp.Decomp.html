@@ -145,7 +145,8 @@
 <dt class="sig sig-object py" id="polaris.tasks.ocean.baroclinic_channel.decomp.Decomp">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">polaris.tasks.ocean.baroclinic_channel.decomp.</span></span><span class="sig-name descname"><span class="pre">Decomp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">component</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">resolution</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">init</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/polaris/tasks/ocean/baroclinic_channel/decomp.html#Decomp"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.tasks.ocean.baroclinic_channel.decomp.Decomp" title="Link to this definition"></a></dt>
 <dd><p>A baroclinic channel decomposition task, which makes sure the model
-produces identical results on 1 and 4 cores.</p>
+produces identical results on 4 and 8 cores, or on 1 and 2 GPUs when
+Omega runs on GPUs.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="polaris.tasks.ocean.baroclinic_channel.decomp.Decomp.__init__">
 <span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">component</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">resolution</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">init</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/polaris/tasks/ocean/baroclinic_channel/decomp.html#Decomp.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.tasks.ocean.baroclinic_channel.decomp.Decomp.__init__" title="Link to this definition"></a></dt>
@@ -172,7 +173,7 @@ produces identical results on 1 and 4 cores.</p>
 <td><p>Add a step to the task and component (if not already present)</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">configure</span></code>()</p></td>
-<td><p>Modify the configuration options for this task.</p></td>
+<td><p>Run each step on its GPU count instead when Omega runs on GPUs</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">remove_step</span></code>(step)</p></td>
 <td><p>Remove the given step from this task and the component</p></td>

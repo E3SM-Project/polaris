@@ -449,6 +449,13 @@ to its cores by the child itself, which can only be done on the node the
 scheduler is running on -- so such steps are given cores there, and Python
 concurrency is bounded by one node's worth of cores.
 
+A step starts once its width, the geometric mean of its target and its
+minimum, is free, and it is given everything free up to its target.  On an
+idle allocation a step grows to its target; on a busy one it starts at its
+width rather than waiting for its target.  How many tasks a step runs on
+therefore depends on what else is running, which model steps are tested to
+tolerate: their results are bit-for-bit identical across task counts.
+
 ### Choosing a serial or concurrent job script
 
 `polaris setup` and `polaris suite` write a `polaris parallel` job script by
@@ -479,37 +486,30 @@ and what that step can be squeezed to.  That is the right question when steps
 take turns: nothing else is running, so no more of the machine can be used
 than the widest step can use.
 
-Steps running at the same time can use more than the widest of them, and how
-much more follows from how many steps there are rather than from how big the
-biggest one is.  So a concurrent job script asks for the larger of that same
-geometric mean and the minimum cores of every step added together -- enough
-to hold the whole suite at once with each step squeezed to its smallest:
+A concurrent job script gives each step a width, the geometric mean of its
+own target and minimum, and asks for the geometric mean of two extremes:
 
 ```none
 serial:      sqrt(widest target x widest minimum)
-concurrent:  max(that, sum of every step's minimum)
+concurrent:  sqrt(widest step width x widest concurrent width)
 ```
 
-For a single step the sum is that step's own minimum, which the geometric
-mean already exceeds, so a one-step job is sized exactly as it was before.
-For `omega_pr` the rule asks for 5 nodes where the serial rule asks for 3,
-and for `omega_nightly` 16 where the serial rule asks for 5.
+The widest step width is what a suite would need if its steps took turns.
+The widest concurrent width is the largest total width of steps that could
+all be running at once: two steps count together only if neither depends,
+directly or through others, on the other.  For a single step both are that
+step's own width, so a one-step job is sized as it would be serially.
 
-The sum is taken in cores on every machine, including one whose nodes are
-counted by GPUs, where the widest step's geometric mean is still taken in
-GPUs.  Holding every step at once is cheap in cores because the smallest step
-is a hundredth of a node; in GPUs the smallest step is a quarter of one, and
-`omega_pr`'s 51 one-GPU steps made the sum ask Perlmutter GPU for 29 nodes.
-In cores the same suite asks for 3, its small GPU steps take a few turns
-each, and the widest GPU step still fits.
+The allocation grows with a suite, but as the square root of how much of it
+can run at once, and steps that have to wait for one another add nothing.
+Measured on Chrysalis, a concurrent suite's wall time falls as the inverse
+square root of the nodes it is given, so a suite that doubles what it can
+run at once gets about 1.4 times the nodes and takes about 1.7 times as long,
+where a fixed allocation would take twice as long.
 
-The point of the sum is that the allocation follows a suite that gains tests
-instead of staying fixed at its widest step.  Measured on Chrysalis, a
-concurrent suite's wall time falls as the inverse square root of the nodes it
-is given, so growing the nodes with the suite means the wall time grows as
-the square root of what the suite contains rather than in proportion to it: a
-suite that doubles its tests takes about 1.4 times as long on twice the
-nodes, where a fixed allocation would take twice as long.
+On a machine whose nodes are counted by GPUs, the same rule is applied in
+GPUs to the steps that use them and in cores to all steps, and the job asks
+for whichever needs more nodes.
 
 ### Reading a run afterwards
 

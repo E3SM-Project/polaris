@@ -98,6 +98,7 @@ seaice/api
    topology.with_siblings
    pool.ResourcePool
    pool.Reservation
+   width.StepWidths
    executor.start_step
    executor.reap_one
    executor.RunningStep

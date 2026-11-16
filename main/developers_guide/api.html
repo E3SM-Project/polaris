@@ -534,55 +534,58 @@ documentation.</p>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.run.pool.Reservation.html#polaris.run.pool.Reservation" title="polaris.run.pool.Reservation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pool.Reservation</span></code></a>(step_path, placement, ...)</p></td>
 <td><p>What a step was given, and what has to be handed back when it ends.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.run.executor.start_step.html#polaris.run.executor.start_step" title="polaris.run.executor.start_step"><code class="xref py py-obj docutils literal notranslate"><span class="pre">executor.start_step</span></code></a>(step, reservation, ...)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.run.width.StepWidths.html#polaris.run.width.StepWidths" title="polaris.run.width.StepWidths"><code class="xref py py-obj docutils literal notranslate"><span class="pre">width.StepWidths</span></code></a>()</p></td>
+<td><p>The cores each step may start on, between its width and its target.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.run.executor.start_step.html#polaris.run.executor.start_step" title="polaris.run.executor.start_step"><code class="xref py py-obj docutils literal notranslate"><span class="pre">executor.start_step</span></code></a>(step, reservation, ...)</p></td>
 <td><p>Start one step in a forked child.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.run.executor.reap_one.html#polaris.run.executor.reap_one" title="polaris.run.executor.reap_one"><code class="xref py py-obj docutils literal notranslate"><span class="pre">executor.reap_one</span></code></a>(running)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.run.executor.reap_one.html#polaris.run.executor.reap_one" title="polaris.run.executor.reap_one"><code class="xref py py-obj docutils literal notranslate"><span class="pre">executor.reap_one</span></code></a>(running)</p></td>
 <td><p>Wait for whichever step finishes next and say how it went.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.run.executor.RunningStep.html#polaris.run.executor.RunningStep" title="polaris.run.executor.RunningStep"><code class="xref py py-obj docutils literal notranslate"><span class="pre">executor.RunningStep</span></code></a>(step, reservation, pid, ...)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.run.executor.RunningStep.html#polaris.run.executor.RunningStep" title="polaris.run.executor.RunningStep"><code class="xref py py-obj docutils literal notranslate"><span class="pre">executor.RunningStep</span></code></a>(step, reservation, pid, ...)</p></td>
 <td><p>A step that has been started and has not finished.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.run.executor.StepOutcome.html#polaris.run.executor.StepOutcome" title="polaris.run.executor.StepOutcome"><code class="xref py py-obj docutils literal notranslate"><span class="pre">executor.StepOutcome</span></code></a>(step_path, returncode, ...)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.run.executor.StepOutcome.html#polaris.run.executor.StepOutcome" title="polaris.run.executor.StepOutcome"><code class="xref py py-obj docutils literal notranslate"><span class="pre">executor.StepOutcome</span></code></a>(step_path, returncode, ...)</p></td>
 <td><p>How a step ended.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.run.confinement.check_confinement.html#polaris.run.confinement.check_confinement" title="polaris.run.confinement.check_confinement"><code class="xref py py-obj docutils literal notranslate"><span class="pre">confinement.check_confinement</span></code></a>(step, logger)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.run.confinement.check_confinement.html#polaris.run.confinement.check_confinement" title="polaris.run.confinement.check_confinement"><code class="xref py py-obj docutils literal notranslate"><span class="pre">confinement.check_confinement</span></code></a>(step, logger)</p></td>
 <td><p>Check that a placed step received what it was given, and say so when it did not.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.run.memory.ProcessMemory.html#polaris.run.memory.ProcessMemory" title="polaris.run.memory.ProcessMemory"><code class="xref py py-obj docutils literal notranslate"><span class="pre">memory.ProcessMemory</span></code></a>(resident, peak, ...)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.run.memory.ProcessMemory.html#polaris.run.memory.ProcessMemory" title="polaris.run.memory.ProcessMemory"><code class="xref py py-obj docutils literal notranslate"><span class="pre">memory.ProcessMemory</span></code></a>(resident, peak, ...)</p></td>
 <td><p>The memory held by this process and its finished subprocesses.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.run.memory.read_process_memory.html#polaris.run.memory.read_process_memory" title="polaris.run.memory.read_process_memory"><code class="xref py py-obj docutils literal notranslate"><span class="pre">memory.read_process_memory</span></code></a>()</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.run.memory.read_process_memory.html#polaris.run.memory.read_process_memory" title="polaris.run.memory.read_process_memory"><code class="xref py py-obj docutils literal notranslate"><span class="pre">memory.read_process_memory</span></code></a>()</p></td>
 <td><p>Read how much memory this process and its subprocesses have held.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.run.memory.reset_peak_memory.html#polaris.run.memory.reset_peak_memory" title="polaris.run.memory.reset_peak_memory"><code class="xref py py-obj docutils literal notranslate"><span class="pre">memory.reset_peak_memory</span></code></a>()</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.run.memory.reset_peak_memory.html#polaris.run.memory.reset_peak_memory" title="polaris.run.memory.reset_peak_memory"><code class="xref py py-obj docutils literal notranslate"><span class="pre">memory.reset_peak_memory</span></code></a>()</p></td>
 <td><p>Reset this process's peak memory to what it holds now.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.run.memory.format_bytes.html#polaris.run.memory.format_bytes" title="polaris.run.memory.format_bytes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">memory.format_bytes</span></code></a>(nbytes)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.run.memory.format_bytes.html#polaris.run.memory.format_bytes" title="polaris.run.memory.format_bytes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">memory.format_bytes</span></code></a>(nbytes)</p></td>
 <td><p>Format a number of bytes for a log, in binary units.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.run.events.EventStream.html#polaris.run.events.EventStream" title="polaris.run.events.EventStream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">events.EventStream</span></code></a>([path])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.run.events.EventStream.html#polaris.run.events.EventStream" title="polaris.run.events.EventStream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">events.EventStream</span></code></a>([path])</p></td>
 <td><p>Somewhere to write what the scheduler decided.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.run.events.read_events.html#polaris.run.events.read_events" title="polaris.run.events.read_events"><code class="xref py py-obj docutils literal notranslate"><span class="pre">events.read_events</span></code></a>(path)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.run.events.read_events.html#polaris.run.events.read_events" title="polaris.run.events.read_events"><code class="xref py py-obj docutils literal notranslate"><span class="pre">events.read_events</span></code></a>(path)</p></td>
 <td><p>Read back what a run recorded.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.run.parallel.run_tasks.html#polaris.run.parallel.run_tasks" title="polaris.run.parallel.run_tasks"><code class="xref py py-obj docutils literal notranslate"><span class="pre">parallel.run_tasks</span></code></a>(suite_name[, quiet])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.run.parallel.run_tasks.html#polaris.run.parallel.run_tasks" title="polaris.run.parallel.run_tasks"><code class="xref py py-obj docutils literal notranslate"><span class="pre">parallel.run_tasks</span></code></a>(suite_name[, quiet])</p></td>
 <td><p>Run a suite or task, with independent steps running at the same time</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.run.serial.run_tasks.html#polaris.run.serial.run_tasks" title="polaris.run.serial.run_tasks"><code class="xref py py-obj docutils literal notranslate"><span class="pre">serial.run_tasks</span></code></a>(suite_name[, quiet, ...])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.run.serial.run_tasks.html#polaris.run.serial.run_tasks" title="polaris.run.serial.run_tasks"><code class="xref py py-obj docutils literal notranslate"><span class="pre">serial.run_tasks</span></code></a>(suite_name[, quiet, ...])</p></td>
 <td><p>Run the given suite or task</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.run.serial.run_single_step.html#polaris.run.serial.run_single_step" title="polaris.run.serial.run_single_step"><code class="xref py py-obj docutils literal notranslate"><span class="pre">serial.run_single_step</span></code></a>([step_is_subprocess, ...])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.run.serial.run_single_step.html#polaris.run.serial.run_single_step" title="polaris.run.serial.run_single_step"><code class="xref py py-obj docutils literal notranslate"><span class="pre">serial.run_single_step</span></code></a>([step_is_subprocess, ...])</p></td>
 <td><p>Used by the framework to run a step when <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">serial</span></code> gets called in the step's work directory</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.run.serial.run_step_in_process.html#polaris.run.serial.run_step_in_process" title="polaris.run.serial.run_step_in_process"><code class="xref py py-obj docutils literal notranslate"><span class="pre">serial.run_step_in_process</span></code></a>(step[, ...])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.run.serial.run_step_in_process.html#polaris.run.serial.run_step_in_process" title="polaris.run.serial.run_step_in_process"><code class="xref py py-obj docutils literal notranslate"><span class="pre">serial.run_step_in_process</span></code></a>(step[, ...])</p></td>
 <td><p>Run one step in this process, with the logging the serial path gives it.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.run.results.TaskResult.html#polaris.run.results.TaskResult" title="polaris.run.results.TaskResult"><code class="xref py py-obj docutils literal notranslate"><span class="pre">results.TaskResult</span></code></a>(path, steps_to_run, log, ...)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.run.results.TaskResult.html#polaris.run.results.TaskResult" title="polaris.run.results.TaskResult"><code class="xref py py-obj docutils literal notranslate"><span class="pre">results.TaskResult</span></code></a>(path, steps_to_run, log, ...)</p></td>
 <td><p>The outcome of running a task as part of a suite</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.run.results.write_suite_results.html#polaris.run.results.write_suite_results" title="polaris.run.results.write_suite_results"><code class="xref py py-obj docutils literal notranslate"><span class="pre">results.write_suite_results</span></code></a>(filename, ...)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.run.results.write_suite_results.html#polaris.run.results.write_suite_results" title="polaris.run.results.write_suite_results"><code class="xref py py-obj docutils literal notranslate"><span class="pre">results.write_suite_results</span></code></a>(filename, ...)</p></td>
 <td><p>Write the machine-readable results of a suite run</p></td>
 </tr>
 </tbody>

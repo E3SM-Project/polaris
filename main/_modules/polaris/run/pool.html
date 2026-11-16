@@ -677,13 +677,46 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">        reservation : polaris.run.pool.Reservation or None</span>
 <span class="sd">            What it was given, or ``None`` if it does not fit yet</span>
 <span class="sd">        """</span>
-        <span class="k">if</span> <span class="n">step</span><span class="o">.</span><span class="n">may_span_nodes</span><span class="p">:</span>
-            <span class="n">layout</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fit_across_nodes</span><span class="p">(</span><span class="n">step</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">layout</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fit_on_one_node</span><span class="p">(</span><span class="n">step</span><span class="p">)</span>
+        <span class="n">layout</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fit</span><span class="p">(</span><span class="n">step</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">layout</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">None</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_take</span><span class="p">(</span><span class="n">step</span><span class="p">,</span> <span class="n">layout</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">fits</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">step</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Whether a step would fit in what is free, without reserving it.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        step : polaris.Step</span>
+<span class="sd">            The step to ask about, with its resources already constrained</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        fits : bool</span>
+<span class="sd">            Whether :py:meth:`reserve` would succeed for it right now</span>
+<span class="sd">        """</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fit</span><span class="p">(</span><span class="n">step</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">free_cores</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">may_span_nodes</span><span class="p">:</span> <span class="nb">bool</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        How many cores are free where a step could take them.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        may_span_nodes : bool</span>
+<span class="sd">            Whether the step may take cores from every node, rather than</span>
+<span class="sd">            only from the scheduler's own</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        cores : int</span>
+<span class="sd">            The number of free cores it could draw on</span>
+<span class="sd">        """</span>
+        <span class="k">if</span> <span class="n">may_span_nodes</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">sum</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">free_cores</span><span class="p">)</span> <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_nodes</span><span class="p">)</span>
+        <span class="n">node</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_by_name</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">local_node</span><span class="p">)</span>
+        <span class="k">return</span> <span class="mi">0</span> <span class="k">if</span> <span class="n">node</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="nb">len</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">free_cores</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">release</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reservation</span><span class="p">:</span> <span class="n">Reservation</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""</span>
@@ -742,6 +775,12 @@ window.runMermaid = runMermaid;</script>
             <span class="p">)</span>
             <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_nodes</span>
         <span class="p">]</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">step</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Lay a step out in what is free, or say it does not fit."""</span>
+        <span class="k">if</span> <span class="n">step</span><span class="o">.</span><span class="n">may_span_nodes</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fit_across_nodes</span><span class="p">(</span><span class="n">step</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fit_on_one_node</span><span class="p">(</span><span class="n">step</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_fit_on_one_node</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">step</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">"""Fit a step that has to take everything from the scheduler's node."""</span>

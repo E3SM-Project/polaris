@@ -1190,6 +1190,8 @@
    OceanModelStep.map_yaml_options
    OceanModelStep.map_yaml_configs
 
+   omega_runs_on_gpus
+
    OceanModelFilesMixin
 
    get_layer_mass

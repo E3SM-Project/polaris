@@ -1,0 +1,6 @@
+﻿polaris.ocean.model.omega\_runs\_on\_gpus
+=========================================
+
+.. currentmodule:: polaris.ocean.model
+
+.. autofunction:: omega_runs_on_gpus

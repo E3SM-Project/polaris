@@ -454,7 +454,7 @@ steps.</p>
 <section id="id15">
 <h3>cores<a class="headerlink" href="#id15" title="Link to this heading"></a></h3>
 <p>This test is run on 4 cores for the <code class="docutils literal notranslate"><span class="pre">4proc</span></code> step and 8 cores for the <code class="docutils literal notranslate"><span class="pre">8proc</span></code>
-step.</p>
+step.  When Omega runs on GPUs, the steps run on 1 and 2 GPUs instead.</p>
 </section>
 </section>
 <section id="threads">
@@ -467,7 +467,8 @@ step) and then on 2 threads (<code class="docutils literal notranslate"><span cl
 prognostic variables are bit-for-bit identical between the two runs.
 <code class="docutils literal notranslate"><span class="pre">ocean/planar/baroclinic_channel/split_explicit/10km/threads</span></code> is the same test,
 and <code class="docutils literal notranslate"><span class="pre">ocean/planar/baroclinic_channel/rk4/10km/threads</span></code> repeats it with the RK4
-time stepper.</p>
+time stepper.  The task is skipped when Omega runs on GPUs, where OpenMP
+threads are not used.</p>
 </section>
 <section id="id17">
 <h3>mesh<a class="headerlink" href="#id17" title="Link to this heading"></a></h3>

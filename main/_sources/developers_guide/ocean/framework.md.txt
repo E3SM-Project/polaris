@@ -333,7 +333,10 @@ self.min_gpus = self.min_tasks
 ```
 
 The corresponding `[ocean]` config options are `goal_cells_per_gpu` and
-`max_cells_per_gpu`.
+`max_cells_per_gpu`.  A task or step that needs to know whether Omega will run
+on GPUs, for example to change a fixed task count, can call
+{py:func}`polaris.ocean.model.omega_runs_on_gpus()` from `configure()` or
+later.
 
 ### Setting time intervals in model config options
 

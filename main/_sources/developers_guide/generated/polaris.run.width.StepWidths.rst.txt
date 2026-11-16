@@ -1,0 +1,25 @@
+﻿polaris.run.width.StepWidths
+============================
+
+.. currentmodule:: polaris.run.width
+
+.. autoclass:: StepWidths
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~StepWidths.__init__
+      ~StepWidths.record_targets
+      ~StepWidths.record_widths
+      ~StepWidths.reserve
+   
+   
+
+   
+   
+   

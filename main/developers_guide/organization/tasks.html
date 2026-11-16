@@ -653,6 +653,23 @@ change:</p>
         <span class="bp">self</span><span class="o">.</span><span class="n">_setup_steps</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">refinement</span><span class="p">)</span>
 </pre></div>
 </div>
+<p>A task that does not apply to the machine or model being set up says so in
+<code class="docutils literal notranslate"><span class="pre">configure()</span></code> by setting <code class="docutils literal notranslate"><span class="pre">self.skip_reason</span></code>.  Setup then leaves the task out,
+printing the reason, and the rest of a suite is set up as usual.  The
+baroclinic channel <code class="docutils literal notranslate"><span class="pre">threads</span></code> task does this when Omega runs on GPUs:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">polaris</span><span class="w"> </span><span class="kn">import</span> <span class="n">Task</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.model</span><span class="w"> </span><span class="kn">import</span> <span class="n">omega_runs_on_gpus</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">Threads</span><span class="p">(</span><span class="n">Task</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">configure</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">configure</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">omega_runs_on_gpus</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">component</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">skip_reason</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="s1">'OpenMP threads are not used when Omega runs on GPUs'</span>
+            <span class="p">)</span>
+</pre></div>
+</div>
 <p>The <code class="docutils literal notranslate"><span class="pre">configure()</span></code> method is not the right place for adding steps for the first
 time.  Steps should be added during init if possible and, if their names and
 locations rely on config options, they should be removed and re-added in

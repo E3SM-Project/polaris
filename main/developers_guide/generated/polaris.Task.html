@@ -199,6 +199,9 @@ resolved at setup time.  Free-running wins over <code class="docutils literal no
 but not over an explicit <code class="docutils literal notranslate"><span class="pre">--cached</span></code> or a suite’s <code class="docutils literal notranslate"><span class="pre">cached</span></code> lines.
 Add step subdirs here during <code class="docutils literal notranslate"><span class="pre">__init__</span></code> rather than setting
 <code class="docutils literal notranslate"><span class="pre">step.cached</span> <span class="pre">=</span> <span class="pre">False</span></code> directly.</p></li>
+<li><p><strong>skip_reason</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><em>str</em></a><em> or </em><em>None</em>) – Why this task does not apply to the machine or model being set up,
+if it does not.  A task sets this in <code class="docutils literal notranslate"><span class="pre">configure()</span></code>, and setup then
+leaves the task out and says why.</p></li>
 </ul>
 </dd>
 </dl>

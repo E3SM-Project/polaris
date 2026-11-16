@@ -194,6 +194,12 @@ batch system reserves GPUs by count, since it picks which itself</p></li>
 <tr class="row-odd"><td><p><a class="reference internal" href="#polaris.run.pool.ResourcePool.__init__" title="polaris.run.pool.ResourcePool.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(nodes[, local_node, names_gpus])</p></td>
 <td><p></p></td>
 </tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">fits</span></code>(step)</p></td>
+<td><p>Whether a step would fit in what is free, without reserving it.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">free_cores</span></code>(may_span_nodes)</p></td>
+<td><p>How many cores are free where a step could take them.</p></td>
+</tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">release</span></code>(reservation)</p></td>
 <td><p>Hand back everything a step was given.</p></td>
 </tr>
