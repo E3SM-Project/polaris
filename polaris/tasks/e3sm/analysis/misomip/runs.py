@@ -205,3 +205,28 @@ def get_mean_months(config, experiment):
     if not config.has_option('misomip_analysis', option):
         option = 'mean_months'
     return config.getint('misomip_analysis', option)
+
+
+def get_summary_captions(config, mesh_name, experiment):
+    """
+    Get the captions file of an experiment's summary page
+
+    Parameters
+    ----------
+    config : polaris.config.PolarisConfigParser
+        The config shared by the MISOMIP analysis tasks
+
+    mesh_name : str
+        The pair of meshes
+
+    experiment : str
+        The experiment
+
+    Returns
+    -------
+    captions : str
+        The captions file, or an empty string if the experiment has no
+        summary page
+    """
+    section = config[runs_section(mesh_name)]
+    return section.get(f'{experiment}_summary', '').strip()

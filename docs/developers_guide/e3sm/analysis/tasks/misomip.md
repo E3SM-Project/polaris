@@ -72,6 +72,12 @@ these reads model output twice: the comparison reads only the diagnostics
 steps' files.
 {py:class}`polaris.tasks.e3sm.analysis.misomip.publish.MisomipPublish`
 publishes a task's products under its mesh and experiment.
+An experiment with `<experiment>_summary` set also gets a
+{py:class}`polaris.tasks.e3sm.analysis.misomip.summary.SummaryPage`, a
+{py:class}`polaris.analysis.page.PageStep` that depends on the steps making
+products.  It reads their fragments to find the name each plot is
+published under, and links each plot it shows at `../plots/<name>`, where
+the publish step puts it, rather than copying it.
 
 With `write_protocol_fields = True`, each run also gets a
 {py:class}`polaris.tasks.e3sm.analysis.misomip.protocol.ProtocolMapStep`,

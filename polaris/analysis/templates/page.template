@@ -3,9 +3,18 @@
 <p class="back"><a href="{{ index_href }}">&larr; All results</a></p>
 {% for section in page.sections %}
 <section>
+{% if section.title %}
 <h2>{{ section.title }}</h2>
-{% if section.text %}
-<p>{{ section.text }}</p>
+{% endif %}
+{% for paragraph in section.paragraphs %}
+<p>{{ paragraph }}</p>
+{% endfor %}
+{% if section.links %}
+<ul class="links">
+{% for link in section.links %}
+<li><a href="{{ link.href }}">{{ link.text }}</a></li>
+{% endfor %}
+</ul>
 {% endif %}
 {% if section.entries %}
 <dl class="entries">
@@ -16,6 +25,9 @@
 {% endif %}
 {% if section.table %}
 <table>
+{% if section.table.caption %}
+<caption>{{ section.table.caption }}</caption>
+{% endif %}
 <thead><tr>{% for column in section.table.columns %}<th>{{ column }}</th>{% endfor %}</tr></thead>
 <tbody>
 {% for row in section.table.rows %}
@@ -24,6 +36,9 @@
 </tbody>
 </table>
 {% endif %}
+{% for figure in section.figures %}
+<figure><a href="{{ figure.href }}"><img src="{{ figure.href }}" alt="{{ figure.alt }}" loading="lazy"></a></figure>
+{% endfor %}
 {% if section.code %}
 <pre>{{ section.code }}</pre>
 {% endif %}
