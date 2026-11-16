@@ -138,13 +138,13 @@ structure is an improvement on it. The problem is length.
 - **One document, one decision.** Anything still relevant after this merges
   is an issue, not a comment.
 
-Sign anything posted to GitHub on someone's behalf:
+Sign anything posted to GitHub on someone's behalf: pull request
+descriptions, issues and comments. Put the signature at the end of a pull
+request description, below a line holding only `---`, and on its own line
+at the top of anything else:
 
 ```
----
-
-*Posted by <agent> on @<user>'s behalf. The testing, analysis and wording
-above are AI-authored; please check them accordingly.*
+*Posted by <agent> on @<user>'s behalf*
 ```
 
 That signature is only accurate when the user gave no significant input on
@@ -152,8 +152,6 @@ the content. When the text grew out of the user's own draft or substantial
 direction, sign it instead with:
 
 ```
----
-
 *Drafted by @<user> and <agent> together*
 ```
 

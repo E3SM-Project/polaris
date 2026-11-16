@@ -48,7 +48,10 @@ def test_report(finished):
         fixture.config, fixture.fork, manifest.branch, agent='Claude Code'
     )
 
-    assert text.startswith('## Testing on chrysalis\n')
+    assert text.startswith(
+        "*Posted by Claude Code on @tester's behalf*\n\n"
+        '## Testing on chrysalis\n'
+    )
     assert (
         f'Tested the merge of E3SM-Project/Omega#5 '
         f'(`{manifest.pr_head[:10]}`) into `develop` '

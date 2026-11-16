@@ -37,10 +37,12 @@ def test_lint_from_ci(pushed, monkeypatch):
     )
 
     assert from_ci
-    assert text.startswith('## Testing: lint and docs\n<!-- omega-pr-test ')
+    assert text.startswith(
+        "*Posted by Claude Code on @tester's behalf*\n\n"
+        '## Testing: lint and docs\n<!-- omega-pr-test '
+    )
     assert '- pre-commit on the files the PR changes: passed (CI)' in text
     assert '- Documentation build (`make html-strict`): passed (CI)' in text
-    assert "on @tester's behalf" in text
     marker = pr_test_report.parse_marker(text, MARKER_PREFIX)
     assert marker is not None
     assert marker['rows'] == [
