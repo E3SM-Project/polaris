@@ -15,6 +15,7 @@ from polaris import Task
 from polaris.build.omega import detect_omega_build_type
 from polaris.logging import log_function_call
 from polaris.parallel import set_parallel_systems
+from polaris.provenance import get_path as get_provenance_path
 from polaris.provenance import read as read_provenance
 from polaris.run import setup_config, unpickle_suite
 from polaris.run.lifecycle import (
@@ -108,7 +109,7 @@ def run_tasks(
             write_suite_results,
             os.path.join(work_dir, f'{suite_name}_results.json'),
             suite_name,
-            _read_results_provenance(task.base_work_dir),
+            _read_results_provenance(task.base_work_dir, suite_name),
             datetime.now().astimezone(),
         )
 
@@ -871,7 +872,7 @@ def _write_output_for_pull_request(
     ``POLARIS_RUN_OUTPUT`` in ``utils/benchmark/benchmark.py`` to match.
     """
     work_dir = suite.get('work_dir', os.getcwd())
-    pr_provenance = read_provenance(work_dir)
+    pr_provenance = read_provenance(work_dir, suite_name)
     if pr_provenance is None:
         return
 
@@ -1017,10 +1018,12 @@ def _result_lines(results: dict) -> List[str]:
     return lines
 
 
-def _read_results_provenance(base_work_dir: str) -> Dict[str, Optional[str]]:
+def _read_results_provenance(
+    base_work_dir: str, suite_name: str
+) -> Dict[str, Optional[str]]:
     """
-    Read the metadata for the results file from the provenance file in the
-    base work directory, with ``None`` for anything it does not record
+    Read the metadata for the results file from the suite's provenance file
+    in the base work directory, with ``None`` for anything it does not record
     """
     # keys in provenance are written exactly like these labels
     labels = {
@@ -1037,7 +1040,7 @@ def _read_results_provenance(base_work_dir: str) -> Dict[str, Optional[str]]:
     provenance: Dict[str, Optional[str]] = {'polaris_version': __version__}
     provenance.update({value: None for value in labels.values()})
     _parse_provenance_into(
-        os.path.join(base_work_dir, 'provenance'), labels, provenance
+        get_provenance_path(base_work_dir, suite_name), labels, provenance
     )
     if provenance['build_type'] is None:
         provenance['build_type'] = detect_omega_build_type(

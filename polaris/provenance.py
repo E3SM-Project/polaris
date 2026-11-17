@@ -28,6 +28,7 @@ def write(
     machine=None,
     baseline_dir=None,
     job_options=None,
+    suite_name=None,
 ):
     """
     Write a file with provenance, such as the git version, conda packages,
@@ -35,7 +36,9 @@ def write(
 
     This function overwrites any existing provenance file in the work
     directory rather than appending, so the provenance reflects the most
-    recent call to Polaris that used this work directory.
+    recent call to Polaris that used this work directory.  With a suite
+    name, it also writes a copy for that suite, which a later setup of
+    another suite in the same work directory leaves alone.
 
     Parameters
     ----------
@@ -60,6 +63,10 @@ mache.parallel.pbs.PbsOptions}, optional
         The scheduler options that were written to the job script, as
         returned by :py:func:`polaris.job.write_job_script()`.  If not
         provided, no scheduler metadata is recorded.
+
+    suite_name : str, optional
+        The name of the suite being set up, if a copy should be written for
+        it
     """
     polaris_git_info = _get_polaris_git_info()
 
@@ -142,6 +149,34 @@ mache.parallel.pbs.PbsOptions}, optional
     )
     provenance_file.close()
 
+    if suite_name is not None:
+        shutil.copyfile(provenance_path, _suite_path(work_dir, suite_name))
+
+
+def get_path(work_dir: str, suite_name: Optional[str] = None) -> str:
+    """
+    The path of the provenance file for a suite set up in a work directory
+
+    Parameters
+    ----------
+    work_dir : str
+        The work directory the suite was set up in
+
+    suite_name : str, optional
+        The name of the suite
+
+    Returns
+    -------
+    path : str
+        The suite's own provenance file if setup wrote one, or else the work
+        directory's, which records the most recent setup there
+    """
+    if suite_name is not None:
+        path = _suite_path(work_dir, suite_name)
+        if os.path.exists(path):
+            return path
+    return os.path.join(work_dir, 'provenance')
+
 
 def get_summary(config=None):
     """
@@ -177,7 +212,9 @@ def get_summary(config=None):
     return summary
 
 
-def read(work_dir: str) -> Optional[Dict[str, Any]]:
+def read(
+    work_dir: str, suite_name: Optional[str] = None
+) -> Optional[Dict[str, Any]]:
     """
     Read the provenance file that :py:func:`polaris.provenance.write` wrote
     to a work directory
@@ -186,6 +223,10 @@ def read(work_dir: str) -> Optional[Dict[str, Any]]:
     ----------
     work_dir : str
         The work directory with the provenance file
+
+    suite_name : str, optional
+        The name of a suite set up in the work directory, to read its own
+        provenance file (see :py:func:`polaris.provenance.get_path`)
 
     Returns
     -------
@@ -199,7 +240,7 @@ def read(work_dir: str) -> Optional[Dict[str, Any]]:
         the source tree at setup rather than from a record of the build
         (``at_setup``).  ``None`` if there is no provenance file.
     """
-    path = os.path.join(work_dir, 'provenance')
+    path = get_path(work_dir, suite_name)
     try:
         with open(path, 'r', encoding='utf-8') as f:
             lines = f.read().splitlines()
@@ -509,3 +550,8 @@ def _write_scheduler_metadata(provenance_file, job_options):
         return
     for label in ('partition', 'qos', 'queue', 'constraint'):
         _write_meta(provenance_file, label, getattr(job_options, label, None))
+
+
+def _suite_path(work_dir, suite_name):
+    """The path of a suite's own provenance file"""
+    return os.path.join(work_dir, f'{suite_name}_provenance')

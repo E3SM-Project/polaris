@@ -177,7 +177,7 @@ def _run(suite, suite_name, component, logger, events, work_dir, quiet):
             write_suite_results,
             os.path.join(work_dir, f'{suite_name}_results.json'),
             suite_name,
-            _read_results_provenance(base_work_dir),
+            _read_results_provenance(base_work_dir, suite_name),
             datetime.now().astimezone(),
         ),
     )

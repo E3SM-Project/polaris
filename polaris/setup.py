@@ -234,6 +234,7 @@ def setup_tasks(
         config=component_config,
         machine=machine,
         baseline_dir=baseline_dir,
+        suite_name=suite_name,
     )
 
     _build_models(
@@ -342,6 +343,7 @@ def setup_tasks(
         machine=machine,
         baseline_dir=baseline_dir,
         job_options=job_options,
+        suite_name=suite_name,
     )
 
     return tasks
