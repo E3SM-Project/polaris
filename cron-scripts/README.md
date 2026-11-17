@@ -119,7 +119,12 @@ follow from the envelope:
   task builds in a one-node job in the `debug` QOS (`gpu_debug` on
   pm-gpu).  Its queue wait is usually a few minutes, though it has been
   most of an hour, against a median of more than an hour in `regular`.
-  The build takes a few minutes there, or about 12 on pm-gpu.  `omega_cdash` adds no
+  The build takes a few minutes there.  On pm-gpu, Omega's own
+  `make -j 6` took about 17, which brought the job that also runs the
+  CTests within 5 minutes of the 30-minute limit
+  ([#969](https://github.com/E3SM-Project/polaris/issues/969)), so
+  `machines/pm-gpu.cfg` sets `build_jobs = 32`, which builds in about 6.
+  `omega_cdash` adds no
   job by this, since it runs the CTests in the job that builds;
   `polaris_cdash` adds one, since its suite has its own job.
 * A scrontab job is itself a Slurm job, so `launch_all.sh` unsets every
@@ -142,8 +147,9 @@ scratch there ([#630](https://github.com/E3SM-Project/polaris/issues/630)).
    build, so the nightly tests what developers build.  Set
    `scheduler = scrontab`, `account` and `build_in_job` if the machine runs
    cron jobs the way Perlmutter does.  Otherwise leave the build on the
-   login node, which spares the queue wait; `build_jobs` caps its
-   `make -j` if a login node cannot afford Omega's own.
+   login node, which spares the queue wait.  `build_jobs` replaces Omega's
+   own `make -j` wherever the build runs: lower for a login node that
+   cannot afford it, higher for a compute node with cores to spare.
 3. Add `machines/<machine>.sh` with the module loads and paths cron needs.
 4. Run `install.sh` as above.
 
