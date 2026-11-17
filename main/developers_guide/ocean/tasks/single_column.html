@@ -279,10 +279,19 @@ baseline if one is provided when calling <a class="reference internal" href="../
 </section>
 <section id="ekman">
 <h2>ekman<a class="headerlink" href="#ekman" title="Link to this heading"></a></h2>
-<p>The <code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.single_column.cvmix.CVMix</span></code>
-test performs a 5-day run on 1 cores.  Then, validation of <code class="docutils literal notranslate"><span class="pre">temperature</span></code>,
-<code class="docutils literal notranslate"><span class="pre">salinity</span></code>, <code class="docutils literal notranslate"><span class="pre">layerThickness</span></code> and <code class="docutils literal notranslate"><span class="pre">normalVelocity</span></code> are performed against a
-baseline if one is provided when calling <a class="reference internal" href="../../command_line.html#dev-polaris-setup"><span class="std std-ref">polaris setup</span></a>.</p>
+<p>The <a class="reference internal" href="../generated/polaris.tasks.ocean.single_column.ekman.Ekman.html#polaris.tasks.ocean.single_column.ekman.Ekman" title="polaris.tasks.ocean.single_column.ekman.Ekman"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.single_column.ekman.Ekman</span></code></a> task averages
+the final three inertial periods before evaluating the steady spiral; see
+<a class="reference internal" href="../../../users_guide/ocean/tasks/single_column.html#ocean-single-column-ekman"><span class="std std-ref">ekman</span></a>.</p>
+<p>The <a class="reference internal" href="../generated/polaris.tasks.ocean.single_column.ekman.analysis.Analysis.html#polaris.tasks.ocean.single_column.ekman.analysis.Analysis" title="polaris.tasks.ocean.single_column.ekman.analysis.Analysis"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.single_column.ekman.analysis.Analysis</span></code></a>
+step reports a layer-overlap-weighted relative L2 error over the top third
+of the column, fails if the error exceeds the configured tolerance, and
+writes <code class="docutils literal notranslate"><span class="pre">velocity_comparison_steady.png</span></code>, with velocity profiles and
+model-minus-analytic differences. It uses model-written
+geometric interfaces when available and the shared vertical-coordinate
+helper to reconstruct them otherwise. Midpoints and interfaces are measured
+relative to the water-column surface. Omega history output includes
+<code class="docutils literal notranslate"><span class="pre">GeomZMid</span></code> and <code class="docutils literal notranslate"><span class="pre">GeomZInterface</span></code>; reconstruction uses Omega’s vertical
+coordinate file or MPAS-Ocean’s initial-condition file.</p>
 </section>
 <section id="ideal-age">
 <h2>ideal age<a class="headerlink" href="#ideal-age" title="Link to this heading"></a></h2>

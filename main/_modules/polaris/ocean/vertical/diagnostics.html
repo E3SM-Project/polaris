@@ -479,6 +479,7 @@ window.runMermaid = runMermaid;</script>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_constant</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.eos</span><span class="w"> </span><span class="kn">import</span> <span class="n">compute_density</span><span class="p">,</span> <span class="n">compute_specvol</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.vertical.elevation</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_valid_level_range</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.ocean.vertical.ztilde</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">get_iter_count_for_eos</span><span class="p">,</span>
     <span class="n">pressure_and_spec_vol_from_state_at_geom_height</span><span class="p">,</span>
@@ -1016,6 +1017,75 @@ window.runMermaid = runMermaid;</script>
             <span class="p">{</span><span class="s1">'nVertLevelsP1'</span><span class="p">:</span> <span class="s1">'nVertLevels'</span><span class="p">}</span>
         <span class="p">)</span>
     <span class="k">return</span> <span class="n">coord</span></div>
+
+
+
+<div class="viewcode-block" id="surface_relative_vertical_coords">
+<a class="viewcode-back" href="../../../../developers_guide/ocean/generated/polaris.ocean.vertical.diagnostics.surface_relative_vertical_coords.html#polaris.ocean.vertical.diagnostics.surface_relative_vertical_coords">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">surface_relative_vertical_coords</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">ds_vert</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Get layer midpoints and interfaces relative to the top of each column.</span>
+
+<span class="sd">    Model-written elevations are preferred, with reconstruction from</span>
+<span class="sd">    thickness when necessary. The column top is the free surface or, under</span>
+<span class="sd">    an ice shelf, the ice-ocean interface. Returned elevations are positive</span>
+<span class="sd">    upward and dry columns are masked.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    ds : xarray.Dataset</span>
+<span class="sd">        Model output with MPAS-Ocean variable names and at most one time</span>
+
+<span class="sd">    ds_vert : xarray.Dataset</span>
+<span class="sd">        Vertical coordinate with ``bottomDepth``, ``maxLevelCell``, and</span>
+<span class="sd">        optionally ``minLevelCell``, using one-based level indices</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    z_mid, z_interface : xarray.DataArray</span>
+<span class="sd">        Surface-relative midpoint and interface elevations in meters</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If wet-column indices or surface elevations are invalid</span>
+<span class="sd">    """</span>
+    <span class="n">z_mid</span> <span class="o">=</span> <span class="n">vertical_coord_from_location</span><span class="p">(</span>
+        <span class="n">ds</span><span class="p">,</span> <span class="s1">'cell-center'</span><span class="p">,</span> <span class="n">allow_reconstruct</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">ds_vert</span><span class="o">=</span><span class="n">ds_vert</span>
+    <span class="p">)</span>
+    <span class="n">z_interface</span> <span class="o">=</span> <span class="n">vertical_coord_from_location</span><span class="p">(</span>
+        <span class="n">ds</span><span class="p">,</span> <span class="s1">'cell-interfaces'</span><span class="p">,</span> <span class="n">allow_reconstruct</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">ds_vert</span><span class="o">=</span><span class="n">ds_vert</span>
+    <span class="p">)</span>
+    <span class="n">min_level</span><span class="p">,</span> <span class="n">max_level</span> <span class="o">=</span> <span class="n">get_valid_level_range</span><span class="p">(</span><span class="n">ds_vert</span><span class="p">)</span>
+    <span class="k">if</span> <span class="s1">'Time'</span> <span class="ow">in</span> <span class="n">min_level</span><span class="o">.</span><span class="n">dims</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">min_level</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s1">'Time'</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">'Vertical coordinate must have at most one time'</span><span class="p">)</span>
+        <span class="n">min_level</span> <span class="o">=</span> <span class="n">min_level</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">Time</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">max_level</span> <span class="o">=</span> <span class="n">max_level</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">Time</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">n_levels</span> <span class="o">=</span> <span class="n">z_mid</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s1">'nVertLevels'</span><span class="p">]</span>
+    <span class="n">wet</span> <span class="o">=</span> <span class="n">max_level</span> <span class="o">&gt;=</span> <span class="mi">0</span>
+    <span class="n">invalid</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="o">~</span><span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">max_level</span><span class="p">)</span>
+        <span class="o">|</span> <span class="p">(</span><span class="n">max_level</span> <span class="o">&lt;</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="o">|</span> <span class="p">(</span><span class="n">max_level</span> <span class="o">!=</span> <span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">max_level</span><span class="p">))</span>
+        <span class="o">|</span> <span class="p">(</span>
+            <span class="n">wet</span>
+            <span class="o">&amp;</span> <span class="p">(</span>
+                <span class="o">~</span><span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">min_level</span><span class="p">)</span>
+                <span class="o">|</span> <span class="p">(</span><span class="n">min_level</span> <span class="o">!=</span> <span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">min_level</span><span class="p">))</span>
+                <span class="o">|</span> <span class="p">(</span><span class="n">min_level</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span>
+                <span class="o">|</span> <span class="p">(</span><span class="n">min_level</span> <span class="o">&gt;</span> <span class="n">max_level</span><span class="p">)</span>
+                <span class="o">|</span> <span class="p">(</span><span class="n">max_level</span> <span class="o">&gt;=</span> <span class="n">n_levels</span><span class="p">)</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="nb">bool</span><span class="p">(</span><span class="n">invalid</span><span class="o">.</span><span class="n">any</span><span class="p">()):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">'Invalid wet-column vertical level indices'</span><span class="p">)</span>
+    <span class="n">index</span> <span class="o">=</span> <span class="n">min_level</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">wet</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+    <span class="n">surface</span> <span class="o">=</span> <span class="n">z_interface</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">nVertLevelsP1</span><span class="o">=</span><span class="n">index</span><span class="p">,</span> <span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">bool</span><span class="p">((</span><span class="n">wet</span> <span class="o">&amp;</span> <span class="o">~</span><span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">surface</span><span class="p">))</span><span class="o">.</span><span class="n">any</span><span class="p">()):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">'Nonfinite top interface in a wet column'</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">z_mid</span> <span class="o">-</span> <span class="n">surface</span><span class="p">)</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">wet</span><span class="p">),</span> <span class="p">(</span><span class="n">z_interface</span> <span class="o">-</span> <span class="n">surface</span><span class="p">)</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">wet</span><span class="p">)</span></div>
 
 
 

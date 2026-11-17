@@ -485,7 +485,7 @@ window.runMermaid = runMermaid;</script>
 <span class="k">class</span><span class="w"> </span><span class="nc">Ekman</span><span class="p">(</span><span class="n">Task</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    The Ekman single-column test case creates the mesh and initial condition,</span>
-<span class="sd">    then performs a short forward run spinning up an ekman layer on 1 core.</span>
+<span class="sd">    then spins up an Ekman layer for steady analysis on 1 core.</span>
 <span class="sd">    """</span>
 
 <div class="viewcode-block" id="Ekman.__init__">
@@ -497,6 +497,7 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">        ----------</span>
 <span class="sd">        component : polaris.tasks.ocean.Ocean</span>
 <span class="sd">            The ocean component that this task belongs to</span>
+
 <span class="sd">        """</span>
         <span class="n">name</span> <span class="o">=</span> <span class="s1">'ekman'</span>
         <span class="n">subdir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">indir</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
@@ -527,14 +528,17 @@ window.runMermaid = runMermaid;</script>
             <span class="n">min_tasks</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
             <span class="n">openmp_threads</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
             <span class="n">validate_vars</span><span class="o">=</span><span class="n">validate_vars</span><span class="p">,</span>
-            <span class="n">task_name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
+            <span class="n">check_properties</span><span class="o">=</span><span class="p">[</span><span class="s1">'mass conservation'</span><span class="p">],</span>
+            <span class="n">task_name</span><span class="o">=</span><span class="s1">'ekman'</span><span class="p">,</span>
             <span class="n">constant_diff</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span><span class="n">forward_step</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span>
             <span class="n">Analysis</span><span class="p">(</span>
-                <span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">indir</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">subdir</span><span class="p">,</span> <span class="n">forward</span><span class="o">=</span><span class="n">forward_step</span>
+                <span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span>
+                <span class="n">indir</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">subdir</span><span class="p">,</span>
+                <span class="n">forward</span><span class="o">=</span><span class="n">forward_step</span><span class="p">,</span>
             <span class="p">)</span>
         <span class="p">)</span>
 
