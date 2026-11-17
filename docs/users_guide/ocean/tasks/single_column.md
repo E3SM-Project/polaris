@@ -351,9 +351,8 @@ E = \left[
 $$
 
 Here, bars denote time averages, the subscript $E$ denotes the analytic
-spiral, and $w_k$ is the overlapping layer thickness. This is a diagnostic,
-and analysis fails if the error exceeds the configured `L2_error_norm_max`
-(5% by default).
+spiral, and $w_k$ is the overlapping layer thickness. Analysis fails if 
+the error exceeds the configured `L2_error_norm_max` (5% by default).
 
 ### mesh
 
