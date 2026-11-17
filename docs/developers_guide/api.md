@@ -712,6 +712,7 @@ seaice/api
    :toctree: generated/
 
    write
+   get_path
    get_summary
    read
 ```
