@@ -6,6 +6,7 @@ from ruamel.yaml import YAML
 
 from polaris.constants import get_constant
 from polaris.ocean.eos import compute_density, compute_specvol
+from polaris.ocean.vertical.elevation import get_valid_level_range
 from polaris.ocean.vertical.ztilde import (
     get_iter_count_for_eos,
     pressure_and_spec_vol_from_state_at_geom_height,
@@ -520,6 +521,72 @@ def vertical_coord_from_location(
             {'nVertLevelsP1': 'nVertLevels'}
         )
     return coord
+
+
+def surface_relative_vertical_coords(ds, ds_vert):
+    """
+    Get layer midpoints and interfaces relative to the top of each column.
+
+    Model-written elevations are preferred, with reconstruction from
+    thickness when necessary. The column top is the free surface or, under
+    an ice shelf, the ice-ocean interface. Returned elevations are positive
+    upward and dry columns are masked.
+
+    Parameters
+    ----------
+    ds : xarray.Dataset
+        Model output with MPAS-Ocean variable names and at most one time
+
+    ds_vert : xarray.Dataset
+        Vertical coordinate with ``bottomDepth``, ``maxLevelCell``, and
+        optionally ``minLevelCell``, using one-based level indices
+
+    Returns
+    -------
+    z_mid, z_interface : xarray.DataArray
+        Surface-relative midpoint and interface elevations in meters
+
+    Raises
+    ------
+    ValueError
+        If wet-column indices or surface elevations are invalid
+    """
+    z_mid = vertical_coord_from_location(
+        ds, 'cell-center', allow_reconstruct=True, ds_vert=ds_vert
+    )
+    z_interface = vertical_coord_from_location(
+        ds, 'cell-interfaces', allow_reconstruct=True, ds_vert=ds_vert
+    )
+    min_level, max_level = get_valid_level_range(ds_vert)
+    if 'Time' in min_level.dims:
+        if min_level.sizes['Time'] != 1:
+            raise ValueError('Vertical coordinate must have at most one time')
+        min_level = min_level.isel(Time=0, drop=True)
+        max_level = max_level.isel(Time=0, drop=True)
+    n_levels = z_mid.sizes['nVertLevels']
+    wet = max_level >= 0
+    invalid = (
+        ~np.isfinite(max_level)
+        | (max_level < -1)
+        | (max_level != np.floor(max_level))
+        | (
+            wet
+            & (
+                ~np.isfinite(min_level)
+                | (min_level != np.floor(min_level))
+                | (min_level < 0)
+                | (min_level > max_level)
+                | (max_level >= n_levels)
+            )
+        )
+    )
+    if bool(invalid.any()):
+        raise ValueError('Invalid wet-column vertical level indices')
+    index = min_level.where(wet, 0).astype(int)
+    surface = z_interface.isel(nVertLevelsP1=index, drop=True)
+    if bool((wet & ~np.isfinite(surface)).any()):
+        raise ValueError('Nonfinite top interface in a wet column')
+    return (z_mid - surface).where(wet), (z_interface - surface).where(wet)
 
 
 def location_for_field(var, field_name=None):
