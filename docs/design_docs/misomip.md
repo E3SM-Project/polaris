@@ -1868,3 +1868,77 @@ Rejected:
   that must take on meters of water fills only to its layers' ramp and
   then floods, as in Polaris's RK4 wetting task, however gently its ice
   is thinned.
+
+### D35: The ocean melts at most the floating ice MALI has
+
+Date last modified: 2026/11/17
+
+Contributors: Xylar Asay-Davis, Claude
+
+When MALI is prognostic, the ocean's melt is limited by the floating ice
+MALI has to give:
+
+- MALI sends the mass $\rho_i \min(H, H_\mathrm{ref})$ of each floating
+  cell and nothing from other cells. $H_\mathrm{ref}$ is a namelist option,
+  10 m by default, that must exceed the largest melt in one glc coupling
+  interval.
+- The existing conservative glc-to-ocean map turns this into $C$, the mass
+  under each ocean cell.
+- Over each glc coupling interval, the ocean melts $M = \min(P, C)$, where
+  $P$ is its potential melt. Heat it does not use for melt stays in the
+  ocean.
+- The ocean sends the fraction $f = M/C$, and MALI removes
+  $f \min(H, H_\mathrm{ref})$ from each floating cell.
+
+Ice thicker than $H_\mathrm{ref}$ keeps today's uniform melt per unit
+area. Only cells thinner than $H_\mathrm{ref}$ get less.
+
+Parts of some MALI cells lie outside the ocean's domain, and parts of some
+ocean cells lie outside MALI's. Each model's initial condition holds the
+fraction of each of its cells that the other covers, computed from the
+maps' overlaps. MALI removes ice only from the covered part of a cell, and
+$C$ counts only that part, so the ocean's melt and MALI's melt are equal to
+roundoff.
+
+MALI removes the melt at the start of the interval's first step, before
+advection, iceberg removal, calving and the restored calving front
+([D32](#decisions)), however many steps it takes. It records any
+shortfall, which should be zero. It also counts the cells thicker than
+$H_\mathrm{ref}$ that lose all of $H_\mathrm{ref}$, which happens only if
+$H_\mathrm{ref}$ is too small.
+
+Refreezing and frazil reach MALI as a separate rate with no limit. In data
+mode, the ocean's melt is not limited.
+
+IceOcean1r takes the fix at a job boundary once it is tested, and its
+analysis marks the year. The other stage E runs need no change.
+
+```{admonition} Rationale
+In IceOcean1r, MALI dropped the melt it could not apply: 0.2–0.35 Gt/yr
+from year 11 and 4.4 Gt by year 25. All of it was in floating cells
+holding at most 12 cm of ice, the margin row that thickness-threshold
+calving keeps next to thick ice. Each day thin ice flowed into those
+cells, and the ocean melted them at its full rate, so its melt there came
+from ice MALI did not have. Limiting the ocean's melt to the ice MALI has
+removes the source. Removing it at the start of MALI's step leaves nothing
+for advection or calving to take first. Ice as thin as 10 m is unphysical,
+so melt can be distributed over it however the scheme needs, while melt
+over thicker ice stays as it was. The largest melt MALI applied in one day
+in IceOcean1r's first 28 years is 0.24 m, so 10 m leaves a margin of about
+40. The loss is under 1% of the melt, so
+IceOcean1r continues and switches rather than starting over as in
+[D34](#decisions).
+```
+
+Rejected:
+
+- returning the melt MALI cannot apply to the ocean a day later, which
+  conserves water and heat but lets the ocean melt ice that is not there;
+- weighting by the full thickness, which shifts melt toward thick ice
+  wherever thickness varies within an ocean cell, including at the
+  grounding line;
+- spreading the melt over MALI's steps or stages, which exposes it to
+  outflow, iceberg removal and calving first;
+- a new map pair with matched areas, which would hide real non-overlap at
+  the side walls instead of accounting for it;
+- accounting for the loss in the analysis only.
