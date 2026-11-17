@@ -305,7 +305,7 @@ See {ref}`ocean-baroclinic-channel`.
 ### cores
 
 This test is run on 4 cores for the `4proc` step and 8 cores for the `8proc`
-step.
+step.  When Omega runs on GPUs, the steps run on 1 and 2 GPUs instead.
 
 ## threads
 
@@ -317,7 +317,8 @@ step) and then on 2 threads (`2thread` step) to make sure the resulting
 prognostic variables are bit-for-bit identical between the two runs.
 `ocean/planar/baroclinic_channel/split_explicit/10km/threads` is the same test,
 and `ocean/planar/baroclinic_channel/rk4/10km/threads` repeats it with the RK4
-time stepper.
+time stepper.  The task is skipped when Omega runs on GPUs, where OpenMP
+threads are not used.
 
 ### mesh
 

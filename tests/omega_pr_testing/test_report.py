@@ -48,7 +48,10 @@ def test_report(finished):
         fixture.config, fixture.fork, manifest.branch, agent='Claude Code'
     )
 
-    assert text.startswith('## Testing on chrysalis\n')
+    assert text.startswith(
+        "*Posted by Claude Code on @tester's behalf*\n\n"
+        '## Testing on chrysalis\n'
+    )
     assert (
         f'Tested the merge of E3SM-Project/Omega#5 '
         f'(`{manifest.pr_head[:10]}`) into `develop` '
@@ -67,6 +70,8 @@ def test_report(finished):
     assert 'No new warnings (0 in the PR build, 0 in the baseline build)' in (
         block
     )
+    # nothing failed, so there is no section naming failures
+    assert 'Failures and differences' not in text
     marker = pr_test_report.parse_marker(text, MARKER_PREFIX)
     assert marker is not None
     assert marker['schema'] == 2
@@ -144,9 +149,15 @@ def test_report_failures(finished):
     contents = json.loads(results.read_text())
     contents['summary'].update({'passed': 2, 'failed': 1})
     contents['tasks'][0]['baseline'] = 'fail'
+    contents['tasks'][0]['baseline_diffs'] = {
+        'temperature': {'l1': 1e-3, 'l2': 1e-3, 'linf': 1e-3}
+    }
     results.write_text(json.dumps(contents))
     Path(state.pr_build_dir, 'ctests.log').write_text(
         '98% tests passed, 1 tests failed out of 50\n'
+        '\n'
+        'The following tests FAILED:\n'
+        '\t  7 - EOS_TEST (Failed)\n'
     )
 
     text, _ = omega_pr_report.run_report(
@@ -157,6 +168,16 @@ def test_report_failures(finished):
         '| chrysalis, intel, openmpi | 49 of 50 passed | 2 of 3 passed, 1 '
         'with baseline differences | 2 of 2 passed | 0 |'
     ) in text
+    # the failures are named above the row's collapsed block
+    visible = text.split('<details>')[0]
+    assert (
+        '**1 task differs from the baseline:**\n\n- `ocean/task0`: on '
+        'chrysalis, intel, openmpi'
+    ) in visible
+    assert '**1 CTest failed:**\n\n- `EOS_TEST`: on chrysalis' in visible
+    assert visible.index('| chrysalis, intel') < visible.index(
+        '### Failures and differences'
+    )
     marker = pr_test_report.parse_marker(text, MARKER_PREFIX)
     assert marker is not None and marker['rows'][0]['result'] == 'fail'
 
@@ -208,6 +229,53 @@ def test_report_coupled_job_ended_early(tester):
     )
 
     assert '| 2 of 2 failed: ERS_D (RUN), PEM_D (RUN) |' in text
+
+
+def test_report_coupled_job_submitted_by_hand(tester, monkeypatch):
+    fixture, manifest, _ = tester
+    # setup without --submit, then the tester runs case.submit by hand
+    state = _setup(fixture, manifest)
+    _finish(state, coupled=False)
+    for index, case_dir in enumerate(state.coupled_cases):
+        name = Path(case_dir).name
+        Path(case_dir, 'CaseStatus').write_text(
+            f'2026-11-11 11:07:19: case.submit starting case.test:{index}\n'
+            f'---------------------------------------------------\n'
+            f'2026-11-11 11:07:19: case.submit success case.test:{index}\n'
+        )
+        status = Path(case_dir, 'TestStatus')
+        status.write_text(f'{status.read_text()}PASS {name} SUBMIT\n')
+    checked = []
+
+    def is_job_active(job_id, system):
+        checked.append(job_id)
+        return job_id == '0'
+
+    monkeypatch.setattr(omega_pr_coupled, 'is_job_active', is_job_active)
+
+    # the jobs are found from what case.submit logged
+    with pytest.raises(
+        pr_test_report.ReportError,
+        match=r'ERS_D\.T62_oQU240\.COMEGA-IAF.* has not finished \(job 0\)',
+    ):
+        omega_pr_report.run_report(
+            fixture.config, fixture.fork, manifest.branch
+        )
+
+    # and once they end, one before it started the test, it is a failure
+    monkeypatch.setattr(
+        omega_pr_coupled, 'is_job_active', lambda job_id, system: False
+    )
+    name = Path(state.coupled_cases[0]).name
+    status = Path(state.coupled_cases[0], 'TestStatus')
+    status.write_text(f'{status.read_text()}PASS {name} RUN time=30\n')
+
+    text, _ = omega_pr_report.run_report(
+        fixture.config, fixture.fork, manifest.branch
+    )
+
+    assert checked == ['0']
+    assert '| 1 of 2 failed: PEM_D (RUN) |' in text
 
 
 def test_report_before_coupled_tests_finish(tester, monkeypatch):

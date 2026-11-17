@@ -611,6 +611,13 @@ def _plot_resting(
         ax.set_xlabel(f'{tilt_option} (m km-1)')
         ax.set_ylabel('RMS HPGA in a resting state (m s-2)')
         ax.set_title('Resting-State HPGA vs Tilt (true HPGA is zero)')
-        ax.legend(loc='best')
+        # eight or more series do not fit inside the axes at the style's
+        # font size, so the legend goes to the right of the plot
+        ax.legend(
+            loc='upper left',
+            bbox_to_anchor=(1.02, 1.0),
+            borderaxespad=0.0,
+            fontsize='small',
+        )
         fig.savefig(output, bbox_inches='tight', pad_inches=0.1)
         plt.close()

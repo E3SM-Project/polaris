@@ -5,6 +5,7 @@ from functools import partial
 from pathlib import Path
 
 import omega_pr_coupled
+import omega_pr_fixtures
 import omega_pr_init
 import omega_pr_setup
 import pr_test_setup
@@ -192,6 +193,25 @@ def test_setup_coupled_build_fails(tester):
     # both are reported, but only the one that built is submitted
     assert len(state.coupled_cases) == 2
     assert [job['name'] for job in state.jobs[3:]] == tests[:1]
+
+
+def test_setup_rebuilds_failed_coupled_build(tester, monkeypatch):
+    fixture, manifest, calls = tester
+    tests = ['ERS_D.T62_oQU240.COMEGA-IAF', 'PEM_D.T62_oQU240.FAIL']
+    _setup(fixture, manifest, coupled_tests=tests)
+    # whatever stopped the build is fixed
+    monkeypatch.setattr(omega_pr_fixtures, 'FAILED_BUILDS', [])
+
+    state = _setup(fixture, manifest, coupled_tests=tests)
+
+    # only the case that did not build is created again, and now it is
+    # submitted with the other
+    created = [
+        args[1 : args.index('--machine')]
+        for _, _, args in calls['create_test']
+    ]
+    assert created == [tests, tests[1:]]
+    assert [job['name'] for job in state.jobs[3:]] == tests
 
 
 def test_setup_submit(tester):
@@ -666,6 +686,22 @@ def test_prepare_tree_once(tester, monkeypatch):
     assert calls.count('submodule') == 1
     assert Path(f'{tree}.ready').exists()
     assert not Path(f'{tree}.lock').exists()
+
+
+def test_prepare_tree_ignores_marker_of_removed_tree(tester):
+    fixture, manifest, _ = tester
+    tree = Path(fixture.config.work_base) / 'omega' / 'tree'
+    # a tree of the same name, removed without its marker
+    marker = Path(f'{tree}{pr_test_setup.ALL_SUBMODULES_SUFFIX}')
+    marker.parent.mkdir(parents=True, exist_ok=True)
+    marker.write_text('old\n')
+
+    pr_test_setup.prepare_tree(
+        fixture.config.omega_repo, manifest.baseline_commit, str(tree)
+    )
+
+    # so the new tree's submodules are initialized for CIME
+    assert not marker.exists()
 
 
 def test_prepare_tree_repairs_interrupted_tree(tester, tmp_path, monkeypatch):

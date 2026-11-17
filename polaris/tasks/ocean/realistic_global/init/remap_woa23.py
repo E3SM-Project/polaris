@@ -6,8 +6,6 @@ from mpas_tools.io import write_netcdf
 from polaris import Step
 from polaris.cf import add_cf_conventions, drop_dangling_references
 
-from .woa23_map import WOA23_EXTRAP_FILENAME
-
 
 class RemapWoa23Step(Step):
     """
@@ -41,7 +39,7 @@ class RemapWoa23Step(Step):
             The subdirectory for the step.
 
         extrapolate_step : polaris.Step
-            The step that produces ``woa23_decav_0.25_jan_extrap.nc``.
+            The step that produces the extrapolated WOA23 product.
 
         woa23_map_step : polaris.Step
             The step that builds the WOA23-to-mesh mapping file.
@@ -68,7 +66,7 @@ class RemapWoa23Step(Step):
             filename='woa23_extrap.nc',
             work_dir_target=os.path.join(
                 self.extrapolate_step.path,
-                WOA23_EXTRAP_FILENAME,
+                self.extrapolate_step.output_filename,
             ),
         )
 

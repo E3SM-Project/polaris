@@ -17,15 +17,17 @@ from pr_test_rows import MODEL_LABELS, Row
 MARKER_SCHEMA = 2
 
 #: the signature that Polaris's AGENTS.md prescribes for posts made by an
-#: agent on someone's behalf
-SIGNATURE = (
-    "*Posted by {agent} on @{user}'s behalf. The testing, analysis and "
-    'wording above are AI-authored; please check them accordingly.*'
-)
+#: agent on someone's behalf, on its own line at the top of the comment
+SIGNATURE = "*Posted by {agent} on @{user}'s behalf*"
 
 _CTEST_COUNTS = re.compile(
     r'(\d+)% tests passed, (\d+) tests failed out of (\d+)'
 )
+
+#: the line before CTest's list of failed tests, and a test in that list,
+#: such as ``  2 - EOS_TEST (Failed)``
+_CTEST_FAILED_HEADER = 'The following tests FAILED:'
+_CTEST_FAILED_LINE = re.compile(r'^\s*\d+\s+-\s+(.+?)\s+\([^)]*\)\s*$')
 
 
 class ReportError(Exception):
@@ -232,6 +234,68 @@ def format_bit_for_bit(
     return '### Differences from the baseline\n\n' + '\n\n'.join(paragraphs)
 
 
+def format_failures(
+    rows: Sequence[Tuple[Row, Optional[BaselineComparison], List[str]]],
+) -> Optional[str]:
+    """
+    A section that names the tasks that failed or differ from the baseline,
+    and the CTests that failed, so a reader need not open each row's
+    collapsed block to find them
+
+    Each task or CTest is named once, with the rows it failed on, and those
+    that failed on the same rows share a line.
+
+    Parameters
+    ----------
+    rows : list of tuple
+        Each row, how its suite compares with the baseline (``None`` for a
+        row that was not run), and the names of the CTests that failed
+
+    Returns
+    -------
+    text : str or None
+        The section, or ``None`` if nothing failed or differs
+    """
+    run = [
+        (row, comparison, ctests)
+        for row, comparison, ctests in rows
+        if comparison is not None
+    ]
+    run_rows = [row for row, _, _ in run]
+    groups = [
+        ('task', 'failed', 'failed', lambda c, _: c.did_not_run),
+        (
+            'task',
+            'differs from the baseline',
+            'differ from the baseline',
+            lambda c, _: list(c.differ),
+        ),
+        (
+            'task',
+            'failed in the baseline, so there is nothing to compare with',
+            'failed in the baseline, so there is nothing to compare with',
+            lambda c, _: c.failed_in_baseline,
+        ),
+        ('CTest', 'failed', 'failed', lambda _, ctests: ctests),
+    ]
+    paragraphs = []
+    for noun, singular, plural, get_names in groups:
+        by_name: Dict[str, List[Row]] = {}
+        for row, comparison, ctests in run:
+            for name in get_names(comparison, ctests):
+                by_name.setdefault(name, []).append(row)
+        if not by_name:
+            continue
+        what = singular if len(by_name) == 1 else plural
+        paragraphs.append(
+            f'**{_count(len(by_name), noun)} {what}:**\n\n'
+            + _list_tasks(by_name, run_rows, len(rows))
+        )
+    if not paragraphs:
+        return None
+    return '### Failures and differences\n\n' + '\n\n'.join(paragraphs)
+
+
 def make_marker(prefix: str, **contents: Any) -> str:
     """
     The hidden marker that starts a Testing comment
@@ -407,14 +471,18 @@ def assemble(
         The agent's or tester's notes
 
     agent : str, optional
-        The agent posting the comment, which adds the signature
+        The agent posting the comment, which adds the signature at the
+        top
 
     Returns
     -------
     text : str
         The comment
     """
-    parts = [f'## {heading}\n{marker}']
+    parts = []
+    if agent:
+        parts.append(SIGNATURE.format(agent=agent, user=requester))
+    parts.append(f'## {heading}\n{marker}')
     parts.extend(section.strip('\n') for section in sections)
     note_lines = []
     if requester_notes:
@@ -423,9 +491,6 @@ def assemble(
         note_lines.append(notes.strip())
     if note_lines:
         parts.append('### Notes\n\n' + '\n\n'.join(note_lines))
-    if agent:
-        signature = SIGNATURE.format(agent=agent, user=requester)
-        parts.append(f'---\n\n{signature}')
     return '\n\n'.join(parts) + '\n'
 
 
@@ -614,6 +679,38 @@ def summarize_ctests(build_dir: str) -> Tuple[bool, str]:
     _, failed, total = counts[-1]
     passed = int(total) - int(failed)
     return int(failed) == 0, f'{passed} of {total} passed'
+
+
+def failed_ctests(build_dir: str) -> List[str]:
+    """
+    The names of the CTests that failed, from the list CTest writes at the
+    end of its output
+
+    Parameters
+    ----------
+    build_dir : str
+        The build the CTests ran in
+
+    Returns
+    -------
+    names : list of str
+        The failed CTests, in the order CTest lists them
+    """
+    path = os.path.join(build_dir, 'ctests.log')
+    if not os.path.exists(path):
+        return []
+    with open(path, 'r', encoding='utf-8', errors='replace') as f:
+        text = f.read()
+    _, found, failures = text.rpartition(_CTEST_FAILED_HEADER)
+    if not found:
+        return []
+    names = []
+    for line in failures.splitlines()[1:]:
+        match = _CTEST_FAILED_LINE.match(line)
+        if match is None:
+            break
+        names.append(match.group(1))
+    return names
 
 
 def _failed_tasks(work_dir: Optional[str], suite: str) -> List[str]:

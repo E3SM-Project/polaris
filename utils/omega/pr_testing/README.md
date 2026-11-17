@@ -39,7 +39,9 @@ its rows.  An agent on every machine also works, but is discouraged.
    the PR, since `ERS` and `PEM` tests compare a run with itself.  The PR suite, and a baseline it sets up, run their steps at
    the same time with `polaris parallel` unless `--serial` is given.
 4. **`report`** (each machine) writes one comment for the machine's rows:
-   a table with a line for each row, generated from the results, and for
+   a table with a line for each row, generated from the results; the
+   `omega_pr` tasks that failed or differ from the baseline and the CTests
+   that failed, if any, each named once with the rows it failed on; and for
    each row a collapsed block with the files Polaris, CTest and CIME
    (`TestStatus`) wrote, pasted unchanged, and the compiler warnings the PR build has that the
    baseline build does not.
@@ -52,9 +54,10 @@ its rows.  An agent on every machine also works, but is discouraged.
 7. **`cleanup`** (each machine), only when you ask, lists the old runs,
    baselines and Omega worktrees in `work_base`, and removes them with
    `--delete`.  It keeps anything an open Omega or Polaris PR cites, which
-   **`cited`** lists on your computer, and anything modified in the last
-   few days.  With `--branches` on your computer, it also deletes the test
-   branches of PRs that have merged or closed.
+   **`cited`** lists on your computer, anything modified in the last few
+   days, and anything with a job still queued or running.  With
+   `--branches` on your computer, it also deletes the test branches of PRs
+   that have merged or closed.
 
 ## Setup
 

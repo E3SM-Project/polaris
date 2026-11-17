@@ -10,11 +10,20 @@ import shutil
 import time
 from dataclasses import dataclass
 from datetime import datetime, timezone
-from typing import Dict, Iterable, List, Optional, Set, Tuple
+from functools import partial
+from typing import Callable, Dict, Iterable, List, Optional, Set, Tuple
 
 import pr_test_git as git_tools
 from pr_test_github import get_open_pull_request_texts
-from pr_test_setup import STATE_FILENAME
+from pr_test_setup import (
+    ALL_SUBMODULES_SUFFIX,
+    STATE_FILENAME,
+    Job,
+    get_job_id,
+    read_job_id,
+)
+
+from polaris.job import is_job_active
 
 #: the repositories whose open pull requests may cite test results
 CITING_REPOS = ['E3SM-Project/Omega', 'E3SM-Project/polaris']
@@ -30,6 +39,12 @@ MAX_CITED_AGE_HOURS = 24
 #: anything modified more recently than this many days is kept by default,
 #: since it may be in use
 DEFAULT_KEEP_DAYS = 3
+
+#: the command that lists queued and running jobs under each scheduler
+SCHEDULER_COMMANDS = {'slurm': 'squeue', 'pbs': 'qstat'}
+
+#: the files beside an Omega worktree that say it is ready
+_TREE_MARKERS = ['.ready', ALL_SUBMODULES_SUFFIX]
 
 #: the first line of a list of cited paths, with the time it was written
 _CITED_HEADER = '# paths cited by open pull requests of {repos} at {time}'
@@ -64,7 +79,7 @@ class Entry:
 
     kind : str
         ``run``, ``baseline``, ``worktree`` or ``marker`` (a worktree's
-        ``.ready`` file with no worktree)
+        ``.ready`` or ``.all-submodules`` file with no worktree)
 
     keep : str, optional
         Why it is kept, or ``None`` if it is to be removed
@@ -195,23 +210,42 @@ def read_citations(filename: str, now: Optional[float] = None) -> Set[str]:
     return {line.split('\t')[0] for line in lines[1:] if line.strip()}
 
 
+def find_job_check() -> Optional[Callable[[str], bool]]:
+    """
+    A check of whether a job is still queued or running, with the scheduler
+    on this machine
+
+    Returns
+    -------
+    is_active : callable, optional
+        Takes a job id and returns whether the scheduler lists it, or
+        ``None`` where there is no scheduler, as on a laptop
+    """
+    for system, command in SCHEDULER_COMMANDS.items():
+        if shutil.which(command) is not None:
+            return partial(is_job_active, system=system)
+    return None
+
+
 def plan_cleanup(
     work_base: str,
     cited: Set[str],
     keep_days: float,
     polaris_hashes: Iterable[str],
     now: Optional[float] = None,
+    is_active: Optional[Callable[[str], bool]] = None,
 ) -> List[Entry]:
     """
     Decide what in ``work_base`` to keep and what to remove
 
     Kept are test runs, baselines and worktrees that an open pull request
     cites or that contain a cited path, anything modified in the last
-    ``keep_days`` days, baselines for the given Polaris commits (those that
-    may still be reused), the baselines of kept runs, and the worktrees
-    that kept runs and baselines were built from.  Anything else in
-    ``work_base``, such as notes or logs, is not the utility's and is left
-    alone.
+    ``keep_days`` days, runs and baselines with a job still queued or
+    running (which may not have touched them for longer), baselines for
+    the given Polaris commits (those that may still be reused), the
+    baselines of kept runs, and the worktrees that kept runs and baselines
+    were built from.  Anything else in ``work_base``, such as notes or logs,
+    is not the utility's and is left alone.
 
     Parameters
     ----------
@@ -230,6 +264,10 @@ def plan_cleanup(
     now : float, optional
         The current time, as from ``time.time()``
 
+    is_active : callable, optional
+        Whether a job id is still queued or running, as from
+        :py:func:`find_job_check`.  Without it, jobs are not checked.
+
     Returns
     -------
     entries : list of pr_test_cleanup.Entry
@@ -242,10 +280,12 @@ def plan_cleanup(
     runs = [Entry(path, 'run') for path in _subdirs(work_base, _RUN_DIR)]
     for entry in runs:
         entry.keep = _cited_or_recent(entry.path, cited, since)
+        if entry.keep is None:
+            entry.keep = _active_job(_run_job_ids(entry.path), is_active)
 
     kept_baselines, kept_builds = _used_by_runs(runs)
     baselines = _plan_baselines(
-        work_base, cited, since, polaris_hashes, kept_baselines
+        work_base, cited, since, polaris_hashes, kept_baselines, is_active
     )
     kept_builds.extend(
         os.path.join(entry.path, 'build')
@@ -295,9 +335,10 @@ def remove(entries: List[Entry]) -> List[str]:
                     pass
             if os.path.exists(entry.path):
                 shutil.rmtree(entry.path)
-            ready = f'{entry.path}.ready'
-            if os.path.exists(ready):
-                os.remove(ready)
+            for suffix in _TREE_MARKERS:
+                marker = f'{entry.path}{suffix}'
+                if os.path.exists(marker):
+                    os.remove(marker)
         elif entry.kind == 'marker':
             os.remove(entry.path)
         else:
@@ -361,7 +402,7 @@ def _used_by_runs(runs):
     return baselines, builds
 
 
-def _plan_baselines(work_base, cited, since, polaris_hashes, kept):
+def _plan_baselines(work_base, cited, since, polaris_hashes, kept, is_active):
     """Decide which baselines to keep"""
     prefixes = {f'_polaris-{sha[:7]}_' for sha in polaris_hashes}
     baselines = [
@@ -371,6 +412,9 @@ def _plan_baselines(work_base, cited, since, polaris_hashes, kept):
     for entry in baselines:
         name = os.path.basename(entry.path)
         entry.keep = _cited_or_recent(entry.path, cited, since)
+        if entry.keep is None:
+            job_ids = [read_job_id(path) for path in _subdirs(entry.path)]
+            entry.keep = _active_job(job_ids, is_active)
         if entry.keep is None and any(p in name for p in prefixes):
             entry.keep = 'for the current Polaris commit'
         if entry.keep is None and entry.path in kept:
@@ -403,16 +447,41 @@ def _plan_trees(work_base, cited, since, keep_days, baselines, used_trees):
 
 
 def _stale_markers(work_base):
-    """The ``.ready`` files of worktrees that are gone"""
+    """The ``.ready`` and ``.all-submodules`` files of worktrees that are
+    gone"""
     tree_base = os.path.join(work_base, 'omega')
     if not os.path.isdir(tree_base):
         return []
-    return [
-        Entry(os.path.join(tree_base, name), 'marker')
-        for name in sorted(os.listdir(tree_base))
-        if name.endswith('.ready')
-        and not os.path.isdir(os.path.join(tree_base, name[: -len('.ready')]))
-    ]
+    markers = []
+    for name in sorted(os.listdir(tree_base)):
+        for suffix in _TREE_MARKERS:
+            tree = os.path.join(tree_base, name.removesuffix(suffix))
+            if name.endswith(suffix) and not os.path.isdir(tree):
+                markers.append(Entry(os.path.join(tree_base, name), 'marker'))
+    return markers
+
+
+def _run_job_ids(run_dir):
+    """The ids of the jobs of a run's rows, including any the tester
+    submitted by hand"""
+    job_ids = []
+    for row_dir in _subdirs(run_dir):
+        for job in _read_state(row_dir).get('jobs', []):
+            try:
+                job_ids.append(get_job_id(Job(**job)))
+            except TypeError:
+                continue
+    return job_ids
+
+
+def _active_job(job_ids, is_active):
+    """Why an entry is kept for a job still queued or running, if it is"""
+    if is_active is None:
+        return None
+    for job_id in job_ids:
+        if job_id is not None and is_active(job_id):
+            return f'job {job_id} is queued or running'
+    return None
 
 
 def _with_real_paths(cited):

@@ -757,6 +757,7 @@
 
    restart_step.RestartStep
    restart_step.RestartStep.setup
+   restart_step.RestartStep.get_stage
    restart_step.RestartStep.dynamic_model_config
    restart_step.RestartStep.runtime_setup
 
@@ -780,6 +781,8 @@
 
    forward.Forward
    forward.Forward.setup
+   forward.Forward.get_stage
+   forward.Forward.get_stats_filename
    forward.Forward.compute_cell_count
    forward.Forward.dynamic_model_config
 
@@ -830,6 +833,9 @@
 
    Woa23
    get_woa23_steps
+
+   month.get_woa23_month
+   month.get_month_abbreviation
 
    CombineStep
    CombineStep.setup
@@ -1136,6 +1142,7 @@
    :toctree: generated/
 
    IceShelfTask
+   IceShelfTask.configure
    IceShelfTask.setup_ssh_adjustment_steps
 
    SshAdjustment
@@ -1183,6 +1190,8 @@
    OceanModelStep.compute_cell_count
    OceanModelStep.map_yaml_options
    OceanModelStep.map_yaml_configs
+
+   omega_runs_on_gpus
 
    OceanModelFilesMixin
 

@@ -15,13 +15,16 @@ The reader is deciding whether to review.
 - Link the issue or upstream pull request that gives context.
 - Several fixes usually means several pull requests.
 
-## Calibration
+## Length
 
-Measured over pull requests from 2023 and 2024, before any agent wrote
-here. Descriptions run 27 to 28 words at the median, 45 to 62 at the
-seventy-fifth percentile, 103 to 110 at the ninetieth, and 354 at the
-longest. A recent agent-written one ran 1167 words, more than three times
-the longest a colleague has written.
+Aim for what colleagues wrote before agents did. Descriptions run 27 to
+28 words at the median, 45 to 62 at the seventy-fifth percentile, 103 to
+110 at the ninetieth, and 354 at the longest. Past the ninetieth
+percentile, cut. A recent agent-written one ran 1167 words, more than
+three times the longest a colleague has written.
+
+These figures come from pull requests from 2023 and 2024. Use them as
+they are; there is no need to measure again.
 
 ## Enough
 

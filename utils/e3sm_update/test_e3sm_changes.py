@@ -2,10 +2,12 @@
 
 import argparse
 import configparser
+import json
 import os
 import shlex
 import subprocess
-from typing import Dict, List
+import urllib.request
+from typing import Dict, List, Optional
 
 
 def submit_e3sm_tests(
@@ -95,23 +97,37 @@ def submit_e3sm_tests(
             component = 'mali'
         elif any([string in line for string in framework_strings]):
             component = 'fwk'
-        if component is not None:
-            if '#' in line:
-                hash = line.split(' ')[0]
-                end = line.split('#')[-1].replace('(', ' ').replace(')', ' ')
-                pull_request = end.split()[0]
-                index = len(pull_requests)
-                worktree = f'e3sm_submodules/{index + 1:02d}_{pull_request}'
-                pull_requests.append(
-                    {
-                        'hash': hash,
-                        'component': component,
-                        'pull_request': pull_request,
-                        'worktree': worktree,
-                    }
-                )
-            else:
-                print(f'Warning: skipping commit with no "#" for PR:\n{line}')
+        if component is None:
+            continue
+        hash = line.split(' ')[0]
+        pull_request: Optional[str]
+        if '#' in line:
+            end = line.split('#')[-1].replace('(', ' ').replace(')', ' ')
+            pull_request = end.split()[0]
+        else:
+            # a merge made with ``git merge`` and pushed, rather than with
+            # GitHub's merge button, may not have a PR number in its message
+            pull_request = _find_pull_request(repo_url, hash)
+        if pull_request is None:
+            print(
+                f'Warning: no PR found for this merge, so it will be tested '
+                f'and listed by its hash:\n{line}'
+            )
+            name = hash
+            url = f'{repo_url}/commit/{hash}'
+        else:
+            name = pull_request
+            url = f'{repo_url}/pull/{pull_request}'
+        index = len(pull_requests)
+        pull_requests.append(
+            {
+                'hash': hash,
+                'component': component,
+                'name': name,
+                'url': url,
+                'worktree': f'e3sm_submodules/{index + 1:02d}_{name}',
+            }
+        )
 
     # the new hash needs its own test only if it differs from the last
     # commit of interest (the final PR merge, or current if there are none)
@@ -124,9 +140,9 @@ def submit_e3sm_tests(
     print(f'00: {current} {current_submodule} (current)')
     for index, data in enumerate(pull_requests):
         hash = data['hash']
-        pull_request = data['pull_request']
+        name = data['name']
         component = data['component']
-        print(f'{index + 1:02d}: {hash} {pull_request} ({component})')
+        print(f'{index + 1:02d}: {hash} {name} ({component})')
     index = len(pull_requests)
     if test_new:
         print(f'{index + 1:02d}: {new} {new_submodule} (new)')
@@ -158,9 +174,9 @@ def submit_e3sm_tests(
 
     for index, data in enumerate(pull_requests):
         worktree = data['worktree']
-        pull_request = data['pull_request']
-        workdir = f'{work_base}/{index + 1:02d}_{pull_request}_{previous}'
-        print(f'{index + 1:02d}: {pull_request}\n')
+        name = data['name']
+        workdir = f'{work_base}/{index + 1:02d}_{name}_{previous}'
+        print(f'{index + 1:02d}: {name}\n')
         job_id = setup_and_submit(
             load_script=load_script,
             setup_command=setup_command,
@@ -170,7 +186,7 @@ def submit_e3sm_tests(
             dependency=job_id,
         )
         baseline = workdir
-        previous = pull_request
+        previous = name
 
     if test_new:
         index = len(pull_requests)
@@ -240,6 +256,34 @@ def setup_and_submit(
     return job_id
 
 
+def _find_pull_request(repo_url, hash):
+    """
+    Look up, through the GitHub API, the number of the pull request that was
+    merged by the given merge commit, returning None if there isn't one or
+    the lookup fails
+    """
+    prefix = 'https://github.com/'
+    if not repo_url.startswith(prefix):
+        return None
+    repo = repo_url[len(prefix) :].strip('/').removesuffix('.git')
+    api_url = f'https://api.github.com/repos/{repo}/commits/{hash}/pulls'
+    request = urllib.request.Request(
+        api_url, headers={'Accept': 'application/vnd.github+json'}
+    )
+    try:
+        with urllib.request.urlopen(request, timeout=30) as response:
+            pulls = json.load(response)
+    except (OSError, ValueError) as error:
+        print(f'Warning: looking up the PR for {hash} failed: {error}')
+        return None
+
+    for pull in pulls:
+        merge_commit = pull.get('merge_commit_sha') or ''
+        if merge_commit.startswith(hash):
+            return str(pull['number'])
+    return None
+
+
 def _resolve_commit(worktree, ref):
     commands = (
         f'cd {shlex.quote(worktree)} && '
@@ -307,9 +351,9 @@ def print_pr_description(submodule, repo_url, current, new, pull_requests):
         f'indicates bit-for-bit with previous PR in the list):'
     )
     for data in pull_requests:
-        pull_request = data['pull_request']
+        url = data['url']
         component = data['component']
-        print(f'- [ ]  ({component}) {repo_url}/pull/{pull_request}')
+        print(f'- [ ]  ({component}) {url}')
     print('\n')
 
 

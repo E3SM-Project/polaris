@@ -103,15 +103,24 @@ def run_report(
         config.omega_repo,
     ).splitlines()
     results = []
+    failures: List[
+        Tuple[Row, Optional[report.BaselineComparison], List[str]]
+    ] = []
     missing = []
     for row in rows:
         try:
-            results.append(_row_result(config, manifest, row, changed))
+            result, comparison, ctests = _row_result(
+                config, manifest, row, changed
+            )
         except ReportError as exc:
             if not_run is None:
                 missing.append(f'  {row.name}: {exc}')
             else:
                 results.append(report.not_run(row, not_run, COLUMNS))
+                failures.append((row, None, []))
+        else:
+            results.append(result)
+            failures.append((row, comparison, ctests))
     if missing:
         raise ReportError(
             'These rows have no results to report:\n'
@@ -120,11 +129,15 @@ def run_report(
             'reason if they cannot be run.'
         )
 
+    # the table, the tasks and CTests that failed, then each row's block
+    table, *blocks = report.format_rows(COLUMNS, results)
+    failures_section = report.format_failures(failures)
     text = report.assemble(
         heading=f'Testing on {" and ".join(machines)}',
         marker=make_marker(manifest, report.get_marker_entries(results)),
-        sections=[describe_commits(manifest)]
-        + report.format_rows(COLUMNS, results),
+        sections=[describe_commits(manifest), table]
+        + ([failures_section] if failures_section else [])
+        + blocks,
         requester=manifest.requester,
         requester_notes=manifest.notes,
         notes=notes,
@@ -208,8 +221,13 @@ def describe_commits(manifest: Manifest) -> str:
     return text
 
 
-def _row_result(config, manifest, row: Row, changed) -> RowResult:
-    """A row's line and the files its jobs wrote"""
+def _row_result(
+    config, manifest, row: Row, changed
+) -> Tuple[RowResult, report.BaselineComparison, List[str]]:
+    """
+    A row's line and the files its jobs wrote, with how its suite compares
+    with the baseline and the names of the CTests that failed
+    """
     row_dir = get_row_dir(config, manifest, row)
     try:
         state = read_state(row_dir)
@@ -259,10 +277,15 @@ def _row_result(config, manifest, row: Row, changed) -> RowResult:
         new_warnings = None
         warnings_cell = 'not compared'
 
+    comparison = report.compare_with_baseline(
+        state.pr_work_dir, SUITE, state.baseline_work_dir
+    )
+    ctests = report.failed_ctests(state.pr_build_dir)
+
     marker: Dict[str, Any] = {'new_warnings': new_warnings}
     if state.no_baseline_reason is not None:
         marker['no_baseline'] = state.no_baseline_reason
-    return RowResult(
+    result = RowResult(
         row=row,
         status='complete',
         result='pass'
@@ -276,3 +299,4 @@ def _row_result(config, manifest, row: Row, changed) -> RowResult:
         ),
         marker=marker,
     )
+    return result, comparison, ctests

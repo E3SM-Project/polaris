@@ -510,6 +510,25 @@ class CosineBell(Task):
         self._setup_steps(self.refinement)
 ```
 
+A task that does not apply to the machine or model being set up says so in
+`configure()` by setting `self.skip_reason`.  Setup then leaves the task out,
+printing the reason, and the rest of a suite is set up as usual.  The
+baroclinic channel `threads` task does this when Omega runs on GPUs:
+
+```python
+from polaris import Task
+from polaris.ocean.model import omega_runs_on_gpus
+
+
+class Threads(Task):
+    def configure(self):
+        super().configure()
+        if omega_runs_on_gpus(self.config, self.component):
+            self.skip_reason = (
+                'OpenMP threads are not used when Omega runs on GPUs'
+            )
+```
+
 The `configure()` method is not the right place for adding steps for the first
 time.  Steps should be added during init if possible and, if their names and
 locations rely on config options, they should be removed and re-added in

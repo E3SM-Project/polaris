@@ -10,14 +10,25 @@ What you ran, where, and whether it passed.
 - Name the suite, the machine and the compiler. One sentence.
 - Give the work directory or the baseline you compared against.
 - Say the result. Bit-for-bit, passed, or the numbers if they matter.
-- Use a table only when there are several runs to compare.
+- Use a table only when there are several runs to compare. A planned run
+  that could not run stays in, saying why.
+- Name the task that failed or differed. Say what caused it only if you
+  checked; otherwise say the cause is not known.
+- Long output, logs and paths beyond the one that matters go in a
+  `<details>` fold, not above it.
+- For testing outside Polaris tasks and suites, give the commit or branch
+  tested and the paths to the output, and say in a sentence or two what
+  the test checks and why it is not a Polaris task.
 - Do not restate in prose what a table or a pasted result already shows.
 - Failures unrelated to the branch go under their own heading at the end.
 
-## Calibration
+## Length
 
-Measured over Testing comments from 2023, before any agent wrote here.
-They run 21 to 43 words. A recent agent-written one ran 606 words.
+Aim for what colleagues wrote before agents did. Testing comments run 21
+to 43 words. Past that, cut. A recent agent-written one ran 606 words.
+
+These figures come from Testing comments from 2023. Use them as they
+are; there is no need to measure again.
 
 ## Enough
 

@@ -1247,9 +1247,16 @@ def test_database_forcing_streams_read_the_initial_condition():
 class _FakeForwardStep:
     """Stands in for the forward step StatsAnalysis reads from."""
 
-    def __init__(self, path='WORK/short', stage=None):
+    def __init__(self, path='WORK/short', stage=None, config=None):
         self.path = path
         self.stage = stage
+        self.config = config
+
+    def get_stage(self):
+        """The stage, or one from config, as ``Forward.get_stage()``"""
+        if self.stage is not None:
+            return self.stage
+        return ForwardStage.from_config(self.config)
 
 
 class _RecordingStatsAnalysis(StatsAnalysis):
@@ -1283,7 +1290,7 @@ def _stats_step(model, stage=None, stats_interval='0001_00:00:00'):
         config.set('realistic_global_forward', option, value)
     step = _RecordingStatsAnalysis(
         component=component,
-        forward_step=_FakeForwardStep(stage=stage),
+        forward_step=_FakeForwardStep(stage=stage, config=config),
         config=cast(Any, config),
     )
     return step, step.added

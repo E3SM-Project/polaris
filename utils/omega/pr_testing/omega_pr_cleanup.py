@@ -81,6 +81,7 @@ def run_cleanup(
         cited,
         keep_days,
         _polaris_hashes(config),
+        is_active=pr_test_cleanup.find_job_check(),
     )
     if delete:
         pr_test_cleanup.remove(entries)

@@ -1,4 +1,5 @@
 import json
+from typing import List
 
 import pr_test_report as report
 from pr_test_rows import Row
@@ -179,3 +180,88 @@ def test_format_bit_for_bit_rows_not_compared_share_a_reason():
         'intel, mpich (Omega), because it was not run: no node hours.'
     ) in text
     assert text.count(reason) == 1
+
+
+def test_failed_ctests(tmp_path):
+    (tmp_path / 'ctests.log').write_text(
+        ' 2/3 Test  #2: EOS_TEST .....***Failed    1.20 sec\n'
+        '\n'
+        '33% tests passed, 2 tests failed out of 3\n'
+        '\n'
+        'The following tests FAILED:\n'
+        '\t  2 - EOS_TEST (Failed)\n'
+        '\t  3 - HALO_TEST (SEGFAULT)\n'
+        'Errors while running CTest\n',
+        encoding='utf-8',
+    )
+
+    assert report.failed_ctests(str(tmp_path)) == ['EOS_TEST', 'HALO_TEST']
+
+
+def test_failed_ctests_all_passed(tmp_path):
+    (tmp_path / 'ctests.log').write_text(
+        '100% tests passed, 0 tests failed out of 3\n', encoding='utf-8'
+    )
+
+    assert report.failed_ctests(str(tmp_path)) == []
+    assert report.failed_ctests(str(tmp_path / 'missing')) == []
+
+
+def test_format_failures_names_tasks_and_ctests():
+    cpu = Row('pm-cpu', 'gnu', 'mpich', model='omega')
+    gpu = Row('pm-gpu', 'gnugpu', 'mpich', model='omega')
+    skipped = Row('pm-cpu', 'intel', 'mpich', model='omega')
+    rows = [
+        (
+            cpu,
+            report.BaselineComparison(
+                'omega_pr',
+                differ={'qu240': ['temperature']},
+                did_not_run=['seamount'],
+            ),
+            ['EOS_TEST'],
+        ),
+        (
+            gpu,
+            report.BaselineComparison(
+                'omega_pr',
+                differ={'qu240': ['temperature'], 'frazil': ['salinity']},
+                failed_in_baseline=['frazil/warm'],
+            ),
+            ['EOS_TEST'],
+        ),
+        (skipped, None, []),
+    ]
+
+    text = report.format_failures(rows)
+
+    assert text is not None
+    assert text.startswith('### Failures and differences\n\n')
+    assert (
+        '**1 task failed:**\n\n- `seamount`: on pm-cpu, gnu, mpich (Omega)'
+    ) in text
+    assert '**2 tasks differ from the baseline:**\n\n' in text
+    assert '- `qu240`: on every row compared\n' in text
+    assert '- `frazil`: on pm-gpu, gnugpu, mpich (Omega)' in text
+    assert (
+        '**1 task failed in the baseline, so there is nothing to compare '
+        'with:**\n\n- `frazil/warm`: on pm-gpu, gnugpu, mpich (Omega)'
+    ) in text
+    assert '**1 CTest failed:**\n\n- `EOS_TEST`: on every row compared' in (
+        text
+    )
+    assert 'temperature' not in text
+
+
+def test_format_failures_nothing_to_report():
+    row = Row('chrysalis', 'intel', 'openmpi', model='omega')
+    no_ctests: List[str] = []
+    rows = [
+        (
+            row,
+            report.BaselineComparison('omega_pr', bit_for_bit=['a']),
+            no_ctests,
+        )
+    ]
+
+    assert report.format_failures(rows) is None

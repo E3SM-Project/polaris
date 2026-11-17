@@ -6,6 +6,7 @@ build them with ``create_test``, and summarize their ``TestStatus`` files
 import os
 import re
 import shlex
+import shutil
 import subprocess
 from typing import Dict, List, Optional, Tuple
 
@@ -88,7 +89,8 @@ def set_up_coupled_tests(
     """
     Set up and build the coupled tests with ``create_test --no-run``, in a
     clean login shell with the machine's CIME environment loaded, unless an
-    earlier setup already did
+    earlier setup already built them.  A case an earlier setup could not
+    build is removed and built again from scratch.
 
     Parameters
     ----------
@@ -119,6 +121,16 @@ def set_up_coupled_tests(
     case_dirs = [
         get_case_dir(coupled_dir, test, row, test_id) for test in tests
     ]
+    for case_dir in case_dirs:
+        if (
+            os.path.exists(case_dir)
+            and phase_status(case_dir, 'MODEL_BUILD') != 'PASS'
+        ):
+            print(
+                f'Removing {case_dir}, which did not build, to build it again',
+                flush=True,
+            )
+            shutil.rmtree(case_dir)
     new_tests = [
         test
         for test, case_dir in zip(tests, case_dirs, strict=True)
@@ -154,7 +166,8 @@ def set_up_coupled_tests(
         else:
             print(
                 f'{test} did not build, so it will not be submitted; see '
-                f'{os.path.join(case_dir, _TEST_STATUS)}',
+                f'{os.path.join(case_dir, _TEST_STATUS)}.  Running setup '
+                f'again before submitting builds it again from scratch.',
                 flush=True,
             )
     return case_dirs, jobs
@@ -194,7 +207,8 @@ def summarize_coupled_tests(
         Each test's case directory
 
     jobs : list of pr_test_setup.Job
-        The cases' jobs
+        The cases' jobs, whose ids are looked up in the cases'
+        ``CaseStatus`` too, for jobs the tester submitted by hand
 
     system : str
         The machine's job scheduler
@@ -214,7 +228,7 @@ def summarize_coupled_tests(
         Where the cases are, the CIME environment and each test's
         ``TestStatus``, pasted unchanged
     """
-    job_ids = {job.work_dir: job.job_id for job in jobs}
+    jobs_by_dir = {job.work_dir: job for job in jobs}
     failed = []
     sections = []
     for case_dir in case_dirs:
@@ -227,12 +241,24 @@ def summarize_coupled_tests(
             )
         built = phase_status(case_dir, 'MODEL_BUILD') == 'PASS'
         run = phase_status(case_dir, 'RUN')
-        job_id = job_ids.get(case_dir)
+        job = jobs_by_dir.get(case_dir)
+        if job is None:
+            job = Job(
+                name=name,
+                work_dir=case_dir,
+                script='case.submit',
+                env_script=env_script,
+            )
+        job_id = setup_tools.get_job_id(job)
         if built and run in [None, 'PEND']:
-            if job_id is None or is_job_active(job_id, system):
+            if job_id is None:
                 raise ReportError(
-                    f'the coupled test {name} has not finished'
-                    f'{"" if job_id is None else f" (job {job_id})"}'
+                    f'the coupled test {name} has not finished, and its '
+                    f'CaseStatus shows no job submitted'
+                )
+            if is_job_active(job_id, system):
+                raise ReportError(
+                    f'the coupled test {name} has not finished (job {job_id})'
                 )
         phases = [phase for status, _, phase in lines if status != 'PASS']
         if built and run is None:

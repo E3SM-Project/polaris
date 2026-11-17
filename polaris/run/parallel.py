@@ -16,10 +16,9 @@ holds resources back for a large step that cannot fit, on the argument that
 the largest steps are started early by the stable order; if starvation shows
 up in practice, that is the point to add a rule, with evidence for it.
 
-A step's width is decided once, from the whole allocation, exactly as
-`polaris serial` decides it, and the loop waits until that much is free.
-Handing a step whatever happened to be free would make an MPI step's
-decomposition depend on scheduling timing, and its results with it.
+A step starts once its own width, the geometric mean of its target and its
+minimum, is free, and it is given everything free up to its target.
+:py:mod:`polaris.run.width` says why.
 """
 
 import argparse
@@ -70,6 +69,7 @@ from polaris.run.serial import (
     start_time_color,
     success_str,
 )
+from polaris.run.width import StepWidths
 from polaris.validate import merge_diff_summary
 
 
@@ -155,7 +155,11 @@ def _run(suite, suite_name, component, logger, events, work_dir, quiet):
     # report is what the sizes have to be taken from
     nodes = read_allocation(component, logger)
     available = _credit_memory(component.get_available_resources(), nodes)
+    to_run = [node.step for node in graph.nodes.values() if not node.satisfied]
+    widths = StepWidths()
+    widths.record_widths(to_run)
     _size_steps(graph, available)
+    widths.record_targets(to_run, available)
 
     support = component.parallel_system.placement_support
     pool = ResourcePool(
@@ -203,7 +207,7 @@ def _run(suite, suite_name, component, logger, events, work_dir, quiet):
     )
     started = time.time()
     outcomes, mismatched = _loop(
-        graph, pool, steps, logger, events, work_dir, quiet, tracker
+        graph, pool, steps, logger, events, work_dir, quiet, tracker, widths
     )
     elapsed = time.time() - started
 
@@ -336,8 +340,20 @@ def _local_node(nodes) -> str:
     return nodes[0].name if nodes else ''
 
 
-def _loop(graph, pool, steps, logger, events, work_dir, quiet, tracker=None):
+def _loop(
+    graph,
+    pool,
+    steps,
+    logger,
+    events,
+    work_dir,
+    quiet,
+    tracker=None,
+    widths=None,
+):
     """Start what fits, wait for what finishes, and keep going."""
+    if widths is None:
+        widths = StepWidths()
     succeeded = {path for path, node in graph.nodes.items() if node.satisfied}
     for path in succeeded:
         events.record('step_skipped', step=path, reason='already satisfied')
@@ -355,6 +371,7 @@ def _loop(graph, pool, steps, logger, events, work_dir, quiet, tracker=None):
             started_any = _start_what_fits(
                 graph,
                 pool,
+                widths,
                 waiting,
                 running,
                 succeeded,
@@ -431,6 +448,7 @@ def _abandon(running, logger, events) -> None:
 def _start_what_fits(
     graph,
     pool,
+    widths,
     waiting,
     running,
     succeeded,
@@ -447,7 +465,7 @@ def _start_what_fits(
             continue
         if not node.requires <= succeeded:
             continue
-        reservation = pool.reserve(node.step)
+        reservation = widths.reserve(pool, node.step)
         if reservation is None:
             if blocked.get(path) != 'resources':
                 blocked[path] = 'resources'
@@ -472,7 +490,11 @@ def _start_what_fits(
             log=log_filename,
         )
         if not quiet:
-            logger.info(f'  * {path}: started on {list(reservation.cores)}')
+            cores = sum(len(cores) for cores in reservation.cores.values())
+            logger.info(
+                f'  * {path}: started on {list(reservation.cores)} with '
+                f'{cores} cores'
+            )
     return started_any
 
 

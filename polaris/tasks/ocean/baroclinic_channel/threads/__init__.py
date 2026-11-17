@@ -1,4 +1,5 @@
 from polaris import Task as Task
+from polaris.ocean.model import omega_runs_on_gpus
 from polaris.tasks.ocean.baroclinic_channel.forward import Forward as Forward
 from polaris.tasks.ocean.baroclinic_channel.validate import (
     Validate as Validate,
@@ -57,3 +58,14 @@ class Threads(Task):
                 component=component, step_subdirs=subdirs, indir=self.subdir
             )
         )
+
+    def configure(self):
+        """
+        Leave the task out when Omega runs on GPUs, where OpenMP threads
+        are not used
+        """
+        super().configure()
+        if omega_runs_on_gpus(self.config, self.component):
+            self.skip_reason = (
+                'OpenMP threads are not used when Omega runs on GPUs'
+            )

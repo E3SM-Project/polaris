@@ -444,8 +444,8 @@ def test_assembled_hpga_is_the_anchor_on_the_exact_set(
     residual completely: it enters at one interface, as one number, from the
     state rather than from the discretization.
 
-    The scheme still beats ``PressureGradCentered`` on the same state by 21x to
-    1049x over this sweep.  The floor of 15x is below the measured minimum
+    The scheme still beats ``PressureGradCentered`` on the same state by 316x
+    to 886x over this sweep.  The floor of 15x is below the measured minimum
     rather than at it.
     """
     ds = build_state(LINEAR_VARIANT, horiz_res, vert_res, tilt)
@@ -723,11 +723,11 @@ def test_the_anchor_is_the_midpoint_rules_partition_dependence():
     Both Polaris and Omega turn pressure into geometric height with a midpoint
     rule, ``rho0 * SpecVol * PseudoThickness`` summed over layers.  Against a
     high-order integral of the same specific volume over the same pressure
-    range, that truncates each 3500 m column by about 1.1 mm at 256 m layers.
+    range, that truncates each 3523 m column by about 1.1 mm at 256 m layers.
 
     ``Init`` holds ``bottomDepth`` at the prescribed bathymetry and solves for
     the ``BottomPressure`` that reproduces it, so both columns' midpoint sums
-    come out at exactly 3500 m and it is the *pressures* that differ.  Under
+    come out at exactly 3523 m and it is the *pressures* that differ.  Under
     tilt the two columns' interfaces fall in different places, so their
     truncation errors differ -- and that difference is the whole anchor.
 
@@ -776,7 +776,7 @@ def test_the_anchor_is_the_midpoint_rules_partition_dependence():
         truncation[icell] = midpoint_sum - exact / Gravity
 
     # each column is truncated by ~1.1 mm, and both midpoint sums land on the
-    # prescribed 3500 m, so the columns differ only through the truncation
+    # prescribed 3523 m, so the columns differ only through the truncation
     assert -2.0e-3 < truncation[0] < -5.0e-4, (
         f'midpoint-rule truncation is {truncation[0]:.3e} m, not the ~1.1 mm '
         'this test was written against'

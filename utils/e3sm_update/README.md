@@ -43,3 +43,8 @@ help of a config file similar to `example.cfg`.
    baseline.  Each job waits for the job that produces its baseline to finish
    (`--dependency=afterany`), and is killed if that job no longer exists
    (`--kill-on-invalid-dep=yes`).
+
+   A merge made with `git merge` and pushed, rather than with GitHub's merge
+   button, may not have a PR number in its message.  The utility looks the PR
+   up through the GitHub API, and if that fails, it still tests the merge and
+   lists it by its hash.

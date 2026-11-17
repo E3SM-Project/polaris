@@ -137,6 +137,25 @@ class RestartStep(Forward):
         self._add_restart_files()
         super().setup()
 
+    def get_stage(self):
+        """
+        The stage from config with the task's run duration and output
+        interval, rebuilt every time, as ``Forward`` does when it has no
+        stage, so that a user's config changes after setup still take effect
+
+        Returns
+        -------
+        ForwardStage
+            The run settings for this step.
+        """
+        stage = ForwardStage.from_config(self.config, name=self.name)
+        return dataclasses.replace(
+            stage,
+            run_duration=self.run_duration,
+            output_interval=self.output_interval,
+            restart_interval=self.run_duration,
+        )
+
     def dynamic_model_config(self, at_setup):
         """
         Build this step's stage from config with the task's run duration and
@@ -150,15 +169,7 @@ class RestartStep(Forward):
             Whether this is being run during setup of the step, as opposed to
             at run time.
         """
-        # rebuilt every time, as Forward does when it has no stage, so that a
-        # user's config changes after setup still take effect
-        stage = ForwardStage.from_config(self.config, name=self.name)
-        self.stage = dataclasses.replace(
-            stage,
-            run_duration=self.run_duration,
-            output_interval=self.output_interval,
-            restart_interval=self.run_duration,
-        )
+        self.stage = self.get_stage()
 
         super().dynamic_model_config(at_setup=at_setup)
 

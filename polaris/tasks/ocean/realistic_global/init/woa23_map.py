@@ -1,7 +1,5 @@
 from .lat_lon_map import LatLonMapStep
 
-WOA23_EXTRAP_FILENAME = 'woa23_decav_0.25_jan_extrap.nc'
-
 
 class Woa23MapStep(LatLonMapStep):
     """
@@ -27,7 +25,7 @@ class Woa23MapStep(LatLonMapStep):
             The subdirectory for the step.
 
         extrapolate_step : polaris.Step
-            The step that produces ``woa23_decav_0.25_jan_extrap.nc``.
+            The step that produces the extrapolated WOA23 product.
 
         cull_mesh_step : polaris.tasks.e3sm.init.topo.cull.cull.CullMeshStep
             The step that produces the culled ocean mesh files.
@@ -41,9 +39,18 @@ class Woa23MapStep(LatLonMapStep):
             name='woa23_map',
             subdir=subdir,
             source_step=extrapolate_step,
-            source_target=WOA23_EXTRAP_FILENAME,
+            # the filename depends on the configured month, so it is set in
+            # setup()
+            source_target=None,
             source_filename='woa23_extrap.nc',
             source_mesh_name='woa23_0.25deg',
             cull_mesh_step=cull_mesh_step,
             mesh_name=mesh_name,
         )
+
+    def setup(self):
+        """
+        Link the extrapolated WOA23 product for the configured month.
+        """
+        self.source_target = self.source_step.output_filename
+        super().setup()

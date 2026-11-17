@@ -74,6 +74,11 @@ class Task:
         but not over an explicit ``--cached`` or a suite's ``cached`` lines.
         Add step subdirs here during ``__init__`` rather than setting
         ``step.cached = False`` directly.
+
+    skip_reason : str or None
+        Why this task does not apply to the machine or model being set up,
+        if it does not.  A task sets this in ``configure()``, and setup then
+        leaves the task out and says why.
     """
 
     def __init__(self, component, name, subdir=None, indir=None):
@@ -114,6 +119,7 @@ class Task:
         self.step_symlinks = dict()
         self.steps_to_run = list()
         self.free_running_steps: set[str] = set()
+        self.skip_reason: str | None = None
 
         # these will be set during setup, dummy values for now
         self.work_dir = ''
@@ -133,6 +139,9 @@ class Task:
         package.  If a task overrides this method, it should assume that
         the ``<self.name>.cfg`` file in its package has already been added
         to the config options prior to calling ``configure()``.
+
+        A task that does not apply to the machine or model being set up
+        sets ``skip_reason`` here, and setup leaves it out.
         """
         pass
 

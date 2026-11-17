@@ -1,6 +1,7 @@
 from polaris import Task
 from polaris.mesh.base import add_spherical_base_mesh_step
 from polaris.ocean.convergence import get_resolution_for_task
+from polaris.ocean.model import omega_runs_on_gpus
 from polaris.tasks.ocean.cosine_bell.forward import Forward
 from polaris.tasks.ocean.cosine_bell.init import Init
 from polaris.tasks.ocean.cosine_bell.validate import Validate
@@ -20,6 +21,7 @@ class Decomp(Task):
         refinement_factor,
         refinement,
         proc_counts,
+        gpu_counts,
     ):
         """
         Create the convergence test
@@ -46,6 +48,10 @@ class Decomp(Task):
 
         proc_counts : list of int
             The number of processors to run each step on
+
+        gpu_counts : list of int
+            The number of GPUs to run each step on instead, one per MPI
+            task, when Omega runs on GPUs
         """
         task_subdir = f'spherical/{prefix}/cosine_bell/decomp'
         name = f'{prefix}_cosine_bell_decomp'
@@ -79,8 +85,9 @@ class Decomp(Task):
         self.add_step(base_mesh_step, symlink=f'base_mesh/{mesh_name}')
         self.add_step(init_step, symlink=f'init/{mesh_name}')
 
+        self.gpu_counts = dict()
         step_names = []
-        for procs in proc_counts:
+        for procs, gpus in zip(proc_counts, gpu_counts, strict=True):
             name = f'{procs}proc'
             step_names.append(name)
             subdir = f'{task_subdir}/{name}'
@@ -98,9 +105,21 @@ class Decomp(Task):
             step.min_tasks = procs
             step.set_shared_config(config, link=config_filename)
             self.add_step(step)
+            self.gpu_counts[name] = gpus
 
         self.add_step(
             Validate(
                 component=component, step_subdirs=step_names, indir=task_subdir
             )
         )
+
+    def configure(self):
+        """
+        Run each step on its GPU count instead when Omega runs on GPUs
+        """
+        super().configure()
+        if omega_runs_on_gpus(self.config, self.component):
+            for name, gpus in self.gpu_counts.items():
+                step = self.steps[name]
+                step.ntasks = gpus
+                step.min_tasks = gpus

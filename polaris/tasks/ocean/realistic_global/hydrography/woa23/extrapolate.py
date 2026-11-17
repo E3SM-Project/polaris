@@ -6,13 +6,13 @@ from scipy.signal import convolve2d
 from polaris import Step
 from polaris.cf import add_cf_conventions, drop_dangling_references
 
+from .month import get_month_abbreviation, get_woa23_month
+
 
 class ExtrapolateStep(Step):
     """
     A step for extrapolating WOA23 into missing ocean, land and ice regions.
     """
-
-    output_filename = 'woa23_decav_0.25_jan_extrap.nc'
 
     def __init__(self, component, subdir, combine_step, combine_topo_step):
         """
@@ -42,19 +42,27 @@ class ExtrapolateStep(Step):
         )
         self.combine_step = combine_step
         self.combine_topo_step = combine_topo_step
-        self.add_output_file(filename=self.output_filename)
-        self.add_cf_check(self.output_filename)
         # this is an expensive step so cache it by default
         self.default_cached = True
 
+    @property
+    def output_filename(self):
+        """
+        The name of the extrapolated WOA23 file for the configured month.
+        """
+        month_name = get_month_abbreviation(get_woa23_month(self.config))
+        return f'woa23_decav_0.25_{month_name}_extrap.nc'
+
     def setup(self):
         """
-        Set up input files for the step.
+        Set up input and output files for the step.
         """
         super().setup()
         self.add_input_file(
             filename='woa.nc',
-            work_dir_target=f'{self.combine_step.path}/woa_combined.nc',
+            work_dir_target=(
+                f'{self.combine_step.path}/{self.combine_step.output_filename}'
+            ),
         )
         self.add_input_file(
             filename='topography.nc',
@@ -63,6 +71,8 @@ class ExtrapolateStep(Step):
                 f'{self.combine_topo_step.combined_filename}'
             ),
         )
+        self.add_output_file(filename=self.output_filename)
+        self.add_cf_check(self.output_filename)
 
     def run(self):
         """
@@ -96,10 +106,29 @@ class ExtrapolateStep(Step):
         logger.info('Vertically extrapolating into land and grounded ice')
         self._extrap_vert(
             in_filename='woa_extrap_horiz.nc',
-            out_filename=self.output_filename,
+            out_filename='woa_extrap.nc',
             use_ocean_mask=False,
         )
+
+        self._write_product(in_filename='woa_extrap.nc')
         logger.info(f'Wrote {self.output_filename}')
+
+    def _write_product(self, in_filename):
+        """
+        Write the extrapolated product in single precision with the month it
+        represents.
+
+        Parameters
+        ----------
+        in_filename : str
+            The fully extrapolated file to read.
+        """
+        with xr.open_dataset(in_filename, decode_times=False) as ds:
+            ds_out = ds.load()
+        for field_name in ['ct_an', 'sa_an']:
+            ds_out[field_name] = ds_out[field_name].astype(np.float32)
+        ds_out.attrs['month'] = get_woa23_month(self.config)
+        write_netcdf(ds_out, self.output_filename)
 
     @staticmethod
     def _make_3d_ocean_mask():
@@ -144,8 +173,7 @@ class ExtrapolateStep(Step):
         use_ocean_mask : bool
             Whether to restrict filling to the remapped ocean mask.
         """
-        with xr.open_dataset(in_filename, decode_times=False) as ds:
-            ds_out = ds.load()
+        ds_out = _load_in_double_precision(in_filename)
 
         ocean_mask = None
         if use_ocean_mask:
@@ -188,8 +216,7 @@ class ExtrapolateStep(Step):
         use_ocean_mask : bool
             Whether to restrict filling to the remapped ocean mask.
         """
-        with xr.open_dataset(in_filename, decode_times=False) as ds:
-            ds_out = ds.load()
+        ds_out = _load_in_double_precision(in_filename)
 
         ocean_mask = None
         if use_ocean_mask:
@@ -307,6 +334,28 @@ class ExtrapolateStep(Step):
         coordinates = np.arange(-1, 2)
         x, y = np.meshgrid(coordinates, coordinates)
         return np.exp(-0.5 * (x**2 + y**2))
+
+
+def _load_in_double_precision(filename):
+    """
+    Load a WOA23 dataset with temperature and salinity in double precision so
+    extrapolation does not accumulate single-precision round-off.
+
+    Parameters
+    ----------
+    filename : str
+        The file to read.
+
+    Returns
+    -------
+    ds : xarray.Dataset
+        The loaded dataset.
+    """
+    with xr.open_dataset(filename, decode_times=False) as ds:
+        ds = ds.load()
+    for field_name in ['ct_an', 'sa_an']:
+        ds[field_name] = ds[field_name].astype(np.float64)
+    return ds
 
 
 def _extrap_with_halo(field, kernel, valid, lon_with_halo, lon_no_halo):

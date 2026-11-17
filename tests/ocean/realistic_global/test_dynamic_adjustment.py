@@ -542,10 +542,11 @@ def test_forward_setup_declares_both_ends_of_the_restart_chain():
 
 
 def test_forward_setup_declares_no_restart_for_a_lone_stage():
-    # the simple `short` forward run is not part of a chain
+    # the simple `short` forward run is not part of a chain, so its only
+    # output is its global statistics
     step = _recording_forward_setup(ForwardStage(name='short'))
     assert step.recorded_inputs == []
-    assert step.recorded_outputs == []
+    assert step.recorded_outputs == ['global_stats.nc']
 
 
 def test_forward_setup_declares_omegas_restart_files():

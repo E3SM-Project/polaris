@@ -43,6 +43,9 @@ These instructions apply to the whole repository unless a deeper
 - To rerun a step, for example to test a code change against the same
   inputs, delete its `polaris_step_complete.log` first. Otherwise the
   run "succeeds" without running any of the new code.
+- Before saying a change is tested, confirm that the new code actually
+  ran, for example by finding output it produces in the step's log.
+  A task that passes may never have reached it.
 
 ## Python style
 
@@ -87,8 +90,12 @@ These instructions apply to the whole repository unless a deeper
 - Start with a paragraph summarizing what the pull request or issue is
   about, then use sections for the detail.
 - Follow `.github/pull_request_template.md`: the description goes at
-  the top, keep only the checklist lines that apply, and use closing
-  keywords for any issue the pull request fixes.
+  the top, and use closing keywords for any issue the pull request fixes.
+- Never tick checklist boxes on the developer's behalf. Remove a
+  checklist line only after the developer agrees that it does not apply.
+- Name the repository in every reference to an issue or pull request
+  outside Polaris, such as `E3SM-Project/Omega#123`. A bare number links
+  to Polaris's own issue or pull request with that number.
 - Do not list individual commits in a pull request description. The
   commits are already on the pull request; describe what the change
   accomplishes as a whole instead.
@@ -104,8 +111,9 @@ These rules apply to anything a colleague reads: GitHub comments, pull
 request descriptions, issues, plans, design notes. Not code comments or
 commit messages, where a reader who wants the mechanism is already in the
 right place. Per-artifact rules and worked examples are in
-`.claude/skills/<artifact>/SKILL.md`, as plain markdown. Claude Code loads
-the matching one automatically; other agents should read it before writing.
+`.agents/skills/<artifact>/SKILL.md`, as plain markdown. Agents that do not
+load skills by themselves should read the matching one before writing.
+(`.claude/skills` is a link to the same directory.)
 
 Assume that the audience or readership is a polaris developer with
 familiarity at a high level with the overall structure and intention of the
@@ -137,13 +145,13 @@ structure is an improvement on it. The problem is length.
 - **One document, one decision.** Anything still relevant after this merges
   is an issue, not a comment.
 
-Sign anything posted to GitHub on someone's behalf:
+Sign anything posted to GitHub on someone's behalf: pull request
+descriptions, issues and comments. Put the signature at the end of a pull
+request description, below a line holding only `---`, and on its own line
+at the top of anything else:
 
 ```
----
-
-*Posted by <agent> on @<user>'s behalf. The testing, analysis and wording
-above are AI-authored; please check them accordingly.*
+*Posted by <agent> on @<user>'s behalf*
 ```
 
 That signature is only accurate when the user gave no significant input on
@@ -151,8 +159,6 @@ the content. When the text grew out of the user's own draft or substantial
 direction, sign it instead with:
 
 ```
----
-
 *Drafted by @<user> and <agent> together*
 ```
 

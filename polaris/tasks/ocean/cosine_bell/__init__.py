@@ -72,6 +72,7 @@ def add_cosine_bell_tasks(component):
                 refinement_factor=single_refinement,
                 refinement='both',
                 proc_counts=[12, 24],
+                gpu_counts=[1, 2],
             )
         )
 

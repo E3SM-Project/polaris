@@ -3,8 +3,15 @@
 # Ice shelf
 
 The framework defines an `IceShelfTask` class that provides methods common
-to tasks that feature ice shelf cavities. At present, the only method included
-sets up ssh adjustment steps, described in ocean-ssh-adjustment.
+to tasks that feature ice shelf cavities.  It sets up ssh adjustment steps,
+described in {ref}`ocean-ssh-adjustment`.
+
+Ice-shelf tasks need the land-ice options in MPAS-Ocean from
+[E3SM-Project/E3SM#8047](https://github.com/E3SM-Project/E3SM/pull/8047),
+which are on the FAnSSIE branch but not yet in E3SM-Project.  Setting up an
+ice-shelf task with an MPAS-Ocean build that lacks them fails with an error
+that says to build MPAS-Ocean from the `e3sm_submodules/FAnSSIE` submodule
+(see {ref}`dev-ocean-fanssie`).
 
 (ocean-ssh-adjustment)=
 
