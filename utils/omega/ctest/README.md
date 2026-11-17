@@ -84,8 +84,10 @@ optionally submit the job script.
      CTests or write or submit a job script for them
 
    * `--build_jobs N`: build with `make -j N` instead of Omega's own
-     `omega_build.sh`, for a host that cannot afford its parallelism (the
-     nightly cron job on Perlmutter runs in one core and 4 GiB)
+     `omega_build.sh`: fewer jobs for a host that cannot afford its
+     parallelism (the nightly cron job on Perlmutter runs in one core and
+     4 GiB), more for a node with cores to spare (`omega_build.sh` is
+     `make -j 6` on pm-gpu, whose compute nodes have 64 cores)
 
    * `--dashboard`: record the build and the tests with CTest so they can be
      submitted to CDash.  Plain `ctest` writes only a log; the dashboard mode

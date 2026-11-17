@@ -66,8 +66,8 @@ def parse_task_args(description):
     parser.add_argument(
         '--build_jobs',
         type=int,
-        help="Cap the Omega build at make -j BUILD_JOBS (default: Omega's "
-        'own omega_build.sh)',
+        help="Build Omega with make -j BUILD_JOBS (default: Omega's own "
+        'omega_build.sh)',
     )
     parser.add_argument(
         '--build_in_job',

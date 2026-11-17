@@ -420,7 +420,8 @@ def main():
         dest='build_jobs',
         type=int,
         help="Build with make -j BUILD_JOBS instead of Omega's own "
-        'omega_build.sh, for hosts that cannot afford its parallelism',
+        'omega_build.sh: fewer jobs for a host that cannot afford its '
+        'parallelism, more for a node with cores to spare',
     )
     parser.add_argument(
         '--dashboard',
