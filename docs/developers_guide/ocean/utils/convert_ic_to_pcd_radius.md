@@ -11,7 +11,7 @@ models use. It:
    `sphere_radius` attribute, from the file's `sphere_radius` to the PCD
    `mean_radius` with {py:func}`polaris.mesh.radius.rescale_sphere_radius`;
 2. removes `fCell`, `fEdge` and `fVertex`, which the models compute at init
-   from the PCD rotation rate;
+   on spherical meshes;
 3. leaves every other field and global attribute unchanged, and records the
    old radius and the PCD version in the `history` attribute;
 4. writes the result in the input's netCDF format.
@@ -31,8 +31,4 @@ writes `/path/to/output/ocean.QU.240wLI.<YYYYMMDD>.nc`.
 
 To use a converted file in E3SM, update the date in the component's
 `buildnml` (`ic_date` for MPAS-Ocean, `grid_date` for MPAS-Seaice) and, for
-renamed sea-ice files, `grid_prefix`. MPAS-Ocean needs a version that
-computes `fCell`, `fEdge` and `fVertex` at init, since it otherwise reads
-them from the initial condition and would run without Coriolis forcing if
-they are absent. MPAS-Seaice computes `fVertex` at init when
-`config_calculate_coriolis = true`, its default.
+renamed sea-ice files, `grid_prefix`.
