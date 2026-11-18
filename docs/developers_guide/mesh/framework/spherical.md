@@ -178,9 +178,10 @@ After the MPAS mesh is written, `SphericalBaseStep` first checks that none
 of its floating-point variables is NaN or infinite, using
 {py:func}`polaris.mesh.spherical.quality.check_finite_mesh_values()`, unless
 `check_finite` is `False`.  `MpasMeshConverter.x` in `mpas_tools` 2.2.1
-writes NaN kite areas and edge weights at some vertices of obtuse triangles,
-which river constraints produce on unified meshes
-([MPAS-Dev/MPAS-Tools#778](https://github.com/MPAS-Dev/MPAS-Tools/issues/778)).
+and earlier wrote NaN kite areas and edge weights at some vertices of obtuse
+triangles, which river constraints produce on unified meshes
+([MPAS-Dev/MPAS-Tools#778](https://github.com/MPAS-Dev/MPAS-Tools/issues/778),
+fixed in 2.2.2).
 
 It then checks the cell polygons for geometry that would trip remapping later
 on, using

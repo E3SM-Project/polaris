@@ -164,10 +164,12 @@ def check_finite_mesh_values(ds_mesh):
     """
     Check that no floating-point variable in an MPAS mesh is NaN or infinite.
 
-    ``MpasMeshConverter.x`` in ``mpas_tools`` 2.2.1 writes NaN
+    ``MpasMeshConverter.x`` in ``mpas_tools`` 2.2.1 and earlier wrote NaN
     ``areaTriangle``, ``kiteAreasOnVertex`` and ``weightsOnEdge`` at some
     vertices of obtuse triangles, which river constraints produce on unified
-    meshes, without reporting an error (MPAS-Dev/MPAS-Tools#778).
+    meshes, without reporting an error (MPAS-Dev/MPAS-Tools#778, fixed in
+    2.2.2).  This check makes sure such values fail the step rather than
+    reaching later steps.
 
     Parameters
     ----------
