@@ -8,11 +8,12 @@ init) and write it with a new date stamp.
 import argparse
 import os
 import re
+import subprocess
 from datetime import datetime
 
 import netCDF4
 import xarray as xr
-from mpas_tools.io import write_netcdf
+from mpas_tools.io import update_history
 
 from polaris.constants import get_constant
 from polaris.constants.pcd import get_pcd_version
@@ -23,13 +24,12 @@ CORIOLIS_VARIABLES = ['fCell', 'fEdge', 'fVertex']
 # old file-name prefixes and their replacements in new initial conditions
 PREFIX_RENAMES = {'cice': 'mpassi'}
 
-# netCDF4 data models and the formats mpas_tools.io.write_netcdf() takes
-FORMATS = {
-    'NETCDF3_CLASSIC': 'NETCDF3_CLASSIC',
-    'NETCDF3_64BIT_OFFSET': 'NETCDF3_64BIT',
-    'NETCDF3_64BIT_DATA': 'NETCDF3_64BIT_DATA',
-    'NETCDF4_CLASSIC': 'NETCDF4_CLASSIC',
-    'NETCDF4': 'NETCDF4',
+# ncks flags that convert a NETCDF4 file to each netCDF4 data model
+NCKS_FORMAT_FLAGS = {
+    'NETCDF3_CLASSIC': '-3',
+    'NETCDF3_64BIT_OFFSET': '-6',
+    'NETCDF3_64BIT_DATA': '-5',
+    'NETCDF4_CLASSIC': '-7',
 }
 
 DATE_STAMP = re.compile(r'^(\d{6}|\d{8})$')
@@ -136,12 +136,19 @@ def convert_ic(input_file, output_file):
         raise ValueError(f'{output_file} already exists.')
 
     with netCDF4.Dataset(input_file) as nc:
-        file_format = FORMATS[nc.data_model]
+        file_format = nc.data_model
 
+    # keep variables and their attributes as they are in the file: no time
+    # decoding, and no coordinates (which xarray would add as a coordinates
+    # attribute to every variable that shares their dimensions)
     with xr.open_dataset(
-        input_file, decode_times=False, decode_timedelta=False
+        input_file,
+        decode_times=False,
+        decode_timedelta=False,
+        decode_coords=False,
     ) as ds_in:
         ds = ds_in.load()
+    unlimited_dims = ds.encoding.get('unlimited_dims', set())
 
     old_radius = float(ds.attrs.get('sphere_radius', 0.0))
     new_radius = float(get_constant('mean_radius'))
@@ -162,7 +169,8 @@ def convert_ic(input_file, output_file):
         note = f'{note}\n{ds.attrs["history"]}'
     ds.attrs['history'] = note
 
-    write_netcdf(ds, output_file, format=file_format, engine='netcdf4')
+    update_history(ds)
+    _write_like_input(ds, output_file, file_format, unlimited_dims)
 
     print(f'Wrote {output_file} ({file_format})')
     print(
@@ -174,6 +182,44 @@ def convert_ic(input_file, output_file):
         print(f'Removed: {", ".join(dropped)}')
     else:
         print('No Coriolis variables to remove')
+
+
+def _write_like_input(ds, output_file, file_format, unlimited_dims):
+    """
+    Write a dataset with each variable's encoding (fill value, type) from
+    the input file, in the input's format.  xarray is slow to write
+    NETCDF3_64BIT_DATA, the usual format of E3SM initial conditions, so any
+    format other than NETCDF4 is written as NETCDF4 and converted with ncks.
+    """
+    for var in ds.variables.values():
+        # keep the input's fill values, and add none where it had none
+        var.encoding.setdefault('_FillValue', None)
+
+    kwargs = dict(
+        format='NETCDF4', engine='netcdf4', unlimited_dims=unlimited_dims
+    )
+    if file_format == 'NETCDF4':
+        ds.to_netcdf(output_file, **kwargs)
+        return
+
+    directory, name = os.path.split(os.path.abspath(output_file))
+    tmp_file = os.path.join(directory, f'_tmp_{name}')
+    try:
+        ds.to_netcdf(tmp_file, **kwargs)
+        subprocess.run(
+            [
+                'ncks',
+                '-O',
+                '-h',
+                NCKS_FORMAT_FLAGS[file_format],
+                tmp_file,
+                output_file,
+            ],
+            check=True,
+        )
+    finally:
+        if os.path.exists(tmp_file):
+            os.remove(tmp_file)
 
 
 if __name__ == '__main__':
