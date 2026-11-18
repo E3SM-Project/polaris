@@ -636,6 +636,48 @@ window.runMermaid = runMermaid;</script>
 
 
 
+<div class="viewcode-block" id="check_finite_mesh_values">
+<a class="viewcode-back" href="../../../../developers_guide/generated/polaris.mesh.spherical.quality.check_finite_mesh_values.html#polaris.mesh.spherical.quality.check_finite_mesh_values">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">check_finite_mesh_values</span><span class="p">(</span><span class="n">ds_mesh</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Check that no floating-point variable in an MPAS mesh is NaN or infinite.</span>
+
+<span class="sd">    ``MpasMeshConverter.x`` in ``mpas_tools`` 2.2.1 and earlier wrote NaN</span>
+<span class="sd">    ``areaTriangle``, ``kiteAreasOnVertex`` and ``weightsOnEdge`` at some</span>
+<span class="sd">    vertices of obtuse triangles, which river constraints produce on unified</span>
+<span class="sd">    meshes, without reporting an error (MPAS-Dev/MPAS-Tools#778, fixed in</span>
+<span class="sd">    2.2.2).  This check makes sure such values fail the step rather than</span>
+<span class="sd">    reaching later steps.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    ds_mesh : xarray.Dataset</span>
+<span class="sd">        MPAS mesh dataset</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If any floating-point variable has non-finite values, naming each</span>
+<span class="sd">        such variable and how many values are affected</span>
+<span class="sd">    """</span>
+    <span class="n">counts</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">variable</span> <span class="ow">in</span> <span class="n">ds_mesh</span><span class="o">.</span><span class="n">data_vars</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">issubdtype</span><span class="p">(</span><span class="n">variable</span><span class="o">.</span><span class="n">dtype</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">):</span>
+            <span class="k">continue</span>
+        <span class="n">count</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">count_nonzero</span><span class="p">(</span><span class="o">~</span><span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">variable</span><span class="o">.</span><span class="n">values</span><span class="p">)))</span>
+        <span class="k">if</span> <span class="n">count</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">counts</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">count</span>
+
+    <span class="k">if</span> <span class="n">counts</span><span class="p">:</span>
+        <span class="n">details</span> <span class="o">=</span> <span class="s1">', '</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1"> (</span><span class="si">{</span><span class="n">count</span><span class="si">}</span><span class="s1">)'</span> <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">count</span> <span class="ow">in</span> <span class="n">counts</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+        <span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s1">'MPAS mesh has NaN or infinite values in: </span><span class="si">{</span><span class="n">details</span><span class="si">}</span><span class="s1">.'</span>
+        <span class="p">)</span></div>
+
+
+
 <span class="k">def</span><span class="w"> </span><span class="nf">_raise_cell_polygon_quality_error</span><span class="p">(</span>
     <span class="n">reason</span><span class="p">,</span>
     <span class="n">bad_cell_indices</span><span class="p">,</span>

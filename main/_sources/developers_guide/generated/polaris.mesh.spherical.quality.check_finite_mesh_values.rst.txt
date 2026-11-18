@@ -1,0 +1,6 @@
+﻿polaris.mesh.spherical.quality.check\_finite\_mesh\_values
+==========================================================
+
+.. currentmodule:: polaris.mesh.spherical.quality
+
+.. autofunction:: check_finite_mesh_values

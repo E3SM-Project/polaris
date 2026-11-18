@@ -71,7 +71,7 @@
 <li class="toctree-l3 current"><a class="current reference internal" href="#">Spherical Meshes</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#dev-spherical-jigsaw-optimization">JIGSAW mesh optimization</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#reconstruction-weights">Reconstruction weights</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#cell-polygon-quality-checks">Cell-polygon quality checks</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#mesh-quality-checks">Mesh quality checks</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#supported-base-mesh-steps">Supported Base Mesh Steps</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#approximately-uniform-spherical-meshes">Approximately Uniform Spherical Meshes</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#rossby-radius-scaled-rrs-meshes">Rossby-radius Scaled (RRS) Meshes</a></li>
@@ -208,10 +208,10 @@ methods.</p>
 <span class="na">icosahedral_method</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">cell_width</span>
 
 <span class="c1"># output file names</span>
-<span class="na">jigsaw_mesh_filename</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">mesh.msh</span>
-<span class="na">jigsaw_geom_filename</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">geom.msh</span>
+<span class="na">jigsaw_mesh_filename</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">mesh.nc</span>
+<span class="na">jigsaw_geom_filename</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">geom.nc</span>
 <span class="na">jigsaw_jcfg_filename</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">opts.jig</span>
-<span class="na">jigsaw_hfun_filename</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">spac.msh</span>
+<span class="na">jigsaw_hfun_filename</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">spac.nc</span>
 <span class="na">triangles_filename</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">mesh_triangles.nc</span>
 <span class="na">mpas_mesh_filename</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">base_mesh.nc</span>
 <span class="na">reconstruction_weights_filename</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">reconstruction_weights.nc</span>
@@ -262,6 +262,10 @@ methods.</p>
 <span class="c1"># config options related to spherical mesh quality checks</span>
 <span class="k">[spherical_mesh_quality]</span>
 
+<span class="c1"># whether to check that no floating-point variable in the MPAS mesh is NaN or</span>
+<span class="c1"># infinite</span>
+<span class="na">check_finite</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">True</span>
+
 <span class="c1"># whether to check MPAS cell polygons for geometry that can trip remapping</span>
 <span class="na">check_cell_geometry</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">True</span>
 
@@ -310,10 +314,18 @@ afterward – a unified mesh, for instance – should turn them off, since
 culling renumbers cells and the weights have to be recomputed on the culled
 mesh anyway.</p>
 </section>
-<section id="cell-polygon-quality-checks">
-<h2>Cell-polygon quality checks<a class="headerlink" href="#cell-polygon-quality-checks" title="Link to this heading"></a></h2>
-<p>After the MPAS mesh is written, <code class="docutils literal notranslate"><span class="pre">SphericalBaseStep</span></code> checks its cell polygons
-for geometry that would trip remapping later on, using
+<section id="mesh-quality-checks">
+<h2>Mesh quality checks<a class="headerlink" href="#mesh-quality-checks" title="Link to this heading"></a></h2>
+<p>After the MPAS mesh is written, <code class="docutils literal notranslate"><span class="pre">SphericalBaseStep</span></code> first checks that none
+of its floating-point variables is NaN or infinite, using
+<a class="reference internal" href="../../generated/polaris.mesh.spherical.quality.check_finite_mesh_values.html#polaris.mesh.spherical.quality.check_finite_mesh_values" title="polaris.mesh.spherical.quality.check_finite_mesh_values"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.mesh.spherical.quality.check_finite_mesh_values()</span></code></a>, unless
+<code class="docutils literal notranslate"><span class="pre">check_finite</span></code> is <code class="docutils literal notranslate"><span class="pre">False</span></code>.  <code class="docutils literal notranslate"><span class="pre">MpasMeshConverter.x</span></code> in <code class="docutils literal notranslate"><span class="pre">mpas_tools</span></code> 2.2.1
+and earlier wrote NaN kite areas and edge weights at some vertices of obtuse
+triangles, which river constraints produce on unified meshes
+(<a class="reference external" href="https://github.com/MPAS-Dev/MPAS-Tools/issues/778">MPAS-Dev/MPAS-Tools#778</a>,
+fixed in 2.2.2).</p>
+<p>It then checks the cell polygons for geometry that would trip remapping later
+on, using
 <a class="reference internal" href="../../generated/polaris.mesh.spherical.quality.check_cell_polygon_quality.html#polaris.mesh.spherical.quality.check_cell_polygon_quality" title="polaris.mesh.spherical.quality.check_cell_polygon_quality"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.mesh.spherical.quality.check_cell_polygon_quality()</span></code></a>.  The
 <code class="docutils literal notranslate"><span class="pre">[spherical_mesh_quality]</span></code> options above tune the check: <code class="docutils literal notranslate"><span class="pre">check_cell_geometry</span></code>
 turns it off, <code class="docutils literal notranslate"><span class="pre">minimum_edge_length_ratio</span></code> and <code class="docutils literal notranslate"><span class="pre">minimum_corner_sine</span></code> set the

@@ -479,7 +479,7 @@ window.runMermaid = runMermaid;</script>
 <span class="kn">from</span><span class="w"> </span><span class="nn">matplotlib.figure</span><span class="w"> </span><span class="kn">import</span> <span class="n">Figure</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mpas_tools.io</span><span class="w"> </span><span class="kn">import</span> <span class="n">open_dataset</span><span class="p">,</span> <span class="n">write_netcdf</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mpas_tools.logging</span><span class="w"> </span><span class="kn">import</span> <span class="n">check_call</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">mpas_tools.mesh.creation.jigsaw_to_netcdf</span><span class="w"> </span><span class="kn">import</span> <span class="n">jigsaw_to_netcdf</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mpas_tools.mesh.creation.util</span><span class="w"> </span><span class="kn">import</span> <span class="n">circumcenter</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mpas_tools.ocean.inject_meshDensity</span><span class="w"> </span><span class="kn">import</span> <span class="n">inject_spherical_meshDensity</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mpas_tools.viz.colormaps</span><span class="w"> </span><span class="kn">import</span> <span class="n">register_sci_viz_colormaps</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mpas_tools.viz.paraview_extractor</span><span class="w"> </span><span class="kn">import</span> <span class="n">extract_vtk</span>
@@ -491,7 +491,10 @@ window.runMermaid = runMermaid;</script>
     <span class="n">compute_reconstruction_weights</span><span class="p">,</span>
     <span class="n">get_reconstruction_validate_vars</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.mesh.spherical.quality</span><span class="w"> </span><span class="kn">import</span> <span class="n">check_cell_polygon_quality</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.mesh.spherical.quality</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">check_cell_polygon_quality</span><span class="p">,</span>
+    <span class="n">check_finite_mesh_values</span><span class="p">,</span>
+<span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.mesh.validate</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">CELL_WIDTH_VALIDATE_VARS</span><span class="p">,</span>
     <span class="n">MPAS_MESH_VALIDATE_VARS</span><span class="p">,</span>
@@ -659,7 +662,6 @@ window.runMermaid = runMermaid;</script>
         <span class="n">config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span>
         <span class="n">section</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">'spherical_mesh'</span><span class="p">]</span>
         <span class="n">validate_vars</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s1">'jigsaw_mesh_filename'</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
             <span class="s1">'mpas_mesh_filename'</span><span class="p">:</span> <span class="n">MPAS_MESH_VALIDATE_VARS</span><span class="p">,</span>
             <span class="s1">'cell_width_filename'</span><span class="p">:</span> <span class="n">CELL_WIDTH_VALIDATE_VARS</span><span class="p">,</span>
         <span class="p">}</span>
@@ -696,11 +698,10 @@ window.runMermaid = runMermaid;</script>
         <span class="n">mpas_mesh_filename</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">work_path</span><span class="p">(</span><span class="n">section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'mpas_mesh_filename'</span><span class="p">))</span>
         <span class="n">triangles_filename</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">work_path</span><span class="p">(</span><span class="s1">'mesh_triangles.nc'</span><span class="p">)</span>
 
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">'Convert triangles from jigsaw format to netcdf'</span><span class="p">)</span>
-        <span class="n">jigsaw_to_netcdf</span><span class="p">(</span>
-            <span class="n">msh_filename</span><span class="o">=</span><span class="n">jigsaw_mesh_filename</span><span class="p">,</span>
-            <span class="n">output_name</span><span class="o">=</span><span class="n">triangles_filename</span><span class="p">,</span>
-            <span class="n">on_sphere</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">'Convert triangles from jigsaw format to MPAS format'</span><span class="p">)</span>
+        <span class="n">_write_mpas_triangles</span><span class="p">(</span>
+            <span class="n">jigsaw_mesh_filename</span><span class="o">=</span><span class="n">jigsaw_mesh_filename</span><span class="p">,</span>
+            <span class="n">triangles_filename</span><span class="o">=</span><span class="n">triangles_filename</span><span class="p">,</span>
             <span class="n">sphere_radius</span><span class="o">=</span><span class="n">earth_radius</span><span class="p">,</span>
         <span class="p">)</span>
 
@@ -714,6 +715,7 @@ window.runMermaid = runMermaid;</script>
         <span class="n">ds_mesh</span> <span class="o">=</span> <span class="n">open_dataset</span><span class="p">(</span><span class="n">tmp_mesh_filename</span><span class="p">)</span>
         <span class="n">write_netcdf</span><span class="p">(</span><span class="n">ds_mesh</span><span class="p">,</span> <span class="n">mpas_mesh_filename</span><span class="p">)</span>
 
+        <span class="bp">self</span><span class="o">.</span><span class="n">_check_finite_mesh_values</span><span class="p">(</span><span class="n">ds_mesh</span><span class="o">=</span><span class="n">ds_mesh</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_check_cell_polygon_quality</span><span class="p">(</span><span class="n">ds_mesh</span><span class="o">=</span><span class="n">ds_mesh</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">section</span><span class="o">.</span><span class="n">getboolean</span><span class="p">(</span><span class="s1">'generate_reconstruction_weights'</span><span class="p">):</span>
@@ -766,6 +768,22 @@ window.runMermaid = runMermaid;</script>
             <span class="n">graph_filename</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">work_path</span><span class="p">(</span><span class="s1">'graph.info'</span><span class="p">),</span>
         <span class="p">)</span></div>
 
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_check_finite_mesh_values</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ds_mesh</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Check the generated MPAS mesh for NaN or infinite values.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        ds_mesh : xarray.Dataset</span>
+<span class="sd">            MPAS mesh dataset</span>
+<span class="sd">        """</span>
+        <span class="n">section</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">'spherical_mesh_quality'</span><span class="p">]</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">section</span><span class="o">.</span><span class="n">getboolean</span><span class="p">(</span><span class="s1">'check_finite'</span><span class="p">):</span>
+            <span class="k">return</span>
+
+        <span class="n">check_finite_mesh_values</span><span class="p">(</span><span class="n">ds_mesh</span><span class="o">=</span><span class="n">ds_mesh</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">'Spherical mesh finite-value check passed.'</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_check_cell_polygon_quality</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ds_mesh</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">"""</span>
@@ -1273,6 +1291,63 @@ window.runMermaid = runMermaid;</script>
         <span class="k">return</span> <span class="n">cell_width</span></div>
 </div>
 
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_write_mpas_triangles</span><span class="p">(</span>
+    <span class="n">jigsaw_mesh_filename</span><span class="p">,</span> <span class="n">triangles_filename</span><span class="p">,</span> <span class="n">sphere_radius</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Write a JIGSAW spherical triangulation as the triangle file that</span>
+<span class="sd">    ``MpasMeshConverter.x`` reads.</span>
+
+<span class="sd">    JIGSAW writes its output in NetCDF when the file name ends in ``.nc``</span>
+<span class="sd">    and in its text ``.msh`` format otherwise; ``jigsawpy.loadmsh()`` reads</span>
+<span class="sd">    either.  The triangulation's points become MPAS cell centers and its</span>
+<span class="sd">    triangles MPAS vertices, at the triangles' circumcenters.</span>
+<span class="sd">    """</span>
+    <span class="n">mesh</span> <span class="o">=</span> <span class="n">jigsawpy</span><span class="o">.</span><span class="n">jigsaw_msh_t</span><span class="p">()</span>
+    <span class="n">jigsawpy</span><span class="o">.</span><span class="n">loadmsh</span><span class="p">(</span><span class="n">jigsaw_mesh_filename</span><span class="p">,</span> <span class="n">mesh</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">mesh</span><span class="o">.</span><span class="n">vert3</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">mesh</span><span class="o">.</span><span class="n">vert3</span><span class="o">.</span><span class="n">size</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">jigsaw_mesh_filename</span><span class="si">}</span><span class="s1"> has no 3D points.  Expected the '</span>
+            <span class="sa">f</span><span class="s1">'Cartesian points of a spherical JIGSAW mesh.'</span>
+        <span class="p">)</span>
+
+    <span class="c1"># JIGSAW works in km on a sphere whose radius we gave it in km</span>
+    <span class="n">x_cell</span><span class="p">,</span> <span class="n">y_cell</span><span class="p">,</span> <span class="n">z_cell</span> <span class="o">=</span> <span class="mf">1e3</span> <span class="o">*</span> <span class="n">mesh</span><span class="o">.</span><span class="n">vert3</span><span class="p">[</span><span class="s1">'coord'</span><span class="p">]</span><span class="o">.</span><span class="n">T</span>
+    <span class="n">cells_on_vertex</span> <span class="o">=</span> <span class="n">mesh</span><span class="o">.</span><span class="n">tria3</span><span class="p">[</span><span class="s1">'index'</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
+
+    <span class="n">cell_indices</span> <span class="o">=</span> <span class="n">cells_on_vertex</span> <span class="o">-</span> <span class="mi">1</span>
+    <span class="n">x_tri</span> <span class="o">=</span> <span class="n">x_cell</span><span class="p">[</span><span class="n">cell_indices</span><span class="p">]</span>
+    <span class="n">y_tri</span> <span class="o">=</span> <span class="n">y_cell</span><span class="p">[</span><span class="n">cell_indices</span><span class="p">]</span>
+    <span class="n">z_tri</span> <span class="o">=</span> <span class="n">z_cell</span><span class="p">[</span><span class="n">cell_indices</span><span class="p">]</span>
+    <span class="n">x_vertex</span><span class="p">,</span> <span class="n">y_vertex</span><span class="p">,</span> <span class="n">z_vertex</span> <span class="o">=</span> <span class="n">circumcenter</span><span class="p">(</span>
+        <span class="kc">True</span><span class="p">,</span>
+        <span class="n">x_tri</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span>
+        <span class="n">y_tri</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span>
+        <span class="n">z_tri</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span>
+        <span class="n">x_tri</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">],</span>
+        <span class="n">y_tri</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">],</span>
+        <span class="n">z_tri</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">],</span>
+        <span class="n">x_tri</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">],</span>
+        <span class="n">y_tri</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">],</span>
+        <span class="n">z_tri</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">],</span>
+    <span class="p">)</span>
+
+    <span class="n">ds</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">(</span>
+        <span class="n">data_vars</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span>
+            <span class="n">xCell</span><span class="o">=</span><span class="p">((</span><span class="s1">'nCells'</span><span class="p">,),</span> <span class="n">x_cell</span><span class="p">),</span>
+            <span class="n">yCell</span><span class="o">=</span><span class="p">((</span><span class="s1">'nCells'</span><span class="p">,),</span> <span class="n">y_cell</span><span class="p">),</span>
+            <span class="n">zCell</span><span class="o">=</span><span class="p">((</span><span class="s1">'nCells'</span><span class="p">,),</span> <span class="n">z_cell</span><span class="p">),</span>
+            <span class="n">xVertex</span><span class="o">=</span><span class="p">((</span><span class="s1">'nVertices'</span><span class="p">,),</span> <span class="n">x_vertex</span><span class="p">),</span>
+            <span class="n">yVertex</span><span class="o">=</span><span class="p">((</span><span class="s1">'nVertices'</span><span class="p">,),</span> <span class="n">y_vertex</span><span class="p">),</span>
+            <span class="n">zVertex</span><span class="o">=</span><span class="p">((</span><span class="s1">'nVertices'</span><span class="p">,),</span> <span class="n">z_vertex</span><span class="p">),</span>
+            <span class="n">cellsOnVertex</span><span class="o">=</span><span class="p">((</span><span class="s1">'nVertices'</span><span class="p">,</span> <span class="s1">'vertexDegree'</span><span class="p">),</span> <span class="n">cells_on_vertex</span><span class="p">),</span>
+            <span class="n">meshDensity</span><span class="o">=</span><span class="p">((</span><span class="s1">'nCells'</span><span class="p">,),</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">x_cell</span><span class="o">.</span><span class="n">shape</span><span class="p">)),</span>
+        <span class="p">),</span>
+        <span class="n">attrs</span><span class="o">=</span><span class="p">{</span><span class="s1">'on_a_sphere'</span><span class="p">:</span> <span class="s1">'YES'</span><span class="p">,</span> <span class="s1">'sphere_radius'</span><span class="p">:</span> <span class="n">sphere_radius</span><span class="p">},</span>
+    <span class="p">)</span>
+    <span class="n">write_netcdf</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">triangles_filename</span><span class="p">)</span>
 </pre></div>
 
            </div>
