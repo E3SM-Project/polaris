@@ -159,9 +159,9 @@ def plot_inset(
     if contour_kwargs is not None:
         defaults: dict[str, Any] = {'linewidths': 1.0, 'zorder': 1}
         if 'cmap' not in contour_kwargs:
-            # skip blue, the default wireframe color
+            # skip teal, which is hard to see on blue-green colormaps
             n = len(contour_kwargs['levels'])
-            defaults['colors'] = colormaps['tab10'](np.arange(1, n + 1))
+            defaults['colors'] = colormaps['Dark2'](np.arange(1, n + 1))
         contour_kwargs = defaults | contour_kwargs
 
     projection = ccrs.Orthographic(inset.centlon, inset.centlat)
