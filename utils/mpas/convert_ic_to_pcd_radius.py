@@ -138,11 +138,14 @@ def convert_ic(input_file, output_file):
     with netCDF4.Dataset(input_file) as nc:
         file_format = nc.data_model
 
-    # keep variables and their attributes as they are in the file: no time
-    # decoding, and no coordinates (which xarray would add as a coordinates
-    # attribute to every variable that shares their dimensions)
+    # keep variables and their attributes as they are in the file: no
+    # masking (which would rewrite missing_value with the type of
+    # _FillValue), no time decoding, and no coordinates (which xarray would
+    # add as a coordinates attribute to every variable that shares their
+    # dimensions)
     with xr.open_dataset(
         input_file,
+        mask_and_scale=False,
         decode_times=False,
         decode_timedelta=False,
         decode_coords=False,
@@ -186,14 +189,15 @@ def convert_ic(input_file, output_file):
 
 def _write_like_input(ds, output_file, file_format, unlimited_dims):
     """
-    Write a dataset with each variable's encoding (fill value, type) from
-    the input file, in the input's format.  xarray is slow to write
+    Write a dataset with each variable's attributes and type from the input
+    file, in the input's format.  xarray is slow to write
     NETCDF3_64BIT_DATA, the usual format of E3SM initial conditions, so any
     format other than NETCDF4 is written as NETCDF4 and converted with ncks.
     """
     for var in ds.variables.values():
-        # keep the input's fill values, and add none where it had none
-        var.encoding.setdefault('_FillValue', None)
+        # the input's fill values are attributes; add none where it had none
+        if '_FillValue' not in var.attrs:
+            var.encoding['_FillValue'] = None
 
     kwargs = dict(
         format='NETCDF4', engine='netcdf4', unlimited_dims=unlimited_dims
