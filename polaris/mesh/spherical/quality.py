@@ -160,6 +160,45 @@ def check_cell_polygon_quality(
     }
 
 
+def check_finite_mesh_values(ds_mesh):
+    """
+    Check that no floating-point variable in an MPAS mesh is NaN or infinite.
+
+    ``MpasMeshConverter.x`` in ``mpas_tools`` 2.2.1 and earlier wrote NaN
+    ``areaTriangle``, ``kiteAreasOnVertex`` and ``weightsOnEdge`` at some
+    vertices of obtuse triangles, which river constraints produce on unified
+    meshes, without reporting an error (MPAS-Dev/MPAS-Tools#778, fixed in
+    2.2.2).  This check makes sure such values fail the step rather than
+    reaching later steps.
+
+    Parameters
+    ----------
+    ds_mesh : xarray.Dataset
+        MPAS mesh dataset
+
+    Raises
+    ------
+    ValueError
+        If any floating-point variable has non-finite values, naming each
+        such variable and how many values are affected
+    """
+    counts = {}
+    for name, variable in ds_mesh.data_vars.items():
+        if not np.issubdtype(variable.dtype, np.floating):
+            continue
+        count = int(np.count_nonzero(~np.isfinite(variable.values)))
+        if count > 0:
+            counts[name] = count
+
+    if counts:
+        details = ', '.join(
+            f'{name} ({count})' for name, count in counts.items()
+        )
+        raise ValueError(
+            f'MPAS mesh has NaN or infinite values in: {details}.'
+        )
+
+
 def _raise_cell_polygon_quality_error(
     reason,
     bad_cell_indices,
