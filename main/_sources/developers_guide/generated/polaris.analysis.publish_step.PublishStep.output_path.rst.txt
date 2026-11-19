@@ -1,0 +1,6 @@
+﻿polaris.analysis.publish\_step.PublishStep.output\_path
+=======================================================
+
+.. currentmodule:: polaris.analysis.publish_step
+
+.. automethod:: PublishStep.output_path

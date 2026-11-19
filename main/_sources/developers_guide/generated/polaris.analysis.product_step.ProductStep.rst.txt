@@ -1,0 +1,50 @@
+﻿polaris.analysis.product\_step.ProductStep
+==========================================
+
+.. currentmodule:: polaris.analysis.product_step
+
+.. autoclass:: ProductStep
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~ProductStep.__init__
+      ~ProductStep.add_cf_check
+      ~ProductStep.add_dependency
+      ~ProductStep.add_input_file
+      ~ProductStep.add_output_file
+      ~ProductStep.add_product
+      ~ProductStep.add_property_check
+      ~ProductStep.check_cf
+      ~ProductStep.check_properties
+      ~ProductStep.constrain_resources
+      ~ProductStep.process_inputs_and_outputs
+      ~ProductStep.run
+      ~ProductStep.runtime_setup
+      ~ProductStep.set_resources
+      ~ProductStep.set_shared_config
+      ~ProductStep.setup
+      ~ProductStep.validate_baselines
+      ~ProductStep.work_path
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~ProductStep.cores
+      ~ProductStep.gpus
+      ~ProductStep.makes_products
+      ~ProductStep.may_span_nodes
+      ~ProductStep.min_cores
+      ~ProductStep.min_gpus
+   
+   

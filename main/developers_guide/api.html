@@ -107,6 +107,8 @@
 <li class="toctree-l3"><a class="reference internal" href="#analysis">analysis</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#analysis-manifest">analysis.manifest</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#analysis-publish">analysis.publish</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#analysis-product-step">analysis.product_step</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#analysis-publish-step">analysis.publish_step</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#analysis-thumbnail">analysis.thumbnail</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#analysis-units">analysis.units</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#analysis-site">analysis.site</a></li>
@@ -841,6 +843,38 @@ documentation.</p>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.analysis.publish.write_merged_manifest.html#polaris.analysis.publish.write_merged_manifest" title="polaris.analysis.publish.write_merged_manifest"><code class="xref py py-obj docutils literal notranslate"><span class="pre">write_merged_manifest</span></code></a>(published, output_path)</p></td>
 <td><p>Write the merged manifest that defines the published set</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="analysis-product-step">
+<h4>analysis.product_step<a class="headerlink" href="#analysis-product-step" title="Link to this heading"></a></h4>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.analysis.product_step.ProductStep.html#polaris.analysis.product_step.ProductStep" title="polaris.analysis.product_step.ProductStep"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ProductStep</span></code></a>(*args, **kwargs)</p></td>
+<td><p>A step that makes products for a published gallery</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.analysis.product_step.ProductStep.runtime_setup.html#polaris.analysis.product_step.ProductStep.runtime_setup" title="polaris.analysis.product_step.ProductStep.runtime_setup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ProductStep.runtime_setup</span></code></a>()</p></td>
+<td><p>Write the empty manifest fragment before the step runs</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.analysis.product_step.ProductStep.add_product.html#polaris.analysis.product_step.ProductStep.add_product" title="polaris.analysis.product_step.ProductStep.add_product"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ProductStep.add_product</span></code></a>(plot, group, ...[, data])</p></td>
+<td><p>Describe one product this step has just made, and update the fragment</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="analysis-publish-step">
+<h4>analysis.publish_step<a class="headerlink" href="#analysis-publish-step" title="Link to this heading"></a></h4>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.analysis.publish_step.PublishStep.html#polaris.analysis.publish_step.PublishStep" title="polaris.analysis.publish_step.PublishStep"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PublishStep</span></code></a>(component, subdir, ...)</p></td>
+<td><p>A step that publishes what product steps made and generates the gallery over it</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.analysis.publish_step.PublishStep.run.html#polaris.analysis.publish_step.PublishStep.run" title="polaris.analysis.publish_step.PublishStep.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PublishStep.run</span></code></a>()</p></td>
+<td><p>Publish every product the fragments describe and generate the gallery</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.analysis.publish_step.PublishStep.output_path.html#polaris.analysis.publish_step.PublishStep.output_path" title="polaris.analysis.publish_step.PublishStep.output_path"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PublishStep.output_path</span></code></a>()</p></td>
+<td><p>Get the root of the staging tree results are published into</p></td>
 </tr>
 </tbody>
 </table>

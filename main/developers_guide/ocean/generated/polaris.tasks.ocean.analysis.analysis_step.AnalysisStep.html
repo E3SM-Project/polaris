@@ -19,7 +19,7 @@
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
-    <link rel="next" title="polaris.tasks.ocean.analysis.analysis_step.AnalysisStep.runtime_setup" href="polaris.tasks.ocean.analysis.analysis_step.AnalysisStep.runtime_setup.html" />
+    <link rel="next" title="polaris.tasks.ocean.analysis.analysis_step.AnalysisStep.add_product" href="polaris.tasks.ocean.analysis.analysis_step.AnalysisStep.add_product.html" />
     <link rel="prev" title="polaris.tasks.ocean.analysis.accumulate.stamp_difference" href="polaris.tasks.ocean.analysis.accumulate.stamp_difference.html" />
     <link href="../../../_static/style.css" rel="stylesheet" type="text/css">
 
@@ -147,7 +147,8 @@
 <dd><p>A step of the ocean analysis suite</p>
 <p>Every analysis step covers a range of simulation years and reads some of
 the simulation’s output, so both live here rather than being repeated by
-each product.</p>
+each product.  How a step describes its products for the gallery comes
+from <a class="reference internal" href="../../generated/polaris.analysis.product_step.ProductStep.html#polaris.analysis.product_step.ProductStep" title="polaris.analysis.product_step.ProductStep"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.analysis.product_step.ProductStep</span></code></a>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Variables<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -155,9 +156,6 @@ each product.</p>
 <li><p><strong>end_year</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.15)"><em>int</em></a>) – The last year of the range this step covers, inclusive</p></li>
 <li><p><strong>input_filenames</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#list" title="(in Python v3.15)"><em>list</em></a><em> of </em><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><em>str</em></a>) – The local names of the simulation files symlinked into the step’s
 work directory, in the order they were added</p></li>
-<li><p><strong>manifest</strong> (<a class="reference internal" href="../../generated/polaris.analysis.manifest.Manifest.html#polaris.analysis.manifest.Manifest" title="polaris.analysis.manifest.Manifest"><em>polaris.analysis.manifest.Manifest</em></a>) – The products this step has described so far, written to
-<code class="docutils literal notranslate"><span class="pre">manifest.json</span></code> in the step’s work directory as they are added.
-Steps add to it through <a class="reference internal" href="polaris.tasks.ocean.analysis.analysis_step.AnalysisStep.add_product.html#polaris.tasks.ocean.analysis.analysis_step.AnalysisStep.add_product" title="polaris.tasks.ocean.analysis.analysis_step.AnalysisStep.add_product"><code class="xref py py-meth docutils literal notranslate"><span class="pre">add_product()</span></code></a> rather than directly.</p></li>
 </ul>
 </dd>
 </dl>
@@ -277,7 +275,7 @@ that a step covering a different range is a different step</p></li>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">run</span></code>()</p></td>
 <td><p>Run the step.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="polaris.tasks.ocean.analysis.analysis_step.AnalysisStep.runtime_setup.html#polaris.tasks.ocean.analysis.analysis_step.AnalysisStep.runtime_setup" title="polaris.tasks.ocean.analysis.analysis_step.AnalysisStep.runtime_setup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">runtime_setup</span></code></a>()</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">runtime_setup</span></code>()</p></td>
 <td><p>Write the empty manifest fragment before the step runs</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_resources</span></code>([cpus_per_task, ...])</p></td>
@@ -359,7 +357,7 @@ that a step covering a different range is a different step</p></li>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="polaris.tasks.ocean.analysis.accumulate.stamp_difference.html" class="btn btn-neutral float-left" title="polaris.tasks.ocean.analysis.accumulate.stamp_difference" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="polaris.tasks.ocean.analysis.analysis_step.AnalysisStep.runtime_setup.html" class="btn btn-neutral float-right" title="polaris.tasks.ocean.analysis.analysis_step.AnalysisStep.runtime_setup" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="polaris.tasks.ocean.analysis.analysis_step.AnalysisStep.add_product.html" class="btn btn-neutral float-right" title="polaris.tasks.ocean.analysis.analysis_step.AnalysisStep.add_product" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

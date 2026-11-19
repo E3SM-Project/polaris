@@ -54,7 +54,6 @@
    accumulate.stamp_difference
 
    analysis_step.AnalysisStep
-   analysis_step.AnalysisStep.runtime_setup
    analysis_step.AnalysisStep.add_product
    analysis_step.AnalysisStep.get_sim_files
    analysis_step.AnalysisStep.add_sim_input_file
@@ -99,8 +98,6 @@
    ncclimo.find_climatology_file
 
    publish.Publish
-   publish.Publish.run
-   publish.Publish.output_path
 
    sim_files.SimFile
    sim_files.AnalysisStream

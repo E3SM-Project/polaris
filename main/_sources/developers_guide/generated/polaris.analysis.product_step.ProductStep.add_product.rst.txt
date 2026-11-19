@@ -1,0 +1,6 @@
+﻿polaris.analysis.product\_step.ProductStep.add\_product
+=======================================================
+
+.. currentmodule:: polaris.analysis.product_step
+
+.. automethod:: ProductStep.add_product

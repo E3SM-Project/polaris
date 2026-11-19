@@ -1,6 +1,0 @@
-﻿polaris.tasks.ocean.analysis.publish.Publish.run
-================================================
-
-.. currentmodule:: polaris.tasks.ocean.analysis.publish
-
-.. automethod:: Publish.run

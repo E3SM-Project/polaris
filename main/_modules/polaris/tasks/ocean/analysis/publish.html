@@ -472,49 +472,15 @@ window.runMermaid = runMermaid;</script>
            <div itemprop="articleBody">
              
   <h1>Source code for polaris.tasks.ocean.analysis.publish</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
-
-<span class="kn">from</span><span class="w"> </span><span class="nn">polaris</span><span class="w"> </span><span class="kn">import</span> <span class="n">Step</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.analysis</span><span class="w"> </span><span class="kn">import</span> <span class="n">generate_site</span><span class="p">,</span> <span class="n">publish</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.analysis.manifest</span><span class="w"> </span><span class="kn">import</span> <span class="n">FRAGMENT_FILENAME</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.provenance</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_summary</span>
-
-<span class="c1">#: The subdirectory the fragments are linked into, one per step</span>
-<span class="n">FRAGMENTS_DIRNAME</span> <span class="o">=</span> <span class="s1">'fragments'</span>
+<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">polaris.analysis.publish_step</span><span class="w"> </span><span class="kn">import</span> <span class="n">PublishStep</span>
 
 
 <div class="viewcode-block" id="Publish">
 <a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.analysis.publish.Publish.html#polaris.tasks.ocean.analysis.publish.Publish">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">Publish</span><span class="p">(</span><span class="n">Step</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Publish</span><span class="p">(</span><span class="n">PublishStep</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">"""</span>
-<span class="sd">    A step that publishes what the analysis steps made and generates the</span>
-<span class="sd">    gallery over it</span>
-
-<span class="sd">    This is the only step that knows how results are presented.  It reads</span>
-<span class="sd">    each step's manifest fragment, copies the products into the staging</span>
-<span class="sd">    tree, renders a thumbnail for each plot, writes the merged manifest, and</span>
-<span class="sd">    generates the site.  Working from the fragments rather than from the</span>
-<span class="sd">    directory structure is what lets the work be re-chunked later without</span>
-<span class="sd">    disturbing output paths, links, or the gallery.</span>
-
-<span class="sd">    The step never looks for its inputs.  Each fragment is a declared input,</span>
-<span class="sd">    linked into ``fragments/`` from the step that wrote it, so Polaris checks</span>
-<span class="sd">    before this step runs that every one of them is there and names the ones</span>
-<span class="sd">    that are not.  Each of those steps is also declared as a dependency,</span>
-<span class="sd">    which is what reaches anything knowable only after a step has run and</span>
-<span class="sd">    what names a step that never ran at all.  Nothing reorders steps, so the</span>
-<span class="sd">    suite has to list this one last.</span>
-
-<span class="sd">    Every step that makes products writes a fragment, even when it made</span>
-<span class="sd">    nothing: an empty product list is what a step with nothing to publish</span>
-<span class="sd">    writes, and it is what lets the fragment be declared rather than looked</span>
-<span class="sd">    for.</span>
-
-<span class="sd">    Attributes</span>
-<span class="sd">    ----------</span>
-<span class="sd">    fragment_filenames : list of str</span>
-<span class="sd">        The fragments, as local paths within this step's work directory, in</span>
-<span class="sd">        the order the steps that wrote them are listed</span>
+<span class="sd">    The step that publishes the ocean analysis's products, with its options</span>
+<span class="sd">    in ``[ocean_analysis]``</span>
 <span class="sd">    """</span>
 
 <div class="viewcode-block" id="Publish.__init__">
@@ -536,93 +502,11 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">        """</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
             <span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span>
-            <span class="n">name</span><span class="o">=</span><span class="s1">'publish'</span><span class="p">,</span>
             <span class="n">subdir</span><span class="o">=</span><span class="n">subdir</span><span class="p">,</span>
-            <span class="n">ntasks</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
-            <span class="n">cpus_per_task</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
-        <span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">fragment_filenames</span><span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">for</span> <span class="n">step</span> <span class="ow">in</span> <span class="n">product_steps</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_add_product_dependency</span><span class="p">(</span><span class="n">step</span><span class="p">)</span></div>
-
-
-<div class="viewcode-block" id="Publish.run">
-<a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.analysis.publish.Publish.run.html#polaris.tasks.ocean.analysis.publish.Publish.run">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">"""</span>
-<span class="sd">        Publish every product the fragments describe and generate the gallery</span>
-<span class="sd">        """</span>
-        <span class="n">config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span>
-        <span class="n">output_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_path</span><span class="p">()</span>
-
-        <span class="n">published</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">publish</span><span class="p">(</span>
-            <span class="n">fragment_filenames</span><span class="o">=</span><span class="p">[</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">work_path</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
-                <span class="k">for</span> <span class="n">filename</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">fragment_filenames</span>
-            <span class="p">],</span>
-            <span class="n">output_path</span><span class="o">=</span><span class="n">output_path</span><span class="p">,</span>
-            <span class="n">logger</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="p">,</span>
-            <span class="n">thumbnail_size</span><span class="o">=</span><span class="nb">tuple</span><span class="p">(</span>
-                <span class="n">config</span><span class="o">.</span><span class="n">getlist</span><span class="p">(</span><span class="s1">'ocean_analysis'</span><span class="p">,</span> <span class="s1">'thumbnail_size'</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
-            <span class="p">),</span>
-            <span class="n">thumbnail_scale</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span>
-                <span class="s1">'ocean_analysis'</span><span class="p">,</span> <span class="s1">'thumbnail_scale'</span>
-            <span class="p">),</span>
-            <span class="n">thumbnail_format</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'ocean_analysis'</span><span class="p">,</span> <span class="s1">'thumbnail_format'</span><span class="p">),</span>
-            <span class="n">thumbnail_quality</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">getint</span><span class="p">(</span>
-                <span class="s1">'ocean_analysis'</span><span class="p">,</span> <span class="s1">'thumbnail_quality'</span>
-            <span class="p">),</span>
-            <span class="n">copy_data</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">getboolean</span><span class="p">(</span><span class="s1">'ocean_analysis'</span><span class="p">,</span> <span class="s1">'copy_netcdf'</span><span class="p">),</span>
-        <span class="p">)</span>
-
-        <span class="n">generate_site</span><span class="p">(</span>
-            <span class="n">published</span><span class="o">=</span><span class="n">published</span><span class="p">,</span>
-            <span class="n">output_path</span><span class="o">=</span><span class="n">output_path</span><span class="p">,</span>
-            <span class="n">simulation_name</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'ocean_analysis'</span><span class="p">,</span> <span class="s1">'simulation_name'</span><span class="p">),</span>
-            <span class="n">provenance</span><span class="o">=</span><span class="n">get_summary</span><span class="p">(</span><span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">),</span>
-        <span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">'published to </span><span class="si">{</span><span class="n">output_path</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span></div>
-
-
-<div class="viewcode-block" id="Publish.output_path">
-<a class="viewcode-back" href="../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.analysis.publish.Publish.output_path.html#polaris.tasks.ocean.analysis.publish.Publish.output_path">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">output_path</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">"""</span>
-<span class="sd">        Get the root of the staging tree results are published into</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        output_path : str</span>
-<span class="sd">            The ``[ocean_analysis] output_path`` config option, or</span>
-<span class="sd">            ``analysis_output`` in the base work directory if it is not set</span>
-<span class="sd">        """</span>
-        <span class="n">output_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'ocean_analysis'</span><span class="p">,</span> <span class="s1">'output_path'</span><span class="p">)</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">output_path</span><span class="p">:</span>
-            <span class="n">output_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">base_work_dir</span><span class="p">,</span> <span class="s1">'analysis_output'</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">output_path</span></div>
-
-
-    <span class="k">def</span><span class="w"> </span><span class="nf">_add_product_dependency</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">step</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">"""</span>
-<span class="sd">        Declare one step's fragment as an input and the step as a dependency,</span>
-<span class="sd">        naming both for its work directory so that two ranges of one product</span>
-<span class="sd">        do not collide</span>
-
-<span class="sd">        The task rebuilds its steps whenever the config is read, so a step</span>
-<span class="sd">        whose work directory did not change is asked a second time for the</span>
-<span class="sd">        pickle it already owes.  ``add_output_file()`` keeps only the first</span>
-<span class="sd">        of those, so the pickle is listed once however often the step is</span>
-<span class="sd">        rebuilt.</span>
-<span class="sd">        """</span>
-        <span class="n">name</span> <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">subdir</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">'/'</span><span class="p">,</span> <span class="s1">'_'</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_dependency</span><span class="p">(</span><span class="n">step</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
-
-        <span class="n">filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">FRAGMENTS_DIRNAME</span><span class="p">,</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">.json'</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span>
-            <span class="n">filename</span><span class="o">=</span><span class="n">filename</span><span class="p">,</span>
-            <span class="n">work_dir_target</span><span class="o">=</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">step</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">FRAGMENT_FILENAME</span><span class="si">}</span><span class="s1">'</span><span class="p">,</span>
-        <span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">fragment_filenames</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span></div>
+            <span class="n">product_steps</span><span class="o">=</span><span class="n">product_steps</span><span class="p">,</span>
+            <span class="n">section</span><span class="o">=</span><span class="s1">'ocean_analysis'</span><span class="p">,</span>
+        <span class="p">)</span></div>
+</div>
 
 </pre></div>
 

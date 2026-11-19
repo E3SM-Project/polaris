@@ -1,0 +1,49 @@
+﻿polaris.analysis.publish\_step.PublishStep
+==========================================
+
+.. currentmodule:: polaris.analysis.publish_step
+
+.. autoclass:: PublishStep
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~PublishStep.__init__
+      ~PublishStep.add_cf_check
+      ~PublishStep.add_dependency
+      ~PublishStep.add_input_file
+      ~PublishStep.add_output_file
+      ~PublishStep.add_property_check
+      ~PublishStep.check_cf
+      ~PublishStep.check_properties
+      ~PublishStep.constrain_resources
+      ~PublishStep.output_path
+      ~PublishStep.process_inputs_and_outputs
+      ~PublishStep.run
+      ~PublishStep.runtime_setup
+      ~PublishStep.set_resources
+      ~PublishStep.set_shared_config
+      ~PublishStep.setup
+      ~PublishStep.validate_baselines
+      ~PublishStep.work_path
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~PublishStep.cores
+      ~PublishStep.gpus
+      ~PublishStep.may_span_nodes
+      ~PublishStep.min_cores
+      ~PublishStep.min_gpus
+   
+   

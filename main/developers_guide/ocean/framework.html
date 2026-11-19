@@ -1353,20 +1353,26 @@ instead.</p>
 </section>
 <section id="publishing-what-the-steps-made">
 <h3>Publishing what the steps made<a class="headerlink" href="#publishing-what-the-steps-made" title="Link to this heading"></a></h3>
-<p>Publication is three pieces, none of which knows anything about the ocean, so
-all three live in the component-neutral <code class="docutils literal notranslate"><span class="pre">polaris.analysis</span></code> package beside
-<code class="docutils literal notranslate"><span class="pre">polaris.viz</span></code> rather than under <code class="docutils literal notranslate"><span class="pre">polaris.tasks.ocean.analysis</span></code>:</p>
+<p>Publication is four pieces, none of which knows anything about the ocean, so
+all four live in the component-neutral <code class="docutils literal notranslate"><span class="pre">polaris.analysis</span></code> package beside
+<code class="docutils literal notranslate"><span class="pre">polaris.viz</span></code> rather than under <code class="docutils literal notranslate"><span class="pre">polaris.tasks.ocean.analysis</span></code>, and any
+component’s tasks can use them:</p>
 <ul class="simple">
+<li><p>the <strong>product step</strong>, <a class="reference internal" href="../generated/polaris.analysis.product_step.ProductStep.html#polaris.analysis.product_step.ProductStep" title="polaris.analysis.product_step.ProductStep"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.analysis.product_step.ProductStep</span></code></a>,
+which <code class="docutils literal notranslate"><span class="pre">AnalysisStep</span></code> derives from, and whose
+<a class="reference internal" href="../generated/polaris.analysis.product_step.ProductStep.add_product.html#polaris.analysis.product_step.ProductStep.add_product" title="polaris.analysis.product_step.ProductStep.add_product"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.analysis.product_step.ProductStep.add_product()</span></code></a> a
+plotting step calls once per product;</p></li>
 <li><p>the <strong>manifest writer</strong>, <a class="reference internal" href="../generated/polaris.analysis.manifest.Manifest.html#polaris.analysis.manifest.Manifest" title="polaris.analysis.manifest.Manifest"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.analysis.manifest.Manifest</span></code></a>,
-which a plotting step reaches through
-<a class="reference internal" href="generated/polaris.tasks.ocean.analysis.analysis_step.AnalysisStep.add_product.html#polaris.tasks.ocean.analysis.analysis_step.AnalysisStep.add_product" title="polaris.tasks.ocean.analysis.analysis_step.AnalysisStep.add_product"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.tasks.ocean.analysis.analysis_step.AnalysisStep.add_product()</span></code></a>
-once per product;</p></li>
+which <code class="docutils literal notranslate"><span class="pre">add_product()</span></code> fills in;</p></li>
 <li><p>the <strong>collector</strong>, <a class="reference internal" href="../generated/polaris.analysis.publish.publish.html#polaris.analysis.publish.publish" title="polaris.analysis.publish.publish"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.analysis.publish.publish()</span></code></a>, which merges
 the fragments, copies each product into the staging tree and renders its
 thumbnail;</p></li>
-<li><p>the <strong>site generator</strong>,
-<a class="reference internal" href="../generated/polaris.analysis.site.generate_site.html#polaris.analysis.site.generate_site" title="polaris.analysis.site.generate_site"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.analysis.site.generate_site()</span></code></a>, which renders the gallery
-from the merged manifest.</p></li>
+<li><p>the <strong>publish step</strong>, <a class="reference internal" href="../generated/polaris.analysis.publish_step.PublishStep.html#polaris.analysis.publish_step.PublishStep" title="polaris.analysis.publish_step.PublishStep"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.analysis.publish_step.PublishStep</span></code></a>,
+which runs the collector and the site generator,
+<a class="reference internal" href="../generated/polaris.analysis.site.generate_site.html#polaris.analysis.site.generate_site" title="polaris.analysis.site.generate_site"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.analysis.site.generate_site()</span></code></a>, and reads its options from
+one config section.  The ocean analysis’s
+<a class="reference internal" href="generated/polaris.tasks.ocean.analysis.publish.Publish.html#polaris.tasks.ocean.analysis.publish.Publish" title="polaris.tasks.ocean.analysis.publish.Publish"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.analysis.publish.Publish</span></code></a> is a
+<code class="docutils literal notranslate"><span class="pre">PublishStep</span></code> with its options in <code class="docutils literal notranslate"><span class="pre">[ocean_analysis]</span></code>.</p></li>
 </ul>
 <p>A step describes what it made as it makes it, and writes no fragment itself:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="bp">self</span><span class="o">.</span><span class="n">add_product</span><span class="p">(</span>
@@ -1379,12 +1385,12 @@ from the merged manifest.</p></li>
 <span class="p">)</span>
 </pre></div>
 </div>
-<p><code class="docutils literal notranslate"><span class="pre">AnalysisStep</span></code> writes it.  <code class="docutils literal notranslate"><span class="pre">runtime_setup()</span></code> leaves an empty fragment before
+<p><code class="docutils literal notranslate"><span class="pre">ProductStep</span></code> writes it.  <code class="docutils literal notranslate"><span class="pre">runtime_setup()</span></code> leaves an empty fragment before
 <code class="docutils literal notranslate"><span class="pre">run()</span></code> is called and each <code class="docutils literal notranslate"><span class="pre">add_product()</span></code> writes it again, so a step that
-makes products always has a current one on disk.  The range of years the step
-covers is added to the facets unless the call passes its own, since every
-product of a step covers the step’s range and that range is what keeps the
-published names of two analyses of one simulation apart.</p>
+makes products always has a current one on disk.  <code class="docutils literal notranslate"><span class="pre">AnalysisStep</span></code> adds the
+range of years the step covers to the facets unless the call passes its own,
+since every product of a step covers the step’s range and that range is what
+keeps the published names of two analyses of one simulation apart.</p>
 <p>Three rules keep the fragment from growing into a format that needs a
 specification.  A step fills in the facets and nothing else — the published
 name, the thumbnail and the gallery page are the collector’s business, so a
@@ -1393,8 +1399,7 @@ the site; every other facet is caption material today and filter material
 later, which is what makes adding a facet cheap.  And products keep the order
 they were added in, so a gallery reads ANN, DJF, MAM, JJA, SON because that is
 the order the step plotted them in, with no sort key anywhere.</p>
-<p><a class="reference internal" href="generated/polaris.tasks.ocean.analysis.publish.Publish.html#polaris.tasks.ocean.analysis.publish.Publish" title="polaris.tasks.ocean.analysis.publish.Publish"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.analysis.publish.Publish</span></code></a> is the one step that
-knows how results are presented, and everything about presentation can change
+<p>The publish step is the one step that knows how results are presented, and everything about presentation can change
 without a plotting step changing.  Two things about it are easy to get wrong:</p>
 <ul>
 <li><p><strong>It never looks for its inputs.</strong>  Walking the work directory for anything

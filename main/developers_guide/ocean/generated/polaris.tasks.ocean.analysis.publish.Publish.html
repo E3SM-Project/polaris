@@ -19,7 +19,7 @@
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
-    <link rel="next" title="polaris.tasks.ocean.analysis.publish.Publish.run" href="polaris.tasks.ocean.analysis.publish.Publish.run.html" />
+    <link rel="next" title="polaris.tasks.ocean.analysis.sim_files.SimFile" href="polaris.tasks.ocean.analysis.sim_files.SimFile.html" />
     <link rel="prev" title="polaris.tasks.ocean.analysis.ncclimo.find_climatology_file" href="polaris.tasks.ocean.analysis.ncclimo.find_climatology_file.html" />
     <link href="../../../_static/style.css" rel="stylesheet" type="text/css">
 
@@ -144,31 +144,8 @@
 <dl class="py class">
 <dt class="sig sig-object py" id="polaris.tasks.ocean.analysis.publish.Publish">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">polaris.tasks.ocean.analysis.publish.</span></span><span class="sig-name descname"><span class="pre">Publish</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">component</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subdir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">product_steps</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/polaris/tasks/ocean/analysis/publish.html#Publish"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.tasks.ocean.analysis.publish.Publish" title="Link to this definition"></a></dt>
-<dd><p>A step that publishes what the analysis steps made and generates the
-gallery over it</p>
-<p>This is the only step that knows how results are presented.  It reads
-each step’s manifest fragment, copies the products into the staging
-tree, renders a thumbnail for each plot, writes the merged manifest, and
-generates the site.  Working from the fragments rather than from the
-directory structure is what lets the work be re-chunked later without
-disturbing output paths, links, or the gallery.</p>
-<p>The step never looks for its inputs.  Each fragment is a declared input,
-linked into <code class="docutils literal notranslate"><span class="pre">fragments/</span></code> from the step that wrote it, so Polaris checks
-before this step runs that every one of them is there and names the ones
-that are not.  Each of those steps is also declared as a dependency,
-which is what reaches anything knowable only after a step has run and
-what names a step that never ran at all.  Nothing reorders steps, so the
-suite has to list this one last.</p>
-<p>Every step that makes products writes a fragment, even when it made
-nothing: an empty product list is what a step with nothing to publish
-writes, and it is what lets the fragment be declared rather than looked
-for.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Variables<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>fragment_filenames</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#list" title="(in Python v3.15)"><em>list</em></a><em> of </em><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><em>str</em></a>) – The fragments, as local paths within this step’s work directory, in
-the order the steps that wrote them are listed</p>
-</dd>
-</dl>
+<dd><p>The step that publishes the ocean analysis’s products, with its options
+in <code class="docutils literal notranslate"><span class="pre">[ocean_analysis]</span></code></p>
 <dl class="py method">
 <dt class="sig sig-object py" id="polaris.tasks.ocean.analysis.publish.Publish.__init__">
 <span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">component</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subdir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">product_steps</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/polaris/tasks/ocean/analysis/publish.html#Publish.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.tasks.ocean.analysis.publish.Publish.__init__" title="Link to this definition"></a></dt>
@@ -214,13 +191,13 @@ the order the steps that wrote them are listed</p>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">constrain_resources</span></code>(available_resources)</p></td>
 <td><p>Constrain <code class="docutils literal notranslate"><span class="pre">cpus_per_task</span></code> and <code class="docutils literal notranslate"><span class="pre">ntasks</span></code> based on the number of cores available to this step</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="polaris.tasks.ocean.analysis.publish.Publish.output_path.html#polaris.tasks.ocean.analysis.publish.Publish.output_path" title="polaris.tasks.ocean.analysis.publish.Publish.output_path"><code class="xref py py-obj docutils literal notranslate"><span class="pre">output_path</span></code></a>()</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">output_path</span></code>()</p></td>
 <td><p>Get the root of the staging tree results are published into</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">process_inputs_and_outputs</span></code>()</p></td>
 <td><p>Process the inputs to and outputs from a step added with <a class="reference internal" href="../../generated/polaris.Step.add_input_file.html#polaris.Step.add_input_file" title="polaris.Step.add_input_file"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.add_input_file()</span></code></a> and <a class="reference internal" href="../../generated/polaris.Step.add_output_file.html#polaris.Step.add_output_file" title="polaris.Step.add_output_file"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Step.add_output_file()</span></code></a>.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="polaris.tasks.ocean.analysis.publish.Publish.run.html#polaris.tasks.ocean.analysis.publish.Publish.run" title="polaris.tasks.ocean.analysis.publish.Publish.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">run</span></code></a>()</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">run</span></code>()</p></td>
 <td><p>Publish every product the fragments describe and generate the gallery</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">runtime_setup</span></code>()</p></td>
@@ -272,7 +249,7 @@ the order the steps that wrote them are listed</p>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="polaris.tasks.ocean.analysis.ncclimo.find_climatology_file.html" class="btn btn-neutral float-left" title="polaris.tasks.ocean.analysis.ncclimo.find_climatology_file" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="polaris.tasks.ocean.analysis.publish.Publish.run.html" class="btn btn-neutral float-right" title="polaris.tasks.ocean.analysis.publish.Publish.run" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="polaris.tasks.ocean.analysis.sim_files.SimFile.html" class="btn btn-neutral float-right" title="polaris.tasks.ocean.analysis.sim_files.SimFile" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
