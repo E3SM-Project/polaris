@@ -1,0 +1,6 @@
+﻿polaris.mesh.variables.get\_mesh\_variables
+===========================================
+
+.. currentmodule:: polaris.mesh.variables
+
+.. autofunction:: get_mesh_variables

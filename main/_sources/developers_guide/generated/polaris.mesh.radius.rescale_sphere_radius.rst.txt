@@ -1,0 +1,6 @@
+﻿polaris.mesh.radius.rescale\_sphere\_radius
+===========================================
+
+.. currentmodule:: polaris.mesh.radius
+
+.. autofunction:: rescale_sphere_radius
