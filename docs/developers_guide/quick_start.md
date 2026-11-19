@@ -465,8 +465,8 @@ one-off setup commands.
 #### Recommended default: automated build from `polaris setup`/`polaris suite`
 
 For MPAS-Ocean, Polaris builds automatically during setup and places the
-build in `${WORKDIR}/ocean_build` by default.  If a complete build already exists
-there, it is reused:
+build in `${WORKDIR}/mpas_ocean_build` by default.  If a complete build already
+exists there, it is reused:
 
 ```bash
 source ./load_<env_name>_<machine>_<compiler>_<mpi>.sh
@@ -512,7 +512,7 @@ If you simply wish to run the CTests from Omega, you likely want to use the
 #### Recommended default: automated build from `polaris setup`/`polaris suite`
 
 For Omega, Polaris builds automatically during setup and places the build
-in `${WORKDIR}/ocean_build` by default.  If a complete build already exists there,
+in `${WORKDIR}/omega_build` by default.  If a complete build already exists there,
 it is reused:
 
 ```bash
