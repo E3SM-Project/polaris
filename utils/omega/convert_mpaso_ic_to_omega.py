@@ -17,6 +17,7 @@ from polaris.config import PolarisConfigParser
 from polaris.constants import get_constant
 from polaris.io import download
 from polaris.mesh.info import is_spherical
+from polaris.mesh.radius import rescale_sphere_radius
 
 # These should probably move to a config file
 FORCING_VARIABLES = [
@@ -233,7 +234,7 @@ def _prepare_mpas_zero(
     mpas_velocity_fields = _zero_velocity_fields(ds_mpas_zero)
 
     if spherical:
-        _rescale_sphere_radius(ds_mpas_zero)
+        rescale_sphere_radius(ds_mpas_zero)
 
     if include_realistic_forcing:
         _add_surface_forcing(ds_mpas_zero, ds_forcing)
@@ -367,7 +368,7 @@ def convert_to_omega(
     velocity_fields = _zero_velocity_fields(ds_omega)
 
     if spherical:
-        _rescale_sphere_radius(ds_omega)
+        rescale_sphere_radius(ds_omega)
 
     # 6. Apply surface stresses and shortwave extinction
     if include_realistic_forcing:
@@ -819,7 +820,7 @@ def _check_sphere_radius(ds, spherical):
     """
     Check that ``sphere_radius`` agrees with ``on_a_sphere``.  A spherical
     mesh with an invalid ``sphere_radius`` is an error, but
-    ``_rescale_sphere_radius()`` raises it, so only the planar case is worth
+    ``rescale_sphere_radius()`` raises it, so only the planar case is worth
     mentioning here.  Either way, ``on_a_sphere`` is what decides whether the
     mesh is spherical: a planar mesh is not guaranteed to have
     ``sphere_radius = 0``.
@@ -830,59 +831,6 @@ def _check_sphere_radius(ds, spherical):
             f"Warning: the mesh is planar (on_a_sphere = 'NO') but "
             f'sphere_radius = {sphere_radius}; ignoring it'
         )
-
-
-def _rescale_sphere_radius(ds):
-    if 'sphere_radius' not in ds.attrs:
-        raise ValueError(
-            'Global attribute sphere_radius is required to rescale xCell'
-        )
-
-    sphere_radius = float(ds.attrs['sphere_radius'])
-    if sphere_radius <= 0.0:
-        raise ValueError(f'Invalid sphere_radius: {sphere_radius}')
-
-    mean_radius = get_constant('mean_radius')
-
-    # Rescale coordinates and areas based on the ratio of mean_radius
-    # in pcd.yaml versus sphere_radius in input file
-    ds['xCell'] = mean_radius * ds['xCell'] / sphere_radius
-    ds['yCell'] = mean_radius * ds['yCell'] / sphere_radius
-    ds['zCell'] = mean_radius * ds['zCell'] / sphere_radius
-
-    ds['xEdge'] = mean_radius * ds['xEdge'] / sphere_radius
-    ds['yEdge'] = mean_radius * ds['yEdge'] / sphere_radius
-    ds['zEdge'] = mean_radius * ds['zEdge'] / sphere_radius
-
-    ds['xVertex'] = mean_radius * ds['xVertex'] / sphere_radius
-    ds['yVertex'] = mean_radius * ds['yVertex'] / sphere_radius
-    ds['zVertex'] = mean_radius * ds['zVertex'] / sphere_radius
-
-    ds['dcEdge'] = mean_radius * ds['dcEdge'] / sphere_radius
-    ds['dvEdge'] = mean_radius * ds['dvEdge'] / sphere_radius
-
-    ds['areaCell'] = (
-        mean_radius
-        * mean_radius
-        * ds['areaCell']
-        / (sphere_radius * sphere_radius)
-    )
-    ds['areaTriangle'] = (
-        mean_radius
-        * mean_radius
-        * ds['areaTriangle']
-        / (sphere_radius * sphere_radius)
-    )
-    ds['kiteAreasOnVertex'] = (
-        mean_radius
-        * mean_radius
-        * ds['kiteAreasOnVertex']
-        / (sphere_radius * sphere_radius)
-    )
-
-    # Update sphere_radius global attribute to be consistent with mean_radius
-    # in pcd.yaml
-    ds.attrs['sphere_radius'] = mean_radius
 
 
 def _keep_selected_global_attrs(ds):

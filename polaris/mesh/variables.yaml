@@ -1,0 +1,22 @@
+# Groups of MPAS mesh variables, shared by any component's mesh,
+# initial-condition or restart files
+
+# horizontal coordinates and lengths, which scale with the sphere radius
+length_variables:
+  - xCell
+  - yCell
+  - zCell
+  - xEdge
+  - yEdge
+  - zEdge
+  - xVertex
+  - yVertex
+  - zVertex
+  - dcEdge
+  - dvEdge
+
+# horizontal areas, which scale with the square of the sphere radius
+area_variables:
+  - areaCell
+  - areaTriangle
+  - kiteAreasOnVertex
