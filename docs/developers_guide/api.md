@@ -480,6 +480,8 @@ seaice/api
 
    radius.rescale_sphere_radius
 
+   variables.get_mesh_variables
+
    attrs.add_mesh_var_attrs
 
    planar.compute_planar_hex_nx_ny

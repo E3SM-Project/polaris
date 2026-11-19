@@ -2,28 +2,7 @@ import xarray as xr
 
 from polaris.constants import get_constant
 from polaris.mesh.info import is_spherical
-
-# horizontal coordinates and lengths, which scale with the sphere radius
-LENGTH_VARIABLES = [
-    'xCell',
-    'yCell',
-    'zCell',
-    'xEdge',
-    'yEdge',
-    'zEdge',
-    'xVertex',
-    'yVertex',
-    'zVertex',
-    'dcEdge',
-    'dvEdge',
-]
-
-# horizontal areas, which scale with the square of the sphere radius
-AREA_VARIABLES = [
-    'areaCell',
-    'areaTriangle',
-    'kiteAreasOnVertex',
-]
+from polaris.mesh.variables import get_mesh_variables
 
 
 def rescale_sphere_radius(
@@ -33,10 +12,11 @@ def rescale_sphere_radius(
     Rescale the coordinates, lengths and areas of a spherical MPAS mesh to a
     new sphere radius, in place, and update the ``sphere_radius`` global
     attribute to match.  Latitudes, longitudes, angles and dimensionless
-    fields are unchanged.  Variables in :py:data:`LENGTH_VARIABLES` and
-    :py:data:`AREA_VARIABLES` that are not in ``ds`` are skipped, so the
-    function works on any MPAS component's mesh, initial-condition or
-    restart file.
+    fields are unchanged.  The variables rescaled are the
+    ``length_variables`` and ``area_variables`` groups from
+    :py:func:`polaris.mesh.variables.get_mesh_variables`.  Those not in
+    ``ds`` are skipped, so the function works on any MPAS component's mesh,
+    initial-condition or restart file.
 
     Parameters
     ----------
@@ -78,13 +58,13 @@ def rescale_sphere_radius(
         radius = float(get_constant('mean_radius'))
 
     rescaled = []
-    for name in LENGTH_VARIABLES:
+    for name in get_mesh_variables('length_variables'):
         if name in ds:
             values = radius * ds[name].values / sphere_radius
             ds[name] = ds[name].copy(data=values)
             rescaled.append(name)
 
-    for name in AREA_VARIABLES:
+    for name in get_mesh_variables('area_variables'):
         if name in ds:
             values = (
                 radius

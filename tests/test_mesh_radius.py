@@ -7,12 +7,11 @@ import pytest
 import xarray as xr
 
 from polaris.constants import get_constant
-from polaris.mesh.radius import (
-    AREA_VARIABLES,
-    LENGTH_VARIABLES,
-    rescale_sphere_radius,
-)
+from polaris.mesh.radius import rescale_sphere_radius
+from polaris.mesh.variables import get_mesh_variables
 
+LENGTH_VARIABLES = get_mesh_variables('length_variables')
+AREA_VARIABLES = get_mesh_variables('area_variables')
 OLD_RADIUS = 6.0e6
 NEW_RADIUS = 6.5e6
 
@@ -81,6 +80,11 @@ def test_missing_or_invalid_sphere_radius_is_an_error(radius):
 
     with pytest.raises(ValueError, match='sphere_radius'):
         rescale_sphere_radius(ds, NEW_RADIUS)
+
+
+def test_unknown_mesh_variable_group_is_an_error():
+    with pytest.raises(ValueError, match='Unknown mesh variable group'):
+        get_mesh_variables('volume_variables')
 
 
 def _make_mesh():
