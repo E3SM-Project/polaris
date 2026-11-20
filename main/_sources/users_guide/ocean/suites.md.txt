@@ -161,14 +161,21 @@ ocean/spherical/icos/rotation_2d/with_viz
 
 The `fanssie_pr` suite holds the tasks that need MPAS-Ocean from the FAnSSIE
 branch rather than from E3SM-Project, including all the ice-shelf tasks.  It
-must be run with MPAS-Ocean built from the `e3sm_submodules/FAnSSIE`
-submodule (see {ref}`dev-ocean-fanssie`).  The tasks in the suite are:
+also holds the {ref}`landice-suite-mali-pr` tasks, since FAnSSIE carries MALI
+changes for coupled ocean–ice-sheet work.  It must be run with MPAS-Ocean and
+MALI both built from the `e3sm_submodules/FAnSSIE` submodule (see
+{ref}`dev-ocean-fanssie`), in a Polaris environment with Albany (see
+{ref}`dev-landice-albany`).  The tasks in the suite are:
 
 ```none
 ocean/planar/ice_shelf_2d/5km/z-star/default/with_restart
 ocean/planar/ice_shelf_2d/5km/z-level/default/with_restart
 ocean/planar/ice_shelf_2d/5km/z-star/default/with_viz
 ocean/planar/isomip_plus/4km/z-star/ocean0
+landice/dome/2km/sia/decomp
+landice/dome/2km/sia/restart
+landice/dome/2km/fo/decomp
+landice/dome/2km/fo/restart
 ```
 
 (ocean-suite-convergence)=

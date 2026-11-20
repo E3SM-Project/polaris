@@ -1,0 +1,6 @@
+﻿polaris.landice.model.MaliModelStep.dynamic\_model\_config
+==========================================================
+
+.. currentmodule:: polaris.landice.model
+
+.. automethod:: MaliModelStep.dynamic_model_config

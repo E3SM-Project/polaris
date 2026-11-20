@@ -52,6 +52,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../users_guide/suites.html">Suites</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../users_guide/mesh/index.html">Mesh component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../users_guide/e3sm/init/index.html">E3SM Initial Condition Component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/landice/index.html">Land-ice component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../users_guide/ocean/index.html">Ocean component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../users_guide/seaice/index.html">Sea ice component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../users_guide/machines/index.html">Machines</a></li>
@@ -64,6 +65,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../organization/index.html">Organization of Tasks</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../e3sm/init/index.html">E3SM initial condition (e3sm/init) component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../landice/index.html">Land-ice component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../ocean/index.html">Ocean component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../seaice/index.html">Sea ice component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../framework/index.html">Framework</a></li>
@@ -75,6 +77,7 @@
 <li class="toctree-l3 current"><a class="current reference internal" href="#">Perlmutter</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#pm-cpu-gnu">pm-cpu, gnu</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#pm-cpu-intel">pm-cpu, intel</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pm-gpu-gnugpu">pm-gpu, gnugpu</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="index.html#supported-machine-configurations">Supported Machine Configurations</a></li>
@@ -100,6 +103,7 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/dev_mali_pr_on_perlmutter.html">Developer Tutorial: Running the <code class="docutils literal notranslate"><span class="pre">mali_pr</span></code> Suite on Perlmutter</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../tutorials/dev_add_category_of_tasks/index.html">Developer Tutorial: Adding a New Category of Tasks</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Glossary</span></p>
@@ -142,7 +146,7 @@ script similar to:</p>
 </pre></div>
 </div>
 <p>Then, you can build the MPAS model with</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>make<span class="w"> </span><span class="o">[</span><span class="nv">DEBUG</span><span class="o">=</span>true<span class="o">]</span><span class="w"> </span>gnu-cray
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>make<span class="w"> </span><span class="o">[</span><span class="nv">DEBUG</span><span class="o">=</span>true<span class="o">]</span><span class="w"> </span><span class="o">[</span><span class="nv">ALBANY</span><span class="o">=</span>true<span class="o">]</span><span class="w"> </span>gnu-cray
 </pre></div>
 </div>
 </section>
@@ -155,6 +159,19 @@ load scrip will look something like:</p>
 </div>
 <p>To build MPAS components, use:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>make<span class="w"> </span><span class="o">[</span><span class="nv">DEBUG</span><span class="o">=</span>true<span class="o">]</span><span class="w"> </span>intel-cray
+</pre></div>
+</div>
+</section>
+<section id="pm-gpu-gnugpu">
+<h2>pm-gpu, gnugpu<a class="headerlink" href="#pm-gpu-gnugpu" title="Link to this heading"></a></h2>
+<p>MALI is supported on Perlmutter’s GPU nodes with a GPU build of Albany
+(see <a class="reference internal" href="../landice/index.html#dev-landice-albany"><span class="std std-ref">Albany</span></a>).  Deploy with <code class="docutils literal notranslate"><span class="pre">--machine</span> <span class="pre">pm-gpu</span></code> and
+<code class="docutils literal notranslate"><span class="pre">--with-albany</span></code>, then source a load script similar to:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">source</span><span class="w"> </span>load_polaris_pm-gpu_gnugpu_mpich.sh
+</pre></div>
+</div>
+<p>Then, you can build MALI with</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>make<span class="w"> </span><span class="o">[</span><span class="nv">DEBUG</span><span class="o">=</span>true<span class="o">]</span><span class="w"> </span><span class="nv">ALBANY</span><span class="o">=</span><span class="nb">true</span><span class="w"> </span>gnu-cray
 </pre></div>
 </div>
 </section>

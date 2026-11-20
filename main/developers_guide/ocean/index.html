@@ -20,7 +20,7 @@
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
     <link rel="next" title="Tasks" href="tasks/index.html" />
-    <link rel="prev" title="Baseline Validation Variables" href="../mesh/framework/validate.html" />
+    <link rel="prev" title="dome" href="../landice/tasks/dome.html" />
     <link href="../../_static/style.css" rel="stylesheet" type="text/css">
 
 </head>
@@ -52,6 +52,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../users_guide/suites.html">Suites</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../users_guide/mesh/index.html">Mesh component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../users_guide/e3sm/init/index.html">E3SM Initial Condition Component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/landice/index.html">Land-ice component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../users_guide/ocean/index.html">Ocean component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../users_guide/seaice/index.html">Sea ice component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../users_guide/machines/index.html">Machines</a></li>
@@ -64,6 +65,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../organization/index.html">Organization of Tasks</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../e3sm/init/index.html">E3SM initial condition (e3sm/init) component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../landice/index.html">Land-ice component</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Ocean component</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#dev-ocean-fanssie">FAnSSIE</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="tasks/index.html">Tasks</a></li>
@@ -92,6 +94,7 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/dev_mali_pr_on_perlmutter.html">Developer Tutorial: Running the <code class="docutils literal notranslate"><span class="pre">mali_pr</span></code> Suite on Perlmutter</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../tutorials/dev_add_category_of_tasks/index.html">Developer Tutorial: Adding a New Category of Tasks</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Glossary</span></p>
@@ -231,10 +234,14 @@ including all the ice-shelf tasks, are not in the regular suites.  To run them,
 initialize the submodule and point the build to it:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>submodule<span class="w"> </span>update<span class="w"> </span>--init<span class="w"> </span>e3sm_submodules/FAnSSIE
 polaris<span class="w"> </span>suite<span class="w"> </span>-c<span class="w"> </span>ocean<span class="w"> </span>-t<span class="w"> </span>fanssie_pr<span class="w"> </span>--model<span class="w"> </span>mpas-ocean<span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>--branch<span class="w"> </span>e3sm_submodules/FAnSSIE<span class="w"> </span>-w<span class="w"> </span>&lt;work_dir&gt;<span class="w"> </span>-p<span class="w"> </span>&lt;build_dir&gt;<span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>-b<span class="w"> </span>&lt;baseline_dir&gt;
+<span class="w">    </span>--branch<span class="w"> </span>e3sm_submodules/FAnSSIE<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--landice_branch<span class="w"> </span>e3sm_submodules/FAnSSIE<span class="w"> </span>-w<span class="w"> </span>&lt;work_dir&gt;<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>-p<span class="w"> </span>&lt;build_dir&gt;<span class="w"> </span>--landice_path<span class="w"> </span>&lt;landice_build_dir&gt;<span class="w"> </span>-b<span class="w"> </span>&lt;baseline_dir&gt;
 </pre></div>
 </div>
+<p>The suite includes MALI tasks, so it needs a Polaris environment deployed with
+<code class="docutils literal notranslate"><span class="pre">--with-albany</span></code> (see <a class="reference internal" href="../landice/index.html#dev-landice-albany"><span class="std std-ref">Albany</span></a>).  MPAS-Ocean and MALI are
+built one after the other from the same checkout.</p>
 <p>The <code class="docutils literal notranslate"><span class="pre">fanssie_pr</span></code> suite (see <a class="reference internal" href="../../users_guide/ocean/suites.html#ocean-suite-fanssie-pr"><span class="std std-ref">fanssie_pr suite</span></a>) is the regression
 test for FAnSSIE:</p>
 <ul class="simple">
@@ -290,7 +297,7 @@ commit.</p></li>
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="../mesh/framework/validate.html" class="btn btn-neutral float-left" title="Baseline Validation Variables" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../landice/tasks/dome.html" class="btn btn-neutral float-left" title="dome" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
         <a href="tasks/index.html" class="btn btn-neutral float-right" title="Tasks" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 

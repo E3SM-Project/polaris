@@ -407,6 +407,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l1"><a class="reference internal" href="users_guide/suites.html">Suites</a></li>
 <li class="toctree-l1"><a class="reference internal" href="users_guide/mesh/index.html">Mesh component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="users_guide/e3sm/init/index.html">E3SM Initial Condition Component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="users_guide/landice/index.html">Land-ice component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="users_guide/ocean/index.html">Ocean component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="users_guide/seaice/index.html">Sea ice component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="users_guide/machines/index.html">Machines</a></li>
@@ -419,6 +420,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l1"><a class="reference internal" href="developers_guide/organization/index.html">Organization of Tasks</a></li>
 <li class="toctree-l1"><a class="reference internal" href="developers_guide/e3sm/init/index.html">E3SM initial condition (e3sm/init) component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="developers_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="developers_guide/landice/index.html">Land-ice component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="developers_guide/ocean/index.html">Ocean component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="developers_guide/seaice/index.html">Sea ice component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="developers_guide/framework/index.html">Framework</a></li>
@@ -438,6 +440,7 @@ window.runMermaid = runMermaid;</script>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/dev_mali_pr_on_perlmutter.html">Developer Tutorial: Running the <code class="docutils literal notranslate"><span class="pre">mali_pr</span></code> Suite on Perlmutter</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tutorials/dev_add_category_of_tasks/index.html">Developer Tutorial: Adding a New Category of Tasks</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Glossary</span></p>
@@ -524,6 +527,8 @@ window.runMermaid = runMermaid;</script>
         <li><a href="developers_guide/e3sm/init/generated/polaris.e3sm.init.graph_partition.GraphPartitionStep.html#polaris.e3sm.init.graph_partition.GraphPartitionStep.__init__">(polaris.e3sm.init.graph_partition.GraphPartitionStep method)</a>
 </li>
         <li><a href="developers_guide/e3sm/init/generated/polaris.e3sm.init.partitions.RegionGraph.html#polaris.e3sm.init.partitions.RegionGraph.__init__">(polaris.e3sm.init.partitions.RegionGraph method)</a>
+</li>
+        <li><a href="developers_guide/landice/generated/polaris.landice.model.MaliModelStep.html#polaris.landice.model.MaliModelStep.__init__">(polaris.landice.model.MaliModelStep method)</a>
 </li>
         <li><a href="developers_guide/generated/polaris.mesh.base.BaseMeshDefinition.html#polaris.mesh.base.BaseMeshDefinition.__init__">(polaris.mesh.base.BaseMeshDefinition method)</a>
 </li>
@@ -652,6 +657,22 @@ window.runMermaid = runMermaid;</script>
         <li><a href="developers_guide/e3sm/init/generated/polaris.tasks.e3sm.init.topo.remap.RemapTopoWeightsStep.html#polaris.tasks.e3sm.init.topo.remap.RemapTopoWeightsStep.__init__">(polaris.tasks.e3sm.init.topo.remap.RemapTopoWeightsStep method)</a>
 </li>
         <li><a href="developers_guide/e3sm/init/generated/polaris.tasks.e3sm.init.topo.remap.VizRemappedTopoStep.html#polaris.tasks.e3sm.init.topo.remap.VizRemappedTopoStep.__init__">(polaris.tasks.e3sm.init.topo.remap.VizRemappedTopoStep method)</a>
+</li>
+        <li><a href="developers_guide/landice/generated/polaris.tasks.landice.dome.decomp.Decomp.html#polaris.tasks.landice.dome.decomp.Decomp.__init__">(polaris.tasks.landice.dome.decomp.Decomp method)</a>
+</li>
+        <li><a href="developers_guide/landice/generated/polaris.tasks.landice.dome.forward.Forward.html#polaris.tasks.landice.dome.forward.Forward.__init__">(polaris.tasks.landice.dome.forward.Forward method)</a>
+</li>
+        <li><a href="developers_guide/landice/generated/polaris.tasks.landice.dome.init.Init.html#polaris.tasks.landice.dome.init.Init.__init__">(polaris.tasks.landice.dome.init.Init method)</a>
+</li>
+        <li><a href="developers_guide/landice/generated/polaris.tasks.landice.dome.restart.Restart.html#polaris.tasks.landice.dome.restart.Restart.__init__">(polaris.tasks.landice.dome.restart.Restart method)</a>
+</li>
+        <li><a href="developers_guide/landice/generated/polaris.tasks.landice.dome.smoke_test.SmokeTest.html#polaris.tasks.landice.dome.smoke_test.SmokeTest.__init__">(polaris.tasks.landice.dome.smoke_test.SmokeTest method)</a>
+</li>
+        <li><a href="developers_guide/landice/generated/polaris.tasks.landice.dome.validate.Validate.html#polaris.tasks.landice.dome.validate.Validate.__init__">(polaris.tasks.landice.dome.validate.Validate method)</a>
+</li>
+        <li><a href="developers_guide/landice/generated/polaris.tasks.landice.dome.viz.Viz.html#polaris.tasks.landice.dome.viz.Viz.__init__">(polaris.tasks.landice.dome.viz.Viz method)</a>
+</li>
+        <li><a href="developers_guide/landice/generated/polaris.tasks.landice.Landice.html#polaris.tasks.landice.Landice.__init__">(polaris.tasks.landice.Landice method)</a>
 </li>
         <li><a href="developers_guide/mesh/generated/polaris.tasks.mesh.base.BaseMeshTask.html#polaris.tasks.mesh.base.BaseMeshTask.__init__">(polaris.tasks.mesh.base.BaseMeshTask method)</a>
 </li>
@@ -1130,6 +1151,8 @@ window.runMermaid = runMermaid;</script>
 </li>
       <li><a href="developers_guide/generated/polaris.Step.add_dependency.html#polaris.Step.add_dependency">add_dependency() (polaris.Step method)</a>
 </li>
+      <li><a href="developers_guide/landice/generated/polaris.tasks.landice.dome.add_dome_tasks.html#polaris.tasks.landice.dome.add_dome_tasks">add_dome_tasks() (in module polaris.tasks.landice.dome)</a>
+</li>
       <li><a href="developers_guide/e3sm/init/generated/polaris.tasks.e3sm.init.add_tasks.add_e3sm_init_tasks.html#polaris.tasks.e3sm.init.add_tasks.add_e3sm_init_tasks">add_e3sm_init_tasks() (in module polaris.tasks.e3sm.init.add_tasks)</a>
 </li>
       <li><a href="developers_guide/mesh/generated/polaris.tasks.mesh.spherical.feature_masks.add_feature_mask_tasks.html#polaris.tasks.mesh.spherical.feature_masks.add_feature_mask_tasks">add_feature_mask_tasks() (in module polaris.tasks.mesh.spherical.feature_masks)</a>
@@ -1165,6 +1188,8 @@ window.runMermaid = runMermaid;</script>
 </li>
       </ul></li>
       <li><a href="developers_guide/ocean/generated/polaris.tasks.ocean.internal_wave.add_internal_wave_tasks.html#polaris.tasks.ocean.internal_wave.add_internal_wave_tasks">add_internal_wave_tasks() (in module polaris.tasks.ocean.internal_wave)</a>
+</li>
+      <li><a href="developers_guide/landice/generated/polaris.tasks.landice.add_tasks.add_landice_tasks.html#polaris.tasks.landice.add_tasks.add_landice_tasks">add_landice_tasks() (in module polaris.tasks.landice.add_tasks)</a>
 </li>
       <li><a href="developers_guide/generated/polaris.cf.add_lat_lon_attrs.html#polaris.cf.add_lat_lon_attrs">add_lat_lon_attrs() (in module polaris.cf)</a>
 </li>
@@ -1210,10 +1235,10 @@ window.runMermaid = runMermaid;</script>
 </li>
       <li><a href="developers_guide/ocean/generated/polaris.tasks.ocean.realistic_global.dynamic_adjustment.tasks.add_realistic_global_dynamic_adjustment_tasks.html#polaris.tasks.ocean.realistic_global.dynamic_adjustment.tasks.add_realistic_global_dynamic_adjustment_tasks">add_realistic_global_dynamic_adjustment_tasks() (in module polaris.tasks.ocean.realistic_global.dynamic_adjustment.tasks)</a>
 </li>
-      <li><a href="developers_guide/ocean/generated/polaris.tasks.ocean.realistic_global.forward.tasks.add_realistic_global_forward_tasks.html#polaris.tasks.ocean.realistic_global.forward.tasks.add_realistic_global_forward_tasks">add_realistic_global_forward_tasks() (in module polaris.tasks.ocean.realistic_global.forward.tasks)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="developers_guide/ocean/generated/polaris.tasks.ocean.realistic_global.forward.tasks.add_realistic_global_forward_tasks.html#polaris.tasks.ocean.realistic_global.forward.tasks.add_realistic_global_forward_tasks">add_realistic_global_forward_tasks() (in module polaris.tasks.ocean.realistic_global.forward.tasks)</a>
+</li>
       <li><a href="developers_guide/ocean/generated/polaris.tasks.ocean.realistic_global.init.tasks.add_realistic_global_init_tasks.html#polaris.tasks.ocean.realistic_global.init.tasks.add_realistic_global_init_tasks">add_realistic_global_init_tasks() (in module polaris.tasks.ocean.realistic_global.init.tasks)</a>
 </li>
       <li><a href="developers_guide/ocean/generated/polaris.tasks.ocean.realistic_global.mesh_configs.add_realistic_global_mesh_config.html#polaris.tasks.ocean.realistic_global.mesh_configs.add_realistic_global_mesh_config">add_realistic_global_mesh_config() (in module polaris.tasks.ocean.realistic_global.mesh_configs)</a>
@@ -1402,10 +1427,16 @@ window.runMermaid = runMermaid;</script>
 </li>
       <li><a href="developers_guide/generated/polaris.mesh.spherical.unified.effective_ocean.build_effective_ocean_mask.html#polaris.mesh.spherical.unified.effective_ocean.build_effective_ocean_mask">build_effective_ocean_mask() (in module polaris.mesh.spherical.unified.effective_ocean)</a>
 </li>
+      <li><a href="developers_guide/generated/polaris.build.mali.build_mali.html#polaris.build.mali.build_mali">build_mali() (in module polaris.build.mali)</a>
+</li>
       <li><a href="developers_guide/mesh/generated/polaris.tasks.mesh.spherical.feature_masks.build_mask_feature_collection.html#polaris.tasks.mesh.spherical.feature_masks.build_mask_feature_collection">build_mask_feature_collection() (in module polaris.tasks.mesh.spherical.feature_masks)</a>
 </li>
       <li><a href="developers_guide/generated/polaris.Component.build_model.html#polaris.Component.build_model">build_model() (polaris.Component method)</a>
+
+      <ul>
+        <li><a href="developers_guide/landice/generated/polaris.tasks.landice.Landice.build_model.html#polaris.tasks.landice.Landice.build_model">(polaris.tasks.landice.Landice method)</a>
 </li>
+      </ul></li>
       <li><a href="developers_guide/generated/polaris.build.mpas_ocean.build_mpas_ocean.html#polaris.build.mpas_ocean.build_mpas_ocean">build_mpas_ocean() (in module polaris.build.mpas_ocean)</a>
 </li>
       <li><a href="developers_guide/generated/polaris.mesh.spherical.unified.families.UnifiedMeshFamily.build_ocean_background.html#polaris.mesh.spherical.unified.families.UnifiedMeshFamily.build_ocean_background">build_ocean_background() (polaris.mesh.spherical.unified.families.UnifiedMeshFamily method)</a>
@@ -1614,10 +1645,10 @@ window.runMermaid = runMermaid;</script>
 </li>
       <li><a href="developers_guide/ocean/generated/polaris.ocean.eos.linear.compute_linear_density.html#polaris.ocean.eos.linear.compute_linear_density">compute_linear_density() (in module polaris.ocean.eos.linear)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="developers_guide/ocean/generated/polaris.tasks.ocean.barotropic_gyre.forward.Forward.compute_max_time_step.html#polaris.tasks.ocean.barotropic_gyre.forward.Forward.compute_max_time_step">compute_max_time_step() (polaris.tasks.ocean.barotropic_gyre.forward.Forward method)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="developers_guide/ocean/generated/polaris.ocean.vertical.zlevel.compute_min_max_level_cell.html#polaris.ocean.vertical.zlevel.compute_min_max_level_cell">compute_min_max_level_cell() (in module polaris.ocean.vertical.zlevel)</a>
 </li>
       <li><a href="developers_guide/ocean/generated/polaris.tasks.ocean.mixed_layer_eddies.diagnostics.compute_mixed_layer_n2.html#polaris.tasks.ocean.mixed_layer_eddies.diagnostics.compute_mixed_layer_n2">compute_mixed_layer_n2() (in module polaris.tasks.ocean.mixed_layer_eddies.diagnostics)</a>
@@ -1683,6 +1714,8 @@ window.runMermaid = runMermaid;</script>
 </li>
         <li><a href="developers_guide/e3sm/init/generated/polaris.tasks.e3sm.init.component_inputs.ComponentInputsTask.configure.html#polaris.tasks.e3sm.init.component_inputs.ComponentInputsTask.configure">(polaris.tasks.e3sm.init.component_inputs.ComponentInputsTask method)</a>
 </li>
+        <li><a href="developers_guide/landice/generated/polaris.tasks.landice.Landice.configure.html#polaris.tasks.landice.Landice.configure">(polaris.tasks.landice.Landice method)</a>
+</li>
         <li><a href="developers_guide/ocean/generated/polaris.tasks.ocean.analysis.AnalysisTask.configure.html#polaris.tasks.ocean.analysis.AnalysisTask.configure">(polaris.tasks.ocean.analysis.AnalysisTask method)</a>
 </li>
         <li><a href="developers_guide/ocean/generated/polaris.tasks.ocean.baroclinic_channel.rpe.Rpe.configure.html#polaris.tasks.ocean.baroclinic_channel.rpe.Rpe.configure">(polaris.tasks.ocean.baroclinic_channel.rpe.Rpe method)</a>
@@ -1725,6 +1758,8 @@ window.runMermaid = runMermaid;</script>
       <li><a href="developers_guide/e3sm/init/generated/polaris.e3sm.init.graph_partition.GraphPartitionStep.constrain_resources.html#polaris.e3sm.init.graph_partition.GraphPartitionStep.constrain_resources">constrain_resources() (polaris.e3sm.init.graph_partition.GraphPartitionStep method)</a>
 
       <ul>
+        <li><a href="developers_guide/landice/generated/polaris.landice.model.MaliModelStep.constrain_resources.html#polaris.landice.model.MaliModelStep.constrain_resources">(polaris.landice.model.MaliModelStep method)</a>
+</li>
         <li><a href="developers_guide/ocean/generated/polaris.ocean.model.OceanModelStep.constrain_resources.html#polaris.ocean.model.OceanModelStep.constrain_resources">(polaris.ocean.model.OceanModelStep method)</a>
 </li>
         <li><a href="developers_guide/generated/polaris.Step.constrain_resources.html#polaris.Step.constrain_resources">(polaris.Step method)</a>
@@ -1812,9 +1847,11 @@ window.runMermaid = runMermaid;</script>
 </li>
       <li><a href="developers_guide/ocean/generated/polaris.ocean.model.days_per_year.html#polaris.ocean.model.days_per_year">days_per_year() (in module polaris.ocean.model)</a>
 </li>
-      <li><a href="developers_guide/ocean/generated/polaris.tasks.ocean.baroclinic_channel.decomp.Decomp.html#polaris.tasks.ocean.baroclinic_channel.decomp.Decomp">Decomp (class in polaris.tasks.ocean.baroclinic_channel.decomp)</a>
+      <li><a href="developers_guide/landice/generated/polaris.tasks.landice.dome.decomp.Decomp.html#polaris.tasks.landice.dome.decomp.Decomp">Decomp (class in polaris.tasks.landice.dome.decomp)</a>
 
       <ul>
+        <li><a href="developers_guide/ocean/generated/polaris.tasks.ocean.baroclinic_channel.decomp.Decomp.html#polaris.tasks.ocean.baroclinic_channel.decomp.Decomp">(class in polaris.tasks.ocean.baroclinic_channel.decomp)</a>
+</li>
         <li><a href="developers_guide/ocean/generated/polaris.tasks.ocean.cosine_bell.decomp.Decomp.html#polaris.tasks.ocean.cosine_bell.decomp.Decomp">(class in polaris.tasks.ocean.cosine_bell.decomp)</a>
 </li>
       </ul></li>
@@ -1858,9 +1895,11 @@ window.runMermaid = runMermaid;</script>
 </li>
       <li><a href="developers_guide/generated/polaris.cf.drop_inherited_attrs.html#polaris.cf.drop_inherited_attrs">drop_inherited_attrs() (in module polaris.cf)</a>
 </li>
-      <li><a href="developers_guide/generated/polaris.ModelStep.dynamic_model_config.html#polaris.ModelStep.dynamic_model_config">dynamic_model_config() (polaris.ModelStep method)</a>
+      <li><a href="developers_guide/landice/generated/polaris.landice.model.MaliModelStep.dynamic_model_config.html#polaris.landice.model.MaliModelStep.dynamic_model_config">dynamic_model_config() (polaris.landice.model.MaliModelStep method)</a>
 
       <ul>
+        <li><a href="developers_guide/generated/polaris.ModelStep.dynamic_model_config.html#polaris.ModelStep.dynamic_model_config">(polaris.ModelStep method)</a>
+</li>
         <li><a href="developers_guide/ocean/generated/polaris.ocean.convergence.forward.ConvergenceForward.dynamic_model_config.html#polaris.ocean.convergence.forward.ConvergenceForward.dynamic_model_config">(polaris.ocean.convergence.forward.ConvergenceForward method)</a>
 </li>
         <li><a href="developers_guide/ocean/generated/polaris.ocean.ice_shelf.SshForward.dynamic_model_config.html#polaris.ocean.ice_shelf.SshForward.dynamic_model_config">(polaris.ocean.ice_shelf.SshForward method)</a>
@@ -1916,12 +1955,16 @@ window.runMermaid = runMermaid;</script>
 </li>
       <li><a href="developers_guide/ocean/generated/polaris.ocean.vertical.elevation.elevation_range_weights.html#polaris.ocean.vertical.elevation.elevation_range_weights">elevation_range_weights() (in module polaris.ocean.vertical.elevation)</a>
 </li>
+      <li><a href="developers_guide/generated/polaris.build.mali.environment_has_albany.html#polaris.build.mali.environment_has_albany">environment_has_albany() (in module polaris.build.mali)</a>
+</li>
       <li><a href="developers_guide/ocean/generated/polaris.tasks.ocean.realistic_global.mesh_info.estimate_cell_count.html#polaris.tasks.ocean.realistic_global.mesh_info.estimate_cell_count">estimate_cell_count() (in module polaris.tasks.ocean.realistic_global.mesh_info)</a>
 </li>
       <li><a href="developers_guide/ocean/generated/polaris.tasks.ocean.realistic_global.mesh_info.estimate_ocean_cell_count.html#polaris.tasks.ocean.realistic_global.mesh_info.estimate_ocean_cell_count">estimate_ocean_cell_count() (in module polaris.tasks.ocean.realistic_global.mesh_info)</a>
 </li>
       <li><a href="developers_guide/generated/polaris.run.events.EventStream.html#polaris.run.events.EventStream">EventStream (class in polaris.run.events)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="developers_guide/ocean/generated/polaris.ocean.convergence.analysis.ConvergenceAnalysis.exact_solution.html#polaris.ocean.convergence.analysis.ConvergenceAnalysis.exact_solution">exact_solution() (polaris.ocean.convergence.analysis.ConvergenceAnalysis method)</a>
 
       <ul>
@@ -1936,8 +1979,6 @@ window.runMermaid = runMermaid;</script>
         <li><a href="developers_guide/ocean/generated/polaris.tasks.ocean.manufactured_solution.analysis.Analysis.exact_solution.html#polaris.tasks.ocean.manufactured_solution.analysis.Analysis.exact_solution">(polaris.tasks.ocean.manufactured_solution.analysis.Analysis method)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="developers_guide/seaice/generated/polaris.tasks.seaice.single_column.exact_restart.ExactRestart.html#polaris.tasks.seaice.single_column.exact_restart.ExactRestart">ExactRestart (class in polaris.tasks.seaice.single_column.exact_restart)</a>
 </li>
       <li><a href="developers_guide/ocean/generated/polaris.tasks.ocean.inertial_gravity_wave.exact_solution.ExactSolution.html#polaris.tasks.ocean.inertial_gravity_wave.exact_solution.ExactSolution">ExactSolution (class in polaris.tasks.ocean.inertial_gravity_wave.exact_solution)</a>
@@ -1998,9 +2039,11 @@ window.runMermaid = runMermaid;</script>
 </li>
       <li><a href="developers_guide/ocean/generated/polaris.tasks.ocean.horiz_press_grad.metrics.format_value_list.html#polaris.tasks.ocean.horiz_press_grad.metrics.format_value_list">format_value_list() (in module polaris.tasks.ocean.horiz_press_grad.metrics)</a>
 </li>
-      <li><a href="developers_guide/ocean/generated/polaris.tasks.ocean.baroclinic_channel.forward.Forward.html#polaris.tasks.ocean.baroclinic_channel.forward.Forward">Forward (class in polaris.tasks.ocean.baroclinic_channel.forward)</a>
+      <li><a href="developers_guide/landice/generated/polaris.tasks.landice.dome.forward.Forward.html#polaris.tasks.landice.dome.forward.Forward">Forward (class in polaris.tasks.landice.dome.forward)</a>
 
       <ul>
+        <li><a href="developers_guide/ocean/generated/polaris.tasks.ocean.baroclinic_channel.forward.Forward.html#polaris.tasks.ocean.baroclinic_channel.forward.Forward">(class in polaris.tasks.ocean.baroclinic_channel.forward)</a>
+</li>
         <li><a href="developers_guide/ocean/generated/polaris.tasks.ocean.barotropic_channel.forward.Forward.html#polaris.tasks.ocean.barotropic_channel.forward.Forward">(class in polaris.tasks.ocean.barotropic_channel.forward)</a>
 </li>
         <li><a href="developers_guide/ocean/generated/polaris.tasks.ocean.barotropic_gyre.forward.Forward.html#polaris.tasks.ocean.barotropic_gyre.forward.Forward">(class in polaris.tasks.ocean.barotropic_gyre.forward)</a>
@@ -2082,6 +2125,8 @@ window.runMermaid = runMermaid;</script>
 </li>
       <li><a href="developers_guide/generated/polaris.mesh.base.get_base_mesh_steps.html#polaris.mesh.base.get_base_mesh_steps">get_base_mesh_steps() (in module polaris.mesh.base)</a>
 </li>
+      <li><a href="developers_guide/landice/generated/polaris.tasks.landice.get_build_albany.html#polaris.tasks.landice.get_build_albany">get_build_albany() (in module polaris.tasks.landice)</a>
+</li>
       <li><a href="developers_guide/ocean/generated/polaris.tasks.ocean.realistic_global.forward.tasks.get_cached_initial_condition.html#polaris.tasks.ocean.realistic_global.forward.tasks.get_cached_initial_condition">get_cached_initial_condition() (in module polaris.tasks.ocean.realistic_global.forward.tasks)</a>
 </li>
       <li><a href="developers_guide/generated/polaris.mesh.IcosahedralMeshStep.get_cell_width.html#polaris.mesh.IcosahedralMeshStep.get_cell_width">get_cell_width() (polaris.mesh.IcosahedralMeshStep static method)</a>
@@ -2140,6 +2185,8 @@ window.runMermaid = runMermaid;</script>
         <li><a href="developers_guide/ocean/generated/polaris.tasks.ocean.realistic_global.forward.initial_condition.InitialCondition.get_forcing_filename.html#polaris.tasks.ocean.realistic_global.forward.initial_condition.InitialCondition.get_forcing_filename">(polaris.tasks.ocean.realistic_global.forward.initial_condition.InitialCondition method)</a>
 </li>
       </ul></li>
+      <li><a href="developers_guide/generated/polaris.build.mpas_framework.get_framework_check.html#polaris.build.mpas_framework.get_framework_check">get_framework_check() (in module polaris.build.mpas_framework)</a>
+</li>
       <li><a href="developers_guide/ocean/generated/polaris.tasks.ocean.mixed_layer_eddies.diagnostics.get_frontal_cell_mask.html#polaris.tasks.ocean.mixed_layer_eddies.diagnostics.get_frontal_cell_mask">get_frontal_cell_mask() (in module polaris.tasks.ocean.mixed_layer_eddies.diagnostics)</a>
 </li>
       <li><a href="developers_guide/ocean/generated/polaris.tasks.ocean.mixed_layer_eddies.diagnostics.get_frontal_lines.html#polaris.tasks.ocean.mixed_layer_eddies.diagnostics.get_frontal_lines">get_frontal_lines() (in module polaris.tasks.ocean.mixed_layer_eddies.diagnostics)</a>
@@ -2160,6 +2207,10 @@ window.runMermaid = runMermaid;</script>
 </li>
       <li><a href="developers_guide/ocean/generated/polaris.ocean.overturning.get_line_edges.html#polaris.ocean.overturning.get_line_edges">get_line_edges() (in module polaris.ocean.overturning)</a>
 </li>
+      <li><a href="developers_guide/generated/polaris.build.mali.get_mali_build_albany.html#polaris.build.mali.get_mali_build_albany">get_mali_build_albany() (in module polaris.build.mali)</a>
+</li>
+      <li><a href="developers_guide/generated/polaris.build.mali.get_mali_source_dir.html#polaris.build.mali.get_mali_source_dir">get_mali_source_dir() (in module polaris.build.mali)</a>
+</li>
       <li><a href="developers_guide/ocean/generated/polaris.tasks.ocean.realistic_global.mesh_configs.get_mesh_config_names.html#polaris.tasks.ocean.realistic_global.mesh_configs.get_mesh_config_names">get_mesh_config_names() (in module polaris.tasks.ocean.realistic_global.mesh_configs)</a>
 </li>
       <li><a href="developers_guide/e3sm/init/generated/polaris.tasks.e3sm.init.component_inputs.names.get_mesh_short_name.html#polaris.tasks.e3sm.init.component_inputs.names.get_mesh_short_name">get_mesh_short_name() (in module polaris.tasks.e3sm.init.component_inputs.names)</a>
@@ -2168,12 +2219,12 @@ window.runMermaid = runMermaid;</script>
 </li>
       <li><a href="developers_guide/ocean/generated/polaris.tasks.ocean.realistic_global.hydrography.woa23.month.get_month_abbreviation.html#polaris.tasks.ocean.realistic_global.hydrography.woa23.month.get_month_abbreviation">get_month_abbreviation() (in module polaris.tasks.ocean.realistic_global.hydrography.woa23.month)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="developers_guide/ocean/generated/polaris.tasks.ocean.realistic_global.analysis_output.forward.get_monthly_filenames.html#polaris.tasks.ocean.realistic_global.analysis_output.forward.get_monthly_filenames">get_monthly_filenames() (in module polaris.tasks.ocean.realistic_global.analysis_output.forward)</a>
 </li>
       <li><a href="developers_guide/e3sm/init/generated/polaris.tasks.e3sm.init.topo.combine.CombineStep.get_name.html#polaris.tasks.e3sm.init.topo.combine.CombineStep.get_name">get_name() (polaris.tasks.e3sm.init.topo.combine.CombineStep class method)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="developers_guide/e3sm/init/generated/polaris.e3sm.init.inputdata.get_nonempty_option.html#polaris.e3sm.init.inputdata.get_nonempty_option">get_nonempty_option() (in module polaris.e3sm.init.inputdata)</a>
 </li>
       <li><a href="developers_guide/generated/polaris.build.omega.get_omega_cime_target.html#polaris.build.omega.get_omega_cime_target">get_omega_cime_target() (in module polaris.build.omega)</a>
@@ -2342,9 +2393,11 @@ window.runMermaid = runMermaid;</script>
 </li>
       <li><a href="developers_guide/generated/polaris.namelist.ingest.html#polaris.namelist.ingest">ingest() (in module polaris.namelist)</a>
 </li>
-      <li><a href="developers_guide/ocean/generated/polaris.tasks.ocean.baroclinic_channel.init.Init.html#polaris.tasks.ocean.baroclinic_channel.init.Init">Init (class in polaris.tasks.ocean.baroclinic_channel.init)</a>
+      <li><a href="developers_guide/landice/generated/polaris.tasks.landice.dome.init.Init.html#polaris.tasks.landice.dome.init.Init">Init (class in polaris.tasks.landice.dome.init)</a>
 
       <ul>
+        <li><a href="developers_guide/ocean/generated/polaris.tasks.ocean.baroclinic_channel.init.Init.html#polaris.tasks.ocean.baroclinic_channel.init.Init">(class in polaris.tasks.ocean.baroclinic_channel.init)</a>
+</li>
         <li><a href="developers_guide/ocean/generated/polaris.tasks.ocean.barotropic_channel.init.Init.html#polaris.tasks.ocean.barotropic_channel.init.Init">(class in polaris.tasks.ocean.barotropic_channel.init)</a>
 </li>
         <li><a href="developers_guide/ocean/generated/polaris.tasks.ocean.barotropic_gyre.init.Init.html#polaris.tasks.ocean.barotropic_gyre.init.Init">(class in polaris.tasks.ocean.barotropic_gyre.init)</a>
@@ -2438,6 +2491,8 @@ window.runMermaid = runMermaid;</script>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="developers_guide/generated/polaris.mesh.connectivity.label_regions.html#polaris.mesh.connectivity.label_regions">label_regions() (in module polaris.mesh.connectivity)</a>
 </li>
+      <li><a href="developers_guide/landice/generated/polaris.tasks.landice.Landice.html#polaris.tasks.landice.Landice">Landice (class in polaris.tasks.landice)</a>
+</li>
       <li><a href="developers_guide/e3sm/init/generated/polaris.e3sm.init.topo.resolutions.LAT_LON_RESOLUTION_DECIMALS.html#polaris.e3sm.init.topo.resolutions.LAT_LON_RESOLUTION_DECIMALS">LAT_LON_RESOLUTION_DECIMALS (in module polaris.e3sm.init.topo.resolutions)</a>
 </li>
       <li><a href="developers_guide/e3sm/init/generated/polaris.e3sm.init.topo.LAT_LON_RESOLUTIONS.html#polaris.e3sm.init.topo.LAT_LON_RESOLUTIONS">LAT_LON_RESOLUTIONS (in module polaris.e3sm.init.topo)</a>
@@ -2458,10 +2513,10 @@ window.runMermaid = runMermaid;</script>
 </li>
       <li><a href="developers_guide/ocean/generated/polaris.tasks.ocean.horiz_press_grad.reference.ReferenceColumn.layer_mean_hpga.html#polaris.tasks.ocean.horiz_press_grad.reference.ReferenceColumn.layer_mean_hpga">layer_mean_hpga() (polaris.tasks.ocean.horiz_press_grad.reference.ReferenceColumn method)</a>
 </li>
-      <li><a href="developers_guide/ocean/generated/polaris.ocean.init_state.layer_thickness_from_geom_interfaces.html#polaris.ocean.init_state.layer_thickness_from_geom_interfaces">layer_thickness_from_geom_interfaces() (in module polaris.ocean.init_state)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="developers_guide/ocean/generated/polaris.ocean.init_state.layer_thickness_from_geom_interfaces.html#polaris.ocean.init_state.layer_thickness_from_geom_interfaces">layer_thickness_from_geom_interfaces() (in module polaris.ocean.init_state)</a>
+</li>
       <li><a href="developers_guide/ocean/generated/polaris.tasks.ocean.horiz_press_grad.reconstruction.linear_slope.html#polaris.tasks.ocean.horiz_press_grad.reconstruction.linear_slope">linear_slope() (in module polaris.tasks.ocean.horiz_press_grad.reconstruction)</a>
 </li>
       <li><a href="developers_guide/generated/polaris.list.list_cases.html#polaris.list.list_cases">list_cases() (in module polaris.list)</a>
@@ -2496,9 +2551,11 @@ window.runMermaid = runMermaid;</script>
 </li>
       <li><a href="developers_guide/generated/polaris.yaml.main_mpas_to_yaml.html#polaris.yaml.main_mpas_to_yaml">main_mpas_to_yaml() (in module polaris.yaml)</a>
 </li>
-      <li><a href="developers_guide/generated/polaris.build.mpas_ocean.make_build_script.html#polaris.build.mpas_ocean.make_build_script">make_build_script() (in module polaris.build.mpas_ocean)</a>
+      <li><a href="developers_guide/generated/polaris.build.mali.make_build_script.html#polaris.build.mali.make_build_script">make_build_script() (in module polaris.build.mali)</a>
 
       <ul>
+        <li><a href="developers_guide/generated/polaris.build.mpas_ocean.make_build_script.html#polaris.build.mpas_ocean.make_build_script">(in module polaris.build.mpas_ocean)</a>
+</li>
         <li><a href="developers_guide/generated/polaris.build.omega.make_build_script.html#polaris.build.omega.make_build_script">(in module polaris.build.omega)</a>
 </li>
       </ul></li>
@@ -2512,7 +2569,11 @@ window.runMermaid = runMermaid;</script>
         <li><a href="developers_guide/generated/polaris.mesh.spherical.unified.UnifiedBaseMeshStep.make_jigsaw_mesh.html#polaris.mesh.spherical.unified.UnifiedBaseMeshStep.make_jigsaw_mesh">(polaris.mesh.spherical.unified.UnifiedBaseMeshStep method)</a>
 </li>
       </ul></li>
+      <li><a href="developers_guide/landice/generated/polaris.landice.mesh.make_mali_mesh.html#polaris.landice.mesh.make_mali_mesh">make_mali_mesh() (in module polaris.landice.mesh)</a>
+</li>
       <li><a href="developers_guide/generated/polaris.analysis.thumbnail.make_thumbnail.html#polaris.analysis.thumbnail.make_thumbnail">make_thumbnail() (in module polaris.analysis.thumbnail)</a>
+</li>
+      <li><a href="developers_guide/landice/generated/polaris.landice.model.MaliModelStep.html#polaris.landice.model.MaliModelStep">MaliModelStep (class in polaris.landice.model)</a>
 </li>
       <li><a href="developers_guide/generated/polaris.analysis.manifest.Manifest.html#polaris.analysis.manifest.Manifest">Manifest (class in polaris.analysis.manifest)</a>
 </li>
@@ -2544,14 +2605,14 @@ window.runMermaid = runMermaid;</script>
         <li><a href="developers_guide/ocean/generated/polaris.ocean.model.OceanModelStep.map_yaml_configs.html#polaris.ocean.model.OceanModelStep.map_yaml_configs">(polaris.ocean.model.OceanModelStep method)</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="developers_guide/generated/polaris.ModelStep.map_yaml_options.html#polaris.ModelStep.map_yaml_options">map_yaml_options() (polaris.ModelStep method)</a>
 
       <ul>
         <li><a href="developers_guide/ocean/generated/polaris.ocean.model.OceanModelStep.map_yaml_options.html#polaris.ocean.model.OceanModelStep.map_yaml_options">(polaris.ocean.model.OceanModelStep method)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="developers_guide/generated/polaris.ModelStep.map_yaml_to_namelist.html#polaris.ModelStep.map_yaml_to_namelist">map_yaml_to_namelist() (polaris.ModelStep method)</a>
 </li>
       <li><a href="developers_guide/generated/polaris.remap.MappingFileStep.html#polaris.remap.MappingFileStep">MappingFileStep (class in polaris.remap)</a>
@@ -2606,10 +2667,12 @@ window.runMermaid = runMermaid;</script>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="developers_guide/generated/polaris.baselines.NearMiss.html#polaris.baselines.NearMiss">NearMiss (class in polaris.baselines)</a>
 </li>
-      <li><a href="developers_guide/generated/polaris.run.allocation.NodeResources.html#polaris.run.allocation.NodeResources">NodeResources (class in polaris.run.allocation)</a>
+      <li><a href="developers_guide/landice/generated/polaris.landice.model.MaliModelStep.needs_albany.html#polaris.landice.model.MaliModelStep.needs_albany">needs_albany (polaris.landice.model.MaliModelStep property)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="developers_guide/generated/polaris.run.allocation.NodeResources.html#polaris.run.allocation.NodeResources">NodeResources (class in polaris.run.allocation)</a>
+</li>
       <li><a href="developers_guide/ocean/generated/polaris.tasks.ocean.inertial_gravity_wave.exact_solution.ExactSolution.normal_velocity.html#polaris.tasks.ocean.inertial_gravity_wave.exact_solution.ExactSolution.normal_velocity">normal_velocity() (polaris.tasks.ocean.inertial_gravity_wave.exact_solution.ExactSolution method)</a>
 
       <ul>
@@ -2898,9 +2961,11 @@ window.runMermaid = runMermaid;</script>
 </li>
       <li><a href="developers_guide/generated/polaris.run.pool.ResourcePool.html#polaris.run.pool.ResourcePool">ResourcePool (class in polaris.run.pool)</a>
 </li>
-      <li><a href="developers_guide/ocean/generated/polaris.tasks.ocean.baroclinic_channel.restart.Restart.html#polaris.tasks.ocean.baroclinic_channel.restart.Restart">Restart (class in polaris.tasks.ocean.baroclinic_channel.restart)</a>
+      <li><a href="developers_guide/landice/generated/polaris.tasks.landice.dome.restart.Restart.html#polaris.tasks.landice.dome.restart.Restart">Restart (class in polaris.tasks.landice.dome.restart)</a>
 
       <ul>
+        <li><a href="developers_guide/ocean/generated/polaris.tasks.ocean.baroclinic_channel.restart.Restart.html#polaris.tasks.ocean.baroclinic_channel.restart.Restart">(class in polaris.tasks.ocean.baroclinic_channel.restart)</a>
+</li>
         <li><a href="developers_guide/ocean/generated/polaris.tasks.ocean.cosine_bell.restart.Restart.html#polaris.tasks.ocean.cosine_bell.restart.Restart">(class in polaris.tasks.ocean.cosine_bell.restart)</a>
 </li>
         <li><a href="developers_guide/ocean/generated/polaris.tasks.ocean.realistic_global.restart.Restart.html#polaris.tasks.ocean.realistic_global.restart.Restart">(class in polaris.tasks.ocean.realistic_global.restart)</a>
@@ -2986,6 +3051,12 @@ window.runMermaid = runMermaid;</script>
         <li><a href="developers_guide/e3sm/init/generated/polaris.tasks.e3sm.init.topo.remap.RemapTopoStep.run.html#polaris.tasks.e3sm.init.topo.remap.RemapTopoStep.run">(polaris.tasks.e3sm.init.topo.remap.RemapTopoStep method)</a>
 </li>
         <li><a href="developers_guide/e3sm/init/generated/polaris.tasks.e3sm.init.topo.remap.VizRemappedTopoStep.run.html#polaris.tasks.e3sm.init.topo.remap.VizRemappedTopoStep.run">(polaris.tasks.e3sm.init.topo.remap.VizRemappedTopoStep method)</a>
+</li>
+        <li><a href="developers_guide/landice/generated/polaris.tasks.landice.dome.init.Init.run.html#polaris.tasks.landice.dome.init.Init.run">(polaris.tasks.landice.dome.init.Init method)</a>
+</li>
+        <li><a href="developers_guide/landice/generated/polaris.tasks.landice.dome.validate.Validate.run.html#polaris.tasks.landice.dome.validate.Validate.run">(polaris.tasks.landice.dome.validate.Validate method)</a>
+</li>
+        <li><a href="developers_guide/landice/generated/polaris.tasks.landice.dome.viz.Viz.run.html#polaris.tasks.landice.dome.viz.Viz.run">(polaris.tasks.landice.dome.viz.Viz method)</a>
 </li>
         <li><a href="developers_guide/mesh/generated/polaris.tasks.mesh.spherical.feature_masks.ComputeFeatureMasksStep.run.html#polaris.tasks.mesh.spherical.feature_masks.ComputeFeatureMasksStep.run">(polaris.tasks.mesh.spherical.feature_masks.ComputeFeatureMasksStep method)</a>
 </li>
@@ -3283,6 +3354,8 @@ window.runMermaid = runMermaid;</script>
       <ul>
         <li><a href="developers_guide/e3sm/init/generated/polaris.e3sm.init.graph_partition.GraphPartitionStep.setup.html#polaris.e3sm.init.graph_partition.GraphPartitionStep.setup">(polaris.e3sm.init.graph_partition.GraphPartitionStep method)</a>
 </li>
+        <li><a href="developers_guide/landice/generated/polaris.landice.model.MaliModelStep.setup.html#polaris.landice.model.MaliModelStep.setup">(polaris.landice.model.MaliModelStep method)</a>
+</li>
         <li><a href="developers_guide/generated/polaris.mesh.IcosahedralMeshStep.setup.html#polaris.mesh.IcosahedralMeshStep.setup">(polaris.mesh.IcosahedralMeshStep method)</a>
 </li>
         <li><a href="developers_guide/generated/polaris.mesh.QuasiUniformSphericalMeshStep.setup.html#polaris.mesh.QuasiUniformSphericalMeshStep.setup">(polaris.mesh.QuasiUniformSphericalMeshStep method)</a>
@@ -3496,8 +3569,12 @@ window.runMermaid = runMermaid;</script>
 </li>
       <li><a href="developers_guide/mesh/generated/polaris.tasks.mesh.spherical.unified.sizing_field.SizingFieldTask.html#polaris.tasks.mesh.spherical.unified.sizing_field.SizingFieldTask">SizingFieldTask (class in polaris.tasks.mesh.spherical.unified.sizing_field)</a>
 </li>
-      <li><a href="developers_guide/ocean/generated/polaris.tasks.ocean.overflow.smoke_test.SmokeTest.html#polaris.tasks.ocean.overflow.smoke_test.SmokeTest">SmokeTest (class in polaris.tasks.ocean.overflow.smoke_test)</a>
+      <li><a href="developers_guide/landice/generated/polaris.tasks.landice.dome.smoke_test.SmokeTest.html#polaris.tasks.landice.dome.smoke_test.SmokeTest">SmokeTest (class in polaris.tasks.landice.dome.smoke_test)</a>
+
+      <ul>
+        <li><a href="developers_guide/ocean/generated/polaris.tasks.ocean.overflow.smoke_test.SmokeTest.html#polaris.tasks.ocean.overflow.smoke_test.SmokeTest">(class in polaris.tasks.ocean.overflow.smoke_test)</a>
 </li>
+      </ul></li>
       <li><a href="developers_guide/generated/polaris.mesh.base.so.SOBaseMesh.html#polaris.mesh.base.so.SOBaseMesh">SOBaseMesh (class in polaris.mesh.base.so)</a>
 </li>
       <li><a href="developers_guide/generated/polaris.mesh.spherical.unified.families.so_region.SORegionUnifiedMeshFamily.html#polaris.mesh.spherical.unified.families.so_region.SORegionUnifiedMeshFamily">SORegionUnifiedMeshFamily (class in polaris.mesh.spherical.unified.families.so_region)</a>
@@ -3642,10 +3719,10 @@ window.runMermaid = runMermaid;</script>
 </li>
       <li><a href="developers_guide/generated/polaris.cache.update_cache.html#polaris.cache.update_cache">update_cache() (in module polaris.cache)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="developers_guide/generated/polaris.streams.update_defaults.html#polaris.streams.update_defaults">update_defaults() (in module polaris.streams)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="developers_guide/generated/polaris.ModelStep.update_io_tasks_config.html#polaris.ModelStep.update_io_tasks_config">update_io_tasks_config() (polaris.ModelStep method)</a>
 </li>
       <li><a href="developers_guide/ocean/generated/polaris.ocean.vertical.update_layer_thickness.html#polaris.ocean.vertical.update_layer_thickness">update_layer_thickness() (in module polaris.ocean.vertical)</a>
@@ -3660,6 +3737,8 @@ window.runMermaid = runMermaid;</script>
 </li>
       <li><a href="developers_guide/generated/polaris.run.allocation.usable_cores.html#polaris.run.allocation.usable_cores">usable_cores() (in module polaris.run.allocation)</a>
 </li>
+      <li><a href="developers_guide/landice/generated/polaris.landice.model.MaliModelStep.uses_gpus.html#polaris.landice.model.MaliModelStep.uses_gpus">uses_gpus (polaris.landice.model.MaliModelStep property)</a>
+</li>
       <li><a href="developers_guide/e3sm/init/generated/polaris.e3sm.init.topo.uses_low_res_cubed_sphere.html#polaris.e3sm.init.topo.uses_low_res_cubed_sphere">uses_low_res_cubed_sphere() (in module polaris.e3sm.init.topo)</a>
 </li>
   </ul></td>
@@ -3670,9 +3749,11 @@ window.runMermaid = runMermaid;</script>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="developers_guide/ocean/generated/polaris.tasks.ocean.analysis.analysis_step.AnalysisStep.valid_level_range.html#polaris.tasks.ocean.analysis.analysis_step.AnalysisStep.valid_level_range">valid_level_range() (polaris.tasks.ocean.analysis.analysis_step.AnalysisStep method)</a>
 </li>
-      <li><a href="developers_guide/ocean/generated/polaris.tasks.ocean.baroclinic_channel.validate.Validate.html#polaris.tasks.ocean.baroclinic_channel.validate.Validate">Validate (class in polaris.tasks.ocean.baroclinic_channel.validate)</a>
+      <li><a href="developers_guide/landice/generated/polaris.tasks.landice.dome.validate.Validate.html#polaris.tasks.landice.dome.validate.Validate">Validate (class in polaris.tasks.landice.dome.validate)</a>
 
       <ul>
+        <li><a href="developers_guide/ocean/generated/polaris.tasks.ocean.baroclinic_channel.validate.Validate.html#polaris.tasks.ocean.baroclinic_channel.validate.Validate">(class in polaris.tasks.ocean.baroclinic_channel.validate)</a>
+</li>
         <li><a href="developers_guide/ocean/generated/polaris.tasks.ocean.cosine_bell.validate.Validate.html#polaris.tasks.ocean.cosine_bell.validate.Validate">(class in polaris.tasks.ocean.cosine_bell.validate)</a>
 </li>
         <li><a href="developers_guide/ocean/generated/polaris.tasks.ocean.ice_shelf_2d.validate.Validate.html#polaris.tasks.ocean.ice_shelf_2d.validate.Validate">(class in polaris.tasks.ocean.ice_shelf_2d.validate)</a>
@@ -3702,9 +3783,11 @@ window.runMermaid = runMermaid;</script>
 </li>
       <li><a href="developers_guide/ocean/generated/polaris.ocean.vertical.elevation.VerticalReduction.html#polaris.ocean.vertical.elevation.VerticalReduction">VerticalReduction (class in polaris.ocean.vertical.elevation)</a>
 </li>
-      <li><a href="developers_guide/ocean/generated/polaris.tasks.ocean.baroclinic_channel.viz.Viz.html#polaris.tasks.ocean.baroclinic_channel.viz.Viz">Viz (class in polaris.tasks.ocean.baroclinic_channel.viz)</a>
+      <li><a href="developers_guide/landice/generated/polaris.tasks.landice.dome.viz.Viz.html#polaris.tasks.landice.dome.viz.Viz">Viz (class in polaris.tasks.landice.dome.viz)</a>
 
       <ul>
+        <li><a href="developers_guide/ocean/generated/polaris.tasks.ocean.baroclinic_channel.viz.Viz.html#polaris.tasks.ocean.baroclinic_channel.viz.Viz">(class in polaris.tasks.ocean.baroclinic_channel.viz)</a>
+</li>
         <li><a href="developers_guide/ocean/generated/polaris.tasks.ocean.barotropic_channel.viz.Viz.html#polaris.tasks.ocean.barotropic_channel.viz.Viz">(class in polaris.tasks.ocean.barotropic_channel.viz)</a>
 </li>
         <li><a href="developers_guide/ocean/generated/polaris.tasks.ocean.cosine_bell.viz.Viz.html#polaris.tasks.ocean.cosine_bell.viz.Viz">(class in polaris.tasks.ocean.cosine_bell.viz)</a>

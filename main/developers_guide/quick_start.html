@@ -52,6 +52,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../users_guide/suites.html">Suites</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../users_guide/mesh/index.html">Mesh component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../users_guide/e3sm/init/index.html">E3SM Initial Condition Component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/landice/index.html">Land-ice component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../users_guide/ocean/index.html">Ocean component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../users_guide/seaice/index.html">Sea ice component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../users_guide/machines/index.html">Machines</a></li>
@@ -80,6 +81,7 @@
 <li class="toctree-l4"><a class="reference internal" href="#manual-build-advanced-optional">Manual build (advanced/optional)</a></li>
 </ul>
 </li>
+<li class="toctree-l3"><a class="reference internal" href="#dev-mali-build">MALI</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#dev-omega-build">Omega</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#id1">Recommended default: automated build from <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">setup</span></code>/<code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">suite</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#id2">Manual build (advanced/optional)</a></li>
@@ -98,6 +100,7 @@
 <li class="toctree-l1"><a class="reference internal" href="organization/index.html">Organization of Tasks</a></li>
 <li class="toctree-l1"><a class="reference internal" href="e3sm/init/index.html">E3SM initial condition (e3sm/init) component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="landice/index.html">Land-ice component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="ocean/index.html">Ocean component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="seaice/index.html">Sea ice component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="framework/index.html">Framework</a></li>
@@ -117,6 +120,7 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/dev_mali_pr_on_perlmutter.html">Developer Tutorial: Running the <code class="docutils literal notranslate"><span class="pre">mali_pr</span></code> Suite on Perlmutter</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../tutorials/dev_add_category_of_tasks/index.html">Developer Tutorial: Adding a New Category of Tasks</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Glossary</span></p>
@@ -287,6 +291,9 @@ deployment, such as CI or unsupported machines.</p>
 </dd>
 <dt><code class="docutils literal notranslate"><span class="pre">--spack-path</span></code></dt><dd><p>path to the Spack checkout used for deployment</p>
 </dd>
+<dt><code class="docutils literal notranslate"><span class="pre">--with-albany</span></code></dt><dd><p>include Albany and Trilinos, which MALI’s first-order velocity solver
+needs, in the Spack library environment (see <a class="reference internal" href="landice/index.html#dev-landice-albany"><span class="std std-ref">Albany</span></a>)</p>
+</dd>
 <dt><code class="docutils literal notranslate"><span class="pre">--recreate</span></code></dt><dd><p>recreate deployment artifacts if they already exist</p>
 </dd>
 <dt><code class="docutils literal notranslate"><span class="pre">--bootstrap-only</span></code></dt><dd><p>update only the bootstrap pixi environment used by deployment</p>
@@ -412,9 +419,9 @@ scratch.  This takes just a little extra time.</p>
 </section>
 <section id="dev-creating-only-env">
 <span id="creating-updating-only-the-polaris-environment"></span><span id="creatingupdating-only-the-polaris-environment"></span><h2>Creating/updating only the polaris environment<a class="headerlink" href="#dev-creating-only-env" title="Link to this heading"></a></h2>
-<p>For some workflows (e.g. for MALI development with the Albany library when the
-MALI build environment has been created outside of <code class="docutils literal notranslate"><span class="pre">polaris</span></code>, for example,
-on an unsupported machine), you may only want to create the pixi environment
+<p>For some workflows (e.g. for MALI development with an Albany library built
+outside of <code class="docutils literal notranslate"><span class="pre">polaris</span></code> on a machine where Polaris cannot deploy Albany), you
+may only want to create the pixi environment
 and not build SCORPIO, ESMF or include any system modules or environment
 variables in your activation script. In such cases, run:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./deploy.py<span class="w"> </span>--no-spack
@@ -457,11 +464,12 @@ be safe.</p>
 </section>
 <section id="dev-build-components">
 <span id="building-e3sm-components"></span><h2>Building E3SM components<a class="headerlink" href="#dev-build-components" title="Link to this heading"></a></h2>
-<p>There are 4 E3SM submodules within the polaris repository, but the MALI-Dev
-submodule is not yet used.  The FAnSSIE submodule is only for ocean–ice-sheet
-coupling work (see <a class="reference internal" href="ocean/index.html#dev-ocean-fanssie"><span class="std std-ref">FAnSSIE</span></a>).</p>
-<p>For MPAS-Ocean and Omega, the recommended workflow is to let Polaris build
-the component automatically during <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">setup</span></code> or <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">suite</span></code>.
+<p>There are 4 E3SM repositories that are submodules within the polaris
+repository: <code class="docutils literal notranslate"><span class="pre">E3SM-Project</span></code> for MPAS-Ocean, <code class="docutils literal notranslate"><span class="pre">Omega</span></code> for Omega, <code class="docutils literal notranslate"><span class="pre">MALI-Dev</span></code>
+for MALI and <code class="docutils literal notranslate"><span class="pre">FAnSSIE</span></code>, which is only for ocean–ice-sheet coupling work
+(see <a class="reference internal" href="ocean/index.html#dev-ocean-fanssie"><span class="std std-ref">FAnSSIE</span></a>).</p>
+<p>For MPAS-Ocean, Omega and MALI, the recommended workflow is to let Polaris
+build the component automatically during <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">setup</span></code> or <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">suite</span></code>.
 Polaris checks whether a complete build already exists at the
 <code class="docutils literal notranslate"><span class="pre">component_path</span></code> location and, if so, reuses it without rebuilding.  If the
 component executable and required files are not found there, Polaris builds
@@ -553,6 +561,17 @@ location using <code class="docutils literal notranslate"><span class="pre">-p</
 provided, MPAS-Ocean is usually detected automatically; otherwise, provide
 <code class="docutils literal notranslate"><span class="pre">--model</span> <span class="pre">mpas-ocean</span></code>.</p>
 </section>
+</section>
+<section id="dev-mali-build">
+<span id="mali"></span><h3>MALI<a class="headerlink" href="#dev-mali-build" title="Link to this heading"></a></h3>
+<p>Polaris builds MALI automatically during setup of tasks that run it, placing
+the build in <code class="docutils literal notranslate"><span class="pre">${WORKDIR}/landice_build</span></code> by default.  The build has Albany
+when the environment was deployed with <code class="docutils literal notranslate"><span class="pre">--with-albany</span></code>.  See
+<a class="reference internal" href="landice/index.html#dev-landice-build"><span class="std std-ref">Building MALI</span></a> and <a class="reference internal" href="landice/index.html#dev-landice-albany"><span class="std std-ref">Albany</span></a>.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">source</span><span class="w"> </span>./load_&lt;env_name&gt;_&lt;machine&gt;_&lt;compiler&gt;_&lt;mpi&gt;.sh
+polaris<span class="w"> </span>suite<span class="w"> </span>-c<span class="w"> </span>landice<span class="w"> </span>-t<span class="w"> </span>mali_pr<span class="w"> </span>-m<span class="w"> </span><span class="nv">$MACHINE</span><span class="w"> </span>-w<span class="w"> </span><span class="nv">$WORKDIR</span>
+</pre></div>
+</div>
 </section>
 <section id="dev-omega-build">
 <span id="omega"></span><h3>Omega<a class="headerlink" href="#dev-omega-build" title="Link to this heading"></a></h3>

@@ -51,6 +51,7 @@
 <li class="toctree-l1"><a class="reference internal" href="users_guide/suites.html">Suites</a></li>
 <li class="toctree-l1"><a class="reference internal" href="users_guide/mesh/index.html">Mesh component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="users_guide/e3sm/init/index.html">E3SM Initial Condition Component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="users_guide/landice/index.html">Land-ice component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="users_guide/ocean/index.html">Ocean component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="users_guide/seaice/index.html">Sea ice component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="users_guide/machines/index.html">Machines</a></li>
@@ -63,6 +64,7 @@
 <li class="toctree-l1"><a class="reference internal" href="developers_guide/organization/index.html">Organization of Tasks</a></li>
 <li class="toctree-l1"><a class="reference internal" href="developers_guide/e3sm/init/index.html">E3SM initial condition (e3sm/init) component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="developers_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="developers_guide/landice/index.html">Land-ice component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="developers_guide/ocean/index.html">Ocean component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="developers_guide/seaice/index.html">Sea ice component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="developers_guide/framework/index.html">Framework</a></li>
@@ -82,6 +84,7 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/dev_mali_pr_on_perlmutter.html">Developer Tutorial: Running the <code class="docutils literal notranslate"><span class="pre">mali_pr</span></code> Suite on Perlmutter</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tutorials/dev_add_category_of_tasks/index.html">Developer Tutorial: Adding a New Category of Tasks</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Glossary</span></p>
@@ -142,8 +145,8 @@ the E3SM development team.</p>
 <p>The <code class="docutils literal notranslate"><span class="pre">polaris</span></code> python package defines the tasks and analysis tasks along
 with the commands  to list and set up both tasks and suites (groups
 of tasks or analysis tasks).  Polaris currently includes documented
-<code class="docutils literal notranslate"><span class="pre">mesh</span></code>, <code class="docutils literal notranslate"><span class="pre">e3sm/init</span></code>, <code class="docutils literal notranslate"><span class="pre">ocean</span></code> and <code class="docutils literal notranslate"><span class="pre">seaice</span></code> components. Nearly all
-runtime tasks include calls that launch one
+<code class="docutils literal notranslate"><span class="pre">mesh</span></code>, <code class="docutils literal notranslate"><span class="pre">e3sm/init</span></code>, <code class="docutils literal notranslate"><span class="pre">landice</span></code>, <code class="docutils literal notranslate"><span class="pre">ocean</span></code> and <code class="docutils literal notranslate"><span class="pre">seaice</span></code> components.
+Nearly all runtime tasks include calls that launch one
 of these E3SM components, built in “standalone” (uncoupled) mode.  These runs
 are configured with config files (e.g. YAML or namelist files) and one of the
 benefits of using Polaris over attempting to run one of the components directly
@@ -179,6 +182,11 @@ mesh generation capabilities would not be possible, are developed primarily by
 <li class="toctree-l1"><a class="reference internal" href="users_guide/e3sm/init/index.html">E3SM Initial Condition Component</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="users_guide/e3sm/init/tasks/index.html">Tasks</a></li>
 <li class="toctree-l2"><a class="reference internal" href="users_guide/e3sm/init/suites.html">Suites</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="users_guide/landice/index.html">Land-ice component</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="users_guide/landice/tasks/index.html">Tasks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="users_guide/landice/suites.html">Suites</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="users_guide/ocean/index.html">Ocean component</a><ul>
@@ -252,6 +260,11 @@ mesh generation capabilities would not be possible, are developed primarily by
 <li class="toctree-l1"><a class="reference internal" href="developers_guide/mesh/index.html">Mesh component</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="developers_guide/mesh/tasks/index.html">Tasks</a></li>
 <li class="toctree-l2"><a class="reference internal" href="developers_guide/mesh/framework/index.html">Mesh Framework</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="developers_guide/landice/index.html">Land-ice component</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="developers_guide/landice/index.html#dev-landice-build">Building MALI</a></li>
+<li class="toctree-l2"><a class="reference internal" href="developers_guide/landice/index.html#dev-landice-albany">Albany</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="developers_guide/ocean/index.html">Ocean component</a><ul>
@@ -354,6 +367,7 @@ mesh generation capabilities would not be possible, are developed primarily by
 <li class="toctree-l2"><a class="reference internal" href="design_docs/horiz_press_grad_hydrostatic_consistency.html">Discrete Hydrostatic Consistency in <code class="docutils literal notranslate"><span class="pre">horiz_press_grad</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="design_docs/horiz_press_grad_reference.html">Reworked HPG Reference Solution</a></li>
 <li class="toctree-l2"><a class="reference internal" href="design_docs/land_locked_cells.html">Land-Locked Cells in the Ocean and Sea-Ice Domains</a></li>
+<li class="toctree-l2"><a class="reference internal" href="design_docs/landice_component.html">Landice Component</a></li>
 <li class="toctree-l2"><a class="reference internal" href="design_docs/mixed_layer_eddies.html">Mixed-Layer Eddies Task</a></li>
 <li class="toctree-l2"><a class="reference internal" href="design_docs/ocean_analysis.html">Ocean Analysis in Polaris</a></li>
 <li class="toctree-l2"><a class="reference internal" href="design_docs/ocean_analysis_initial.html">Initial Omega Analysis Capabilities</a></li>
@@ -386,6 +400,7 @@ mesh generation capabilities would not be possible, are developed primarily by
 <div class="toctree-wrapper compound">
 <p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/dev_mali_pr_on_perlmutter.html">Developer Tutorial: Running the <code class="docutils literal notranslate"><span class="pre">mali_pr</span></code> Suite on Perlmutter</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tutorials/dev_add_category_of_tasks/index.html">Developer Tutorial: Adding a New Category of Tasks</a></li>
 </ul>
 </div>

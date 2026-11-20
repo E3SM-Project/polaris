@@ -1,0 +1,6 @@
+﻿polaris.build.mali.environment\_has\_albany
+===========================================
+
+.. currentmodule:: polaris.build.mali
+
+.. autofunction:: environment_has_albany

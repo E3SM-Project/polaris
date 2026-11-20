@@ -407,6 +407,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l1"><a class="reference internal" href="../../users_guide/suites.html">Suites</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../users_guide/mesh/index.html">Mesh component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../users_guide/e3sm/init/index.html">E3SM Initial Condition Component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/landice/index.html">Land-ice component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../users_guide/ocean/index.html">Ocean component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../users_guide/seaice/index.html">Sea ice component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../users_guide/machines/index.html">Machines</a></li>
@@ -419,6 +420,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l1"><a class="reference internal" href="../../developers_guide/organization/index.html">Organization of Tasks</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../developers_guide/e3sm/init/index.html">E3SM initial condition (e3sm/init) component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../developers_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/landice/index.html">Land-ice component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../developers_guide/ocean/index.html">Ocean component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../developers_guide/seaice/index.html">Sea ice component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../developers_guide/framework/index.html">Framework</a></li>
@@ -438,6 +440,7 @@ window.runMermaid = runMermaid;</script>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/dev_mali_pr_on_perlmutter.html">Developer Tutorial: Running the <code class="docutils literal notranslate"><span class="pre">mali_pr</span></code> Suite on Perlmutter</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../tutorials/dev_add_category_of_tasks/index.html">Developer Tutorial: Adding a New Category of Tasks</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Glossary</span></p>
@@ -477,6 +480,7 @@ window.runMermaid = runMermaid;</script>
 <span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span>
 
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.build.mali</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_mali_source_dir</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.build.mpas_ocean</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_mpas_ocean_source_dir</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.build.omega</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">detect_omega_build_type</span><span class="p">,</span>
@@ -864,7 +868,11 @@ window.runMermaid = runMermaid;</script>
         <span class="k">return</span> <span class="n">_get_branch_source_dir</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
 
     <span class="n">build_dir</span> <span class="o">=</span> <span class="n">_get_build_dir</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
-    <span class="k">for</span> <span class="n">get_source_dir</span> <span class="ow">in</span> <span class="p">(</span><span class="n">get_omega_source_dir</span><span class="p">,</span> <span class="n">get_mpas_ocean_source_dir</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">get_source_dir</span> <span class="ow">in</span> <span class="p">(</span>
+        <span class="n">get_omega_source_dir</span><span class="p">,</span>
+        <span class="n">get_mpas_ocean_source_dir</span><span class="p">,</span>
+        <span class="n">get_mali_source_dir</span><span class="p">,</span>
+    <span class="p">):</span>
         <span class="n">source_dir</span> <span class="o">=</span> <span class="n">get_source_dir</span><span class="p">(</span><span class="n">build_dir</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">source_dir</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">source_dir</span><span class="p">):</span>
@@ -963,9 +971,10 @@ window.runMermaid = runMermaid;</script>
 <span class="k">def</span><span class="w"> </span><span class="nf">_get_model</span><span class="p">(</span><span class="n">config</span><span class="p">):</span>
     <span class="k">if</span> <span class="n">config</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">return</span> <span class="kc">None</span>
-    <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">has_option</span><span class="p">(</span><span class="s1">'ocean'</span><span class="p">,</span> <span class="s1">'model'</span><span class="p">):</span>
-        <span class="n">val</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'ocean'</span><span class="p">,</span> <span class="s1">'model'</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">val</span> <span class="ow">or</span> <span class="kc">None</span>
+    <span class="k">for</span> <span class="n">section</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">'ocean'</span><span class="p">,</span> <span class="s1">'landice'</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">has_option</span><span class="p">(</span><span class="n">section</span><span class="p">,</span> <span class="s1">'model'</span><span class="p">):</span>
+            <span class="n">val</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">section</span><span class="p">,</span> <span class="s1">'model'</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">val</span> <span class="ow">or</span> <span class="kc">None</span>
     <span class="k">return</span> <span class="kc">None</span>
 
 

@@ -1,0 +1,63 @@
+﻿polaris.landice.model.MaliModelStep
+===================================
+
+.. currentmodule:: polaris.landice.model
+
+.. autoclass:: MaliModelStep
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~MaliModelStep.__init__
+      ~MaliModelStep.add_cf_check
+      ~MaliModelStep.add_dependency
+      ~MaliModelStep.add_input_file
+      ~MaliModelStep.add_model_config_options
+      ~MaliModelStep.add_namelist_file
+      ~MaliModelStep.add_output_file
+      ~MaliModelStep.add_property_check
+      ~MaliModelStep.add_streams_file
+      ~MaliModelStep.add_yaml_file
+      ~MaliModelStep.check_cf
+      ~MaliModelStep.check_properties
+      ~MaliModelStep.constrain_resources
+      ~MaliModelStep.dynamic_model_config
+      ~MaliModelStep.map_yaml_configs
+      ~MaliModelStep.map_yaml_options
+      ~MaliModelStep.map_yaml_streams
+      ~MaliModelStep.map_yaml_to_namelist
+      ~MaliModelStep.partition
+      ~MaliModelStep.process_inputs_and_outputs
+      ~MaliModelStep.run
+      ~MaliModelStep.runtime_setup
+      ~MaliModelStep.set_model_resources
+      ~MaliModelStep.set_resources
+      ~MaliModelStep.set_shared_config
+      ~MaliModelStep.setup
+      ~MaliModelStep.update_io_tasks_config
+      ~MaliModelStep.update_namelist_pio
+      ~MaliModelStep.validate_baselines
+      ~MaliModelStep.work_path
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~MaliModelStep.cores
+      ~MaliModelStep.gpus
+      ~MaliModelStep.may_span_nodes
+      ~MaliModelStep.min_cores
+      ~MaliModelStep.min_gpus
+      ~MaliModelStep.needs_albany
+      ~MaliModelStep.uses_gpus
+   
+   

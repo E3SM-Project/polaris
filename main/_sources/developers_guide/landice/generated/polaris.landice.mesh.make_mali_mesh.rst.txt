@@ -1,0 +1,6 @@
+﻿polaris.landice.mesh.make\_mali\_mesh
+=====================================
+
+.. currentmodule:: polaris.landice.mesh
+
+.. autofunction:: make_mali_mesh

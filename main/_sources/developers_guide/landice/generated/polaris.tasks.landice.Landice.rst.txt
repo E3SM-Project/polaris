@@ -1,0 +1,37 @@
+﻿polaris.tasks.landice.Landice
+=============================
+
+.. currentmodule:: polaris.tasks.landice
+
+.. autoclass:: Landice
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~Landice.__init__
+      ~Landice.add_config
+      ~Landice.add_step
+      ~Landice.add_task
+      ~Landice.build_model
+      ~Landice.check_model_version
+      ~Landice.configure
+      ~Landice.get_available_resources
+      ~Landice.get_or_create_shared_config
+      ~Landice.get_or_create_shared_step
+      ~Landice.has_model
+      ~Landice.open_model_dataset
+      ~Landice.remove_step
+      ~Landice.run_parallel_command
+      ~Landice.set_parallel_system
+      ~Landice.write_model_dataset
+   
+   
+
+   
+   
+   

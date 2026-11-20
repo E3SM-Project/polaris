@@ -1,0 +1,246 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>dome</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=a8da1a53"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="Ocean component" href="../../ocean/index.html" />
+    <link rel="prev" title="Tasks" href="index.html" />
+    <link href="../../../_static/style.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            Polaris
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/quick_start.html">Quick Start for Users</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/tasks.html">Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/config_files.html">Config Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/suites.html">Suites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/e3sm/init/index.html">E3SM Initial Condition Component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/landice/index.html">Land-ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/machines/index.html">Machines</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developer's guide</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../quick_start.html">Quick Start for Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../command_line.html">Command-line interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../organization/index.html">Organization of Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../e3sm/init/index.html">E3SM initial condition (e3sm/init) component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">Land-ice component</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../index.html#dev-landice-build">Building MALI</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../index.html#dev-landice-albany">Albany</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="../framework.html">Land-ice framework</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="index.html">Tasks</a><ul class="current">
+<li class="toctree-l4 current"><a class="current reference internal" href="#">dome</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../framework/index.html">Framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../machines/index.html">Machines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../benchmarking.html">Benchmarking a branch against a baseline</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../omega_pr_testing.html">Testing an Omega pull request</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../polaris_update_testing.html">Testing a Polaris version update</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../docs.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../building_docs.html">Building the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../building_docs.html#previewing-the-documentation">Previewing the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../conda_vs_spack.html">How Conda and Spack Work Together in Polaris</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../updating_conda.html">Updating Deployment Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../updating_spack/index.html">Updating Shared Spack Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api.html">API reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../design_docs/index.html">Design Documents</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/dev_mali_pr_on_perlmutter.html">Developer Tutorial: Running the <code class="docutils literal notranslate"><span class="pre">mali_pr</span></code> Suite on Perlmutter</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/dev_add_category_of_tasks/index.html">Developer Tutorial: Adding a New Category of Tasks</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Glossary</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../glossary.html">Glossary</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">Polaris</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Land-ice component</a></li>
+          <li class="breadcrumb-item"><a href="index.html">Tasks</a></li>
+      <li class="breadcrumb-item active">dome</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../_sources/developers_guide/landice/tasks/dome.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section class="tex2jax_ignore mathjax_ignore" id="dev-landice-dome">
+<span id="dome"></span><h1>dome<a class="headerlink" href="#dev-landice-dome" title="Link to this heading"></a></h1>
+<p>The <code class="docutils literal notranslate"><span class="pre">dome</span></code> tasks in <code class="docutils literal notranslate"><span class="pre">polaris.tasks.landice.dome</span></code> evolve an ice dome on a flat
+bed with MALI’s shallow-ice and first-order velocity solvers (see
+<a class="reference internal" href="../../../users_guide/landice/tasks/dome.html#landice-dome"><span class="std std-ref">dome</span></a>).  <code class="docutils literal notranslate"><span class="pre">add_dome_tasks()</span></code> adds a <code class="docutils literal notranslate"><span class="pre">smoke_test</span></code>, <code class="docutils literal notranslate"><span class="pre">decomp</span></code> and
+<code class="docutils literal notranslate"><span class="pre">restart</span></code> task for each solver.</p>
+<section id="dev-landice-dome-framework">
+<span id="framework"></span><h2>framework<a class="headerlink" href="#dev-landice-dome-framework" title="Link to this heading"></a></h2>
+<p>The tasks share a config file, <code class="docutils literal notranslate"><span class="pre">dome.cfg</span></code>, and the steps below.</p>
+<section id="init">
+<h3>init<a class="headerlink" href="#init" title="Link to this heading"></a></h3>
+<p>The class <a class="reference internal" href="../generated/polaris.tasks.landice.dome.init.Init.html#polaris.tasks.landice.dome.init.Init" title="polaris.tasks.landice.dome.init.Init"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.landice.dome.init.Init</span></code></a> is a step shared
+by all the tasks.  It makes a planar hexagonal mesh, culls and converts it,
+turns it into a MALI mesh with <a class="reference internal" href="../generated/polaris.landice.mesh.make_mali_mesh.html#polaris.landice.mesh.make_mali_mesh" title="polaris.landice.mesh.make_mali_mesh"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.landice.mesh.make_mali_mesh()</span></code></a>
+and adds the dome’s thickness, a flat bed and zero surface mass balance.</p>
+</section>
+<section id="forward">
+<h3>forward<a class="headerlink" href="#forward" title="Link to this heading"></a></h3>
+<p>The class <a class="reference internal" href="../generated/polaris.tasks.landice.dome.forward.Forward.html#polaris.tasks.landice.dome.forward.Forward" title="polaris.tasks.landice.dome.forward.Forward"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.landice.dome.forward.Forward</span></code></a> is a
+<a class="reference internal" href="../generated/polaris.landice.model.MaliModelStep.html#polaris.landice.model.MaliModelStep" title="polaris.landice.model.MaliModelStep"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.landice.model.MaliModelStep</span></code></a> that runs MALI on the dome
+mesh with a given velocity solver, from <code class="docutils literal notranslate"><span class="pre">namelist.landice</span></code> and
+<code class="docutils literal notranslate"><span class="pre">streams.landice</span></code> in the package.  For the first-order solver, it uses the
+package’s <code class="docutils literal notranslate"><span class="pre">albany_input.yaml</span></code>.</p>
+</section>
+<section id="validate">
+<h3>validate<a class="headerlink" href="#validate" title="Link to this heading"></a></h3>
+<p>The class <a class="reference internal" href="../generated/polaris.tasks.landice.dome.validate.Validate.html#polaris.tasks.landice.dome.validate.Validate" title="polaris.tasks.landice.dome.validate.Validate"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.landice.dome.validate.Validate</span></code></a> compares
+the thickness and normal velocity in the output of two <code class="docutils literal notranslate"><span class="pre">forward</span></code> steps,
+within given norms.</p>
+</section>
+<section id="viz">
+<h3>viz<a class="headerlink" href="#viz" title="Link to this heading"></a></h3>
+<p>The class <a class="reference internal" href="../generated/polaris.tasks.landice.dome.viz.Viz.html#polaris.tasks.landice.dome.viz.Viz" title="polaris.tasks.landice.dome.viz.Viz"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.landice.dome.viz.Viz</span></code></a> plots the ice
+thickness and surface speed at the end of a run.</p>
+</section>
+</section>
+<section id="dev-landice-dome-smoke-test">
+<span id="smoke-test"></span><span id="smoke_test"></span><h2>smoke_test<a class="headerlink" href="#dev-landice-dome-smoke-test" title="Link to this heading"></a></h2>
+<p>The class <a class="reference internal" href="../generated/polaris.tasks.landice.dome.smoke_test.SmokeTest.html#polaris.tasks.landice.dome.smoke_test.SmokeTest" title="polaris.tasks.landice.dome.smoke_test.SmokeTest"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.landice.dome.smoke_test.SmokeTest</span></code></a> runs
+MALI on 4 cores, for 200 years with the shallow-ice solver and 2 years with
+the first-order solver, and plots the results.</p>
+</section>
+<section id="dev-landice-dome-decomp">
+<span id="decomp"></span><h2>decomp<a class="headerlink" href="#dev-landice-dome-decomp" title="Link to this heading"></a></h2>
+<p>The class <a class="reference internal" href="../generated/polaris.tasks.landice.dome.decomp.Decomp.html#polaris.tasks.landice.dome.decomp.Decomp" title="polaris.tasks.landice.dome.decomp.Decomp"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.landice.dome.decomp.Decomp</span></code></a> runs MALI on
+1 and 4 cores and validates that the results are bit-for-bit with the
+shallow-ice solver, and agree within Compass’s norms with the first-order
+solver.</p>
+</section>
+<section id="dev-landice-dome-restart">
+<span id="restart"></span><h2>restart<a class="headerlink" href="#dev-landice-dome-restart" title="Link to this heading"></a></h2>
+<p>The class <a class="reference internal" href="../generated/polaris.tasks.landice.dome.restart.Restart.html#polaris.tasks.landice.dome.restart.Restart" title="polaris.tasks.landice.dome.restart.Restart"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.landice.dome.restart.Restart</span></code></a> runs MALI
+for 2 years in <code class="docutils literal notranslate"><span class="pre">full_run</span></code>, and for 1 year in <code class="docutils literal notranslate"><span class="pre">restart_run</span></code> from the restart
+file <code class="docutils literal notranslate"><span class="pre">full_run</span></code> writes after its first year.  Both runs write output only at
+the end of year 2, using <code class="docutils literal notranslate"><span class="pre">streams.restart</span></code> in the package, and the outputs
+must be bit-for-bit with the shallow-ice solver.  With the first-order
+solver, Albany’s velocity depends slightly on how MPI tasks are placed on
+cores (by about 1e-21 m/s), and the two runs are usually placed differently,
+so the validate step uses the norms of <code class="docutils literal notranslate"><span class="pre">decomp</span></code> instead.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="index.html" class="btn btn-neutral float-left" title="Tasks" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../../ocean/index.html" class="btn btn-neutral float-right" title="Ocean component" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Energy Exascale Earth System Model Project.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+   
+
+  <!-- Meta tags for JS to use -->
+  <meta name="doc-version" content="main">
+  <meta name="doc-site-root" content="../../../">
+
+  <!-- Create version switcher container -->
+  <script>
+    const sidebar = document.querySelector('.wy-side-nav-search');
+    if (sidebar) {
+      const versionDiv = document.createElement('div');
+      versionDiv.id = 'version-switcher';
+      versionDiv.style.marginTop = '1em';
+      sidebar.appendChild(versionDiv);
+    }
+  </script>
+
+  <!-- Load version-switcher.js using the correct relative path -->
+  <script src="../../../../shared/version-switcher.js"></script>
+
+
+</body>
+</html>

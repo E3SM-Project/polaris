@@ -1,0 +1,266 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Land-ice component</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=a8da1a53"></script>
+      <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Land-ice framework" href="framework.html" />
+    <link rel="prev" title="Baseline Validation Variables" href="../mesh/framework/validate.html" />
+    <link href="../../_static/style.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            Polaris
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/quick_start.html">Quick Start for Users</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/tasks.html">Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/config_files.html">Config Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/suites.html">Suites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/e3sm/init/index.html">E3SM Initial Condition Component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/landice/index.html">Land-ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/machines/index.html">Machines</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developer's guide</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../quick_start.html">Quick Start for Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../command_line.html">Command-line interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../organization/index.html">Organization of Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../e3sm/init/index.html">E3SM initial condition (e3sm/init) component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Land-ice component</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#dev-landice-build">Building MALI</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#dev-landice-albany">Albany</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="framework.html">Land-ice framework</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tasks/index.html">Tasks</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../framework/index.html">Framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../machines/index.html">Machines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../benchmarking.html">Benchmarking a branch against a baseline</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../omega_pr_testing.html">Testing an Omega pull request</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../polaris_update_testing.html">Testing a Polaris version update</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../docs.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../building_docs.html">Building the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../building_docs.html#previewing-the-documentation">Previewing the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../conda_vs_spack.html">How Conda and Spack Work Together in Polaris</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../updating_conda.html">Updating Deployment Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../updating_spack/index.html">Updating Shared Spack Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api.html">API reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../design_docs/index.html">Design Documents</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/dev_mali_pr_on_perlmutter.html">Developer Tutorial: Running the <code class="docutils literal notranslate"><span class="pre">mali_pr</span></code> Suite on Perlmutter</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/dev_add_category_of_tasks/index.html">Developer Tutorial: Adding a New Category of Tasks</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Glossary</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../glossary.html">Glossary</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Polaris</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Land-ice component</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/developers_guide/landice/index.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section class="tex2jax_ignore mathjax_ignore" id="dev-landice">
+<span id="land-ice-component"></span><h1>Land-ice component<a class="headerlink" href="#dev-landice" title="Link to this heading"></a></h1>
+<p>The <code class="docutils literal notranslate"><span class="pre">landice</span></code> component runs MALI.  The component-wide config options say
+which model it runs:</p>
+<div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="c1"># This config file has default config options for the landice component</span>
+
+<span class="c1"># Options related the landice component</span>
+<span class="k">[landice]</span>
+
+<span class="c1"># Which model is used.  MALI is currently the only option.</span>
+<span class="na">model</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">mali</span>
+</pre></div>
+</div>
+<p>The config options for MALI itself are in <code class="docutils literal notranslate"><span class="pre">mali.cfg</span></code>, added during setup by
+<code class="docutils literal notranslate"><span class="pre">Landice.configure()</span></code>.  They point to the build’s namelist, streams file,
+processed registry and executable, as <code class="docutils literal notranslate"><span class="pre">mpas_ocean.cfg</span></code> does for MPAS-Ocean,
+and set the build options:</p>
+<div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="c1"># Config options related to building components</span>
+<span class="k">[build]</span>
+
+<span class="c1"># the branch to build from</span>
+<span class="na">branch</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">${paths:polaris_branch}/e3sm_submodules/MALI-Dev</span>
+
+<span class="c1"># whether to build MALI with Albany, which the first-order velocity solver</span>
+<span class="c1"># needs: True, False or detect (with Albany if the environment provides it)</span>
+<span class="na">albany</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">detect</span>
+</pre></div>
+</div>
+<section id="dev-landice-build">
+<span id="building-mali"></span><h2>Building MALI<a class="headerlink" href="#dev-landice-build" title="Link to this heading"></a></h2>
+<p>Polaris builds MALI during <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">setup</span></code> or <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">suite</span></code> whenever a task
+has a <a class="reference internal" href="generated/polaris.landice.model.MaliModelStep.html#polaris.landice.model.MaliModelStep" title="polaris.landice.model.MaliModelStep"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.landice.model.MaliModelStep</span></code></a> and no build is found
+at <code class="docutils literal notranslate"><span class="pre">component_path</span></code>, which defaults to <code class="docutils literal notranslate"><span class="pre">${WORKDIR}/landice_build</span></code>.  The
+default source is the <code class="docutils literal notranslate"><span class="pre">e3sm_submodules/MALI-Dev</span></code> submodule, which follows
+MALI-Dev’s <code class="docutils literal notranslate"><span class="pre">develop</span></code> branch, where MALI is developed.  Use
+<code class="docutils literal notranslate"><span class="pre">--landice_branch</span></code> (or <code class="docutils literal notranslate"><span class="pre">--branch</span></code> when setting up landice tasks) to build
+from another E3SM branch, such as FAnSSIE for ocean–ice-sheet coupling work.
+The build flags described in <a class="reference internal" href="../quick_start.html#dev-build-components"><span class="std std-ref">Building E3SM components</span></a> apply, and
+<a class="reference internal" href="../framework/build.html#dev-build"><span class="std std-ref">Build utilities</span></a> describes the build script.  MALI and MPAS-Ocean built from
+the same E3SM checkout share its framework build, so Polaris rebuilds it when
+switching between them, and the two must not be built from one checkout at
+the same time.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">source</span><span class="w"> </span>./load_&lt;env_name&gt;_&lt;machine&gt;_&lt;compiler&gt;_&lt;mpi&gt;.sh
+polaris<span class="w"> </span>suite<span class="w"> </span>-c<span class="w"> </span>landice<span class="w"> </span>-t<span class="w"> </span>mali_pr<span class="w"> </span>-m<span class="w"> </span><span class="nv">$MACHINE</span><span class="w"> </span>-w<span class="w"> </span><span class="nv">$WORKDIR</span>
+</pre></div>
+</div>
+<p>To build MALI by hand instead, run <code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">&lt;mpas_make_target&gt;</span></code> in
+<code class="docutils literal notranslate"><span class="pre">components/mpas-albany-landice</span></code> of an E3SM branch, adding <code class="docutils literal notranslate"><span class="pre">ALBANY=true</span></code> and
+<code class="docutils literal notranslate"><span class="pre">MPAS_EXTERNAL_LIBS=&quot;${POLARIS_ALBANY_LINK_LIBS}&quot;</span></code> for a build with Albany,
+then point Polaris to it with <code class="docutils literal notranslate"><span class="pre">-p</span></code>.</p>
+</section>
+<section id="dev-landice-albany">
+<span id="albany"></span><h2>Albany<a class="headerlink" href="#dev-landice-albany" title="Link to this heading"></a></h2>
+<p>MALI’s first-order velocity solver comes from the Albany library, which is
+built with Trilinos in a Polaris Spack library environment deployed with
+<code class="docutils literal notranslate"><span class="pre">--with-albany</span></code>:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./deploy.py<span class="w"> </span>--compiler<span class="w"> </span>gnu<span class="w"> </span>--mpi<span class="w"> </span>openmpi<span class="w"> </span>--with-albany
+</pre></div>
+</div>
+<p>Albany has its own library environments, named
+<code class="docutils literal notranslate"><span class="pre">spack_env_albany_&lt;compiler&gt;_&lt;mpi&gt;</span></code>, and its own software environment,
+<code class="docutils literal notranslate"><span class="pre">polaris_albany_software</span></code>, so environments without it are not modified.
+Add <code class="docutils literal notranslate"><span class="pre">--deploy-spack</span></code> to build these environments rather than load existing
+ones.  <code class="docutils literal notranslate"><span class="pre">deploy/albany_supported.txt</span></code> lists the machines, compilers
+and MPI libraries that support Albany, and <code class="docutils literal notranslate"><span class="pre">deploy/pins.cfg</span></code> pins Albany and
+Trilinos.  A machine can override the Albany and Trilinos variants with
+<code class="docutils literal notranslate"><span class="pre">albany_variants</span></code> and <code class="docutils literal notranslate"><span class="pre">trilinos_variants</span></code> in the <code class="docutils literal notranslate"><span class="pre">[deploy]</span></code> section of its
+config file, as pm-gpu does to build them for its GPUs.</p>
+<p>When the Spack library environment has Albany, the load script sets
+<code class="docutils literal notranslate"><span class="pre">POLARIS_ALBANY_LINK_LIBS</span></code> to the libraries MALI links to.  Only MALI builds
+use it, so MPAS-Ocean builds in the same environment are unchanged.  With
+<code class="docutils literal notranslate"><span class="pre">albany</span> <span class="pre">=</span> <span class="pre">detect</span></code>, a MALI build has Albany whenever the environment provides
+it, and one build serves the tasks for both velocity solvers.  Setup fails if
+a step uses the first-order solver and the build will not have Albany, or an
+existing build’s source record says it has none.</p>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="framework.html">Land-ice framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tasks/index.html">Tasks</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tasks/dome.html">dome</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../mesh/framework/validate.html" class="btn btn-neutral float-left" title="Baseline Validation Variables" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="framework.html" class="btn btn-neutral float-right" title="Land-ice framework" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Energy Exascale Earth System Model Project.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+   
+
+  <!-- Meta tags for JS to use -->
+  <meta name="doc-version" content="main">
+  <meta name="doc-site-root" content="../../">
+
+  <!-- Create version switcher container -->
+  <script>
+    const sidebar = document.querySelector('.wy-side-nav-search');
+    if (sidebar) {
+      const versionDiv = document.createElement('div');
+      versionDiv.id = 'version-switcher';
+      versionDiv.style.marginTop = '1em';
+      sidebar.appendChild(versionDiv);
+    }
+  </script>
+
+  <!-- Load version-switcher.js using the correct relative path -->
+  <script src="../../../shared/version-switcher.js"></script>
+
+
+</body>
+</html>

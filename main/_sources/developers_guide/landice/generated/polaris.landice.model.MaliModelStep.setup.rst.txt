@@ -1,0 +1,6 @@
+﻿polaris.landice.model.MaliModelStep.setup
+=========================================
+
+.. currentmodule:: polaris.landice.model
+
+.. automethod:: MaliModelStep.setup

@@ -1,0 +1,6 @@
+﻿polaris.landice.model.MaliModelStep.uses\_gpus
+==============================================
+
+.. currentmodule:: polaris.landice.model
+
+.. autoproperty:: MaliModelStep.uses_gpus

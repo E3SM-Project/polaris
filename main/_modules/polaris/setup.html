@@ -407,6 +407,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l1"><a class="reference internal" href="../../users_guide/suites.html">Suites</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../users_guide/mesh/index.html">Mesh component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../users_guide/e3sm/init/index.html">E3SM Initial Condition Component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/landice/index.html">Land-ice component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../users_guide/ocean/index.html">Ocean component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../users_guide/seaice/index.html">Sea ice component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../users_guide/machines/index.html">Machines</a></li>
@@ -419,6 +420,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l1"><a class="reference internal" href="../../developers_guide/organization/index.html">Organization of Tasks</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../developers_guide/e3sm/init/index.html">E3SM initial condition (e3sm/init) component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../developers_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/landice/index.html">Land-ice component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../developers_guide/ocean/index.html">Ocean component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../developers_guide/seaice/index.html">Sea ice component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../developers_guide/framework/index.html">Framework</a></li>
@@ -438,6 +440,7 @@ window.runMermaid = runMermaid;</script>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/dev_mali_pr_on_perlmutter.html">Developer Tutorial: Running the <code class="docutils literal notranslate"><span class="pre">mali_pr</span></code> Suite on Perlmutter</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../tutorials/dev_add_category_of_tasks/index.html">Developer Tutorial: Adding a New Category of Tasks</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Glossary</span></p>
@@ -711,12 +714,6 @@ window.runMermaid = runMermaid;</script>
         <span class="n">suite_name</span><span class="o">=</span><span class="n">suite_name</span><span class="p">,</span>
     <span class="p">)</span>
 
-    <span class="n">_build_models</span><span class="p">(</span>
-        <span class="n">components_in_use</span><span class="o">=</span><span class="n">components_in_use</span><span class="p">,</span>
-        <span class="n">component_configs</span><span class="o">=</span><span class="n">component_configs</span><span class="p">,</span>
-        <span class="n">machine</span><span class="o">=</span><span class="n">machine</span><span class="p">,</span>
-    <span class="p">)</span>
-
     <span class="k">if</span> <span class="n">clean_tasks</span><span class="p">:</span>
         <span class="nb">print</span><span class="p">(</span><span class="s1">''</span><span class="p">)</span>
         <span class="nb">print</span><span class="p">(</span><span class="s1">'Cleaning task and step work directories:'</span><span class="p">)</span>
@@ -743,6 +740,15 @@ window.runMermaid = runMermaid;</script>
     <span class="c1"># are left out before anything is written or downloaded for them</span>
     <span class="n">_call_step_setup</span><span class="p">(</span><span class="n">tasks</span><span class="p">,</span> <span class="n">work_dir</span><span class="p">)</span>
     <span class="n">skipped_steps</span> <span class="o">=</span> <span class="n">_skip_steps_feeding_only_cached</span><span class="p">(</span><span class="n">tasks</span><span class="p">)</span>
+
+    <span class="c1"># only now is it known which steps will run, and a model only needs to</span>
+    <span class="c1"># be built for those.  Setting up the tasks below reads the namelists,</span>
+    <span class="c1"># streams and executables from the builds.</span>
+    <span class="n">_build_models</span><span class="p">(</span>
+        <span class="n">components_in_use</span><span class="o">=</span><span class="n">_get_components_to_build</span><span class="p">(</span><span class="n">tasks</span><span class="p">,</span> <span class="n">components_in_use</span><span class="p">),</span>
+        <span class="n">component_configs</span><span class="o">=</span><span class="n">component_configs</span><span class="p">,</span>
+        <span class="n">machine</span><span class="o">=</span><span class="n">machine</span><span class="p">,</span>
+    <span class="p">)</span>
 
     <span class="n">_write_configs</span><span class="p">(</span><span class="n">common_configs</span><span class="p">,</span> <span class="n">configs</span><span class="p">,</span> <span class="n">work_dir</span><span class="p">)</span>
     <span class="n">_symlink_configs</span><span class="p">(</span><span class="n">tasks</span><span class="p">,</span> <span class="n">work_dir</span><span class="p">)</span>
@@ -1077,7 +1083,7 @@ window.runMermaid = runMermaid;</script>
         <span class="s1">'--model'</span><span class="p">,</span>
         <span class="n">dest</span><span class="o">=</span><span class="s1">'model'</span><span class="p">,</span>
         <span class="n">help</span><span class="o">=</span><span class="s2">"The model to run (one of 'mpas-ocean', 'omega', "</span>
-        <span class="s2">"or 'mpas-seaice')"</span><span class="p">,</span>
+        <span class="s2">"'mpas-seaice' or 'mali')"</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
         <span class="s1">'--build'</span><span class="p">,</span>
@@ -2164,6 +2170,22 @@ window.runMermaid = runMermaid;</script>
                 <span class="sa">f</span><span class="s1">'different build directories.'</span>
             <span class="p">)</span>
         <span class="n">executables</span><span class="p">[</span><span class="n">executable</span><span class="p">]</span> <span class="o">=</span> <span class="n">component</span><span class="o">.</span><span class="n">name</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_get_components_to_build</span><span class="p">(</span><span class="n">tasks</span><span class="p">,</span> <span class="n">components_in_use</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Get the components in use that own a step that will run, that is, a</span>
+<span class="sd">    step that is neither cached nor left out because only cached steps use</span>
+<span class="sd">    its outputs.  Only these need their models.</span>
+<span class="sd">    """</span>
+    <span class="n">names</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">task</span> <span class="ow">in</span> <span class="n">tasks</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+        <span class="k">for</span> <span class="n">step</span> <span class="ow">in</span> <span class="n">task</span><span class="o">.</span><span class="n">steps</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">step</span><span class="o">.</span><span class="n">cached</span><span class="p">:</span>
+                <span class="n">names</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">step</span><span class="o">.</span><span class="n">component</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">[</span>
+        <span class="n">component</span> <span class="k">for</span> <span class="n">component</span> <span class="ow">in</span> <span class="n">components_in_use</span> <span class="k">if</span> <span class="n">component</span><span class="o">.</span><span class="n">name</span> <span class="ow">in</span> <span class="n">names</span>
+    <span class="p">]</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_build_models</span><span class="p">(</span><span class="n">components_in_use</span><span class="p">,</span> <span class="n">component_configs</span><span class="p">,</span> <span class="n">machine</span><span class="p">):</span>

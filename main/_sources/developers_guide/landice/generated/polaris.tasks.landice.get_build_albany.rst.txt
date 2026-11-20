@@ -1,0 +1,6 @@
+﻿polaris.tasks.landice.get\_build\_albany
+========================================
+
+.. currentmodule:: polaris.tasks.landice
+
+.. autofunction:: get_build_albany

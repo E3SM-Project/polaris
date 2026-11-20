@@ -1,0 +1,6 @@
+﻿polaris.build.mali.get\_mali\_build\_albany
+===========================================
+
+.. currentmodule:: polaris.build.mali
+
+.. autofunction:: get_mali_build_albany

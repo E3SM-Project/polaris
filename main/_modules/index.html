@@ -407,6 +407,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l1"><a class="reference internal" href="../users_guide/suites.html">Suites</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../users_guide/mesh/index.html">Mesh component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../users_guide/e3sm/init/index.html">E3SM Initial Condition Component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/landice/index.html">Land-ice component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../users_guide/ocean/index.html">Ocean component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../users_guide/seaice/index.html">Sea ice component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../users_guide/machines/index.html">Machines</a></li>
@@ -419,6 +420,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l1"><a class="reference internal" href="../developers_guide/organization/index.html">Organization of Tasks</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../developers_guide/e3sm/init/index.html">E3SM initial condition (e3sm/init) component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../developers_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/landice/index.html">Land-ice component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../developers_guide/ocean/index.html">Ocean component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../developers_guide/seaice/index.html">Sea ice component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../developers_guide/framework/index.html">Framework</a></li>
@@ -438,6 +440,7 @@ window.runMermaid = runMermaid;</script>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/dev_mali_pr_on_perlmutter.html">Developer Tutorial: Running the <code class="docutils literal notranslate"><span class="pre">mali_pr</span></code> Suite on Perlmutter</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../tutorials/dev_add_category_of_tasks/index.html">Developer Tutorial: Adding a New Category of Tasks</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Glossary</span></p>
@@ -479,6 +482,8 @@ window.runMermaid = runMermaid;</script>
 <li><a href="polaris/analysis/units.html">polaris.analysis.units</a></li>
 <li><a href="polaris/attrs.html">polaris.attrs</a></li>
 <li><a href="polaris/baselines.html">polaris.baselines</a></li>
+<li><a href="polaris/build/mali.html">polaris.build.mali</a></li>
+<li><a href="polaris/build/mpas_framework.html">polaris.build.mpas_framework</a></li>
 <li><a href="polaris/build/mpas_ocean.html">polaris.build.mpas_ocean</a></li>
 <li><a href="polaris/build/omega.html">polaris.build.omega</a></li>
 <li><a href="polaris/build/source_record.html">polaris.build.source_record</a></li>
@@ -498,6 +503,8 @@ window.runMermaid = runMermaid;</script>
 <li><a href="polaris/e3sm/init/topo/resolutions.html">polaris.e3sm.init.topo.resolutions</a></li>
 <li><a href="polaris/io.html">polaris.io</a></li>
 <li><a href="polaris/job.html">polaris.job</a></li>
+<li><a href="polaris/landice/mesh.html">polaris.landice.mesh</a></li>
+<li><a href="polaris/landice/model/mali_model_step.html">polaris.landice.model.mali_model_step</a></li>
 <li><a href="polaris/list.html">polaris.list</a></li>
 <li><a href="polaris/logging.html">polaris.logging</a></li>
 <li><a href="polaris/mesh/attrs.html">polaris.mesh.attrs</a></li>
@@ -631,7 +638,17 @@ window.runMermaid = runMermaid;</script>
 <li><a href="polaris/tasks/e3sm/init/topo/remap/tasks.html">polaris.tasks.e3sm.init.topo.remap.tasks</a></li>
 <li><a href="polaris/tasks/e3sm/init/topo/remap/viz.html">polaris.tasks.e3sm.init.topo.remap.viz</a></li>
 <li><a href="polaris/tasks/e3sm/init/topo/remap/weights.html">polaris.tasks.e3sm.init.topo.remap.weights</a></li>
-<li><a href="polaris/tasks/mesh/add_tasks.html">polaris.tasks.mesh.add_tasks</a></li>
+<li><a href="polaris/tasks/landice.html">polaris.tasks.landice</a></li>
+<ul><li><a href="polaris/tasks/landice/add_tasks.html">polaris.tasks.landice.add_tasks</a></li>
+<li><a href="polaris/tasks/landice/dome.html">polaris.tasks.landice.dome</a></li>
+<ul><li><a href="polaris/tasks/landice/dome/decomp.html">polaris.tasks.landice.dome.decomp</a></li>
+<li><a href="polaris/tasks/landice/dome/forward.html">polaris.tasks.landice.dome.forward</a></li>
+<li><a href="polaris/tasks/landice/dome/init.html">polaris.tasks.landice.dome.init</a></li>
+<li><a href="polaris/tasks/landice/dome/restart.html">polaris.tasks.landice.dome.restart</a></li>
+<li><a href="polaris/tasks/landice/dome/smoke_test.html">polaris.tasks.landice.dome.smoke_test</a></li>
+<li><a href="polaris/tasks/landice/dome/validate.html">polaris.tasks.landice.dome.validate</a></li>
+<li><a href="polaris/tasks/landice/dome/viz.html">polaris.tasks.landice.dome.viz</a></li>
+</ul></ul><li><a href="polaris/tasks/mesh/add_tasks.html">polaris.tasks.mesh.add_tasks</a></li>
 <li><a href="polaris/tasks/mesh/base.html">polaris.tasks.mesh.base</a></li>
 <li><a href="polaris/tasks/mesh/spherical/feature_masks/compute.html">polaris.tasks.mesh.spherical.feature_masks.compute</a></li>
 <li><a href="polaris/tasks/mesh/spherical/feature_masks/moc.html">polaris.tasks.mesh.spherical.feature_masks.moc</a></li>

@@ -1,0 +1,6 @@
+﻿polaris.tasks.landice.dome.validate.Validate.run
+================================================
+
+.. currentmodule:: polaris.tasks.landice.dome.validate
+
+.. automethod:: Validate.run

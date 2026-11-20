@@ -1,0 +1,6 @@
+﻿polaris.build.mali.build\_mali
+==============================
+
+.. currentmodule:: polaris.build.mali
+
+.. autofunction:: build_mali

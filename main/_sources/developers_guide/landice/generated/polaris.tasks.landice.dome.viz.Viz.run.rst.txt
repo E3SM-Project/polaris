@@ -1,0 +1,6 @@
+﻿polaris.tasks.landice.dome.viz.Viz.run
+======================================
+
+.. currentmodule:: polaris.tasks.landice.dome.viz
+
+.. automethod:: Viz.run

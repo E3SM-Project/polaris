@@ -52,6 +52,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../users_guide/suites.html">Suites</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../users_guide/mesh/index.html">Mesh component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../users_guide/e3sm/init/index.html">E3SM Initial Condition Component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/landice/index.html">Land-ice component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../users_guide/ocean/index.html">Ocean component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../users_guide/seaice/index.html">Sea ice component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../users_guide/machines/index.html">Machines</a></li>
@@ -64,6 +65,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../organization/index.html">Organization of Tasks</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../e3sm/init/index.html">E3SM initial condition (e3sm/init) component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../landice/index.html">Land-ice component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../ocean/index.html">Ocean component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../seaice/index.html">Sea ice component</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">Framework</a><ul class="current">
@@ -78,9 +80,11 @@
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Build utilities</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#how-it-works">How it works</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#source-record">Source record</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#shared-mpas-framework">Shared MPAS framework</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#required-environment">Required environment</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#mpas-ocean-builder">MPAS-Ocean builder</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#omega-builder">Omega builder</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#mali-builder">MALI builder</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#usage-examples">Usage examples</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#integration-with-polaris-setup-and-polaris-suite">Integration with <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">setup</span></code> and <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">suite</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#physical-constants-version-compatibility">Physical constants version compatibility</a></li>
@@ -112,6 +116,7 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/dev_mali_pr_on_perlmutter.html">Developer Tutorial: Running the <code class="docutils literal notranslate"><span class="pre">mali_pr</span></code> Suite on Perlmutter</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../tutorials/dev_add_category_of_tasks/index.html">Developer Tutorial: Adding a New Category of Tasks</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Glossary</span></p>
@@ -154,9 +159,14 @@ can reliably build from a clean login environment.</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">polaris.build.mpas_ocean</span></code> — build MPAS-Ocean from an E3SM checkout</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">polaris.build.omega</span></code> — build Omega from the standalone repo or submodule</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">polaris.build.mali</span></code> — build MALI from an E3SM checkout, with or without
+Albany</p></li>
 </ul>
 <section id="how-it-works">
 <h2>How it works<a class="headerlink" href="#how-it-works" title="Link to this heading"></a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">setup</span></code> and <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">suite</span></code> build a component’s model only if the
+component owns a step that will run.  A component whose steps are all cached,
+or are left out because only cached steps use their outputs, is not built.</p>
 <p>Each builder renders a Jinja2 template into a machine-specific shell script and
 then runs that script from a pristine login environment (clearing the current
 process environment) to avoid interference from Conda or other package managers.
@@ -165,20 +175,39 @@ The generated scripts are saved so you can re-run or inspect them later.</p>
 <ul class="simple">
 <li><p>MPAS-Ocean: <code class="docutils literal notranslate"><span class="pre">build_mpas_ocean_&lt;machine&gt;_&lt;compiler&gt;_&lt;mpi&gt;.sh</span></code></p></li>
 <li><p>Omega: <code class="docutils literal notranslate"><span class="pre">build_omega_&lt;machine&gt;_&lt;compiler&gt;.sh</span></code></p></li>
+<li><p>MALI: <code class="docutils literal notranslate"><span class="pre">build_mali_&lt;machine&gt;_&lt;compiler&gt;_&lt;mpi&gt;.sh</span></code></p></li>
 </ul>
 </section>
 <section id="source-record">
 <h2>Source record<a class="headerlink" href="#source-record" title="Link to this heading"></a></h2>
-<p>Before configuring (Omega) or making (MPAS-Ocean), each build script writes a
-record of the source it is building into the build directory:
-<code class="docutils literal notranslate"><span class="pre">omega_source.txt</span></code> or <code class="docutils literal notranslate"><span class="pre">mpas_ocean_source.txt</span></code>.  The record holds the source
-tree’s path, its full hash, <code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">describe</span> <span class="pre">--tags</span> <span class="pre">--dirty</span> <span class="pre">--always</span></code>, the last
-five first-parent commits, and <code class="docutils literal notranslate"><span class="pre">clean_build</span></code>.  For Omega, <code class="docutils literal notranslate"><span class="pre">clean_build</span></code> is
-<code class="docutils literal notranslate"><span class="pre">true</span></code> when the build directory had no <code class="docutils literal notranslate"><span class="pre">CMakeCache.txt</span></code>; for MPAS-Ocean, it is
-<code class="docutils literal notranslate"><span class="pre">true</span></code> when the script ran <code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">clean</span></code>.</p>
+<p>Before configuring (Omega) or making (MPAS-Ocean and MALI), each build script
+writes a record of the source it is building into the build directory:
+<code class="docutils literal notranslate"><span class="pre">omega_source.txt</span></code>, <code class="docutils literal notranslate"><span class="pre">mpas_ocean_source.txt</span></code> or <code class="docutils literal notranslate"><span class="pre">mali_source.txt</span></code>.  The record
+holds the source tree’s path, its full hash,
+<code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">describe</span> <span class="pre">--tags</span> <span class="pre">--dirty</span> <span class="pre">--always</span></code>, the last five first-parent commits,
+and <code class="docutils literal notranslate"><span class="pre">clean_build</span></code>.  For Omega, <code class="docutils literal notranslate"><span class="pre">clean_build</span></code> is <code class="docutils literal notranslate"><span class="pre">true</span></code> when the build
+directory had no <code class="docutils literal notranslate"><span class="pre">CMakeCache.txt</span></code>; for MPAS-Ocean and MALI, it is <code class="docutils literal notranslate"><span class="pre">true</span></code> when
+the script ran <code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">clean</span></code>.  MALI’s record also says whether the build has
+Albany (<code class="docutils literal notranslate"><span class="pre">albany</span></code>).</p>
 <p><a class="reference internal" href="../generated/polaris.build.source_record.read_source_record.html#polaris.build.source_record.read_source_record" title="polaris.build.source_record.read_source_record"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.build.source_record.read_source_record()</span></code></a> reads the record.
 <a class="reference internal" href="provenance.html#dev-provenance"><span class="std std-ref">Provenance</span></a> uses it to record the commit that was built, which may
 differ from the commit the source tree is at when a suite reuses the build.</p>
+</section>
+<section id="shared-mpas-framework">
+<h2>Shared MPAS framework<a class="headerlink" href="#shared-mpas-framework" title="Link to this heading"></a></h2>
+<p>The MPAS components in an E3SM checkout share one framework build in
+<code class="docutils literal notranslate"><span class="pre">components/mpas-framework/src</span></code>, and its driver is compiled differently for
+each component.  The MPAS-Ocean and MALI build scripts write the
+configuration of each build (component, machine, compiler, MPI library, make
+target and flags, Albany and load script) to <code class="docutils literal notranslate"><span class="pre">.polaris_build</span></code> there before
+running <code class="docutils literal notranslate"><span class="pre">make</span></code>.  A build runs <code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">clean</span></code> first, which cleans the shared
+framework too, when that record differs, when the checkout has MPAS
+<code class="docutils literal notranslate"><span class="pre">.mpas_core_&lt;core&gt;</span></code> markers but no record (it was built outside Polaris), or
+when the newest marker belongs to another component.
+<a class="reference internal" href="../generated/polaris.build.mpas_framework.get_framework_check.html#polaris.build.mpas_framework.get_framework_check" title="polaris.build.mpas_framework.get_framework_check"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.build.mpas_framework.get_framework_check()</span></code></a> makes this part
+of the scripts.</p>
+<p>Builds of different components, or with different compilers, from one
+checkout at the same time still collide, so don’t start them together.</p>
 </section>
 <section id="required-environment">
 <h2>Required environment<a class="headerlink" href="#required-environment" title="Link to this heading"></a></h2>
@@ -202,6 +231,12 @@ env on the target machine</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">POLARIS_MACHINE</span></code> — machine ID</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">POLARIS_COMPILER</span></code> — compiler toolchain ID</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">METIS_ROOT</span></code>, <code class="docutils literal notranslate"><span class="pre">PARMETIS_ROOT</span></code> — paths to METIS and ParMETIS installs</p></li>
+</ul>
+<p>MALI: the same as MPAS-Ocean, plus</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">POLARIS_ALBANY_LINK_LIBS</span></code> — the libraries a MALI build with Albany links
+to, set only by load scripts for environments deployed with
+<code class="docutils literal notranslate"><span class="pre">--with-albany</span></code> (see <a class="reference internal" href="../landice/index.html#dev-landice-albany"><span class="std std-ref">Albany</span></a>)</p></li>
 </ul>
 <p>Notes:</p>
 <ul class="simple">
@@ -239,6 +274,25 @@ machine.</p></li>
 <ul class="simple">
 <li><p>Renders <code class="docutils literal notranslate"><span class="pre">polaris.build/build_omega.template</span></code></p></li>
 <li><p>Writes the script under <code class="docutils literal notranslate"><span class="pre">./build_omega/</span></code></p></li>
+<li><p>Executes the script with <code class="docutils literal notranslate"><span class="pre">env</span> <span class="pre">-i</span> <span class="pre">HOME=&quot;$HOME&quot;</span> <span class="pre">bash</span> <span class="pre">-l</span> <span class="pre">&lt;script&gt;</span></code></p></li>
+</ul>
+</section>
+<section id="mali-builder">
+<h2>MALI builder<a class="headerlink" href="#mali-builder" title="Link to this heading"></a></h2>
+<p>Python entry points:</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="../generated/polaris.build.mali.build_mali.html#polaris.build.mali.build_mali" title="polaris.build.mali.build_mali"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.build.mali.build_mali()</span></code></a> — render and run a build</p></li>
+<li><p><a class="reference internal" href="../generated/polaris.build.mali.make_build_script.html#polaris.build.mali.make_build_script" title="polaris.build.mali.make_build_script"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.build.mali.make_build_script()</span></code></a> — render the script only</p></li>
+</ul>
+<p>Behavior:</p>
+<ul class="simple">
+<li><p>Renders <code class="docutils literal notranslate"><span class="pre">polaris.build/build_mali.template</span></code></p></li>
+<li><p>Builds in <code class="docutils literal notranslate"><span class="pre">components/mpas-albany-landice</span></code> of the branch, initializing none
+of MALI’s optional submodules</p></li>
+<li><p>With Albany, adds <code class="docutils literal notranslate"><span class="pre">ALBANY=true</span></code> and appends <code class="docutils literal notranslate"><span class="pre">POLARIS_ALBANY_LINK_LIBS</span></code> to
+<code class="docutils literal notranslate"><span class="pre">MPAS_EXTERNAL_LIBS</span></code></p></li>
+<li><p>Copies <code class="docutils literal notranslate"><span class="pre">landice_model</span></code>, MALI’s default namelist and streams files and its
+processed registry into the build directory</p></li>
 <li><p>Executes the script with <code class="docutils literal notranslate"><span class="pre">env</span> <span class="pre">-i</span> <span class="pre">HOME=&quot;$HOME&quot;</span> <span class="pre">bash</span> <span class="pre">-l</span> <span class="pre">&lt;script&gt;</span></code></p></li>
 </ul>
 </section>

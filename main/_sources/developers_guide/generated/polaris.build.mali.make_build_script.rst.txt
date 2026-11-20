@@ -1,0 +1,6 @@
+﻿polaris.build.mali.make\_build\_script
+======================================
+
+.. currentmodule:: polaris.build.mali
+
+.. autofunction:: make_build_script

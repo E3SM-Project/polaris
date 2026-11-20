@@ -52,6 +52,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../users_guide/suites.html">Suites</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../users_guide/mesh/index.html">Mesh component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../users_guide/e3sm/init/index.html">E3SM Initial Condition Component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide/landice/index.html">Land-ice component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../users_guide/ocean/index.html">Ocean component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../users_guide/seaice/index.html">Sea ice component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../users_guide/machines/index.html">Machines</a></li>
@@ -64,6 +65,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../organization/index.html">Organization of Tasks</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../e3sm/init/index.html">E3SM initial condition (e3sm/init) component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../landice/index.html">Land-ice component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../ocean/index.html">Ocean component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../seaice/index.html">Sea ice component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../framework/index.html">Framework</a></li>
@@ -101,6 +103,12 @@
 <li class="toctree-l3"><a class="reference internal" href="../api.html#unified-meshes">Unified Meshes</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api.html#model-step">model_step</a></li>
 <li class="toctree-l3 current"><a class="reference internal" href="../api.html#build">build</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="polaris.build.mali.build_mali.html">polaris.build.mali.build_mali</a></li>
+<li class="toctree-l4"><a class="reference internal" href="polaris.build.mali.environment_has_albany.html">polaris.build.mali.environment_has_albany</a></li>
+<li class="toctree-l4"><a class="reference internal" href="polaris.build.mali.get_mali_build_albany.html">polaris.build.mali.get_mali_build_albany</a></li>
+<li class="toctree-l4"><a class="reference internal" href="polaris.build.mali.get_mali_source_dir.html">polaris.build.mali.get_mali_source_dir</a></li>
+<li class="toctree-l4"><a class="reference internal" href="polaris.build.mali.make_build_script.html">polaris.build.mali.make_build_script</a></li>
+<li class="toctree-l4"><a class="reference internal" href="polaris.build.mpas_framework.get_framework_check.html">polaris.build.mpas_framework.get_framework_check</a></li>
 <li class="toctree-l4"><a class="reference internal" href="polaris.build.mpas_ocean.build_mpas_ocean.html">polaris.build.mpas_ocean.build_mpas_ocean</a></li>
 <li class="toctree-l4"><a class="reference internal" href="polaris.build.mpas_ocean.make_build_script.html">polaris.build.mpas_ocean.make_build_script</a></li>
 <li class="toctree-l4"><a class="reference internal" href="polaris.build.omega.build_omega.html">polaris.build.omega.build_omega</a></li>
@@ -127,6 +135,7 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/dev_mali_pr_on_perlmutter.html">Developer Tutorial: Running the <code class="docutils literal notranslate"><span class="pre">mali_pr</span></code> Suite on Perlmutter</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../tutorials/dev_add_category_of_tasks/index.html">Developer Tutorial: Adding a New Category of Tasks</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Glossary</span></p>
@@ -170,14 +179,15 @@ configuring the build, so it names the commit that was built even if the
 source tree has moved since.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>build_dir</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><em>str</em></a><em>, </em><em>optional</em>) – The build directory of Omega or MPAS-Ocean</p>
+<dd class="field-odd"><p><strong>build_dir</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><em>str</em></a><em>, </em><em>optional</em>) – The build directory of Omega, MPAS-Ocean or MALI</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><strong>record</strong> (<em>dict, optional</em>) – The record, with the source tree’s path (<code class="docutils literal notranslate"><span class="pre">source</span></code>), its full hash
 (<code class="docutils literal notranslate"><span class="pre">hash</span></code>), the output of <code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">describe</span></code> (<code class="docutils literal notranslate"><span class="pre">describe</span></code>), whether
-the build started from an empty build directory (<code class="docutils literal notranslate"><span class="pre">clean_build</span></code>)
-and its last five first-parent commits (<code class="docutils literal notranslate"><span class="pre">log</span></code>), or <code class="docutils literal notranslate"><span class="pre">None</span></code> if the
-build directory has no record</p>
+the build started from an empty build directory (<code class="docutils literal notranslate"><span class="pre">clean_build</span></code>),
+whether a MALI build has Albany (<code class="docutils literal notranslate"><span class="pre">albany</span></code>, <code class="docutils literal notranslate"><span class="pre">None</span></code> for other
+models) and its last five first-parent commits (<code class="docutils literal notranslate"><span class="pre">log</span></code>), or <code class="docutils literal notranslate"><span class="pre">None</span></code>
+if the build directory has no record</p>
 </dd>
 </dl>
 </dd></dl>

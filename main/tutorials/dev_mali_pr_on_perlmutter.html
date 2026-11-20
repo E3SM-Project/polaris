@@ -1,0 +1,328 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Developer Tutorial: Running the mali_pr Suite on Perlmutter</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=a8da1a53"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Developer Tutorial: Adding a New Category of Tasks" href="dev_add_category_of_tasks/index.html" />
+    <link rel="prev" title="Template" href="../design_docs/template.html" />
+    <link href="../_static/style.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Polaris
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/quick_start.html">Quick Start for Users</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/tasks.html">Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/config_files.html">Config Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/suites.html">Suites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/e3sm/init/index.html">E3SM Initial Condition Component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/landice/index.html">Land-ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/machines/index.html">Machines</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developer's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/quick_start.html">Quick Start for Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/command_line.html">Command-line interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/organization/index.html">Organization of Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/e3sm/init/index.html">E3SM initial condition (e3sm/init) component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/landice/index.html">Land-ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/framework/index.html">Framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/machines/index.html">Machines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/benchmarking.html">Benchmarking a branch against a baseline</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/omega_pr_testing.html">Testing an Omega pull request</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/polaris_update_testing.html">Testing a Polaris version update</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/docs.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/building_docs.html">Building the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/building_docs.html#previewing-the-documentation">Previewing the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/conda_vs_spack.html">How Conda and Spack Work Together in Polaris</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/updating_conda.html">Updating Deployment Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/updating_spack/index.html">Updating Shared Spack Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/api.html">API reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../design_docs/index.html">Design Documents</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Developer Tutorial: Running the <code class="docutils literal notranslate"><span class="pre">mali_pr</span></code> Suite on Perlmutter</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#cloning-polaris">Cloning Polaris</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#deploying-the-polaris-environment">Deploying the Polaris environment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#setting-up-the-suite">Setting up the suite</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#tutorial-mali-pr-submit">Submitting the job</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#checking-the-results">Checking the results</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#next-steps">Next steps</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="dev_add_category_of_tasks/index.html">Developer Tutorial: Adding a New Category of Tasks</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Glossary</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../glossary.html">Glossary</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Polaris</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Developer Tutorial: Running the <code class="docutils literal notranslate"><span class="pre">mali_pr</span></code> Suite on Perlmutter</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/tutorials/dev_mali_pr_on_perlmutter.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section class="tex2jax_ignore mathjax_ignore" id="dev-tutorial-mali-pr-on-perlmutter">
+<span id="developer-tutorial-running-the-mali-pr-suite-on-perlmutter"></span><span id="developer-tutorial-running-the-mali_pr-suite-on-perlmutter"></span><h1>Developer Tutorial: Running the <code class="docutils literal notranslate"><span class="pre">mali_pr</span></code> Suite on Perlmutter<a class="headerlink" href="#dev-tutorial-mali-pr-on-perlmutter" title="Link to this heading"></a></h1>
+<p>This tutorial takes you from no Polaris at all to a finished run of the
+<a class="reference internal" href="../users_guide/landice/suites.html#landice-suite-mali-pr"><span class="std std-ref">mali_pr suite</span></a> on Perlmutter.  Along the way, you clone
+Polaris, deploy its environment, let Polaris build MALI, and submit the suite
+as a batch job.  You can use Perlmutter’s CPU nodes (pm-cpu) or its GPU nodes
+(pm-gpu); the steps are the same apart from a few names, which are given for
+both.</p>
+<p>You need:</p>
+<ul class="simple">
+<li><p>a NERSC account in the <code class="docutils literal notranslate"><span class="pre">e3sm</span></code> project (or another project you can charge
+jobs to; see <a class="reference internal" href="#tutorial-mali-pr-submit"><span class="std std-ref">Submitting the job</span></a>)</p></li>
+<li><p>an SSH key on GitHub that you can use from Perlmutter, since Polaris and
+its submodules are cloned with SSH</p></li>
+<li><p>the <code class="docutils literal notranslate"><span class="pre">bash</span></code> shell (see <a class="reference internal" href="../developers_guide/quick_start.html#dev-shell"><span class="std std-ref">Unix Shell</span></a>)</p></li>
+</ul>
+<section id="cloning-polaris">
+<h2>Cloning Polaris<a class="headerlink" href="#cloning-polaris" title="Link to this heading"></a></h2>
+<p>Log in to Perlmutter and clone Polaris:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>ssh<span class="w"> </span>&lt;username&gt;@perlmutter.nersc.gov
+git<span class="w"> </span>clone<span class="w"> </span>git@github.com:E3SM-Project/polaris.git
+<span class="nb">cd</span><span class="w"> </span>polaris
+git<span class="w"> </span>submodule<span class="w"> </span>update<span class="w"> </span>--init<span class="w"> </span>jigsaw-python<span class="w"> </span>e3sm_submodules/MALI-Dev
+</pre></div>
+</div>
+<p>Polaris keeps the model source code in submodules under <code class="docutils literal notranslate"><span class="pre">e3sm_submodules</span></code>.
+You only need two of them here: <code class="docutils literal notranslate"><span class="pre">jigsaw-python</span></code>, which the deployment builds,
+and <code class="docutils literal notranslate"><span class="pre">MALI-Dev</span></code>, the source code for MALI.</p>
+</section>
+<section id="deploying-the-polaris-environment">
+<h2>Deploying the Polaris environment<a class="headerlink" href="#deploying-the-polaris-environment" title="Link to this heading"></a></h2>
+<p>Polaris runs in a <a class="reference external" href="https://pixi.sh">pixi</a> environment that <code class="docutils literal notranslate"><span class="pre">./deploy.py</span></code>
+creates in your clone.  MALI also needs compiled libraries, including Albany
+and Trilinos for its first-order velocity solver.  These are in shared Spack
+environments on Perlmutter, and <code class="docutils literal notranslate"><span class="pre">--with-albany</span></code> points Polaris to the ones
+that have Albany.</p>
+<p>For pm-cpu:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./deploy.py<span class="w"> </span>--machine<span class="w"> </span>pm-cpu<span class="w"> </span>--compiler<span class="w"> </span>gnu<span class="w"> </span>--with-albany
+</pre></div>
+</div>
+<p>For pm-gpu:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./deploy.py<span class="w"> </span>--machine<span class="w"> </span>pm-gpu<span class="w"> </span>--compiler<span class="w"> </span>gnugpu<span class="w"> </span>--with-albany
+</pre></div>
+</div>
+<p>The first deployment takes a while, since it installs pixi and builds the
+environment.  Do not add <code class="docutils literal notranslate"><span class="pre">--deploy-spack</span></code>: that rebuilds the Spack
+environments rather than using the shared ones, which takes hours.</p>
+<p>When it is done, you have a load script in the root of your clone.  Source it
+whenever you start a new shell to work with Polaris:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># pm-cpu</span>
+<span class="nb">source</span><span class="w"> </span>load_polaris_pm-cpu_gnu_mpich.sh
+
+<span class="c1"># pm-gpu</span>
+<span class="nb">source</span><span class="w"> </span>load_polaris_pm-gpu_gnugpu_mpich.sh
+</pre></div>
+</div>
+<p><a class="reference internal" href="../developers_guide/quick_start.html#dev-conda-env"><span class="std std-ref">Polaris pixi and spack environments, compilers and system modules</span></a> says more about deployment and its options.</p>
+</section>
+<section id="setting-up-the-suite">
+<h2>Setting up the suite<a class="headerlink" href="#setting-up-the-suite" title="Link to this heading"></a></h2>
+<p>Choose a work directory on Perlmutter’s scratch file system, where the suite
+will be built and run, and set up the suite there:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># pm-cpu</span>
+polaris<span class="w"> </span>suite<span class="w"> </span>-c<span class="w"> </span>landice<span class="w"> </span>-t<span class="w"> </span>mali_pr<span class="w"> </span>-m<span class="w"> </span>pm-cpu<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>-w<span class="w"> </span><span class="nv">$SCRATCH</span>/polaris_work/mali_pr_pm-cpu
+
+<span class="c1"># pm-gpu</span>
+polaris<span class="w"> </span>suite<span class="w"> </span>-c<span class="w"> </span>landice<span class="w"> </span>-t<span class="w"> </span>mali_pr<span class="w"> </span>-m<span class="w"> </span>pm-gpu<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>-w<span class="w"> </span><span class="nv">$SCRATCH</span>/polaris_work/mali_pr_pm-gpu
+</pre></div>
+</div>
+<p>Polaris builds MALI from the <code class="docutils literal notranslate"><span class="pre">MALI-Dev</span></code> submodule before it sets up the
+tasks, so this step takes several minutes.  The build goes in
+<code class="docutils literal notranslate"><span class="pre">landice_build</span></code> in the work directory, and its log in
+<code class="docutils literal notranslate"><span class="pre">landice_build/build_mali.log</span></code>.  When setup finishes, it lists the four tasks
+in the suite:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>Setting up tasks:
+  landice/dome/2km/sia/decomp
+  landice/dome/2km/sia/restart
+  landice/dome/2km/fo/decomp
+  landice/dome/2km/fo/restart
+</pre></div>
+</div>
+<p>Running <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">suite</span></code> again in the same work directory reuses the build.
+Add <code class="docutils literal notranslate"><span class="pre">--build</span></code> to rebuild MALI after you change its source code.</p>
+</section>
+<section id="tutorial-mali-pr-submit">
+<span id="submitting-the-job"></span><h2>Submitting the job<a class="headerlink" href="#tutorial-mali-pr-submit" title="Link to this heading"></a></h2>
+<p>Setup writes a job script, <code class="docutils literal notranslate"><span class="pre">job_script.mali_pr.sh</span></code>, to the work directory.
+Submit it:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span><span class="nv">$SCRATCH</span>/polaris_work/mali_pr_pm-cpu<span class="w">   </span><span class="c1"># or mali_pr_pm-gpu</span>
+sbatch<span class="w"> </span>job_script.mali_pr.sh
+</pre></div>
+</div>
+<p>The job script charges the <code class="docutils literal notranslate"><span class="pre">e3sm</span></code> project.  To charge another project,
+put its name in a config file, for example <code class="docutils literal notranslate"><span class="pre">my_account.cfg</span></code>:</p>
+<div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="k">[parallel]</span>
+<span class="na">account</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&lt;project&gt;</span>
+</pre></div>
+</div>
+<p>then add <code class="docutils literal notranslate"><span class="pre">-f</span> <span class="pre">my_account.cfg</span></code> to the <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">suite</span></code> command above and
+set up the suite again.</p>
+<p>The suite runs in a few minutes once the job starts.  You can check on the
+job with <code class="docutils literal notranslate"><span class="pre">squeue</span> <span class="pre">--me</span></code>.</p>
+</section>
+<section id="checking-the-results">
+<h2>Checking the results<a class="headerlink" href="#checking-the-results" title="Link to this heading"></a></h2>
+<p>The job’s output is in <code class="docutils literal notranslate"><span class="pre">polaris_mali_pr.o&lt;jobid&gt;</span></code> in the work directory.  The
+suite’s steps run at the same time where they fit on the node, so the output
+ends with a summary of the steps (in the order they finished) and the result
+of the suite:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>Step runtimes:
+      23.9s SUCCESS landice/dome/2km/init
+       3.8s SUCCESS landice/dome/2km/sia/decomp/1proc
+       4.1s SUCCESS landice/dome/2km/sia/decomp/4proc
+       4.1s SUCCESS landice/dome/2km/sia/restart/full_run
+       3.7s SUCCESS landice/dome/2km/sia/restart/restart_run
+       8.0s SUCCESS landice/dome/2km/fo/decomp/4proc
+       8.2s SUCCESS landice/dome/2km/fo/restart/full_run
+       4.7s SUCCESS landice/dome/2km/sia/decomp/validate
+       2.2s SUCCESS landice/dome/2km/sia/restart/validate
+      11.0s SUCCESS landice/dome/2km/fo/decomp/1proc
+       4.5s SUCCESS landice/dome/2km/fo/restart/restart_run
+       3.0s SUCCESS landice/dome/2km/fo/decomp/validate
+       1.6s SUCCESS landice/dome/2km/fo/restart/validate
+Total runtime: 0:00:38
+Step time was 83s, so this run did 2.2x the work of running one step at a time for as long.
+PASS: All passed successfully!
+</pre></div>
+</div>
+<p>Each step’s log is in <code class="docutils literal notranslate"><span class="pre">case_outputs</span></code>, and each task’s own work directory, such
+as <code class="docutils literal notranslate"><span class="pre">landice/dome/2km/fo/decomp</span></code>, has its steps’ output.  The job also writes
+<code class="docutils literal notranslate"><span class="pre">mali_pr_output_for_pr.md</span></code>, a summary of the run to paste into a pull
+request.</p>
+</section>
+<section id="next-steps">
+<h2>Next steps<a class="headerlink" href="#next-steps" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>To test a MALI branch of your own, check it out in
+<code class="docutils literal notranslate"><span class="pre">e3sm_submodules/MALI-Dev</span></code>, or point <code class="docutils literal notranslate"><span class="pre">--branch</span></code> at another E3SM checkout,
+and set up the suite with <code class="docutils literal notranslate"><span class="pre">--build</span></code> (see <a class="reference internal" href="../developers_guide/landice/index.html#dev-landice-build"><span class="std std-ref">Building MALI</span></a>).</p></li>
+<li><p>To compare your results with an earlier run, set up the suite with
+<code class="docutils literal notranslate"><span class="pre">-b</span> <span class="pre">&lt;earlier</span> <span class="pre">work</span> <span class="pre">directory&gt;</span></code> (see <a class="reference internal" href="../users_guide/suites.html#suites"><span class="std std-ref">Suites</span></a>).</p></li>
+<li><p>The <a class="reference internal" href="../developers_guide/quick_start.html#dev-quick-start"><span class="std std-ref">Quick Start for Developers</span></a> covers the deployment and build options this
+tutorial skipped.</p></li>
+</ul>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../design_docs/template.html" class="btn btn-neutral float-left" title="Template" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="dev_add_category_of_tasks/index.html" class="btn btn-neutral float-right" title="Developer Tutorial: Adding a New Category of Tasks" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Energy Exascale Earth System Model Project.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+   
+
+  <!-- Meta tags for JS to use -->
+  <meta name="doc-version" content="main">
+  <meta name="doc-site-root" content="../">
+
+  <!-- Create version switcher container -->
+  <script>
+    const sidebar = document.querySelector('.wy-side-nav-search');
+    if (sidebar) {
+      const versionDiv = document.createElement('div');
+      versionDiv.id = 'version-switcher';
+      versionDiv.style.marginTop = '1em';
+      sidebar.appendChild(versionDiv);
+    }
+  </script>
+
+  <!-- Load version-switcher.js using the correct relative path -->
+  <script src="../../shared/version-switcher.js"></script>
+
+
+</body>
+</html>

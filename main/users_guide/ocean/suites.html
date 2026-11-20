@@ -52,6 +52,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../suites.html">Suites</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../mesh/index.html">Mesh component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../e3sm/init/index.html">E3SM Initial Condition Component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../landice/index.html">Land-ice component</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">Ocean component</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="tasks/index.html">Tasks</a></li>
 <li class="toctree-l2"><a class="reference internal" href="framework/index.html">Framework</a></li>
@@ -80,6 +81,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../developers_guide/organization/index.html">Organization of Tasks</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../developers_guide/e3sm/init/index.html">E3SM initial condition (e3sm/init) component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../developers_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers_guide/landice/index.html">Land-ice component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../developers_guide/ocean/index.html">Ocean component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../developers_guide/seaice/index.html">Sea ice component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../developers_guide/framework/index.html">Framework</a></li>
@@ -99,6 +101,7 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/dev_mali_pr_on_perlmutter.html">Developer Tutorial: Running the <code class="docutils literal notranslate"><span class="pre">mali_pr</span></code> Suite on Perlmutter</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../tutorials/dev_add_category_of_tasks/index.html">Developer Tutorial: Adding a New Category of Tasks</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Glossary</span></p>
@@ -271,12 +274,19 @@ ocean/spherical/icos/rotation_2d/with_viz
 <span id="fanssie-pr-suite"></span><span id="fanssie_pr-suite"></span><h2>fanssie_pr suite<a class="headerlink" href="#ocean-suite-fanssie-pr" title="Link to this heading"></a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">fanssie_pr</span></code> suite holds the tasks that need MPAS-Ocean from the FAnSSIE
 branch rather than from E3SM-Project, including all the ice-shelf tasks.  It
-must be run with MPAS-Ocean built from the <code class="docutils literal notranslate"><span class="pre">e3sm_submodules/FAnSSIE</span></code>
-submodule (see <a class="reference internal" href="../../developers_guide/ocean/index.html#dev-ocean-fanssie"><span class="std std-ref">FAnSSIE</span></a>).  The tasks in the suite are:</p>
+also holds the <a class="reference internal" href="../landice/suites.html#landice-suite-mali-pr"><span class="std std-ref">mali_pr suite</span></a> tasks, since FAnSSIE carries MALI
+changes for coupled ocean–ice-sheet work.  It must be run with MPAS-Ocean and
+MALI both built from the <code class="docutils literal notranslate"><span class="pre">e3sm_submodules/FAnSSIE</span></code> submodule (see
+<a class="reference internal" href="../../developers_guide/ocean/index.html#dev-ocean-fanssie"><span class="std std-ref">FAnSSIE</span></a>), in a Polaris environment with Albany (see
+<a class="reference internal" href="../../developers_guide/landice/index.html#dev-landice-albany"><span class="std std-ref">Albany</span></a>).  The tasks in the suite are:</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>ocean/planar/ice_shelf_2d/5km/z-star/default/with_restart
 ocean/planar/ice_shelf_2d/5km/z-level/default/with_restart
 ocean/planar/ice_shelf_2d/5km/z-star/default/with_viz
 ocean/planar/isomip_plus/4km/z-star/ocean0
+landice/dome/2km/sia/decomp
+landice/dome/2km/sia/restart
+landice/dome/2km/fo/decomp
+landice/dome/2km/fo/restart
 </pre></div>
 </div>
 </section>

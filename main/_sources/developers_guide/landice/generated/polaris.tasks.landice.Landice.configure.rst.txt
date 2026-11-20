@@ -1,0 +1,6 @@
+﻿polaris.tasks.landice.Landice.configure
+=======================================
+
+.. currentmodule:: polaris.tasks.landice
+
+.. automethod:: Landice.configure

@@ -1,0 +1,641 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Landice Component</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=a8da1a53"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Mixed-Layer Eddies Task" href="mixed_layer_eddies.html" />
+    <link rel="prev" title="Land-Locked Cells in the Ocean and Sea-Ice Domains" href="land_locked_cells.html" />
+    <link href="../_static/style.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Polaris
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/quick_start.html">Quick Start for Users</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/tasks.html">Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/config_files.html">Config Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/suites.html">Suites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/e3sm/init/index.html">E3SM Initial Condition Component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/landice/index.html">Land-ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/machines/index.html">Machines</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developer's guide</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/quick_start.html">Quick Start for Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/command_line.html">Command-line interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/organization/index.html">Organization of Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/e3sm/init/index.html">E3SM initial condition (e3sm/init) component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/landice/index.html">Land-ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/framework/index.html">Framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/machines/index.html">Machines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/benchmarking.html">Benchmarking a branch against a baseline</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/omega_pr_testing.html">Testing an Omega pull request</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/polaris_update_testing.html">Testing a Polaris version update</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/docs.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/building_docs.html">Building the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/building_docs.html#previewing-the-documentation">Previewing the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/conda_vs_spack.html">How Conda and Spack Work Together in Polaris</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/updating_conda.html">Updating Deployment Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/updating_spack/index.html">Updating Shared Spack Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/api.html">API reference</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Design Documents</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="e3sm_init_component_inputs.html">E3SM Init Component Inputs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="global_ocean_dynamic_adjustment.html">Global Ocean Dynamic Adjustment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="global_ocean_forward.html">Global Ocean Forward Runs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="global_ocean_init.html">Realistic Ocean Initial Conditions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="horiz_press_grad_hydrostatic_consistency.html">Discrete Hydrostatic Consistency in <code class="docutils literal notranslate"><span class="pre">horiz_press_grad</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="horiz_press_grad_reference.html">Reworked HPG Reference Solution</a></li>
+<li class="toctree-l2"><a class="reference internal" href="land_locked_cells.html">Land-Locked Cells in the Ocean and Sea-Ice Domains</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Landice Component</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#summary">Summary</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#requirements">Requirements</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#requirement-polaris-builds-mali">Requirement: Polaris builds MALI</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#requirement-polaris-environments-can-include-albany">Requirement: Polaris environments can include Albany</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#requirement-mali-tasks-belong-to-a-landice-component">Requirement: MALI tasks belong to a landice component</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#requirement-mali-meshes-can-be-made-without-a-mali-build">Requirement: MALI meshes can be made without a MALI build</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#requirement-the-first-tasks-show-that-mali-runs">Requirement: The first tasks show that MALI runs</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#requirement-changes-to-fanssie-s-mali-are-regression-tested">Requirement: Changes to FAnSSIE’s MALI are regression tested</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#implementation">Implementation</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#implementation-polaris-builds-mali">Implementation: Polaris builds MALI</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#implementation-polaris-environments-can-include-albany">Implementation: Polaris environments can include Albany</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#implementation-mali-tasks-belong-to-a-landice-component">Implementation: MALI tasks belong to a landice component</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#implementation-mali-meshes-can-be-made-without-a-mali-build">Implementation: MALI meshes can be made without a MALI build</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#implementation-the-first-tasks-show-that-mali-runs">Implementation: The first tasks show that MALI runs</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#implementation-changes-to-fanssie-s-mali-are-regression-tested">Implementation: Changes to FAnSSIE’s MALI are regression tested</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#testing">Testing</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#testing-and-validation-polaris-builds-mali">Testing and Validation: Polaris builds MALI</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#testing-and-validation-polaris-environments-can-include-albany">Testing and Validation: Polaris environments can include Albany</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#testing-and-validation-mali-tasks-belong-to-a-landice-component">Testing and Validation: MALI tasks belong to a landice component</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#testing-and-validation-mali-meshes-can-be-made-without-a-mali-build">Testing and Validation: MALI meshes can be made without a MALI build</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#testing-and-validation-the-first-tasks-show-that-mali-runs">Testing and Validation: The first tasks show that MALI runs</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#testing-and-validation-changes-to-fanssie-s-mali-are-regression-tested">Testing and Validation: Changes to FAnSSIE’s MALI are regression tested</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#decisions">Decisions</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#d1-mali-dev-is-the-default-mali-source">D1: MALI-Dev is the default MALI source</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#d2-albany-comes-from-polaris-s-deployment">D2: Albany comes from Polaris’s deployment</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#d3-only-mali-builds-link-to-albany">D3: Only MALI builds link to Albany</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#d4-a-build-has-albany-whenever-the-environment-does">D4: A build has Albany whenever the environment does</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#d5-the-first-tasks-are-compass-s-dome">D5: The first tasks are Compass’s <code class="docutils literal notranslate"><span class="pre">dome</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#d6-mali-mesh-conversion-lives-in-the-landice-framework">D6: MALI mesh conversion lives in the landice framework</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#d7-the-mali-tasks-join-fanssie-pr">D7: The MALI tasks join <code class="docutils literal notranslate"><span class="pre">fanssie_pr</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#d8-builds-clean-the-shared-mpas-framework-when-it-changes">D8: Builds clean the shared MPAS framework when it changes</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="mixed_layer_eddies.html">Mixed-Layer Eddies Task</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ocean_analysis.html">Ocean Analysis in Polaris</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ocean_analysis_initial.html">Initial Omega Analysis Capabilities</a></li>
+<li class="toctree-l2"><a class="reference internal" href="omega_pr_testing.html">Omega Pull Request Testing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="overflow_nonlinear_eos.html">EOS and Vertical-Coordinate Variants of the Overflow Tasks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="polaris_update_testing.html">Polaris Version Update Testing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pstar_init.html">P-Star Coordinate and Tracer Initialization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="shared_steps.html">Shared steps</a></li>
+<li class="toctree-l2"><a class="reference internal" href="suite_results_file.html">Machine-Readable Suite Results</a></li>
+<li class="toctree-l2"><a class="reference internal" href="task_parallel_analysis_steps.html">Task-Parallel-Safe Analysis Steps in Polaris</a></li>
+<li class="toctree-l2"><a class="reference internal" href="task_parallelism.html">Task Parallelism in Polaris</a></li>
+<li class="toctree-l2"><a class="reference internal" href="task_parallelism_phase_a.html">Task Parallelism Phase A: Placement</a></li>
+<li class="toctree-l2"><a class="reference internal" href="task_parallelism_phase_b.html">Task Parallelism Phase B: Concurrency</a></li>
+<li class="toctree-l2"><a class="reference internal" href="task_parallelism_phase_c.html">Task Parallelism Phase C: Python Worker Pool</a></li>
+<li class="toctree-l2"><a class="reference internal" href="task_parallelism_phase_d.html">Task Parallelism Phase D: Coexistence and Elasticity</a></li>
+<li class="toctree-l2"><a class="reference internal" href="unified_base_mesh.html">Unified Mesh: Global Base Mesh Workflow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="unified_mesh_prepare_coastline.html">Unified Mesh: Coastline Preparation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="unified_mesh_prepare_river_network.html">Unified Mesh: River Network Preparation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="unified_mesh_build_sizing_field.html">Unified Mesh: Sizing-Field Construction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="unified_mesh_create_base_mesh.html">Unified Mesh: Base-Mesh Creation and Downstream Integration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="unified_mesh_cull_leak.html">Unified Mesh: Fixing Resolution Leakage into the Ocean/Sea-Ice Domain</a></li>
+<li class="toctree-l2"><a class="reference internal" href="unified_mesh_dc_edge_noise.html">Unified Mesh: Raising the dcEdge Floor in the Ocean/Sea-Ice Domain</a></li>
+<li class="toctree-l2"><a class="reference internal" href="vector_reconstruction.html">Vector Reconstruction at MPAS Cell Centers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="woa23_start_month.html">WOA23 Hydrography for Any Start Month</a></li>
+<li class="toctree-l2"><a class="reference internal" href="template.html">Template</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/dev_mali_pr_on_perlmutter.html">Developer Tutorial: Running the <code class="docutils literal notranslate"><span class="pre">mali_pr</span></code> Suite on Perlmutter</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/dev_add_category_of_tasks/index.html">Developer Tutorial: Adding a New Category of Tasks</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Glossary</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../glossary.html">Glossary</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Polaris</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Design Documents</a></li>
+      <li class="breadcrumb-item active">Landice Component</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/design_docs/landice_component.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section class="tex2jax_ignore mathjax_ignore" id="landice-component">
+<h1>Landice Component<a class="headerlink" href="#landice-component" title="Link to this heading"></a></h1>
+<p>Creation date: 2026/10/22</p>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Xylar Asay-Davis</p></li>
+<li><p>Claude</p></li>
+</ul>
+<section id="summary">
+<h2>Summary<a class="headerlink" href="#summary" title="Link to this heading"></a></h2>
+<p>Polaris gains a <code class="docutils literal notranslate"><span class="pre">landice</span></code> component that builds and runs MALI, the
+MPAS-Albany Land Ice model. MALI’s first-order velocity solver comes from
+the Albany library, which Polaris environments can include again.
+Polaris’s MISMIP+ tasks and its inputs for E3SM’s MISOMIP runs build on
+it.</p>
+<p>The component follows the ocean’s pattern: a build module and template, a
+<code class="docutils literal notranslate"><span class="pre">mali</span></code> model, a model step, a config file for the model and tasks under
+<code class="docutils literal notranslate"><span class="pre">polaris/tasks/landice/</span></code>. Albany returns through Polaris’s deployment hooks,
+as it did in Compass’s move to <code class="docutils literal notranslate"><span class="pre">mache.deploy</span></code>. The first tasks port
+Compass’s <code class="docutils literal notranslate"><span class="pre">dome</span></code> test at 2 km, with the shallow-ice and first-order solvers.</p>
+<p>Success means:</p>
+<ul class="simple">
+<li><p>Polaris builds MALI from MALI-Dev or FAnSSIE, with and without Albany;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">./deploy.py</span> <span class="pre">--with-albany</span></code> gives an environment that a MALI build links
+to Albany from;</p></li>
+<li><p>the <code class="docutils literal notranslate"><span class="pre">dome</span></code> tasks pass with both velocity solvers, including their
+decomposition and restart checks;</p></li>
+<li><p>MALI meshes can be made by steps in other components without a MALI
+build.</p></li>
+</ul>
+</section>
+<section id="requirements">
+<h2>Requirements<a class="headerlink" href="#requirements" title="Link to this heading"></a></h2>
+<section id="requirement-polaris-builds-mali">
+<h3>Requirement: Polaris builds MALI<a class="headerlink" href="#requirement-polaris-builds-mali" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/10/22</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<p>Polaris builds MALI from any E3SM branch, with or without Albany, during
+setup, as it builds MPAS-Ocean.</p>
+</section>
+<section id="requirement-polaris-environments-can-include-albany">
+<h3>Requirement: Polaris environments can include Albany<a class="headerlink" href="#requirement-polaris-environments-can-include-albany" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/10/22</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<p>On supported machines and toolchains, a Polaris environment can include
+Albany and Trilinos at versions that work with MALI-Dev’s <code class="docutils literal notranslate"><span class="pre">develop</span></code>.
+Environments without Albany are unchanged.</p>
+</section>
+<section id="requirement-mali-tasks-belong-to-a-landice-component">
+<h3>Requirement: MALI tasks belong to a landice component<a class="headerlink" href="#requirement-mali-tasks-belong-to-a-landice-component" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/10/22</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<p>Tasks that run MALI belong to a <code class="docutils literal notranslate"><span class="pre">landice</span></code> component with its own config
+options, database area and suites.</p>
+</section>
+<section id="requirement-mali-meshes-can-be-made-without-a-mali-build">
+<h3>Requirement: MALI meshes can be made without a MALI build<a class="headerlink" href="#requirement-mali-meshes-can-be-made-without-a-mali-build" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/10/22</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<p>A step in any component can turn a planar MPAS mesh into a MALI mesh
+without MALI being built.</p>
+</section>
+<section id="requirement-the-first-tasks-show-that-mali-runs">
+<h3>Requirement: The first tasks show that MALI runs<a class="headerlink" href="#requirement-the-first-tasks-show-that-mali-runs" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/10/22</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<p>Tasks run MALI with the shallow-ice velocity solver and with Albany’s
+first-order solver. They check that results do not depend on the domain
+decomposition or on restarts.</p>
+</section>
+<section id="requirement-changes-to-fanssie-s-mali-are-regression-tested">
+<h3>Requirement: Changes to FAnSSIE’s MALI are regression tested<a class="headerlink" href="#requirement-changes-to-fanssie-s-mali-are-regression-tested" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/10/22</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<p>MALI from FAnSSIE runs in the suite that tests every change to FAnSSIE.</p>
+</section>
+</section>
+<section id="implementation">
+<h2>Implementation<a class="headerlink" href="#implementation" title="Link to this heading"></a></h2>
+<section id="implementation-polaris-builds-mali">
+<h3>Implementation: Polaris builds MALI<a class="headerlink" href="#implementation-polaris-builds-mali" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/10/22</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<p><code class="docutils literal notranslate"><span class="pre">polaris/build/mali.py</span></code> and <code class="docutils literal notranslate"><span class="pre">build_mali.template</span></code> mirror MPAS-Ocean’s build.
+The script builds in <code class="docutils literal notranslate"><span class="pre">components/mpas-albany-landice</span></code> of the branch and
+copies <code class="docutils literal notranslate"><span class="pre">landice_model</span></code>, <code class="docutils literal notranslate"><span class="pre">default_inputs/namelist.landice</span></code>,
+<code class="docutils literal notranslate"><span class="pre">default_inputs/streams.landice</span></code> and <code class="docutils literal notranslate"><span class="pre">src/Registry_processed.xml</span></code> into the
+build directory, <code class="docutils literal notranslate"><span class="pre">${paths:base_work_dir}/landice_build</span></code> by default. It
+writes <code class="docutils literal notranslate"><span class="pre">mali_source.txt</span></code>, a source record like <code class="docutils literal notranslate"><span class="pre">mpas_ocean_source.txt</span></code>, which
+also records whether the build has Albany.</p>
+<p>The make target is the machine’s <code class="docutils literal notranslate"><span class="pre">[build]</span> <span class="pre">&lt;compiler&gt;_&lt;mpi&gt;_target</span></code>, which
+MPAS-Ocean also uses. A build with Albany adds <code class="docutils literal notranslate"><span class="pre">ALBANY=true</span></code> and appends
+<code class="docutils literal notranslate"><span class="pre">POLARIS_ALBANY_LINK_LIBS</span></code> to <code class="docutils literal notranslate"><span class="pre">MPAS_EXTERNAL_LIBS</span></code> (D3). The script
+initializes no submodules: <code class="docutils literal notranslate"><span class="pre">SeaLevelModel</span></code>, and <code class="docutils literal notranslate"><span class="pre">FastIsostasy</span></code> and
+<code class="docutils literal notranslate"><span class="pre">fesm-utils</span></code> from MALI-Dev’s <code class="docutils literal notranslate"><span class="pre">develop</span></code>, are built only with <code class="docutils literal notranslate"><span class="pre">SLM=true</span></code> or
+<code class="docutils literal notranslate"><span class="pre">FASTISOSTASY=true</span></code>.</p>
+<p><code class="docutils literal notranslate"><span class="pre">--model</span> <span class="pre">mali</span></code> selects the model, and <code class="docutils literal notranslate"><span class="pre">--landice_branch</span></code> and <code class="docutils literal notranslate"><span class="pre">--landice_path</span></code>
+work as they do for other components. The default branch is
+<code class="docutils literal notranslate"><span class="pre">e3sm_submodules/MALI-Dev</span></code> (D1). Coupling work points to FAnSSIE explicitly,
+as MPAS-Ocean builds do.</p>
+<div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="k">[build]</span>
+<span class="na">branch</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">${paths:polaris_branch}/e3sm_submodules/MALI-Dev</span>
+
+<span class="c1"># whether to build MALI with Albany: True, False or detect (with Albany if</span>
+<span class="c1"># the environment provides it)</span>
+<span class="na">albany</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">detect</span>
+</pre></div>
+</div>
+<p>With <code class="docutils literal notranslate"><span class="pre">detect</span></code>, a build has Albany whenever the environment provides it
+(D4). Setup fails if a step needs the first-order solver and the build will
+not have Albany, or an existing build’s source record says it has none.</p>
+<p>MPAS-Ocean and MALI share one framework build in an E3SM checkout, in
+<code class="docutils literal notranslate"><span class="pre">components/mpas-framework/src</span></code>. Both build scripts record each build’s
+configuration there: the component, machine, compiler, MPI library, make
+target and flags, Albany and load script. A build starts with <code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">clean</span></code>
+when the last one in the checkout had a different configuration, when the
+checkout was built outside Polaris, or when MPAS’s <code class="docutils literal notranslate"><span class="pre">.mpas_core_&lt;core&gt;</span></code>
+marker shows that another component was built since (D8). Two builds from
+one checkout at the same time still collide.</p>
+</section>
+<section id="implementation-polaris-environments-can-include-albany">
+<h3>Implementation: Polaris environments can include Albany<a class="headerlink" href="#implementation-polaris-environments-can-include-albany" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/10/22</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<p><code class="docutils literal notranslate"><span class="pre">./deploy.py</span> <span class="pre">--with-albany</span></code> adds Albany and Trilinos to the Spack library
+environment (D2). The flag lives in <code class="docutils literal notranslate"><span class="pre">deploy/custom_cli_spec.json</span></code>, so
+<code class="docutils literal notranslate"><span class="pre">deploy.py</span></code> and <code class="docutils literal notranslate"><span class="pre">deploy/cli_spec.json</span></code>, which mache owns, are untouched. The
+<code class="docutils literal notranslate"><span class="pre">pre_spack</span></code> hook in <code class="docutils literal notranslate"><span class="pre">deploy/hooks.py</span></code>:</p>
+<ul class="simple">
+<li><p>checks the machine, compiler and MPI library against
+<code class="docutils literal notranslate"><span class="pre">deploy/albany_supported.txt</span></code>, which starts with Chrysalis, gnu and
+OpenMPI;</p></li>
+<li><p>names the library environments <code class="docutils literal notranslate"><span class="pre">spack_env_albany_&lt;compiler&gt;_&lt;mpi&gt;</span></code>, so
+environments without Albany are not modified;</p></li>
+<li><p>excludes the machine’s cmake, since this Trilinos needs cmake 3.27 and
+Chrysalis provides 3.24;</p></li>
+<li><p>sets a pin that adds <code class="docutils literal notranslate"><span class="pre">trilinos-for-albany</span></code> and <code class="docutils literal notranslate"><span class="pre">albany</span></code> to
+<code class="docutils literal notranslate"><span class="pre">deploy/spack.yaml.j2</span></code>.</p></li>
+</ul>
+<p>The pins are Compass’s: Albany <code class="docutils literal notranslate"><span class="pre">compass-2026-03-21</span></code> with <code class="docutils literal notranslate"><span class="pre">+mpas~py+unit_tests</span></code>
+and Trilinos <code class="docutils literal notranslate"><span class="pre">compass-2026-02-06</span></code>. Compass runs them with MALI-Dev’s
+<code class="docutils literal notranslate"><span class="pre">develop</span></code> of 2026-09-16. Both are in <code class="docutils literal notranslate"><span class="pre">e3sm-spack-packages</span></code> <code class="docutils literal notranslate"><span class="pre">v2026.06.1</span></code>,
+which mache 5.0.0 uses.</p>
+<p><code class="docutils literal notranslate"><span class="pre">deploy/load.sh</span></code> reads <code class="docutils literal notranslate"><span class="pre">export_albany.in</span></code> from the Spack library view when
+it exists. It exports <code class="docutils literal notranslate"><span class="pre">POLARIS_ALBANY_LINK_LIBS</span></code>: Albany’s libraries,
+<code class="docutils literal notranslate"><span class="pre">-lstdc++</span></code> and, for OpenMPI on Chrysalis, <code class="docutils literal notranslate"><span class="pre">-lmpi_cxx</span></code>.</p>
+<p>The environment is tested first from a throwaway Spack checkout in Xylar’s
+scratch space, then deployed in the shared Polaris Spack area.</p>
+</section>
+<section id="implementation-mali-tasks-belong-to-a-landice-component">
+<h3>Implementation: MALI tasks belong to a landice component<a class="headerlink" href="#implementation-mali-tasks-belong-to-a-landice-component" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/10/22</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<p>The framework is in <code class="docutils literal notranslate"><span class="pre">polaris/landice/</span></code>:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">landice.cfg</span></code> with <code class="docutils literal notranslate"><span class="pre">[landice]</span> <span class="pre">model</span> <span class="pre">=</span> <span class="pre">mali</span></code>, the only model;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">mali.cfg</span></code> with the build options above and the paths to the build’s
+namelist, streams, registry and executable;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">MaliModelStep</span></code>, a <code class="docutils literal notranslate"><span class="pre">ModelStep</span></code> that sets <code class="docutils literal notranslate"><span class="pre">config_velocity_solver</span></code>, adds
+the task’s <code class="docutils literal notranslate"><span class="pre">albany_input.yaml</span></code> for the first-order solver, and partitions
+the mesh.</p></li>
+</ul>
+<p><code class="docutils literal notranslate"><span class="pre">polaris/tasks/landice/</span></code> holds the <code class="docutils literal notranslate"><span class="pre">Landice</span></code> component, registered in
+<code class="docutils literal notranslate"><span class="pre">polaris/tasks/__init__.py</span></code>. Its <code class="docutils literal notranslate"><span class="pre">configure()</span></code> adds <code class="docutils literal notranslate"><span class="pre">mali.cfg</span></code>, detects an
+existing build, and requests a build when there is none. Its
+<code class="docutils literal notranslate"><span class="pre">build_model()</span></code> calls <code class="docutils literal notranslate"><span class="pre">build_mali()</span></code>.</p>
+<p>Input files go under <code class="docutils literal notranslate"><span class="pre">landice/</span></code> in <code class="docutils literal notranslate"><span class="pre">database_root</span></code>, on Chrysalis
+<code class="docutils literal notranslate"><span class="pre">/lcrc/group/e3sm/public_html/polaris/landice</span></code>. The first tasks need none,
+so the area is created by the first task that does, likely MISMIP+.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">mali_pr</span></code> suite holds the decomposition and restart tasks for both
+solvers.</p>
+</section>
+<section id="implementation-mali-meshes-can-be-made-without-a-mali-build">
+<h3>Implementation: MALI meshes can be made without a MALI build<a class="headerlink" href="#implementation-mali-meshes-can-be-made-without-a-mali-build" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/10/22</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<p><code class="docutils literal notranslate"><span class="pre">polaris/landice/mesh.py</span></code> converts a culled planar MPAS mesh into a MALI
+mesh with a given number of layers, with mpas_tools’
+<code class="docutils literal notranslate"><span class="pre">create_landice_grid_from_generic_mpas_grid</span></code>, and writes its graph file
+(D6). The module imports nothing from <code class="docutils literal notranslate"><span class="pre">polaris.tasks.landice</span></code>, so steps in
+other components, such as those that build E3SM’s inputs for MISOMIP, can
+call it. Work that remaps fields to MALI cells adds what it needs, such as
+mpas_tools’ <code class="docutils literal notranslate"><span class="pre">interpolate_to_mpasli_grid</span></code>.</p>
+</section>
+<section id="implementation-the-first-tasks-show-that-mali-runs">
+<h3>Implementation: The first tasks show that MALI runs<a class="headerlink" href="#implementation-the-first-tasks-show-that-mali-runs" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/10/22</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<p>The tasks port Compass’s <code class="docutils literal notranslate"><span class="pre">dome</span></code> on its 2 km planar mesh (D5):</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>landice/dome/2km/init                    (shared step)
+landice/dome/2km/{sia,fo}/smoke_test
+landice/dome/2km/{sia,fo}/decomp
+landice/dome/2km/{sia,fo}/restart
+</pre></div>
+</div>
+<p>The shared <code class="docutils literal notranslate"><span class="pre">init</span></code> step makes the mesh and the Halfar dome. <code class="docutils literal notranslate"><span class="pre">smoke_test</span></code>
+runs MALI and plots thickness and speed for the User’s Guide. <code class="docutils literal notranslate"><span class="pre">decomp</span></code>
+compares runs on 1 and 4 tasks: bit for bit with shallow ice, and within
+Compass’s norms with the first-order solver. <code class="docutils literal notranslate"><span class="pre">restart</span></code> compares a run with
+one that restarts halfway.</p>
+</section>
+<section id="implementation-changes-to-fanssie-s-mali-are-regression-tested">
+<h3>Implementation: Changes to FAnSSIE’s MALI are regression tested<a class="headerlink" href="#implementation-changes-to-fanssie-s-mali-are-regression-tested" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/10/22</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">mali_pr</span></code> tasks join <code class="docutils literal notranslate"><span class="pre">fanssie_pr</span></code> (D7). Suites may mix components, so the
+suite is set up with <code class="docutils literal notranslate"><span class="pre">--landice_branch</span> <span class="pre">e3sm_submodules/FAnSSIE</span></code> alongside its
+ocean options. It then needs an environment deployed with <code class="docutils literal notranslate"><span class="pre">--with-albany</span></code>.</p>
+</section>
+</section>
+<section id="testing">
+<h2>Testing<a class="headerlink" href="#testing" title="Link to this heading"></a></h2>
+<section id="testing-and-validation-polaris-builds-mali">
+<h3>Testing and Validation: Polaris builds MALI<a class="headerlink" href="#testing-and-validation-polaris-builds-mali" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/10/22</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<p>MALI builds on Chrysalis with gnu and OpenMPI, with and without Albany,
+from MALI-Dev and from the E3SM branch that merges MALI-Dev’s <code class="docutils literal notranslate"><span class="pre">develop</span></code>
+into FAnSSIE. Unit tests check the rendered build script, the Albany check
+at setup and when a build must start clean. Building MPAS-Ocean, MALI,
+MPAS-Ocean and MALI from one checkout gives working executables, and
+<code class="docutils literal notranslate"><span class="pre">fanssie_pr</span></code> with MPAS-Ocean built after MALI from the merge branch is bit
+for bit with its baseline from FAnSSIE.</p>
+</section>
+<section id="testing-and-validation-polaris-environments-can-include-albany">
+<h3>Testing and Validation: Polaris environments can include Albany<a class="headerlink" href="#testing-and-validation-polaris-environments-can-include-albany" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/10/22</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<p>A throwaway deployment with <code class="docutils literal notranslate"><span class="pre">--with-albany</span></code> builds Albany and gives a load
+script that exports <code class="docutils literal notranslate"><span class="pre">POLARIS_ALBANY_LINK_LIBS</span></code>. A deployment without the
+flag renders the same Spack specs as before.</p>
+</section>
+<section id="testing-and-validation-mali-tasks-belong-to-a-landice-component">
+<h3>Testing and Validation: MALI tasks belong to a landice component<a class="headerlink" href="#testing-and-validation-mali-tasks-belong-to-a-landice-component" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/10/22</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<p><code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">list</span></code> shows the landice tasks, and <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">suite</span> <span class="pre">-c</span> <span class="pre">landice</span> <span class="pre">-t</span> <span class="pre">mali_pr</span></code> sets up. The full <code class="docutils literal notranslate"><span class="pre">tests/</span></code> tree passes.</p>
+</section>
+<section id="testing-and-validation-mali-meshes-can-be-made-without-a-mali-build">
+<h3>Testing and Validation: MALI meshes can be made without a MALI build<a class="headerlink" href="#testing-and-validation-mali-meshes-can-be-made-without-a-mali-build" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/10/22</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">dome</span></code> <code class="docutils literal notranslate"><span class="pre">init</span></code> step runs in an environment without a MALI build. A unit
+test converts a small planar mesh.</p>
+</section>
+<section id="testing-and-validation-the-first-tasks-show-that-mali-runs">
+<h3>Testing and Validation: The first tasks show that MALI runs<a class="headerlink" href="#testing-and-validation-the-first-tasks-show-that-mali-runs" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/10/22</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<p><code class="docutils literal notranslate"><span class="pre">mali_pr</span></code> passes on Chrysalis with MALI from MALI-Dev and from the merge
+branch, and the smoke tests’ plots match Compass’s.</p>
+</section>
+<section id="testing-and-validation-changes-to-fanssie-s-mali-are-regression-tested">
+<h3>Testing and Validation: Changes to FAnSSIE’s MALI are regression tested<a class="headerlink" href="#testing-and-validation-changes-to-fanssie-s-mali-are-regression-tested" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/10/22</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<p><code class="docutils literal notranslate"><span class="pre">fanssie_pr</span></code> passes with the landice tasks, and its ocean tasks are bit
+for bit with the FAnSSIE baseline.</p>
+</section>
+</section>
+<section id="decisions">
+<h2>Decisions<a class="headerlink" href="#decisions" title="Link to this heading"></a></h2>
+<section id="d1-mali-dev-is-the-default-mali-source">
+<h3>D1: MALI-Dev is the default MALI source<a class="headerlink" href="#d1-mali-dev-is-the-default-mali-source" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/10/22</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<p><code class="docutils literal notranslate"><span class="pre">e3sm_submodules/MALI-Dev</span></code> stays and becomes the landice default. It moves
+to MALI-Dev’s <code class="docutils literal notranslate"><span class="pre">develop</span></code> at <code class="docutils literal notranslate"><span class="pre">5e80df1145</span></code>, the commit that the pull request
+merging <code class="docutils literal notranslate"><span class="pre">develop</span></code> into FAnSSIE brings in. Builds for ocean–ice-sheet
+coupling work point to FAnSSIE explicitly. The submodule’s previous pin,
+from 2024, had no particular significance.</p>
+<div class="admonition-rationale admonition">
+<p class="admonition-title">Rationale</p>
+<p>MALI is developed on MALI-Dev’s <code class="docutils literal notranslate"><span class="pre">develop</span></code> and reaches E3SM’s <code class="docutils literal notranslate"><span class="pre">master</span></code> in
+periodic merges, as Omega is developed on its own <code class="docutils literal notranslate"><span class="pre">develop</span></code>. Compass tests
+MALI-Dev, and Polaris’s landice tasks should test what MALI developers
+change.</p>
+</div>
+<p>Rejected:</p>
+<ul class="simple">
+<li><p>removing the submodule and building MALI from <code class="docutils literal notranslate"><span class="pre">e3sm_submodules/E3SM-Project</span></code>
+by default. E3SM’s MALI lags MALI-Dev’s: <code class="docutils literal notranslate"><span class="pre">develop</span></code> holds 97 MALI commits
+beyond <code class="docutils literal notranslate"><span class="pre">master</span></code> of 2026-05-26;</p></li>
+<li><p>FAnSSIE as the default. FAnSSIE is specialized for coupled
+ocean–ice-sheet work, and every landice suite would then test it rather
+than MALI-Dev’s <code class="docutils literal notranslate"><span class="pre">develop</span></code>.</p></li>
+</ul>
+</section>
+<section id="d2-albany-comes-from-polaris-s-deployment">
+<h3>D2: Albany comes from Polaris’s deployment<a class="headerlink" href="#d2-albany-comes-from-polaris-s-deployment" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/11/10</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<p>Polaris builds Albany in its own Spack library environments, when deployed
+with <code class="docutils literal notranslate"><span class="pre">--with-albany</span></code>, as Compass does.</p>
+<p>Known gap: E3SM’s coupled cases link the Albany in E3SM’s machine
+configuration instead, such as Albany 2026.05.26 with Trilinos 17.0.0 for
+gnu on Chrysalis. Nothing keeps the two in step, so Albany’s options or
+behavior could differ between standalone and coupled MALI. Polaris might
+later follow E3SM’s Albany updates.</p>
+<p>Rejected:</p>
+<ul class="simple">
+<li><p>linking an existing Compass installation, such as
+<code class="docutils literal notranslate"><span class="pre">compass_albany_gnu_openmpi</span></code> in Compass 2.0.0’s Spack area. Its Trilinos
+and Albany were built against Compass’s library stack, which differs from
+Polaris’s (SCORPIO 1.8.2 against 2.0.3), and Polaris would follow
+Compass’s release cadence;</p></li>
+<li><p>Albany in every library environment. Trilinos takes hours to build,
+supports only some toolchains, and only MALI needs it.</p></li>
+</ul>
+</section>
+<section id="d3-only-mali-builds-link-to-albany">
+<h3>D3: Only MALI builds link to Albany<a class="headerlink" href="#d3-only-mali-builds-link-to-albany" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/10/22</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<p>The load script exports Albany’s libraries as <code class="docutils literal notranslate"><span class="pre">POLARIS_ALBANY_LINK_LIBS</span></code>,
+and only the MALI build adds them to <code class="docutils literal notranslate"><span class="pre">MPAS_EXTERNAL_LIBS</span></code>.</p>
+<p>Rejected: Compass’s approach, which appends them to <code class="docutils literal notranslate"><span class="pre">MPAS_EXTERNAL_LIBS</span></code> in
+the load script. Every MPAS-Ocean build in an Albany environment would then
+link to Trilinos and Albany.</p>
+</section>
+<section id="d4-a-build-has-albany-whenever-the-environment-does">
+<h3>D4: A build has Albany whenever the environment does<a class="headerlink" href="#d4-a-build-has-albany-whenever-the-environment-does" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/10/22</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<p>By default, a MALI build has Albany when the environment provides it. One
+build serves the tasks for both solvers. <code class="docutils literal notranslate"><span class="pre">[build]</span> <span class="pre">albany</span> <span class="pre">=</span> <span class="pre">False</span></code> forces a
+build without it, for testing.</p>
+<p>Rejected: a build per solver, which doubles the build time for suites that
+mix them.</p>
+</section>
+<section id="d5-the-first-tasks-are-compass-s-dome">
+<h3>D5: The first tasks are Compass’s <code class="docutils literal notranslate"><span class="pre">dome</span></code><a class="headerlink" href="#d5-the-first-tasks-are-compass-s-dome" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/10/22</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<p>The first tasks port <code class="docutils literal notranslate"><span class="pre">dome</span></code> on the 2 km mesh. It is Compass’s smallest
+test with both solvers, and needs no input files.</p>
+<p>Rejected:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">dome</span></code>’s variable-resolution mesh, which needs a database file and tests
+nothing more about the component;</p></li>
+<li><p>MISMIP+, a larger port that gets its own tasks;</p></li>
+<li><p>Compass’s whole <code class="docutils literal notranslate"><span class="pre">full_integration</span></code> suite, which can be ported task by
+task as MALI developers need it.</p></li>
+</ul>
+</section>
+<section id="d6-mali-mesh-conversion-lives-in-the-landice-framework">
+<h3>D6: MALI mesh conversion lives in the landice framework<a class="headerlink" href="#d6-mali-mesh-conversion-lives-in-the-landice-framework" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/10/22</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<p>The conversion is in <code class="docutils literal notranslate"><span class="pre">polaris/landice/mesh.py</span></code>, a module that needs no
+MALI build, since the <code class="docutils literal notranslate"><span class="pre">dome</span></code> tasks need it now, and MISMIP+ and the E3SM
+inputs for MISOMIP need it from other components.</p>
+<p>Rejected: a shared mesh step for MISOMIP, which would leave <code class="docutils literal notranslate"><span class="pre">dome</span></code> and
+MISMIP+ importing from the <code class="docutils literal notranslate"><span class="pre">mesh</span></code> component’s tasks.</p>
+</section>
+<section id="d7-the-mali-tasks-join-fanssie-pr">
+<h3>D7: The MALI tasks join <code class="docutils literal notranslate"><span class="pre">fanssie_pr</span></code><a class="headerlink" href="#d7-the-mali-tasks-join-fanssie-pr" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/10/22</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<p>The four <code class="docutils literal notranslate"><span class="pre">mali_pr</span></code> tasks join <code class="docutils literal notranslate"><span class="pre">fanssie_pr</span></code>, since FAnSSIE carries MALI changes
+for MISOMIP1. <code class="docutils literal notranslate"><span class="pre">fanssie_pr</span></code> then needs an environment deployed with
+<code class="docutils literal notranslate"><span class="pre">--with-albany</span></code>, so it runs only where Albany is supported
+(<code class="docutils literal notranslate"><span class="pre">deploy/albany_supported.txt</span></code>). Without such an environment, its setup fails
+because of D4. On Chrysalis, the four tasks add 39 s to the suite’s 2 min 5 s,
+well within its 30-minute wall time.</p>
+<p>Rejected:</p>
+<ul class="simple">
+<li><p>only the shallow-ice tasks in <code class="docutils literal notranslate"><span class="pre">fanssie_pr</span></code>, which would leave the
+first-order solver that MISOMIP1 uses untested;</p></li>
+<li><p>running <code class="docutils literal notranslate"><span class="pre">mali_pr</span></code> against FAnSSIE only for changes that touch MALI, which
+relies on judging which changes do.</p></li>
+</ul>
+</section>
+<section id="d8-builds-clean-the-shared-mpas-framework-when-it-changes">
+<h3>D8: Builds clean the shared MPAS framework when it changes<a class="headerlink" href="#d8-builds-clean-the-shared-mpas-framework-when-it-changes" title="Link to this heading"></a></h3>
+<p>Date last modified: 2026/10/22</p>
+<p>Contributors: Xylar Asay-Davis, Claude</p>
+<p>Polaris’s MPAS-Ocean and MALI build scripts start with <code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">clean</span></code> when the
+shared framework in the E3SM checkout was last built for another component
+or with another configuration, such as another compiler.</p>
+<div class="admonition-rationale admonition">
+<p class="admonition-title">Rationale</p>
+<p>The framework’s driver is compiled differently for each component, and
+MPAS’s own check, the <code class="docutils literal notranslate"><span class="pre">.mpas_core_&lt;core&gt;</span></code> marker, is in each component’s
+directory, so it misses another component’s build. With D7, <code class="docutils literal notranslate"><span class="pre">fanssie_pr</span></code>
+builds both components from the FAnSSIE submodule.</p>
+</div>
+<p>Rejected: documenting that <code class="docutils literal notranslate"><span class="pre">--clean_build</span></code> is needed when switching
+components, which is easy to forget in a suite that builds both.</p>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="land_locked_cells.html" class="btn btn-neutral float-left" title="Land-Locked Cells in the Ocean and Sea-Ice Domains" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="mixed_layer_eddies.html" class="btn btn-neutral float-right" title="Mixed-Layer Eddies Task" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Energy Exascale Earth System Model Project.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+   
+
+  <!-- Meta tags for JS to use -->
+  <meta name="doc-version" content="main">
+  <meta name="doc-site-root" content="../">
+
+  <!-- Create version switcher container -->
+  <script>
+    const sidebar = document.querySelector('.wy-side-nav-search');
+    if (sidebar) {
+      const versionDiv = document.createElement('div');
+      versionDiv.id = 'version-switcher';
+      versionDiv.style.marginTop = '1em';
+      sidebar.appendChild(versionDiv);
+    }
+  </script>
+
+  <!-- Load version-switcher.js using the correct relative path -->
+  <script src="../../shared/version-switcher.js"></script>
+
+
+</body>
+</html>

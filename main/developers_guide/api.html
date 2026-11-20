@@ -52,6 +52,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../users_guide/suites.html">Suites</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../users_guide/mesh/index.html">Mesh component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../users_guide/e3sm/init/index.html">E3SM Initial Condition Component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users_guide/landice/index.html">Land-ice component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../users_guide/ocean/index.html">Ocean component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../users_guide/seaice/index.html">Sea ice component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../users_guide/machines/index.html">Machines</a></li>
@@ -64,6 +65,7 @@
 <li class="toctree-l1"><a class="reference internal" href="organization/index.html">Organization of Tasks</a></li>
 <li class="toctree-l1"><a class="reference internal" href="e3sm/init/index.html">E3SM initial condition (e3sm/init) component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="landice/index.html">Land-ice component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="ocean/index.html">Ocean component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="seaice/index.html">Sea ice component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="framework/index.html">Framework</a></li>
@@ -81,6 +83,7 @@
 <li class="toctree-l1 current"><a class="current reference internal" href="#">API reference</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#components">Components</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="e3sm/init/api.html">e3sm/init</a></li>
+<li class="toctree-l3"><a class="reference internal" href="landice/api.html">landice</a></li>
 <li class="toctree-l3"><a class="reference internal" href="mesh/api.html">mesh</a></li>
 <li class="toctree-l3"><a class="reference internal" href="ocean/api.html">ocean</a></li>
 <li class="toctree-l3"><a class="reference internal" href="seaice/api.html">seaice</a></li>
@@ -289,6 +292,12 @@
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#build">build</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="generated/polaris.build.mali.build_mali.html">polaris.build.mali.build_mali</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/polaris.build.mali.environment_has_albany.html">polaris.build.mali.environment_has_albany</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/polaris.build.mali.get_mali_build_albany.html">polaris.build.mali.get_mali_build_albany</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/polaris.build.mali.get_mali_source_dir.html">polaris.build.mali.get_mali_source_dir</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/polaris.build.mali.make_build_script.html">polaris.build.mali.make_build_script</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/polaris.build.mpas_framework.get_framework_check.html">polaris.build.mpas_framework.get_framework_check</a></li>
 <li class="toctree-l4"><a class="reference internal" href="generated/polaris.build.mpas_ocean.build_mpas_ocean.html">polaris.build.mpas_ocean.build_mpas_ocean</a></li>
 <li class="toctree-l4"><a class="reference internal" href="generated/polaris.build.mpas_ocean.make_build_script.html">polaris.build.mpas_ocean.make_build_script</a></li>
 <li class="toctree-l4"><a class="reference internal" href="generated/polaris.build.omega.build_omega.html">polaris.build.omega.build_omega</a></li>
@@ -373,6 +382,7 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/dev_mali_pr_on_perlmutter.html">Developer Tutorial: Running the <code class="docutils literal notranslate"><span class="pre">mali_pr</span></code> Suite on Perlmutter</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../tutorials/dev_add_category_of_tasks/index.html">Developer Tutorial: Adding a New Category of Tasks</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Glossary</span></p>
@@ -414,6 +424,7 @@ documentation.</p>
 <div class="toctree-wrapper compound">
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="e3sm/init/api.html">e3sm/init</a></li>
+<li class="toctree-l1"><a class="reference internal" href="landice/api.html">landice</a></li>
 <li class="toctree-l1"><a class="reference internal" href="mesh/api.html">mesh</a></li>
 <li class="toctree-l1"><a class="reference internal" href="ocean/api.html">ocean</a></li>
 <li class="toctree-l1"><a class="reference internal" href="seaice/api.html">seaice</a></li>
@@ -1446,6 +1457,24 @@ documentation.</p>
 <h3>build<a class="headerlink" href="#build" title="Link to this heading"></a></h3>
 <table class="autosummary longtable docutils align-default">
 <tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.build.mali.build_mali.html#polaris.build.mali.build_mali" title="polaris.build.mali.build_mali"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mali.build_mali</span></code></a>(branch, build_dir, clean, ...)</p></td>
+<td><p>Build MALI on the current machine.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.build.mali.environment_has_albany.html#polaris.build.mali.environment_has_albany" title="polaris.build.mali.environment_has_albany"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mali.environment_has_albany</span></code></a>()</p></td>
+<td><p>Whether the Polaris environment provides Albany</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.build.mali.get_mali_build_albany.html#polaris.build.mali.get_mali_build_albany" title="polaris.build.mali.get_mali_build_albany"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mali.get_mali_build_albany</span></code></a>(build_dir)</p></td>
+<td><p>Get whether a MALI build that Polaris made has Albany.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.build.mali.get_mali_source_dir.html#polaris.build.mali.get_mali_source_dir" title="polaris.build.mali.get_mali_source_dir"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mali.get_mali_source_dir</span></code></a>(build_dir)</p></td>
+<td><p>Get the source directory that a MALI build was made from.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.build.mali.make_build_script.html#polaris.build.mali.make_build_script" title="polaris.build.mali.make_build_script"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mali.make_build_script</span></code></a>(machine, compiler, ...)</p></td>
+<td><p>Make a shell script for building MALI.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.build.mpas_framework.get_framework_check.html#polaris.build.mpas_framework.get_framework_check" title="polaris.build.mpas_framework.get_framework_check"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mpas_framework.get_framework_check</span></code></a>(...)</p></td>
+<td><p>Get shell code for a build script that decides whether an MPAS component's build must start with <code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">clean</span></code>.</p></td>
+</tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.build.mpas_ocean.build_mpas_ocean.html#polaris.build.mpas_ocean.build_mpas_ocean" title="polaris.build.mpas_ocean.build_mpas_ocean"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mpas_ocean.build_mpas_ocean</span></code></a>(branch, ...[, ...])</p></td>
 <td><p>Build MPAS-Ocean on the current machine.</p></td>
 </tr>

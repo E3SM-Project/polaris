@@ -407,6 +407,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l1"><a class="reference internal" href="../../../users_guide/suites.html">Suites</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../users_guide/mesh/index.html">Mesh component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../users_guide/e3sm/init/index.html">E3SM Initial Condition Component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../users_guide/landice/index.html">Land-ice component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../users_guide/ocean/index.html">Ocean component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../users_guide/seaice/index.html">Sea ice component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../users_guide/machines/index.html">Machines</a></li>
@@ -419,6 +420,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/organization/index.html">Organization of Tasks</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/e3sm/init/index.html">E3SM initial condition (e3sm/init) component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/landice/index.html">Land-ice component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/ocean/index.html">Ocean component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/seaice/index.html">Sea ice component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../developers_guide/framework/index.html">Framework</a></li>
@@ -438,6 +440,7 @@ window.runMermaid = runMermaid;</script>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/dev_mali_pr_on_perlmutter.html">Developer Tutorial: Running the <code class="docutils literal notranslate"><span class="pre">mali_pr</span></code> Suite on Perlmutter</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../tutorials/dev_add_category_of_tasks/index.html">Developer Tutorial: Adding a New Category of Tasks</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Glossary</span></p>
@@ -473,9 +476,14 @@ window.runMermaid = runMermaid;</script>
 <span></span><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Optional</span>
 
-<span class="c1"># the records that polaris/build/build_omega.template and</span>
-<span class="c1"># polaris/build/build_mpas_ocean.template write into the build directory</span>
-<span class="n">SOURCE_RECORD_FILENAMES</span> <span class="o">=</span> <span class="p">(</span><span class="s1">'omega_source.txt'</span><span class="p">,</span> <span class="s1">'mpas_ocean_source.txt'</span><span class="p">)</span>
+<span class="c1"># the records that polaris/build/build_omega.template,</span>
+<span class="c1"># polaris/build/build_mpas_ocean.template and polaris/build/build_mali.template</span>
+<span class="c1"># write into the build directory</span>
+<span class="n">SOURCE_RECORD_FILENAMES</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="s1">'omega_source.txt'</span><span class="p">,</span>
+    <span class="s1">'mpas_ocean_source.txt'</span><span class="p">,</span>
+    <span class="s1">'mali_source.txt'</span><span class="p">,</span>
+<span class="p">)</span>
 
 
 <div class="viewcode-block" id="read_source_record">
@@ -491,16 +499,17 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    build_dir : str, optional</span>
-<span class="sd">        The build directory of Omega or MPAS-Ocean</span>
+<span class="sd">        The build directory of Omega, MPAS-Ocean or MALI</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    record : dict, optional</span>
 <span class="sd">        The record, with the source tree's path (``source``), its full hash</span>
 <span class="sd">        (``hash``), the output of ``git describe`` (``describe``), whether</span>
-<span class="sd">        the build started from an empty build directory (``clean_build``)</span>
-<span class="sd">        and its last five first-parent commits (``log``), or ``None`` if the</span>
-<span class="sd">        build directory has no record</span>
+<span class="sd">        the build started from an empty build directory (``clean_build``),</span>
+<span class="sd">        whether a MALI build has Albany (``albany``, ``None`` for other</span>
+<span class="sd">        models) and its last five first-parent commits (``log``), or ``None``</span>
+<span class="sd">        if the build directory has no record</span>
 <span class="sd">    """</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">build_dir</span><span class="p">:</span>
         <span class="k">return</span> <span class="kc">None</span>
@@ -520,6 +529,7 @@ window.runMermaid = runMermaid;</script>
         <span class="s1">'hash'</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
         <span class="s1">'describe'</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
         <span class="s1">'clean_build'</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="s1">'albany'</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
         <span class="s1">'log'</span><span class="p">:</span> <span class="p">[],</span>
     <span class="p">}</span>
     <span class="k">try</span><span class="p">:</span>
@@ -543,6 +553,8 @@ window.runMermaid = runMermaid;</script>
             <span class="n">in_log</span> <span class="o">=</span> <span class="kc">True</span>
         <span class="k">elif</span> <span class="n">key</span> <span class="o">==</span> <span class="s1">'clean_build'</span><span class="p">:</span>
             <span class="n">record</span><span class="p">[</span><span class="s1">'clean_build'</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span> <span class="o">==</span> <span class="s1">'true'</span>
+        <span class="k">elif</span> <span class="n">key</span> <span class="o">==</span> <span class="s1">'albany'</span><span class="p">:</span>
+            <span class="n">record</span><span class="p">[</span><span class="s1">'albany'</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span> <span class="o">==</span> <span class="s1">'true'</span>
         <span class="k">elif</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">record</span><span class="p">:</span>
             <span class="n">record</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span> <span class="ow">or</span> <span class="kc">None</span>
 

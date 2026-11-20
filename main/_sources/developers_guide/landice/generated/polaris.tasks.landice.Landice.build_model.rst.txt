@@ -1,0 +1,6 @@
+﻿polaris.tasks.landice.Landice.build\_model
+==========================================
+
+.. currentmodule:: polaris.tasks.landice
+
+.. automethod:: Landice.build_model

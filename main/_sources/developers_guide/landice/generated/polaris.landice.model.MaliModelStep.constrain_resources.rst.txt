@@ -1,0 +1,6 @@
+﻿polaris.landice.model.MaliModelStep.constrain\_resources
+========================================================
+
+.. currentmodule:: polaris.landice.model
+
+.. automethod:: MaliModelStep.constrain_resources

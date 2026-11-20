@@ -1,0 +1,6 @@
+﻿polaris.landice.model.MaliModelStep.needs\_albany
+=================================================
+
+.. currentmodule:: polaris.landice.model
+
+.. autoproperty:: MaliModelStep.needs_albany

@@ -1,0 +1,6 @@
+﻿polaris.build.mali.get\_mali\_source\_dir
+=========================================
+
+.. currentmodule:: polaris.build.mali
+
+.. autofunction:: get_mali_source_dir

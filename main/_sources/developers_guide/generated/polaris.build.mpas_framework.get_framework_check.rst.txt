@@ -1,0 +1,6 @@
+﻿polaris.build.mpas\_framework.get\_framework\_check
+===================================================
+
+.. currentmodule:: polaris.build.mpas_framework
+
+.. autofunction:: get_framework_check

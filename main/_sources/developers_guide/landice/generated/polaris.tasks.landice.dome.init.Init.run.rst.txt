@@ -1,0 +1,6 @@
+﻿polaris.tasks.landice.dome.init.Init.run
+========================================
+
+.. currentmodule:: polaris.tasks.landice.dome.init
+
+.. automethod:: Init.run
