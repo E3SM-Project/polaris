@@ -1,7 +1,6 @@
 import os
 
 from polaris.e3sm.init.graph_partition import GraphPartitionStep
-from polaris.tasks.e3sm.init.component_inputs.models import check_ocean_model
 
 #: The stem of every partition file this step writes, and the name the graph
 #: is staged under beside them.  The creation date is added when the files
@@ -54,10 +53,3 @@ class OceanGraphPartitionStep(GraphPartitionStep):
             ),
         )
         self.cull_mesh_step = cull_mesh_step
-
-    def setup(self):
-        """
-        Refuse a model whose packaging is not supported, before anything runs.
-        """
-        check_ocean_model()
-        super().setup()

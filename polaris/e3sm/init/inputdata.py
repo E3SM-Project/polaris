@@ -197,6 +197,23 @@ def ocean_dir(grid: str) -> str:
     return f'inputdata/ocn/mpas-o/{grid}'
 
 
+def omega_dir(grid: str) -> str:
+    """
+    The Omega directory for a grid.
+
+    Parameters
+    ----------
+    grid : str
+        E3SM's name for the ocean grid.
+
+    Returns
+    -------
+    str
+        The path, relative to :py:data:`ASSEMBLED_FILES`.
+    """
+    return f'inputdata/ocn/omega/{grid}'
+
+
 def seaice_dir(grid: str) -> str:
     """
     The MPAS-Seaice directory for a grid.
@@ -232,6 +249,29 @@ def ocean_initial_condition_path(grid: str, creation_date: str) -> str:
         The path, relative to :py:data:`ASSEMBLED_FILES`.
     """
     return f'{ocean_dir(grid)}/mpaso.{grid}.{creation_date}.nc'
+
+
+def omega_initial_condition_path(grid: str, creation_date: str) -> str:
+    """
+    Where the Omega initial condition for a grid is staged.
+
+    The one file holds what Omega reads at startup in E3SM: the horizontal
+    mesh, the vertical coordinate and the initial state.
+
+    Parameters
+    ----------
+    grid : str
+        E3SM's name for the ocean grid.
+
+    creation_date : str
+        The creation date, as ``YYYYMMDD``.
+
+    Returns
+    -------
+    str
+        The path, relative to :py:data:`ASSEMBLED_FILES`.
+    """
+    return f'{omega_dir(grid)}/omega.{grid}.{creation_date}.nc'
 
 
 def ocean_graph_path(grid: str, creation_date: str) -> str:

@@ -4,7 +4,6 @@ import xarray as xr
 from mpas_tools.io import write_netcdf
 
 from polaris import Step
-from polaris.tasks.e3sm.init.component_inputs.models import check_ocean_model
 
 
 class OceanInitialConditionStep(Step):
@@ -86,13 +85,6 @@ class OceanInitialConditionStep(Step):
         # is still running, and a failed check would not stop it
         self.add_dependency(check_step, check_step.name)
         self.add_output_file(filename='ocean_initial_condition.nc')
-
-    def setup(self):
-        """
-        Refuse a model whose packaging is not supported, before anything runs.
-        """
-        check_ocean_model()
-        super().setup()
 
     def run(self):
         """
