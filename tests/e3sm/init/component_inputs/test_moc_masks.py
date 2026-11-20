@@ -4,7 +4,7 @@ from geometric_features.aggregation import get_aggregator_by_name
 
 from polaris.tasks.e3sm.init import e3sm_init
 from polaris.tasks.e3sm.init.component_inputs import names
-from polaris.tasks.e3sm.init.component_inputs.assemble import TARGET_PRODUCTS
+from polaris.tasks.e3sm.init.component_inputs.assemble import target_products
 from polaris.tasks.e3sm.init.component_inputs.moc_masks import (
     MESH_FILENAME,
 )
@@ -35,18 +35,21 @@ def test_the_masks_are_built_from_the_culled_ocean_mesh():
     configured filename and the upstream step rather than ``input_data``.
     """
     _reset_shared_components()
-    steps, config = get_component_inputs_steps(mesh_name=MESH_NAME)
+    steps, config = get_component_inputs_steps(
+        mesh_name=MESH_NAME, model='mpas-ocean'
+    )
 
     step = steps['ocean_moc_masks']
     assert step.mesh_filename == MESH_FILENAME
     assert step.mesh_step is steps['cull_mesh']
-    assert config.get('feature_masks', 'mesh_filename') == MESH_FILENAME
+    assert step.config.get('feature_masks', 'mesh_filename') == MESH_FILENAME
 
 
-def test_the_masks_are_an_ocean_product():
+def test_the_masks_are_an_mpas_ocean_product():
     """
-    The sea-ice target has no use for them, and asking for it must not build
-    the step.
+    MPAS-Ocean reads them at run time.  The sea-ice target has no use for
+    them, and Omega does not read region masks yet, so asking for either must
+    not build the step.
     """
     _reset_shared_components()
     steps, _ = get_component_inputs_steps(mesh_name=MESH_NAME, target='seaice')
@@ -55,10 +58,17 @@ def test_the_masks_are_an_ocean_product():
     for target in ['ocean', 'all']:
         _reset_shared_components()
         steps, _ = get_component_inputs_steps(
-            mesh_name=MESH_NAME, target=target
+            mesh_name=MESH_NAME, target=target, model='mpas-ocean'
         )
         assert 'ocean_moc_masks' in steps
-        assert 'ocean_moc_masks' in TARGET_PRODUCTS[target]
+        assert 'ocean_moc_masks' in target_products(target, 'mpas-ocean')
+
+        _reset_shared_components()
+        steps, _ = get_component_inputs_steps(
+            mesh_name=MESH_NAME, target=target, model='omega'
+        )
+        assert 'ocean_moc_masks' not in steps
+        assert 'ocean_moc_masks' not in target_products(target, 'omega')
 
 
 def test_the_step_needs_no_ocean_component():
@@ -69,11 +79,13 @@ def test_the_step_needs_no_ocean_component():
     section by design.  Setup failed with NoSectionError.
     """
     _reset_shared_components()
-    steps, config = get_component_inputs_steps(mesh_name=MESH_NAME)
+    steps, config = get_component_inputs_steps(
+        mesh_name=MESH_NAME, model='mpas-ocean'
+    )
 
     step = steps['ocean_moc_masks']
     assert step.component is e3sm_init
-    assert not config.has_section('ocean')
+    assert not step.config.has_section('ocean')
 
     ocean_io = [
         cls.__name__
@@ -90,7 +102,9 @@ def test_the_moc_behavior_comes_from_the_shared_helpers():
     transects cannot drift apart between the two callers.
     """
     _reset_shared_components()
-    steps, _ = get_component_inputs_steps(mesh_name=MESH_NAME)
+    steps, _ = get_component_inputs_steps(
+        mesh_name=MESH_NAME, model='mpas-ocean'
+    )
 
     step = steps['ocean_moc_masks']
     assert step.output_filename == moc_masks_filename(
@@ -106,7 +120,9 @@ def test_the_step_knows_its_filename_before_setup():
     ``setup()``, assembly would declare nothing and stage nothing.
     """
     _reset_shared_components()
-    steps, _ = get_component_inputs_steps(mesh_name=MESH_NAME)
+    steps, _ = get_component_inputs_steps(
+        mesh_name=MESH_NAME, model='mpas-ocean'
+    )
 
     step = steps['ocean_moc_masks']
     assert step.output_filename is not None
@@ -126,7 +142,9 @@ def test_the_features_date_comes_from_the_aggregation():
     and the staged name has to follow it when it changes.
     """
     _reset_shared_components()
-    steps, _ = get_component_inputs_steps(mesh_name=MESH_NAME)
+    steps, _ = get_component_inputs_steps(
+        mesh_name=MESH_NAME, model='mpas-ocean'
+    )
 
     _, _, date = get_aggregator_by_name(MOC_MASK_GROUP)
     assert steps['ocean_moc_masks'].features_date == date
@@ -174,7 +192,9 @@ def test_the_mask_file_records_where_it_came_from(tmp_path):
     copy or a rename off the inputdata server.
     """
     _reset_shared_components()
-    steps, config = get_component_inputs_steps(mesh_name=MESH_NAME)
+    steps, config = get_component_inputs_steps(
+        mesh_name=MESH_NAME, model='mpas-ocean'
+    )
     step = steps['ocean_moc_masks']
 
     config.set('component_inputs', 'creation_date', CREATION_DATE)

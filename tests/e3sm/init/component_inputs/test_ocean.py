@@ -21,7 +21,9 @@ def test_the_initial_condition_comes_from_the_adjusted_restart():
     init.nc would hand every E3SM run that transient back.
     """
     _reset_shared_components()
-    steps, _ = get_component_inputs_steps(mesh_name=MESH_NAME)
+    steps, _ = get_component_inputs_steps(
+        mesh_name=MESH_NAME, model='mpas-ocean'
+    )
 
     step = steps['ocean_initial_condition']
     (source,) = [
@@ -41,7 +43,9 @@ def test_the_initial_condition_waits_for_the_last_stage_and_its_check():
     Waiting for the check as well means a failed check stops the staging.
     """
     _reset_shared_components()
-    steps, _ = get_component_inputs_steps(mesh_name=MESH_NAME)
+    steps, _ = get_component_inputs_steps(
+        mesh_name=MESH_NAME, model='mpas-ocean'
+    )
 
     step = steps['ocean_initial_condition']
     assert list(step.dependencies) == ['simulation', 'simulation_check']
@@ -55,7 +59,9 @@ def test_the_ocean_steps_reuse_the_shared_adjustment_chain():
     takes hours to run.
     """
     _reset_shared_components()
-    steps, _ = get_component_inputs_steps(mesh_name=MESH_NAME)
+    steps, _ = get_component_inputs_steps(
+        mesh_name=MESH_NAME, model='mpas-ocean'
+    )
 
     for name in ['initial_state', 'simulation']:
         assert ocean.steps[steps[name].subdir] is steps[name]
@@ -66,7 +72,9 @@ def test_the_ocean_steps_reuse_the_shared_adjustment_chain():
 
 def test_the_ocean_mesh_reads_the_initial_state():
     _reset_shared_components()
-    steps, _ = get_component_inputs_steps(mesh_name=MESH_NAME)
+    steps, _ = get_component_inputs_steps(
+        mesh_name=MESH_NAME, model='mpas-ocean'
+    )
 
     step = steps['ocean_mesh']
     init_path = steps['initial_state'].path
@@ -85,7 +93,9 @@ def test_the_partitions_come_from_the_ocean_graph():
     on -- not ``ocean_no_cavities``, which exists for mapping files.
     """
     _reset_shared_components()
-    steps, _ = get_component_inputs_steps(mesh_name=MESH_NAME)
+    steps, _ = get_component_inputs_steps(
+        mesh_name=MESH_NAME, model='mpas-ocean'
+    )
 
     step = steps['ocean_graph_partition']
     (source,) = [entry['work_dir_target'] for entry in step.input_data]
@@ -100,40 +110,33 @@ def test_the_partition_names_carry_no_creation_date():
     assert GRAPH_BASENAME == 'mpas-o.graph.info'
 
 
-def test_omega_raises_rather_than_staging_something_wrong(monkeypatch):
-    monkeypatch.setattr(ocean, 'model', 'omega')
-    with pytest.raises(NotImplementedError, match='Omega'):
-        check_ocean_model()
-
-
-@pytest.mark.parametrize('model', ['hycom', None])
-def test_an_unknown_or_missing_model_is_rejected(monkeypatch, model):
+@pytest.mark.parametrize('model', ['mpas-ocean', 'omega'])
+def test_a_task_for_the_configured_model_passes_the_check(monkeypatch, model):
     monkeypatch.setattr(ocean, 'model', model)
-    with pytest.raises(ValueError, match=str(model)):
-        check_ocean_model()
+    check_ocean_model(model)
 
 
-def test_the_model_comes_from_the_ocean_component(monkeypatch):
+@pytest.mark.parametrize(
+    ('task_model', 'ocean_model'),
+    [('mpas-ocean', 'omega'), ('omega', 'mpas-ocean'), ('omega', None)],
+)
+def test_a_task_for_another_model_names_both(
+    monkeypatch, task_model, ocean_model
+):
     """
     The initial condition is the restart of a run of whichever model the
-    ocean component was set up with, so that is the model staged for.
+    ocean component was set up with, so staging it under another model's
+    name would hand E3SM a file it cannot read.
     """
-    monkeypatch.setattr(ocean, 'model', 'mpas-ocean')
-    assert check_ocean_model() == 'mpas-ocean'
+    monkeypatch.setattr(ocean, 'model', ocean_model)
+    with pytest.raises(ValueError, match=f'{task_model}.*{ocean_model}'):
+        check_ocean_model(task_model)
 
 
-def test_the_ocean_steps_refuse_omega_at_setup(monkeypatch):
-    _reset_shared_components()
-    steps, _ = get_component_inputs_steps(mesh_name=MESH_NAME)
-    monkeypatch.setattr(ocean, 'model', 'omega')
-    for key in [
-        'ocean_mesh',
-        'ocean_initial_condition',
-        'ocean_graph_partition',
-        'ocean_moc_masks',
-    ]:
-        with pytest.raises(NotImplementedError, match='Omega'):
-            steps[key].setup()
+def test_an_unknown_model_is_rejected(monkeypatch):
+    monkeypatch.setattr(ocean, 'model', 'hycom')
+    with pytest.raises(ValueError, match='hycom'):
+        check_ocean_model('hycom')
 
 
 def _reset_shared_components():
@@ -168,7 +171,9 @@ def test_no_mesh_asks_gpmetis_for_more_parts_than_it_can_do(mesh_name):
     with an override -- exactly as rrs6to18 is the only one in Compass.
     """
     _reset_shared_components()
-    _, config = get_component_inputs_steps(mesh_name=mesh_name, target='ocean')
+    _, config = get_component_inputs_steps(
+        mesh_name=mesh_name, target='ocean', model='mpas-ocean'
+    )
 
     min_cells_per_core = config.getint(
         'component_inputs', 'min_cells_per_core'
