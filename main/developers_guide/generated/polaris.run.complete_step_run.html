@@ -165,9 +165,12 @@
 <dl class="py function">
 <dt class="sig sig-object py" id="polaris.run.complete_step_run">
 <span class="sig-prename descclassname"><span class="pre">polaris.run.</span></span><span class="sig-name descname"><span class="pre">complete_step_run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">step</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/polaris/run.html#complete_step_run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.run.complete_step_run" title="Link to this definition"></a></dt>
-<dd><p>Write a file to indicate that the step has completed. If this step is a
-dependency of other steps, pickle the step after it has run so its
-dependencies will pick up any changes in its attributes</p>
+<dd><p>Write a file to indicate that the step has completed, and pickle the step
+after it has run so steps that depend on it will pick up any changes in
+its attributes</p>
+<p>Every step is pickled, not just those with dependents in the suite being
+run: a step set up later in the same work directory may come to depend on
+one that has already finished, and a finished step is not run again.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>step</strong> (<a class="reference internal" href="polaris.Step.html#polaris.Step" title="polaris.step.Step"><em>polaris.step.Step</em></a>) – The step object</p>

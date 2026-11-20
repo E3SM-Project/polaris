@@ -484,7 +484,7 @@ documentation.</p>
 <td><p>Load each dependency from its pickle file to pick up changes that may have happened since it ran</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.run.complete_step_run.html#polaris.run.complete_step_run" title="polaris.run.complete_step_run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">complete_step_run</span></code></a>(step)</p></td>
-<td><p>Write a file to indicate that the step has completed.</p></td>
+<td><p>Write a file to indicate that the step has completed, and pickle the step after it has run so steps that depend on it will pick up any changes in its attributes</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.run.lifecycle.run_step.html#polaris.run.lifecycle.run_step" title="polaris.run.lifecycle.run_step"><code class="xref py py-obj docutils literal notranslate"><span class="pre">lifecycle.run_step</span></code></a>(task, step, new_log_file, ...)</p></td>
 <td><p>Run the requested step</p></td>
