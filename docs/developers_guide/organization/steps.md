@@ -200,7 +200,8 @@ Some attributes are available after calling the base class' constructor
   options or data read in from files). If the names of this step's input files
   are known at setup, it is sufficient (and preferable) to indicate that an
   output file from another step is an input of this step to establish a
-  dependency.
+  dependency.  Each step is pickled after it runs, and a step loads its
+  dependencies' pickles before it runs, so it sees any attributes they set.
 
 `self.is_dependency`
 

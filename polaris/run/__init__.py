@@ -98,9 +98,7 @@ def load_dependencies(step):
             dependency.work_dir, 'step_after_run.pickle'
         )
         if not os.path.exists(pickle_filename):
-            raise ValueError(
-                f'The dependency {name} of step {step.path} was not run.'
-            )
+            raise ValueError(_missing_pickle_message(step, name, dependency))
 
         with open(pickle_filename, 'rb') as handle:
             unpickled = pickle.load(handle)
@@ -111,9 +109,13 @@ def load_dependencies(step):
 
 def complete_step_run(step):
     """
-    Write a file to indicate that the step has completed. If this step is a
-    dependency of other steps, pickle the step after it has run so its
-    dependencies will pick up any changes in its attributes
+    Write a file to indicate that the step has completed, and pickle the step
+    after it has run so steps that depend on it will pick up any changes in
+    its attributes
+
+    Every step is pickled, not just those with dependents in the suite being
+    run: a step set up later in the same work directory may come to depend on
+    one that has already finished, and a finished step is not run again.
 
     Parameters
     ----------
@@ -122,11 +124,24 @@ def complete_step_run(step):
     """
     with open(STEP_COMPLETE_LOG, 'w') as log_file:
         log_file.write(f'{step.path} finished successfully.')
-    if step.is_dependency:
-        # pickle the test case and step for use at runtime
-        pickle_filename = os.path.join(step.work_dir, 'step_after_run.pickle')
-        with open(pickle_filename, 'wb') as handle:
-            pickle.dump(step, handle, protocol=pickle.HIGHEST_PROTOCOL)
+    pickle_filename = os.path.join(step.work_dir, 'step_after_run.pickle')
+    with open(pickle_filename, 'wb') as handle:
+        pickle.dump(step, handle, protocol=pickle.HIGHEST_PROTOCOL)
+
+
+def _missing_pickle_message(step, name, dependency):
+    """
+    Say why a dependency has no pickle, and what to do about it
+    """
+    complete_log = os.path.join(dependency.work_dir, STEP_COMPLETE_LOG)
+    if not os.path.exists(complete_log):
+        return f'The dependency {name} of step {step.path} was not run.'
+    return (
+        f'The dependency {name} of step {step.path} finished without '
+        f'writing step_after_run.pickle, which older versions of Polaris '
+        f'only wrote for a step that something already depended on.  '
+        f'Delete {complete_log} and run the dependency again.'
+    )
 
 
 def _update_from_pickle(step, unpickled):
