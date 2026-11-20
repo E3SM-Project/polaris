@@ -486,6 +486,7 @@ window.runMermaid = runMermaid;</script>
     <span class="n">StatsAnalysis</span><span class="p">,</span>
     <span class="n">StepInitialCondition</span><span class="p">,</span>
 <span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.tasks.ocean.realistic_global.forward.task</span><span class="w"> </span><span class="kn">import</span> <span class="n">swap_init_model</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.tasks.ocean.realistic_global.forward.tasks</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">CACHED_MESHES</span><span class="p">,</span>
     <span class="n">get_cached_initial_condition</span><span class="p">,</span>
@@ -500,6 +501,7 @@ window.runMermaid = runMermaid;</script>
     <span class="n">estimate_ocean_cell_count</span><span class="p">,</span>
     <span class="n">min_res_for_mesh</span><span class="p">,</span>
 <span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.tasks.ocean.realistic_global.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">DEFAULT_MODEL</span>
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">polaris</span><span class="w"> </span><span class="kn">import</span> <span class="n">Step</span>
@@ -564,6 +566,19 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">    defaults in ``analysis_output.cfg``, with the mesh's options and then</span>
 <span class="sd">    ``one_year.cfg`` layered on top.  Only the ``forward`` step runs by</span>
 <span class="sd">    default; ``global_stats`` plots the daily statistics.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    mesh_name : str</span>
+<span class="sd">        The name of the mesh.</span>
+
+<span class="sd">    model : str</span>
+<span class="sd">        The ocean model the shared init steps are for.  The task is built for</span>
+<span class="sd">        :py:data:`~polaris.tasks.ocean.realistic_global.models.DEFAULT_MODEL`</span>
+<span class="sd">        and ``configure()`` switches to the configured model.</span>
+
+<span class="sd">    forward_step : AnalysisOutputForward</span>
+<span class="sd">        The one-year forward run.</span>
 <span class="sd">    """</span>
 
 <div class="viewcode-block" id="AnalysisOutput.__init__">
@@ -592,7 +607,8 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">        init_steps : dict of polaris.Step, optional</span>
 <span class="sd">            Shared upstream steps to add to the task, keyed by the symlink name</span>
 <span class="sd">            to give them.  Needed when ``init_condition`` consumes their</span>
-<span class="sd">            outputs, and left unset for a cached initial condition.</span>
+<span class="sd">            outputs, and left unset for a cached initial condition.  They are</span>
+<span class="sd">            :py:data:`~polaris.tasks.ocean.realistic_global.models.DEFAULT_MODEL`'s.</span>
 <span class="sd">        """</span>
         <span class="n">subdir</span> <span class="o">=</span> <span class="p">(</span>
             <span class="sa">f</span><span class="s1">'spherical/realistic_global/</span><span class="si">{</span><span class="n">mesh_name</span><span class="si">}</span><span class="s1">/analysis_output/1_year'</span>
@@ -602,6 +618,9 @@ window.runMermaid = runMermaid;</script>
             <span class="n">name</span><span class="o">=</span><span class="s1">'analysis_output_1_year'</span><span class="p">,</span>
             <span class="n">subdir</span><span class="o">=</span><span class="n">subdir</span><span class="p">,</span>
         <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mesh_name</span> <span class="o">=</span> <span class="n">mesh_name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">DEFAULT_MODEL</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_init_steps</span> <span class="o">=</span> <span class="n">init_steps</span>
 
         <span class="n">config_filename</span> <span class="o">=</span> <span class="s1">'analysis_output.cfg'</span>
         <span class="n">config_path</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">component</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">subdir</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">config_filename</span><span class="si">}</span><span class="s1">'</span>
@@ -633,6 +652,7 @@ window.runMermaid = runMermaid;</script>
         <span class="p">)</span>
         <span class="n">forward_step</span><span class="o">.</span><span class="n">set_shared_config</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">link</span><span class="o">=</span><span class="n">config_filename</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span><span class="n">forward_step</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">forward_step</span> <span class="o">=</span> <span class="n">forward_step</span>
 
         <span class="n">stats_analysis</span> <span class="o">=</span> <span class="n">StatsAnalysis</span><span class="p">(</span>
             <span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span>
@@ -641,6 +661,22 @@ window.runMermaid = runMermaid;</script>
         <span class="p">)</span>
         <span class="n">stats_analysis</span><span class="o">.</span><span class="n">set_shared_config</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">link</span><span class="o">=</span><span class="n">config_filename</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span><span class="n">stats_analysis</span><span class="p">,</span> <span class="n">run_by_default</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="AnalysisOutput.configure">
+<a class="viewcode-back" href="../../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.realistic_global.analysis_output.AnalysisOutput.configure.html#polaris.tasks.ocean.realistic_global.analysis_output.AnalysisOutput.configure">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">configure</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Switch to the configured ocean model's init steps, if the task has any.</span>
+<span class="sd">        """</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">configure</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_init_steps</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">swap_init_model</span><span class="p">(</span>
+            <span class="n">task</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span>
+            <span class="n">forward_step</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">forward_step</span><span class="p">,</span>
+            <span class="n">mesh_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">mesh_name</span><span class="p">,</span>
+            <span class="n">init_steps</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_init_steps</span><span class="p">,</span>
+            <span class="n">model</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">,</span>
+        <span class="p">)</span></div>
 </div>
 
 </pre></div>

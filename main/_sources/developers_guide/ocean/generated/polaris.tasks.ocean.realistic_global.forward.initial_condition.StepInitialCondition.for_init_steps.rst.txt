@@ -1,0 +1,6 @@
+﻿polaris.tasks.ocean.realistic\_global.forward.initial\_condition.StepInitialCondition.for\_init\_steps
+======================================================================================================
+
+.. currentmodule:: polaris.tasks.ocean.realistic_global.forward.initial_condition
+
+.. automethod:: StepInitialCondition.for_init_steps

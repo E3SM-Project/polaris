@@ -139,7 +139,11 @@
 <p>The <code class="docutils literal notranslate"><span class="pre">polaris.provenance</span></code> module defines a function
 <a class="reference internal" href="../generated/polaris.provenance.write.html#polaris.provenance.write" title="polaris.provenance.write"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.provenance.write()</span></code></a> for creating a file in the base work
 directory with provenance, such as the git version, conda packages, polaris
-commands, and tasks.</p>
+commands, and tasks.  Each setup rewrites the <code class="docutils literal notranslate"><span class="pre">provenance</span></code> file and also
+writes a copy for its suite, <code class="docutils literal notranslate"><span class="pre">&lt;suite&gt;_provenance</span></code>.  A run reads its suite’s
+copy (see <a class="reference internal" href="../generated/polaris.provenance.get_path.html#polaris.provenance.get_path" title="polaris.provenance.get_path"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.provenance.get_path()</span></code></a>), so a later setup of
+another suite in the same work directory, for example for the other ocean
+model, does not change what the run reports.</p>
 <p>For both Polaris and the component, the file records the git version, the
 full hash and the last five first-parent commits (<code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">git</span> <span class="pre">version</span></code>,
 <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">git</span> <span class="pre">hash</span></code>, <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">git</span> <span class="pre">log</span></code> and the same for <code class="docutils literal notranslate"><span class="pre">component</span></code>).  The logs

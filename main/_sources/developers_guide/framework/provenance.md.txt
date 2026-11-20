@@ -5,7 +5,11 @@
 The `polaris.provenance` module defines a function
 {py:func}`polaris.provenance.write()` for creating a file in the base work
 directory with provenance, such as the git version, conda packages, polaris
-commands, and tasks.
+commands, and tasks.  Each setup rewrites the `provenance` file and also
+writes a copy for its suite, `<suite>_provenance`.  A run reads its suite's
+copy (see {py:func}`polaris.provenance.get_path()`), so a later setup of
+another suite in the same work directory, for example for the other ocean
+model, does not change what the run reports.
 
 For both Polaris and the component, the file records the git version, the
 full hash and the last five first-parent commits (`polaris git version`,

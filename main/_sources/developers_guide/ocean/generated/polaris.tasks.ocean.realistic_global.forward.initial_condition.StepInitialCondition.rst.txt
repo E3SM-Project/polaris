@@ -15,6 +15,7 @@
    
       ~StepInitialCondition.__init__
       ~StepInitialCondition.add_input_files
+      ~StepInitialCondition.for_init_steps
       ~StepInitialCondition.get_forcing_filename
    
    

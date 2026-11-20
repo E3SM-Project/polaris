@@ -151,8 +151,9 @@ You can trigger these builders directly from the CLI by passing build flags to
 Defaults and directories:
 
 - The build output directory used by Polaris (`-p`/`--component_path`) defaults to
-  the `ocean_build` subdirectory of the base work directory you pass with `-w`
-  (for both MPAS-Ocean and Omega).
+  the `mpas_ocean_build` or `omega_build` subdirectory of the base work
+  directory you pass with `-w`, so the two models do not build over one
+  another.
 - MPAS-Ocean copies files required by Polaris into this build directory so you
   can reuse the same source checkout to create builds for different machines,
   compilers, or MPI libraries without conflicts.

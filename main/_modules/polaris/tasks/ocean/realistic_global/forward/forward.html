@@ -640,6 +640,24 @@ window.runMermaid = runMermaid;</script>
             <span class="p">)</span></div>
 
 
+<div class="viewcode-block" id="Forward.set_init_condition">
+<a class="viewcode-back" href="../../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.realistic_global.forward.forward.Forward.set_init_condition.html#polaris.tasks.ocean.realistic_global.forward.forward.Forward.set_init_condition">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_init_condition</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">init_condition</span><span class="p">:</span> <span class="n">InitialCondition</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Read the model's input files from another source.</span>
+
+<span class="sd">        Only valid before setup, which is when the source is first asked for</span>
+<span class="sd">        its files.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        init_condition : InitialCondition</span>
+<span class="sd">            The source of the model input files.</span>
+<span class="sd">        """</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">init_condition</span> <span class="o">=</span> <span class="n">init_condition</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">graph_target</span> <span class="o">=</span> <span class="n">init_condition</span><span class="o">.</span><span class="n">graph_target</span></div>
+
+
 <div class="viewcode-block" id="Forward.setup">
 <a class="viewcode-back" href="../../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.realistic_global.forward.forward.Forward.setup.html#polaris.tasks.ocean.realistic_global.forward.forward.Forward.setup">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>

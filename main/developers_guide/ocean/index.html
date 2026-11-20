@@ -152,8 +152,8 @@ default config options:</p>
 <span class="k">[paths]</span>
 
 <span class="c1"># the relative or absolute path to the root of a branch where MPAS-Ocean</span>
-<span class="c1"># or Omega has been built</span>
-<span class="na">component_path</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">${paths:base_work_dir}/ocean_build</span>
+<span class="c1"># has been built</span>
+<span class="na">component_path</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">${paths:base_work_dir}/mpas_ocean_build</span>
 
 <span class="c1"># The namelists section defines paths to example_compact namelists that will</span>
 <span class="c1"># be used to generate specific namelists. By default, these point to the</span>
@@ -182,10 +182,11 @@ default config options:</p>
 <span class="na">component</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">${paths:component_path}/ocean_model</span>
 </pre></div>
 </div>
-<p>By default, Polaris builds MPAS-Ocean or Omega into the <code class="docutils literal notranslate"><span class="pre">build</span></code> subdirectory of
-the base work directory (<code class="docutils literal notranslate"><span class="pre">${paths:base_work_dir}/ocean_build</span></code>, typically supplied
-on the command line with <code class="docutils literal notranslate"><span class="pre">-w</span></code>), and this is the value used for
-<code class="docutils literal notranslate"><span class="pre">${paths:component_path}</span></code> in the default ocean configuration.  If you
+<p>By default, Polaris builds MPAS-Ocean into the <code class="docutils literal notranslate"><span class="pre">mpas_ocean_build</span></code> subdirectory
+of the base work directory (<code class="docutils literal notranslate"><span class="pre">${paths:base_work_dir}/mpas_ocean_build</span></code>, typically
+supplied on the command line with <code class="docutils literal notranslate"><span class="pre">-w</span></code>), and Omega into <code class="docutils literal notranslate"><span class="pre">omega_build</span></code>.  This is
+the value used for <code class="docutils literal notranslate"><span class="pre">${paths:component_path}</span></code> in each model’s default
+configuration.  If you
 prefer to store builds elsewhere, supply a different value with <code class="docutils literal notranslate"><span class="pre">-p</span></code> on the
 <code class="docutils literal notranslate"><span class="pre">polaris</span></code> command line or supply a user config file with <code class="docutils literal notranslate"><span class="pre">--config_file</span></code> in
 which you update <code class="docutils literal notranslate"><span class="pre">${paths:component_path}</span></code>.  Unless you have build the model at

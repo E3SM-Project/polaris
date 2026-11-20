@@ -47,6 +47,7 @@
       ~Forward.process_inputs_and_outputs
       ~Forward.run
       ~Forward.runtime_setup
+      ~Forward.set_init_condition
       ~Forward.set_model_resources
       ~Forward.set_resources
       ~Forward.set_shared_config

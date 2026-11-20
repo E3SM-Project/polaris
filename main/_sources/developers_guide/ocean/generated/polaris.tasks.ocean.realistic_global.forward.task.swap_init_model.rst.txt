@@ -1,0 +1,6 @@
+﻿polaris.tasks.ocean.realistic\_global.forward.task.swap\_init\_model
+====================================================================
+
+.. currentmodule:: polaris.tasks.ocean.realistic_global.forward.task
+
+.. autofunction:: swap_init_model

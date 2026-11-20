@@ -488,6 +488,7 @@ window.runMermaid = runMermaid;</script>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.build.omega</span><span class="w"> </span><span class="kn">import</span> <span class="n">detect_omega_build_type</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.logging</span><span class="w"> </span><span class="kn">import</span> <span class="n">log_function_call</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.parallel</span><span class="w"> </span><span class="kn">import</span> <span class="n">set_parallel_systems</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.provenance</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_path</span> <span class="k">as</span> <span class="n">get_provenance_path</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.provenance</span><span class="w"> </span><span class="kn">import</span> <span class="n">read</span> <span class="k">as</span> <span class="n">read_provenance</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.run</span><span class="w"> </span><span class="kn">import</span> <span class="n">setup_config</span><span class="p">,</span> <span class="n">unpickle_suite</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.run.lifecycle</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
@@ -583,7 +584,7 @@ window.runMermaid = runMermaid;</script>
             <span class="n">write_suite_results</span><span class="p">,</span>
             <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">work_dir</span><span class="p">,</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">suite_name</span><span class="si">}</span><span class="s1">_results.json'</span><span class="p">),</span>
             <span class="n">suite_name</span><span class="p">,</span>
-            <span class="n">_read_results_provenance</span><span class="p">(</span><span class="n">task</span><span class="o">.</span><span class="n">base_work_dir</span><span class="p">),</span>
+            <span class="n">_read_results_provenance</span><span class="p">(</span><span class="n">task</span><span class="o">.</span><span class="n">base_work_dir</span><span class="p">,</span> <span class="n">suite_name</span><span class="p">),</span>
             <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">astimezone</span><span class="p">(),</span>
         <span class="p">)</span>
 
@@ -1353,7 +1354,7 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">    ``POLARIS_RUN_OUTPUT`` in ``utils/benchmark/benchmark.py`` to match.</span>
 <span class="sd">    """</span>
     <span class="n">work_dir</span> <span class="o">=</span> <span class="n">suite</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'work_dir'</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">())</span>
-    <span class="n">pr_provenance</span> <span class="o">=</span> <span class="n">read_provenance</span><span class="p">(</span><span class="n">work_dir</span><span class="p">)</span>
+    <span class="n">pr_provenance</span> <span class="o">=</span> <span class="n">read_provenance</span><span class="p">(</span><span class="n">work_dir</span><span class="p">,</span> <span class="n">suite_name</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">pr_provenance</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">return</span>
 
@@ -1499,10 +1500,12 @@ window.runMermaid = runMermaid;</script>
     <span class="k">return</span> <span class="n">lines</span>
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">_read_results_provenance</span><span class="p">(</span><span class="n">base_work_dir</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]]:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_read_results_provenance</span><span class="p">(</span>
+    <span class="n">base_work_dir</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">suite_name</span><span class="p">:</span> <span class="nb">str</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]]:</span>
 <span class="w">    </span><span class="sd">"""</span>
-<span class="sd">    Read the metadata for the results file from the provenance file in the</span>
-<span class="sd">    base work directory, with ``None`` for anything it does not record</span>
+<span class="sd">    Read the metadata for the results file from the suite's provenance file</span>
+<span class="sd">    in the base work directory, with ``None`` for anything it does not record</span>
 <span class="sd">    """</span>
     <span class="c1"># keys in provenance are written exactly like these labels</span>
     <span class="n">labels</span> <span class="o">=</span> <span class="p">{</span>
@@ -1519,7 +1522,7 @@ window.runMermaid = runMermaid;</script>
     <span class="n">provenance</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{</span><span class="s1">'polaris_version'</span><span class="p">:</span> <span class="n">__version__</span><span class="p">}</span>
     <span class="n">provenance</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="n">value</span><span class="p">:</span> <span class="kc">None</span> <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">labels</span><span class="o">.</span><span class="n">values</span><span class="p">()})</span>
     <span class="n">_parse_provenance_into</span><span class="p">(</span>
-        <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">base_work_dir</span><span class="p">,</span> <span class="s1">'provenance'</span><span class="p">),</span> <span class="n">labels</span><span class="p">,</span> <span class="n">provenance</span>
+        <span class="n">get_provenance_path</span><span class="p">(</span><span class="n">base_work_dir</span><span class="p">,</span> <span class="n">suite_name</span><span class="p">),</span> <span class="n">labels</span><span class="p">,</span> <span class="n">provenance</span>
     <span class="p">)</span>
     <span class="k">if</span> <span class="n">provenance</span><span class="p">[</span><span class="s1">'build_type'</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">provenance</span><span class="p">[</span><span class="s1">'build_type'</span><span class="p">]</span> <span class="o">=</span> <span class="n">detect_omega_build_type</span><span class="p">(</span>

@@ -19,7 +19,7 @@
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="polaris.provenance.get_summary" href="polaris.provenance.get_summary.html" />
+    <link rel="next" title="polaris.provenance.get_path" href="polaris.provenance.get_path.html" />
     <link rel="prev" title="polaris.namelist.write" href="polaris.namelist.write.html" />
     <link href="../../_static/style.css" rel="stylesheet" type="text/css">
 
@@ -106,6 +106,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../api.html#namelist">namelist</a></li>
 <li class="toctree-l3 current"><a class="reference internal" href="../api.html#provenance">provenance</a><ul class="current">
 <li class="toctree-l4 current"><a class="current reference internal" href="#">polaris.provenance.write</a></li>
+<li class="toctree-l4"><a class="reference internal" href="polaris.provenance.get_path.html">polaris.provenance.get_path</a></li>
 <li class="toctree-l4"><a class="reference internal" href="polaris.provenance.get_summary.html">polaris.provenance.get_summary</a></li>
 <li class="toctree-l4"><a class="reference internal" href="polaris.provenance.read.html">polaris.provenance.read</a></li>
 </ul>
@@ -160,12 +161,14 @@
 <h1>polaris.provenance.write<a class="headerlink" href="#polaris-provenance-write" title="Link to this heading"></a></h1>
 <dl class="py function">
 <dt class="sig sig-object py" id="polaris.provenance.write">
-<span class="sig-prename descclassname"><span class="pre">polaris.provenance.</span></span><span class="sig-name descname"><span class="pre">write</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">work_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tasks</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">machine</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">baseline_dir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">job_options</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/polaris/provenance.html#write"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.provenance.write" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">polaris.provenance.</span></span><span class="sig-name descname"><span class="pre">write</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">work_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tasks</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">machine</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">baseline_dir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">job_options</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">suite_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/polaris/provenance.html#write"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.provenance.write" title="Link to this definition"></a></dt>
 <dd><p>Write a file with provenance, such as the git version, conda packages,
 command, and tasks, to the work directory.</p>
 <p>This function overwrites any existing provenance file in the work
 directory rather than appending, so the provenance reflects the most
-recent call to Polaris that used this work directory.</p>
+recent call to Polaris that used this work directory.  With a suite
+name, it also writes a copy for that suite, which a later setup of
+another suite in the same work directory leaves alone.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -178,6 +181,8 @@ and the defaults for the machine and component</p></li>
 <li><p><strong>job_options</strong> (<em>{mache.parallel.slurm.SlurmOptions</em><em>, </em><em>mache.parallel.pbs.PbsOptions}</em><em>, </em><em>optional</em>) – The scheduler options that were written to the job script, as
 returned by <a class="reference internal" href="polaris.job.write_job_script.html#polaris.job.write_job_script" title="polaris.job.write_job_script"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.job.write_job_script()</span></code></a>.  If not
 provided, no scheduler metadata is recorded.</p></li>
+<li><p><strong>suite_name</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><em>str</em></a><em>, </em><em>optional</em>) – The name of the suite being set up, if a copy should be written for
+it</p></li>
 </ul>
 </dd>
 </dl>
@@ -190,7 +195,7 @@ provided, no scheduler metadata is recorded.</p></li>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="polaris.namelist.write.html" class="btn btn-neutral float-left" title="polaris.namelist.write" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="polaris.provenance.get_summary.html" class="btn btn-neutral float-right" title="polaris.provenance.get_summary" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="polaris.provenance.get_path.html" class="btn btn-neutral float-right" title="polaris.provenance.get_path" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

@@ -1,0 +1,6 @@
+﻿polaris.tasks.ocean.realistic\_global.forward.task.RealisticGlobalForward.configure
+===================================================================================
+
+.. currentmodule:: polaris.tasks.ocean.realistic_global.forward.task
+
+.. automethod:: RealisticGlobalForward.configure

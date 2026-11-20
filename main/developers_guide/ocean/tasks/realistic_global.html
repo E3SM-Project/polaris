@@ -198,6 +198,35 @@ which Polaris never reads on its own and a unit test keeps honest; see
 <p>The config options for these tasks are described in
 <a class="reference internal" href="../../../users_guide/ocean/tasks/realistic_global.html#ocean-realistic-global"><span class="std std-ref">realistic_global</span></a> in the User’s Guide.  The shared colormap
 options for the <code class="docutils literal notranslate"><span class="pre">viz</span></code> step live in <code class="docutils literal notranslate"><span class="pre">realistic_global.cfg</span></code>.</p>
+<section id="dev-ocean-realistic-global-model-directories">
+<span id="model-directories"></span><h3>model directories<a class="headerlink" href="#dev-ocean-realistic-global-model-directories" title="Link to this heading"></a></h3>
+<p>A step is model-dependent if its outputs, or those of a step it depends on, are
+written for one ocean model.  The <code class="docutils literal notranslate"><span class="pre">init</span></code> and <code class="docutils literal notranslate"><span class="pre">dynamic_adjustment</span></code> factories put
+their model-dependent steps under a directory named for the model, using
+<a class="reference internal" href="../generated/polaris.tasks.ocean.realistic_global.models.model_subdir.html#polaris.tasks.ocean.realistic_global.models.model_subdir" title="polaris.tasks.ocean.realistic_global.models.model_subdir"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.tasks.ocean.realistic_global.models.model_subdir()</span></code></a>, and give
+them a copy of the family’s config file there.  A setup for one model then
+rewrites only that model’s config files, which matters because a step reads its
+config file at run time, and every setup writes its own <code class="docutils literal notranslate"><span class="pre">[ocean]</span> <span class="pre">model</span></code> and
+build paths into the files it writes.  The model-neutral steps keep one
+directory and are the same instances in both models’ chains.</p>
+<p>The model is resolved when the ocean component is configured, after the tasks
+are built.  Each task that uses these steps is therefore built with
+<code class="docutils literal notranslate"><span class="pre">DEFAULT_MODEL</span></code>’s steps, and its <code class="docutils literal notranslate"><span class="pre">configure()</span></code> asks
+<a class="reference internal" href="../generated/polaris.tasks.ocean.realistic_global.models.get_configured_model.html#polaris.tasks.ocean.realistic_global.models.get_configured_model" title="polaris.tasks.ocean.realistic_global.models.get_configured_model"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_configured_model()</span></code></a>
+which model the setup is for.  If it is another,
+<a class="reference internal" href="../generated/polaris.tasks.ocean.realistic_global.models.replace_steps.html#polaris.tasks.ocean.realistic_global.models.replace_steps" title="polaris.tasks.ocean.realistic_global.models.replace_steps"><code class="xref py py-func docutils literal notranslate"><span class="pre">replace_steps()</span></code></a> removes
+the old model’s steps and adds the new model’s.  The forward and
+<code class="docutils literal notranslate"><span class="pre">analysis_output</span></code> tasks also point their forward step at the new <code class="docutils literal notranslate"><span class="pre">init</span></code> steps,
+through
+<a class="reference internal" href="../generated/polaris.tasks.ocean.realistic_global.forward.task.swap_init_model.html#polaris.tasks.ocean.realistic_global.forward.task.swap_init_model" title="polaris.tasks.ocean.realistic_global.forward.task.swap_init_model"><code class="xref py py-func docutils literal notranslate"><span class="pre">swap_init_model()</span></code></a>.
+Their own steps keep one directory, so only the <code class="docutils literal notranslate"><span class="pre">init</span></code> steps they consume
+change.</p>
+<p>A config file that first appears in <code class="docutils literal notranslate"><span class="pre">configure()</span></code> misses the options setup
+adds to task configs beforehand, including the user’s.  It gets them later,
+before it is written, but the <code class="docutils literal notranslate"><span class="pre">dynamic_adjustment</span></code> task reads the new model’s
+schedule from it during <code class="docutils literal notranslate"><span class="pre">configure()</span></code>.  The task therefore prepends its own
+config to the new model’s before building the new steps.</p>
+</section>
 </section>
 <section id="dev-ocean-realistic-global-forward">
 <span id="forward"></span><h2>forward<a class="headerlink" href="#dev-ocean-realistic-global-forward" title="Link to this heading"></a></h2>
@@ -545,7 +574,8 @@ without testing anything.</p>
 <section id="dev-ocean-realistic-global-dynamic-adjustment">
 <span id="dynamic-adjustment"></span><span id="dynamic_adjustment"></span><h2>dynamic_adjustment<a class="headerlink" href="#dev-ocean-realistic-global-dynamic-adjustment" title="Link to this heading"></a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">dynamic_adjustment</span></code> task family (steps under
-<code class="docutils literal notranslate"><span class="pre">spherical/realistic_global/{mesh_name}/dynamic_adjustment</span></code>) runs a
+<code class="docutils literal notranslate"><span class="pre">spherical/realistic_global/{mesh_name}/dynamic_adjustment/{model}</span></code>; see
+<a class="reference internal" href="#dev-ocean-realistic-global-model-directories"><span class="std std-ref">model directories</span></a>) runs a
 restart-chained sequence of forward stages from a mesh’s realistic initial
 condition.  One
 <a class="reference internal" href="../generated/polaris.tasks.ocean.realistic_global.dynamic_adjustment.task.RealisticGlobalDynamicAdjustment.html#polaris.tasks.ocean.realistic_global.dynamic_adjustment.task.RealisticGlobalDynamicAdjustment" title="polaris.tasks.ocean.realistic_global.dynamic_adjustment.task.RealisticGlobalDynamicAdjustment"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.realistic_global.dynamic_adjustment.task.RealisticGlobalDynamicAdjustment</span></code></a>
@@ -583,7 +613,10 @@ user’s setup-time config changed it — a stage whose name survived the change
 would otherwise be handed back from the shared-step cache still carrying its old
 run duration.  It discards the adjustment steps from the component and then
 simply asks for the whole chain again; the <code class="docutils literal notranslate"><span class="pre">init</span></code> steps upstream do not depend
-on the schedule, so they come back unchanged.</p>
+on the schedule, so they come back unchanged.  When the configured model is not
+the one the task was built for, <code class="docutils literal notranslate"><span class="pre">configure()</span></code> instead swaps every
+model-dependent step, the <code class="docutils literal notranslate"><span class="pre">init</span></code> chain’s included, and the task’s config, for
+that model’s.</p>
 </section>
 <section id="schedule-parsing">
 <h3>schedule parsing<a class="headerlink" href="#schedule-parsing" title="Link to this heading"></a></h3>
@@ -874,7 +907,9 @@ density are right.</p>
 <section id="dev-ocean-realistic-global-init">
 <span id="init"></span><h2>init<a class="headerlink" href="#dev-ocean-realistic-global-init" title="Link to this heading"></a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">init</span></code> task family (whose steps live under
-<code class="docutils literal notranslate"><span class="pre">spherical/realistic_global/{mesh_name}/init</span></code>) creates mesh-specific ocean
+<code class="docutils literal notranslate"><span class="pre">spherical/realistic_global/{mesh_name}/init</span></code>, and under <code class="docutils literal notranslate"><span class="pre">init/{model}</span></code> for
+<code class="docutils literal notranslate"><span class="pre">initial_state</span></code>, <code class="docutils literal notranslate"><span class="pre">forcing</span></code> and <code class="docutils literal notranslate"><span class="pre">viz</span></code>; see
+<a class="reference internal" href="#dev-ocean-realistic-global-model-directories"><span class="std std-ref">model directories</span></a>) creates mesh-specific ocean
 initial conditions using WOA23 hydrography and the culled mesh produced by
 <code class="docutils literal notranslate"><span class="pre">e3sm/init</span></code>.  One
 <a class="reference internal" href="../generated/polaris.tasks.ocean.realistic_global.init.task.RealisticGlobalInit.html#polaris.tasks.ocean.realistic_global.init.task.RealisticGlobalInit" title="polaris.tasks.ocean.realistic_global.init.task.RealisticGlobalInit"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.realistic_global.init.task.RealisticGlobalInit</span></code></a>

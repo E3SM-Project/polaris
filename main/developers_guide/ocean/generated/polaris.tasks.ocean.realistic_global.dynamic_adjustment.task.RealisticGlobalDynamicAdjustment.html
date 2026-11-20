@@ -151,14 +151,17 @@ realistic global ocean simulation on one MPAS mesh.</p>
 workflow that wants the adjusted restart gets the same instances rather
 than a second copy of the chain.  This task is the standalone way to run
 them, and the only consumer that also wants the <code class="docutils literal notranslate"><span class="pre">viz</span></code> figure.</p>
-<p>The stages are built once at construction from the built-in schedule (so
-<code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">list</span></code> shows a representative set) and rebuilt in <code class="docutils literal notranslate"><span class="pre">configure</span></code>
-if a user’s setup-time config changed the schedule.  The number of stages
-is therefore fixed at setup time, not run time.</p>
+<p>The stages are built at construction from the built-in schedule, for
+<code class="xref py py-data docutils literal notranslate"><span class="pre">DEFAULT_MODEL</span></code>, so
+<code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">list</span></code> shows a representative set.  <code class="docutils literal notranslate"><span class="pre">configure</span></code> rebuilds them
+if the configured model is another, or if a user’s setup-time config
+changed the schedule.  The number of stages is therefore fixed at setup
+time, not run time.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Variables<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>mesh_name</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><em>str</em></a>) – The name of the MPAS mesh.</p></li>
+<li><p><strong>model</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><em>str</em></a>) – The ocean model the task’s steps are for.</p></li>
 <li><p><strong>stages</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#list" title="(in Python v3.15)"><em>list</em></a><em> of </em><a class="reference internal" href="polaris.tasks.ocean.realistic_global.forward.stage.ForwardStage.html#polaris.tasks.ocean.realistic_global.forward.stage.ForwardStage" title="polaris.tasks.ocean.realistic_global.forward.stage.ForwardStage"><em>ForwardStage</em></a>) – The stages of the adjustment, in schedule order.</p></li>
 </ul>
 </dd>
@@ -187,7 +190,7 @@ is therefore fixed at setup time, not run time.</p>
 <td><p>Add a step to the task and component (if not already present)</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="polaris.tasks.ocean.realistic_global.dynamic_adjustment.task.RealisticGlobalDynamicAdjustment.configure.html#polaris.tasks.ocean.realistic_global.dynamic_adjustment.task.RealisticGlobalDynamicAdjustment.configure" title="polaris.tasks.ocean.realistic_global.dynamic_adjustment.task.RealisticGlobalDynamicAdjustment.configure"><code class="xref py py-obj docutils literal notranslate"><span class="pre">configure</span></code></a>()</p></td>
-<td><p>Rebuild the stages if a user's setup-time config changed the schedule.</p></td>
+<td><p>Rebuild the steps for the configured model, or for a changed schedule.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">remove_step</span></code>(step)</p></td>
 <td><p>Remove the given step from this task and the component</p></td>

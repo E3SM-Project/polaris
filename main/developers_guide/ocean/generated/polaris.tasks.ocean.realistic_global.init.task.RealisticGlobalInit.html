@@ -19,7 +19,7 @@
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
-    <link rel="next" title="polaris.tasks.ocean.realistic_global.init.steps.get_realistic_init_steps" href="polaris.tasks.ocean.realistic_global.init.steps.get_realistic_init_steps.html" />
+    <link rel="next" title="polaris.tasks.ocean.realistic_global.init.task.RealisticGlobalInit.configure" href="polaris.tasks.ocean.realistic_global.init.task.RealisticGlobalInit.configure.html" />
     <link rel="prev" title="polaris.tasks.ocean.realistic_global.init.tasks.add_realistic_global_init_tasks" href="polaris.tasks.ocean.realistic_global.init.tasks.add_realistic_global_init_tasks.html" />
     <link href="../../../_static/style.css" rel="stylesheet" type="text/css">
 
@@ -149,8 +149,18 @@ MPAS mesh for the configured target ocean model.</p>
 <p>The target model is determined by the <code class="docutils literal notranslate"><span class="pre">[ocean]</span> <span class="pre">model</span></code> config option
 (resolved from <code class="docutils literal notranslate"><span class="pre">'detect'</span></code> to <code class="docutils literal notranslate"><span class="pre">'omega'</span></code> or <code class="docutils literal notranslate"><span class="pre">'mpas-ocean'</span></code> during
 component setup).  All steps up to and including
-<a class="reference internal" href="polaris.tasks.ocean.realistic_global.init.pstar_init.RealisticPStarInitStep.html#polaris.tasks.ocean.realistic_global.init.pstar_init.RealisticPStarInitStep" title="polaris.tasks.ocean.realistic_global.init.pstar_init.RealisticPStarInitStep"><code class="xref py py-class docutils literal notranslate"><span class="pre">RealisticPStarInitStep</span></code></a> are model-independent; only
-<a class="reference internal" href="polaris.tasks.ocean.realistic_global.init.initial_state.InitialStateStep.html#polaris.tasks.ocean.realistic_global.init.initial_state.InitialStateStep" title="polaris.tasks.ocean.realistic_global.init.initial_state.InitialStateStep"><code class="xref py py-class docutils literal notranslate"><span class="pre">InitialStateStep</span></code></a> branches on the resolved model at run time.</p>
+<a class="reference internal" href="polaris.tasks.ocean.realistic_global.init.pstar_init.RealisticPStarInitStep.html#polaris.tasks.ocean.realistic_global.init.pstar_init.RealisticPStarInitStep" title="polaris.tasks.ocean.realistic_global.init.pstar_init.RealisticPStarInitStep"><code class="xref py py-class docutils literal notranslate"><span class="pre">RealisticPStarInitStep</span></code></a> are model-neutral.  The task is built
+with the model-dependent steps of
+<code class="xref py py-data docutils literal notranslate"><span class="pre">DEFAULT_MODEL</span></code>, and
+<code class="docutils literal notranslate"><span class="pre">configure()</span></code> swaps in the configured model’s.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Variables<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>mesh_name</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><em>str</em></a>) – The name of the MPAS mesh.</p></li>
+<li><p><strong>model</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><em>str</em></a>) – The ocean model the task’s model-dependent steps are for.</p></li>
+</ul>
+</dd>
+</dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="polaris.tasks.ocean.realistic_global.init.task.RealisticGlobalInit.__init__">
 <span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">component</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mesh_name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/polaris/tasks/ocean/realistic_global/init/task.html#RealisticGlobalInit.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.tasks.ocean.realistic_global.init.task.RealisticGlobalInit.__init__" title="Link to this definition"></a></dt>
@@ -174,8 +184,8 @@ component setup).  All steps up to and including
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_step</span></code>([step, subdir, symlink, run_by_default])</p></td>
 <td><p>Add a step to the task and component (if not already present)</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">configure</span></code>()</p></td>
-<td><p>Modify the configuration options for this task.</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="polaris.tasks.ocean.realistic_global.init.task.RealisticGlobalInit.configure.html#polaris.tasks.ocean.realistic_global.init.task.RealisticGlobalInit.configure" title="polaris.tasks.ocean.realistic_global.init.task.RealisticGlobalInit.configure"><code class="xref py py-obj docutils literal notranslate"><span class="pre">configure</span></code></a>()</p></td>
+<td><p>Swap in the configured ocean model's model-dependent steps.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">remove_step</span></code>(step)</p></td>
 <td><p>Remove the given step from this task and the component</p></td>
@@ -194,7 +204,7 @@ component setup).  All steps up to and including
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="polaris.tasks.ocean.realistic_global.init.tasks.add_realistic_global_init_tasks.html" class="btn btn-neutral float-left" title="polaris.tasks.ocean.realistic_global.init.tasks.add_realistic_global_init_tasks" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="polaris.tasks.ocean.realistic_global.init.steps.get_realistic_init_steps.html" class="btn btn-neutral float-right" title="polaris.tasks.ocean.realistic_global.init.steps.get_realistic_init_steps" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="polaris.tasks.ocean.realistic_global.init.task.RealisticGlobalInit.configure.html" class="btn btn-neutral float-right" title="polaris.tasks.ocean.realistic_global.init.task.RealisticGlobalInit.configure" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

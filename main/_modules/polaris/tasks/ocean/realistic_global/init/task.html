@@ -473,8 +473,13 @@ window.runMermaid = runMermaid;</script>
              
   <h1>Source code for polaris.tasks.ocean.realistic_global.init.task</h1><div class="highlight"><pre>
 <span></span><span class="kn">from</span><span class="w"> </span><span class="nn">polaris</span><span class="w"> </span><span class="kn">import</span> <span class="n">Task</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.tasks.ocean.realistic_global.models</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">DEFAULT_MODEL</span><span class="p">,</span>
+    <span class="n">get_configured_model</span><span class="p">,</span>
+    <span class="n">replace_steps</span><span class="p">,</span>
+<span class="p">)</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">.steps</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_realistic_init_steps</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.steps</span><span class="w"> </span><span class="kn">import</span> <span class="n">CONFIG_FILENAME</span><span class="p">,</span> <span class="n">get_realistic_init_steps</span><span class="p">,</span> <span class="n">init_subdir</span>
 
 
 <div class="viewcode-block" id="RealisticGlobalInit">
@@ -487,8 +492,18 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">    The target model is determined by the ``[ocean] model`` config option</span>
 <span class="sd">    (resolved from ``'detect'`` to ``'omega'`` or ``'mpas-ocean'`` during</span>
 <span class="sd">    component setup).  All steps up to and including</span>
-<span class="sd">    :py:class:`.RealisticPStarInitStep` are model-independent; only</span>
-<span class="sd">    :py:class:`.InitialStateStep` branches on the resolved model at run time.</span>
+<span class="sd">    :py:class:`.RealisticPStarInitStep` are model-neutral.  The task is built</span>
+<span class="sd">    with the model-dependent steps of</span>
+<span class="sd">    :py:data:`~polaris.tasks.ocean.realistic_global.models.DEFAULT_MODEL`, and</span>
+<span class="sd">    ``configure()`` swaps in the configured model's.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    mesh_name : str</span>
+<span class="sd">        The name of the MPAS mesh.</span>
+
+<span class="sd">    model : str</span>
+<span class="sd">        The ocean model the task's model-dependent steps are for.</span>
 <span class="sd">    """</span>
 
 <div class="viewcode-block" id="RealisticGlobalInit.__init__">
@@ -505,20 +520,47 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">        mesh_name : str</span>
 <span class="sd">            The name of the MPAS mesh (e.g. ``'icos240km'``).</span>
 <span class="sd">        """</span>
-        <span class="n">subdir</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'spherical/realistic_global/</span><span class="si">{</span><span class="n">mesh_name</span><span class="si">}</span><span class="s1">/init'</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
             <span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span>
             <span class="n">name</span><span class="o">=</span><span class="s1">'realistic_global_init'</span><span class="p">,</span>
-            <span class="n">subdir</span><span class="o">=</span><span class="n">subdir</span><span class="p">,</span>
+            <span class="n">subdir</span><span class="o">=</span><span class="n">init_subdir</span><span class="p">(</span><span class="n">mesh_name</span><span class="p">),</span>
         <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mesh_name</span> <span class="o">=</span> <span class="n">mesh_name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">DEFAULT_MODEL</span>
 
         <span class="n">steps</span><span class="p">,</span> <span class="n">config</span> <span class="o">=</span> <span class="n">get_realistic_init_steps</span><span class="p">(</span>
-            <span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">mesh_name</span><span class="o">=</span><span class="n">mesh_name</span><span class="p">,</span> <span class="n">include_viz</span><span class="o">=</span><span class="kc">True</span>
+            <span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span>
+            <span class="n">mesh_name</span><span class="o">=</span><span class="n">mesh_name</span><span class="p">,</span>
+            <span class="n">include_viz</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">model</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">,</span>
         <span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">set_shared_config</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">link</span><span class="o">=</span><span class="s1">'init.cfg'</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_shared_config</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">link</span><span class="o">=</span><span class="n">CONFIG_FILENAME</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_init_steps</span> <span class="o">=</span> <span class="n">steps</span>
 
         <span class="k">for</span> <span class="n">symlink</span><span class="p">,</span> <span class="n">step</span> <span class="ow">in</span> <span class="n">steps</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span><span class="n">step</span><span class="p">,</span> <span class="n">symlink</span><span class="o">=</span><span class="n">symlink</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="RealisticGlobalInit.configure">
+<a class="viewcode-back" href="../../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.realistic_global.init.task.RealisticGlobalInit.configure.html#polaris.tasks.ocean.realistic_global.init.task.RealisticGlobalInit.configure">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">configure</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Swap in the configured ocean model's model-dependent steps.</span>
+<span class="sd">        """</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">configure</span><span class="p">()</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">get_configured_model</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">model</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">:</span>
+            <span class="k">return</span>
+
+        <span class="n">steps</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">get_realistic_init_steps</span><span class="p">(</span>
+            <span class="n">component</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">component</span><span class="p">,</span>
+            <span class="n">mesh_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">mesh_name</span><span class="p">,</span>
+            <span class="n">include_viz</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">replace_steps</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_init_steps</span><span class="p">,</span> <span class="n">steps</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_init_steps</span> <span class="o">=</span> <span class="n">steps</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">model</span></div>
 </div>
 
 </pre></div>

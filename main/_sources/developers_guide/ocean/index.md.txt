@@ -32,8 +32,8 @@ MPAS-Ocean tasks also have these config options:
 [paths]
 
 # the relative or absolute path to the root of a branch where MPAS-Ocean
-# or Omega has been built
-component_path = ${paths:base_work_dir}/ocean_build
+# has been built
+component_path = ${paths:base_work_dir}/mpas_ocean_build
 
 # The namelists section defines paths to example_compact namelists that will
 # be used to generate specific namelists. By default, these point to the
@@ -62,10 +62,11 @@ init    = ${paths:component_path}/default_inputs/streams.ocean.init
 component = ${paths:component_path}/ocean_model
 ```
 
-By default, Polaris builds MPAS-Ocean or Omega into the `build` subdirectory of
-the base work directory (`${paths:base_work_dir}/ocean_build`, typically supplied
-on the command line with `-w`), and this is the value used for
-`${paths:component_path}` in the default ocean configuration.  If you
+By default, Polaris builds MPAS-Ocean into the `mpas_ocean_build` subdirectory
+of the base work directory (`${paths:base_work_dir}/mpas_ocean_build`, typically
+supplied on the command line with `-w`), and Omega into `omega_build`.  This is
+the value used for `${paths:component_path}` in each model's default
+configuration.  If you
 prefer to store builds elsewhere, supply a different value with `-p` on the
 `polaris` command line or supply a user config file with `--config_file` in
 which you update `${paths:component_path}`.  Unless you have build the model at

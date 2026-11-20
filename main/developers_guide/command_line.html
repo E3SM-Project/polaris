@@ -243,8 +243,9 @@ the <code class="docutils literal notranslate"><span class="pre">-p</span></code
 The default for the <code class="docutils literal notranslate"><span class="pre">landice</span></code> component is
 <code class="docutils literal notranslate"><span class="pre">e3sm_submodules/MALI-Dev/components/mpas-albany-landice</span></code>.
 For the <code class="docutils literal notranslate"><span class="pre">ocean</span></code> component, the default value of <code class="docutils literal notranslate"><span class="pre">component_path</span></code> comes from the
-ocean configuration file; by default, both MPAS-Ocean and Omega use the
-<code class="docutils literal notranslate"><span class="pre">ocean_build</span></code> subdirectory of the base work directory supplied with <code class="docutils literal notranslate"><span class="pre">-w</span></code>.  If
+ocean configuration file; by default, MPAS-Ocean uses the <code class="docutils literal notranslate"><span class="pre">mpas_ocean_build</span></code>
+subdirectory and Omega the <code class="docutils literal notranslate"><span class="pre">omega_build</span></code> subdirectory of the base work
+directory supplied with <code class="docutils literal notranslate"><span class="pre">-w</span></code>.  If
 you use MPAS-Ocean or Omega in a different location, supply that directory
 explicitly with <code class="docutils literal notranslate"><span class="pre">-p</span></code> or via a config file.</p>
 <p><code class="docutils literal notranslate"><span class="pre">-p</span></code>, <code class="docutils literal notranslate"><span class="pre">--model</span></code> and <code class="docutils literal notranslate"><span class="pre">--branch</span></code> apply to the component that owns the tasks you
@@ -342,9 +343,9 @@ Ocean adds <code class="docutils literal notranslate"><span class="pre">DEBUG=tr
 <p>Defaults and paths:</p>
 <ul class="simple">
 <li><p>Build output directory (<code class="docutils literal notranslate"><span class="pre">-p</span></code>/<code class="docutils literal notranslate"><span class="pre">--component_path</span></code>) defaults to the
-<code class="docutils literal notranslate"><span class="pre">ocean_build</span></code> subdirectory of the base work directory you pass with <code class="docutils literal notranslate"><span class="pre">-w</span></code> for
-both MPAS-Ocean and Omega.  It is named after the component so that two
-components in the same work directory do not build over one another.</p></li>
+<code class="docutils literal notranslate"><span class="pre">mpas_ocean_build</span></code> or <code class="docutils literal notranslate"><span class="pre">omega_build</span></code> subdirectory of the base work directory
+you pass with <code class="docutils literal notranslate"><span class="pre">-w</span></code>.  It is named after the model so that two models in the
+same work directory do not build over one another.</p></li>
 <li><p>Generated build scripts are saved to:</p>
 <ul>
 <li><p>Omega: <code class="docutils literal notranslate"><span class="pre">./build_omega/build_omega_&lt;machine&gt;_&lt;compiler&gt;.sh</span></code></p></li>

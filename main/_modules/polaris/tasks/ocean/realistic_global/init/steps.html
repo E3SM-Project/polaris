@@ -486,6 +486,10 @@ window.runMermaid = runMermaid;</script>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.tasks.ocean.realistic_global.mesh_configs</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">add_realistic_global_mesh_config</span><span class="p">,</span>
 <span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.tasks.ocean.realistic_global.models</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">DEFAULT_MODEL</span><span class="p">,</span>
+    <span class="n">model_subdir</span><span class="p">,</span>
+<span class="p">)</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">.cull_topo</span><span class="w"> </span><span class="kn">import</span> <span class="n">CullTopoStep</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.forcing</span><span class="w"> </span><span class="kn">import</span> <span class="n">ForcingStep</span>
@@ -497,10 +501,14 @@ window.runMermaid = runMermaid;</script>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.viz</span><span class="w"> </span><span class="kn">import</span> <span class="n">VizInitStep</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.woa23_map</span><span class="w"> </span><span class="kn">import</span> <span class="n">Woa23MapStep</span>
 
+<span class="n">CONFIG_FILENAME</span> <span class="o">=</span> <span class="s1">'init.cfg'</span>
+
 
 <div class="viewcode-block" id="get_realistic_init_steps">
 <a class="viewcode-back" href="../../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.realistic_global.init.steps.get_realistic_init_steps.html#polaris.tasks.ocean.realistic_global.init.steps.get_realistic_init_steps">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">get_realistic_init_steps</span><span class="p">(</span><span class="n">component</span><span class="p">,</span> <span class="n">mesh_name</span><span class="p">,</span> <span class="n">include_viz</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_realistic_init_steps</span><span class="p">(</span>
+    <span class="n">component</span><span class="p">,</span> <span class="n">mesh_name</span><span class="p">,</span> <span class="n">include_viz</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="n">DEFAULT_MODEL</span>
+<span class="p">):</span>
 <span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Get shared steps for the realistic global ocean initialization workflow</span>
 <span class="sd">    for one MPAS mesh.</span>
@@ -523,9 +531,12 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">    * :py:class:`.ForcingStep`</span>
 <span class="sd">    * :py:class:`.VizInitStep`, only if ``include_viz`` is ``True``</span>
 
-<span class="sd">    All steps are model-independent except :py:class:`.InitialStateStep` and</span>
-<span class="sd">    :py:class:`.ForcingStep`, which read ``[ocean] model`` from config at run</span>
-<span class="sd">    time to select the appropriate output format.</span>
+<span class="sd">    :py:class:`.InitialStateStep`, :py:class:`.ForcingStep` and</span>
+<span class="sd">    :py:class:`.VizInitStep` write or read files in one model's format, so</span>
+<span class="sd">    they are model-dependent: they live under ``init/&lt;model&gt;/`` with a copy of</span>
+<span class="sd">    ``init.cfg`` of their own, and their ``[ocean] model`` must be ``model``.</span>
+<span class="sd">    The other steps are model-neutral and are shared by both models' chains.</span>
+<span class="sd">    See :py:mod:`polaris.tasks.ocean.realistic_global.models`.</span>
 
 <span class="sd">    All new steps are created via</span>
 <span class="sd">    :py:meth:`polaris.Component.get_or_create_shared_step` so that they are</span>
@@ -548,13 +559,16 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">        ``include_viz=True``; other consumers that reuse the init outputs as</span>
 <span class="sd">        dependencies leave it ``False`` so the plots are not regenerated.</span>
 
+<span class="sd">    model : str, optional</span>
+<span class="sd">        The ocean model to build the model-dependent steps for.</span>
+
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    steps : dict of {str: polaris.Step}</span>
 <span class="sd">        All steps keyed by their suggested symlink names.</span>
 
 <span class="sd">    config : polaris.config.PolarisConfigParser</span>
-<span class="sd">        Per-mesh shared config for the init steps.</span>
+<span class="sd">        Per-mesh shared config for the model-neutral init steps.</span>
 <span class="sd">    """</span>
     <span class="n">cull_steps</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">get_cull_topo_steps</span><span class="p">(</span><span class="n">mesh_name</span><span class="o">=</span><span class="n">mesh_name</span><span class="p">,</span> <span class="n">include_viz</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
     <span class="n">cull_mesh_step</span> <span class="o">=</span> <span class="n">cull_steps</span><span class="p">[</span><span class="s1">'cull_mesh'</span><span class="p">]</span>
@@ -566,10 +580,14 @@ window.runMermaid = runMermaid;</script>
     <span class="n">jra55_steps</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">get_jra55_steps</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">)</span>
     <span class="n">stress_step</span> <span class="o">=</span> <span class="n">jra55_steps</span><span class="p">[</span><span class="s1">'jra55_stress'</span><span class="p">]</span>
 
-    <span class="n">base_subdir</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'spherical/realistic_global/</span><span class="si">{</span><span class="n">mesh_name</span><span class="si">}</span><span class="s1">/init'</span>
-    <span class="n">config_filename</span> <span class="o">=</span> <span class="s1">'init.cfg'</span>
+    <span class="n">base_subdir</span> <span class="o">=</span> <span class="n">init_subdir</span><span class="p">(</span><span class="n">mesh_name</span><span class="p">)</span>
+    <span class="n">config_filename</span> <span class="o">=</span> <span class="n">CONFIG_FILENAME</span>
     <span class="n">config</span> <span class="o">=</span> <span class="n">_get_init_config</span><span class="p">(</span>
         <span class="n">component</span><span class="p">,</span> <span class="n">base_subdir</span><span class="p">,</span> <span class="n">config_filename</span><span class="p">,</span> <span class="n">mesh_name</span>
+    <span class="p">)</span>
+    <span class="n">model_dir</span> <span class="o">=</span> <span class="n">model_subdir</span><span class="p">(</span><span class="n">base_subdir</span><span class="p">,</span> <span class="n">model</span><span class="p">)</span>
+    <span class="n">model_config</span> <span class="o">=</span> <span class="n">_get_init_config</span><span class="p">(</span>
+        <span class="n">component</span><span class="p">,</span> <span class="n">model_dir</span><span class="p">,</span> <span class="n">config_filename</span><span class="p">,</span> <span class="n">mesh_name</span>
     <span class="p">)</span>
 
     <span class="n">cull_topo_step</span> <span class="o">=</span> <span class="n">component</span><span class="o">.</span><span class="n">get_or_create_shared_step</span><span class="p">(</span>
@@ -632,8 +650,8 @@ window.runMermaid = runMermaid;</script>
 
     <span class="n">init_step</span> <span class="o">=</span> <span class="n">component</span><span class="o">.</span><span class="n">get_or_create_shared_step</span><span class="p">(</span>
         <span class="n">step_cls</span><span class="o">=</span><span class="n">InitialStateStep</span><span class="p">,</span>
-        <span class="n">subdir</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">base_subdir</span><span class="p">,</span> <span class="s1">'initial_state'</span><span class="p">),</span>
-        <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
+        <span class="n">subdir</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">model_dir</span><span class="p">,</span> <span class="s1">'initial_state'</span><span class="p">),</span>
+        <span class="n">config</span><span class="o">=</span><span class="n">model_config</span><span class="p">,</span>
         <span class="n">config_filename</span><span class="o">=</span><span class="n">config_filename</span><span class="p">,</span>
         <span class="n">pstar_init_step</span><span class="o">=</span><span class="n">pstar_init_step</span><span class="p">,</span>
         <span class="n">cull_mesh_step</span><span class="o">=</span><span class="n">cull_mesh_step</span><span class="p">,</span>
@@ -641,16 +659,16 @@ window.runMermaid = runMermaid;</script>
 
     <span class="n">forcing_step</span> <span class="o">=</span> <span class="n">component</span><span class="o">.</span><span class="n">get_or_create_shared_step</span><span class="p">(</span>
         <span class="n">step_cls</span><span class="o">=</span><span class="n">ForcingStep</span><span class="p">,</span>
-        <span class="n">subdir</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">base_subdir</span><span class="p">,</span> <span class="s1">'forcing'</span><span class="p">),</span>
-        <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
+        <span class="n">subdir</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">model_dir</span><span class="p">,</span> <span class="s1">'forcing'</span><span class="p">),</span>
+        <span class="n">config</span><span class="o">=</span><span class="n">model_config</span><span class="p">,</span>
         <span class="n">config_filename</span><span class="o">=</span><span class="n">config_filename</span><span class="p">,</span>
         <span class="n">remap_jra55_step</span><span class="o">=</span><span class="n">remap_jra55_step</span><span class="p">,</span>
     <span class="p">)</span>
 
     <span class="n">viz_step</span> <span class="o">=</span> <span class="n">component</span><span class="o">.</span><span class="n">get_or_create_shared_step</span><span class="p">(</span>
         <span class="n">step_cls</span><span class="o">=</span><span class="n">VizInitStep</span><span class="p">,</span>
-        <span class="n">subdir</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">base_subdir</span><span class="p">,</span> <span class="s1">'viz'</span><span class="p">),</span>
-        <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
+        <span class="n">subdir</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">model_dir</span><span class="p">,</span> <span class="s1">'viz'</span><span class="p">),</span>
+        <span class="n">config</span><span class="o">=</span><span class="n">model_config</span><span class="p">,</span>
         <span class="n">config_filename</span><span class="o">=</span><span class="n">config_filename</span><span class="p">,</span>
         <span class="n">init_step</span><span class="o">=</span><span class="n">init_step</span><span class="p">,</span>
         <span class="n">cull_mesh_step</span><span class="o">=</span><span class="n">cull_mesh_step</span><span class="p">,</span>
@@ -671,6 +689,26 @@ window.runMermaid = runMermaid;</script>
     <span class="k">if</span> <span class="n">include_viz</span><span class="p">:</span>
         <span class="n">steps</span><span class="p">[</span><span class="n">viz_step</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">viz_step</span>
     <span class="k">return</span> <span class="n">steps</span><span class="p">,</span> <span class="n">config</span></div>
+
+
+
+<div class="viewcode-block" id="init_subdir">
+<a class="viewcode-back" href="../../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.realistic_global.init.steps.init_subdir.html#polaris.tasks.ocean.realistic_global.init.steps.init_subdir">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">init_subdir</span><span class="p">(</span><span class="n">mesh_name</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    The work directory the init steps for a mesh live under.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    mesh_name : str</span>
+<span class="sd">        The name of the MPAS mesh.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    str</span>
+<span class="sd">        The subdirectory, relative to the component.</span>
+<span class="sd">    """</span>
+    <span class="k">return</span> <span class="sa">f</span><span class="s1">'spherical/realistic_global/</span><span class="si">{</span><span class="n">mesh_name</span><span class="si">}</span><span class="s1">/init'</span></div>
 
 
 

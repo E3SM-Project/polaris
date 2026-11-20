@@ -473,11 +473,18 @@ window.runMermaid = runMermaid;</script>
              
   <h1>Source code for polaris.tasks.ocean.realistic_global.dynamic_adjustment.task</h1><div class="highlight"><pre>
 <span></span><span class="kn">from</span><span class="w"> </span><span class="nn">polaris</span><span class="w"> </span><span class="kn">import</span> <span class="n">Task</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.tasks.ocean.realistic_global.models</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">DEFAULT_MODEL</span><span class="p">,</span>
+    <span class="n">get_configured_model</span><span class="p">,</span>
+    <span class="n">model_subdir</span><span class="p">,</span>
+    <span class="n">replace_steps</span><span class="p">,</span>
+<span class="p">)</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">.schedule</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_schedule_stages</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.steps</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">CONFIG_FILENAME</span><span class="p">,</span>
     <span class="n">adjustment_subdir</span><span class="p">,</span>
+    <span class="n">get_dynamic_adjustment_config</span><span class="p">,</span>
     <span class="n">get_realistic_dynamic_adjustment_steps</span><span class="p">,</span>
 <span class="p">)</span>
 
@@ -495,15 +502,20 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">    than a second copy of the chain.  This task is the standalone way to run</span>
 <span class="sd">    them, and the only consumer that also wants the ``viz`` figure.</span>
 
-<span class="sd">    The stages are built once at construction from the built-in schedule (so</span>
-<span class="sd">    ``polaris list`` shows a representative set) and rebuilt in ``configure``</span>
-<span class="sd">    if a user's setup-time config changed the schedule.  The number of stages</span>
-<span class="sd">    is therefore fixed at setup time, not run time.</span>
+<span class="sd">    The stages are built at construction from the built-in schedule, for</span>
+<span class="sd">    :py:data:`~polaris.tasks.ocean.realistic_global.models.DEFAULT_MODEL`, so</span>
+<span class="sd">    ``polaris list`` shows a representative set.  ``configure`` rebuilds them</span>
+<span class="sd">    if the configured model is another, or if a user's setup-time config</span>
+<span class="sd">    changed the schedule.  The number of stages is therefore fixed at setup</span>
+<span class="sd">    time, not run time.</span>
 
 <span class="sd">    Attributes</span>
 <span class="sd">    ----------</span>
 <span class="sd">    mesh_name : str</span>
 <span class="sd">        The name of the MPAS mesh.</span>
+
+<span class="sd">    model : str</span>
+<span class="sd">        The ocean model the task's steps are for.</span>
 
 <span class="sd">    stages : list of ForwardStage</span>
 <span class="sd">        The stages of the adjustment, in schedule order.</span>
@@ -523,19 +535,23 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">        mesh_name : str</span>
 <span class="sd">            The name of the MPAS mesh (e.g. ``'icos240km'``).</span>
 <span class="sd">        """</span>
-        <span class="n">base</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'spherical/realistic_global/</span><span class="si">{</span><span class="n">mesh_name</span><span class="si">}</span><span class="s1">/dynamic_adjustment'</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
             <span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span>
             <span class="n">name</span><span class="o">=</span><span class="s1">'realistic_global_dynamic_adjustment'</span><span class="p">,</span>
-            <span class="n">subdir</span><span class="o">=</span><span class="n">base</span><span class="p">,</span>
+            <span class="n">subdir</span><span class="o">=</span><span class="n">adjustment_subdir</span><span class="p">(</span><span class="n">mesh_name</span><span class="p">),</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">mesh_name</span> <span class="o">=</span> <span class="n">mesh_name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">DEFAULT_MODEL</span>
 
         <span class="n">steps</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">stages</span> <span class="o">=</span> <span class="n">get_realistic_dynamic_adjustment_steps</span><span class="p">(</span>
-            <span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span> <span class="n">mesh_name</span><span class="o">=</span><span class="n">mesh_name</span><span class="p">,</span> <span class="n">include_viz</span><span class="o">=</span><span class="kc">True</span>
+            <span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span>
+            <span class="n">mesh_name</span><span class="o">=</span><span class="n">mesh_name</span><span class="p">,</span>
+            <span class="n">include_viz</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">model</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">set_shared_config</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">link</span><span class="o">=</span><span class="n">CONFIG_FILENAME</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">stages</span> <span class="o">=</span> <span class="n">stages</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_adjustment_steps</span> <span class="o">=</span> <span class="n">steps</span>
         <span class="k">for</span> <span class="n">symlink</span><span class="p">,</span> <span class="n">step</span> <span class="ow">in</span> <span class="n">steps</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span><span class="n">step</span><span class="p">,</span> <span class="n">symlink</span><span class="o">=</span><span class="n">symlink</span><span class="p">)</span></div>
 
@@ -544,40 +560,52 @@ window.runMermaid = runMermaid;</script>
 <a class="viewcode-back" href="../../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.realistic_global.dynamic_adjustment.task.RealisticGlobalDynamicAdjustment.configure.html#polaris.tasks.ocean.realistic_global.dynamic_adjustment.task.RealisticGlobalDynamicAdjustment.configure">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">configure</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">"""</span>
-<span class="sd">        Rebuild the stages if a user's setup-time config changed the schedule.</span>
+<span class="sd">        Rebuild the steps for the configured model, or for a changed schedule.</span>
 
-<span class="sd">        Nothing is rebuilt when the schedule is unchanged, which is the usual</span>
-<span class="sd">        case and the only one a downstream consumer of these shared steps sees.</span>
-<span class="sd">        A schedule that *has* changed cannot simply be re-requested: the shared</span>
-<span class="sd">        steps are keyed by work directory, so a stage whose name survived the</span>
-<span class="sd">        change would come back carrying its old run duration and time step.</span>
-<span class="sd">        The old ones are therefore dropped first, which</span>
-<span class="sd">        :py:meth:`polaris.Task.remove_step` carries through to the component</span>
-<span class="sd">        once no task is left using them.</span>
+<span class="sd">        Nothing is rebuilt when neither has changed, which is the usual case</span>
+<span class="sd">        for MPAS-Ocean.</span>
 
-<span class="sd">        Only the steps under this mesh's ``dynamic_adjustment`` directory are</span>
-<span class="sd">        dropped and added back.  Doing this to the whole task would evict the</span>
-<span class="sd">        ``init`` chain from the component too, and a consumer holding those</span>
-<span class="sd">        step instances would be left with stale ones.</span>
+<span class="sd">        For another model, the task swaps every model-dependent step,</span>
+<span class="sd">        including the init chain's, for that model's.  Its config is new and</span>
+<span class="sd">        has none of the options setup gave this task's config before</span>
+<span class="sd">        ``configure()``, such as the user's, and the schedule is read from it</span>
+<span class="sd">        here.  So it starts from this task's config, beneath its own options.</span>
+
+<span class="sd">        A schedule that has changed for the same model cannot simply be</span>
+<span class="sd">        re-requested: the shared steps are keyed by work directory, so a stage</span>
+<span class="sd">        whose name survived the change would come back carrying its old run</span>
+<span class="sd">        duration and time step.  The model's adjustment steps are therefore</span>
+<span class="sd">        dropped first, which :py:meth:`polaris.Task.remove_step` carries</span>
+<span class="sd">        through to the component once no task is left using them.  The init</span>
+<span class="sd">        chain stays: it does not depend on the schedule, and a consumer</span>
+<span class="sd">        holding those step instances would be left with stale ones.</span>
 <span class="sd">        """</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">configure</span><span class="p">()</span>
-        <span class="n">stages</span> <span class="o">=</span> <span class="n">load_schedule_stages</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mesh_name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">stages</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">stages</span><span class="p">:</span>
-            <span class="k">return</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">get_configured_model</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">model</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">:</span>
+            <span class="n">stages</span> <span class="o">=</span> <span class="n">load_schedule_stages</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mesh_name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">stages</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">stages</span><span class="p">:</span>
+                <span class="k">return</span>
+            <span class="n">base</span> <span class="o">=</span> <span class="n">model_subdir</span><span class="p">(</span><span class="n">adjustment_subdir</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mesh_name</span><span class="p">),</span> <span class="n">model</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">step</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">steps</span><span class="o">.</span><span class="n">values</span><span class="p">()):</span>
+                <span class="k">if</span> <span class="n">step</span><span class="o">.</span><span class="n">subdir</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">base</span><span class="si">}</span><span class="s1">/'</span><span class="p">):</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">remove_step</span><span class="p">(</span><span class="n">step</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">config</span> <span class="o">=</span> <span class="n">get_dynamic_adjustment_config</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">component</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">mesh_name</span><span class="p">,</span> <span class="n">model</span>
+            <span class="p">)</span>
+            <span class="n">config</span><span class="o">.</span><span class="n">prepend</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">)</span>
 
-        <span class="n">base</span> <span class="o">=</span> <span class="n">adjustment_subdir</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mesh_name</span><span class="p">)</span>
-        <span class="k">for</span> <span class="n">step</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">steps</span><span class="o">.</span><span class="n">values</span><span class="p">()):</span>
-            <span class="k">if</span> <span class="n">step</span><span class="o">.</span><span class="n">subdir</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">base</span><span class="si">}</span><span class="s1">/'</span><span class="p">):</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">remove_step</span><span class="p">(</span><span class="n">step</span><span class="p">)</span>
-
-        <span class="n">steps</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">stages</span> <span class="o">=</span> <span class="n">get_realistic_dynamic_adjustment_steps</span><span class="p">(</span>
+        <span class="n">steps</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">stages</span> <span class="o">=</span> <span class="n">get_realistic_dynamic_adjustment_steps</span><span class="p">(</span>
             <span class="n">component</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">component</span><span class="p">,</span>
             <span class="n">mesh_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">mesh_name</span><span class="p">,</span>
             <span class="n">include_viz</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span>
         <span class="p">)</span>
-        <span class="k">for</span> <span class="n">symlink</span><span class="p">,</span> <span class="n">step</span> <span class="ow">in</span> <span class="n">steps</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-            <span class="k">if</span> <span class="n">step</span><span class="o">.</span><span class="n">subdir</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">base</span><span class="si">}</span><span class="s1">/'</span><span class="p">):</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span><span class="n">step</span><span class="p">,</span> <span class="n">symlink</span><span class="o">=</span><span class="n">symlink</span><span class="p">)</span></div>
+        <span class="n">replace_steps</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_adjustment_steps</span><span class="p">,</span> <span class="n">steps</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_adjustment_steps</span> <span class="o">=</span> <span class="n">steps</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_shared_config</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">link</span><span class="o">=</span><span class="n">CONFIG_FILENAME</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">model</span></div>
 </div>
 
 </pre></div>

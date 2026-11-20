@@ -302,31 +302,34 @@ history up to that time.</p></li>
 <tr class="row-even"><td><p><a class="reference internal" href="polaris.tasks.ocean.realistic_global.restart.restart_step.RestartStep.runtime_setup.html#polaris.tasks.ocean.realistic_global.restart.restart_step.RestartStep.runtime_setup" title="polaris.tasks.ocean.realistic_global.restart.restart_step.RestartStep.runtime_setup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">runtime_setup</span></code></a>()</p></td>
 <td><p>Make this step's restart directory, and seed the restart run's history file with the full run's history up to the restart</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_model_resources</span></code>([ntasks, min_tasks, ...])</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_init_condition</span></code>(init_condition)</p></td>
+<td><p>Read the model's input files from another source.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_model_resources</span></code>([ntasks, min_tasks, ...])</p></td>
 <td><p>Update the resources for the step.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_resources</span></code>([cpus_per_task, ...])</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_resources</span></code>([cpus_per_task, ...])</p></td>
 <td><p>Update the resources for the subtask.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_shared_config</span></code>(config[, link])</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_shared_config</span></code>(config[, link])</p></td>
 <td><p>Replace the step's config parser with the shared config parser</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="polaris.tasks.ocean.realistic_global.restart.restart_step.RestartStep.setup.html#polaris.tasks.ocean.realistic_global.restart.restart_step.RestartStep.setup" title="polaris.tasks.ocean.realistic_global.restart.restart_step.RestartStep.setup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setup</span></code></a>()</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="polaris.tasks.ocean.realistic_global.restart.restart_step.RestartStep.setup.html#polaris.tasks.ocean.realistic_global.restart.restart_step.RestartStep.setup" title="polaris.tasks.ocean.realistic_global.restart.restart_step.RestartStep.setup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setup</span></code></a>()</p></td>
 <td><p>Reject any model but Omega, declare the restart, then set up the forward run</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">update_io_tasks_config</span></code>([config_model])</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">update_io_tasks_config</span></code>([config_model])</p></td>
 <td><p>Modify model config options so the number of IO tasks and the stride between them are consistent with how MPI tasks are distributed across nodes (one IO task per node).</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">update_namelist_eos</span></code>()</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">update_namelist_eos</span></code>()</p></td>
 <td><p>Modify the namelist to make it consistent with eos config options</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">update_namelist_pio</span></code>([config_model])</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">update_namelist_pio</span></code>([config_model])</p></td>
 <td><p>Deprecated alias for <code class="xref py py-meth docutils literal notranslate"><span class="pre">update_io_tasks_config()</span></code>.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">validate_baselines</span></code>()</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">validate_baselines</span></code>()</p></td>
 <td><p>Compare variables between output files in this step and in the same step from a baseline run if one was provided.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">work_path</span></code>(*filenames)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">work_path</span></code>(*filenames)</p></td>
 <td><p>Get the absolute path to a file or directory in the step's work directory</p></td>
 </tr>
 </tbody>

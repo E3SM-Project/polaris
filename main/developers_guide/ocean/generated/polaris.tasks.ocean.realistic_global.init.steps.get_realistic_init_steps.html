@@ -19,8 +19,8 @@
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
-    <link rel="next" title="polaris.tasks.ocean.realistic_global.init.cull_topo.CullTopoStep" href="polaris.tasks.ocean.realistic_global.init.cull_topo.CullTopoStep.html" />
-    <link rel="prev" title="polaris.tasks.ocean.realistic_global.init.task.RealisticGlobalInit" href="polaris.tasks.ocean.realistic_global.init.task.RealisticGlobalInit.html" />
+    <link rel="next" title="polaris.tasks.ocean.realistic_global.init.steps.init_subdir" href="polaris.tasks.ocean.realistic_global.init.steps.init_subdir.html" />
+    <link rel="prev" title="polaris.tasks.ocean.realistic_global.init.task.RealisticGlobalInit.configure" href="polaris.tasks.ocean.realistic_global.init.task.RealisticGlobalInit.configure.html" />
     <link href="../../../_static/style.css" rel="stylesheet" type="text/css">
 
 </head>
@@ -143,7 +143,7 @@
 <h1>polaris.tasks.ocean.realistic_global.init.steps.get_realistic_init_steps<a class="headerlink" href="#polaris-tasks-ocean-realistic-global-init-steps-get-realistic-init-steps" title="Link to this heading"></a></h1>
 <dl class="py function">
 <dt class="sig sig-object py" id="polaris.tasks.ocean.realistic_global.init.steps.get_realistic_init_steps">
-<span class="sig-prename descclassname"><span class="pre">polaris.tasks.ocean.realistic_global.init.steps.</span></span><span class="sig-name descname"><span class="pre">get_realistic_init_steps</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">component</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mesh_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_viz</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/polaris/tasks/ocean/realistic_global/init/steps.html#get_realistic_init_steps"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.tasks.ocean.realistic_global.init.steps.get_realistic_init_steps" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">polaris.tasks.ocean.realistic_global.init.steps.</span></span><span class="sig-name descname"><span class="pre">get_realistic_init_steps</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">component</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mesh_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_viz</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'mpas-ocean'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/polaris/tasks/ocean/realistic_global/init/steps.html#get_realistic_init_steps"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.tasks.ocean.realistic_global.init.steps.get_realistic_init_steps" title="Link to this definition"></a></dt>
 <dd><p>Get shared steps for the realistic global ocean initialization workflow
 for one MPAS mesh.</p>
 <p>Composes the full dependency chain:</p>
@@ -164,9 +164,12 @@ for one MPAS mesh.</p>
 <li><p><a class="reference internal" href="polaris.tasks.ocean.realistic_global.init.forcing.ForcingStep.html#polaris.tasks.ocean.realistic_global.init.forcing.ForcingStep" title="polaris.tasks.ocean.realistic_global.init.forcing.ForcingStep"><code class="xref py py-class docutils literal notranslate"><span class="pre">ForcingStep</span></code></a></p></li>
 <li><p><a class="reference internal" href="polaris.tasks.ocean.realistic_global.init.viz.VizInitStep.html#polaris.tasks.ocean.realistic_global.init.viz.VizInitStep" title="polaris.tasks.ocean.realistic_global.init.viz.VizInitStep"><code class="xref py py-class docutils literal notranslate"><span class="pre">VizInitStep</span></code></a>, only if <code class="docutils literal notranslate"><span class="pre">include_viz</span></code> is <code class="docutils literal notranslate"><span class="pre">True</span></code></p></li>
 </ul>
-<p>All steps are model-independent except <a class="reference internal" href="polaris.tasks.ocean.realistic_global.init.initial_state.InitialStateStep.html#polaris.tasks.ocean.realistic_global.init.initial_state.InitialStateStep" title="polaris.tasks.ocean.realistic_global.init.initial_state.InitialStateStep"><code class="xref py py-class docutils literal notranslate"><span class="pre">InitialStateStep</span></code></a> and
-<a class="reference internal" href="polaris.tasks.ocean.realistic_global.init.forcing.ForcingStep.html#polaris.tasks.ocean.realistic_global.init.forcing.ForcingStep" title="polaris.tasks.ocean.realistic_global.init.forcing.ForcingStep"><code class="xref py py-class docutils literal notranslate"><span class="pre">ForcingStep</span></code></a>, which read <code class="docutils literal notranslate"><span class="pre">[ocean]</span> <span class="pre">model</span></code> from config at run
-time to select the appropriate output format.</p>
+<p><a class="reference internal" href="polaris.tasks.ocean.realistic_global.init.initial_state.InitialStateStep.html#polaris.tasks.ocean.realistic_global.init.initial_state.InitialStateStep" title="polaris.tasks.ocean.realistic_global.init.initial_state.InitialStateStep"><code class="xref py py-class docutils literal notranslate"><span class="pre">InitialStateStep</span></code></a>, <a class="reference internal" href="polaris.tasks.ocean.realistic_global.init.forcing.ForcingStep.html#polaris.tasks.ocean.realistic_global.init.forcing.ForcingStep" title="polaris.tasks.ocean.realistic_global.init.forcing.ForcingStep"><code class="xref py py-class docutils literal notranslate"><span class="pre">ForcingStep</span></code></a> and
+<a class="reference internal" href="polaris.tasks.ocean.realistic_global.init.viz.VizInitStep.html#polaris.tasks.ocean.realistic_global.init.viz.VizInitStep" title="polaris.tasks.ocean.realistic_global.init.viz.VizInitStep"><code class="xref py py-class docutils literal notranslate"><span class="pre">VizInitStep</span></code></a> write or read files in one model’s format, so
+they are model-dependent: they live under <code class="docutils literal notranslate"><span class="pre">init/&lt;model&gt;/</span></code> with a copy of
+<code class="docutils literal notranslate"><span class="pre">init.cfg</span></code> of their own, and their <code class="docutils literal notranslate"><span class="pre">[ocean]</span> <span class="pre">model</span></code> must be <code class="docutils literal notranslate"><span class="pre">model</span></code>.
+The other steps are model-neutral and are shared by both models’ chains.
+See <code class="xref py py-mod docutils literal notranslate"><span class="pre">polaris.tasks.ocean.realistic_global.models</span></code>.</p>
 <p>All new steps are created via
 <a class="reference internal" href="../../generated/polaris.Component.get_or_create_shared_step.html#polaris.Component.get_or_create_shared_step" title="polaris.Component.get_or_create_shared_step"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Component.get_or_create_shared_step()</span></code></a> so that they are
 reused if the same mesh name appears in multiple tasks.</p>
@@ -182,12 +185,13 @@ dict (and therefore to a task’s <code class="docutils literal notranslate"><sp
 <code class="docutils literal notranslate"><span class="pre">True</span></code>.  The standalone <code class="docutils literal notranslate"><span class="pre">RealisticGlobalInit</span></code> task passes
 <code class="docutils literal notranslate"><span class="pre">include_viz=True</span></code>; other consumers that reuse the init outputs as
 dependencies leave it <code class="docutils literal notranslate"><span class="pre">False</span></code> so the plots are not regenerated.</p></li>
+<li><p><strong>model</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><em>str</em></a><em>, </em><em>optional</em>) – The ocean model to build the model-dependent steps for.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><ul class="simple">
 <li><p><strong>steps</strong> (<em>dict of {str: polaris.Step}</em>) – All steps keyed by their suggested symlink names.</p></li>
-<li><p><strong>config</strong> (<em>polaris.config.PolarisConfigParser</em>) – Per-mesh shared config for the init steps.</p></li>
+<li><p><strong>config</strong> (<em>polaris.config.PolarisConfigParser</em>) – Per-mesh shared config for the model-neutral init steps.</p></li>
 </ul>
 </p>
 </dd>
@@ -200,8 +204,8 @@ dependencies leave it <code class="docutils literal notranslate"><span class="pr
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="polaris.tasks.ocean.realistic_global.init.task.RealisticGlobalInit.html" class="btn btn-neutral float-left" title="polaris.tasks.ocean.realistic_global.init.task.RealisticGlobalInit" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="polaris.tasks.ocean.realistic_global.init.cull_topo.CullTopoStep.html" class="btn btn-neutral float-right" title="polaris.tasks.ocean.realistic_global.init.cull_topo.CullTopoStep" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="polaris.tasks.ocean.realistic_global.init.task.RealisticGlobalInit.configure.html" class="btn btn-neutral float-left" title="polaris.tasks.ocean.realistic_global.init.task.RealisticGlobalInit.configure" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="polaris.tasks.ocean.realistic_global.init.steps.init_subdir.html" class="btn btn-neutral float-right" title="polaris.tasks.ocean.realistic_global.init.steps.init_subdir" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

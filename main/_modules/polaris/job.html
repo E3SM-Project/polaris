@@ -473,6 +473,7 @@ window.runMermaid = runMermaid;</script>
 <span></span><span class="kn">import</span><span class="w"> </span><span class="nn">importlib.resources</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">imp_res</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">os</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">os</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">shlex</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">subprocess</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
@@ -552,7 +553,8 @@ window.runMermaid = runMermaid;</script>
 
 <span class="sd">    run_command : str, optional</span>
 <span class="sd">        The command(s) to run in the job script. If not provided, defaults to</span>
-<span class="sd">        'polaris serial {{suite}}'.</span>
+<span class="sd">        'polaris serial {{suite}}', after sourcing the load script setup was</span>
+<span class="sd">        run with.</span>
 
 <span class="sd">    concurrent : bool, optional</span>
 <span class="sd">        Whether the job script should run the steps of a suite or task at the</span>
@@ -726,7 +728,7 @@ window.runMermaid = runMermaid;</script>
     <span class="k">if</span> <span class="n">run_command</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">command</span> <span class="o">=</span> <span class="s1">'polaris parallel'</span> <span class="k">if</span> <span class="n">concurrent</span> <span class="k">else</span> <span class="s1">'polaris serial'</span>
         <span class="n">run_command</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">command</span><span class="si">}</span><span class="s1"> </span><span class="si">{</span><span class="n">suite</span><span class="si">}</span><span class="s1">'</span> <span class="k">if</span> <span class="n">suite</span> <span class="k">else</span> <span class="n">command</span>
-        <span class="n">run_command</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'source load_polaris_env.sh</span><span class="se">\n</span><span class="si">{</span><span class="n">run_command</span><span class="si">}</span><span class="s1">'</span>
+        <span class="n">run_command</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'source </span><span class="si">{</span><span class="n">_load_script</span><span class="p">()</span><span class="si">}</span><span class="se">\n</span><span class="si">{</span><span class="n">run_command</span><span class="si">}</span><span class="s1">'</span>
 
     <span class="n">render_kwargs</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
         <span class="n">job_name</span><span class="o">=</span><span class="n">job_name</span><span class="p">,</span>
@@ -955,6 +957,21 @@ window.runMermaid = runMermaid;</script>
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">minima</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
         <span class="k">return</span> <span class="kc">None</span>
     <span class="k">return</span> <span class="nb">max</span><span class="p">(</span><span class="n">minima</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_load_script</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    The load script a job script sources: the one setup was run with.</span>
+
+<span class="sd">    It is named by its own path rather than by the ``load_polaris_env.sh``</span>
+<span class="sd">    link in the work directory, because another setup in the same work</span>
+<span class="sd">    directory, for example for another ocean model and compiler, replaces</span>
+<span class="sd">    that link.  Without a load script, there is only the link.  The path is</span>
+<span class="sd">    quoted for the shell, since it may contain spaces.</span>
+<span class="sd">    """</span>
+    <span class="k">return</span> <span class="n">shlex</span><span class="o">.</span><span class="n">quote</span><span class="p">(</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'POLARIS_LOAD_SCRIPT'</span><span class="p">,</span> <span class="s1">'load_polaris_env.sh'</span><span class="p">)</span>
+    <span class="p">)</span>
 </pre></div>
 
            </div>

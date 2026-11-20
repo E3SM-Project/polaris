@@ -1,0 +1,6 @@
+﻿polaris.tasks.ocean.realistic\_global.forward.forward.Forward.set\_init\_condition
+==================================================================================
+
+.. currentmodule:: polaris.tasks.ocean.realistic_global.forward.forward
+
+.. automethod:: Forward.set_init_condition

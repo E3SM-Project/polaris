@@ -49,6 +49,7 @@
       ~RestartStep.restart_target
       ~RestartStep.run
       ~RestartStep.runtime_setup
+      ~RestartStep.set_init_condition
       ~RestartStep.set_model_resources
       ~RestartStep.set_resources
       ~RestartStep.set_shared_config

@@ -144,19 +144,22 @@
 <dl class="py method">
 <dt class="sig sig-object py" id="polaris.tasks.ocean.realistic_global.dynamic_adjustment.task.RealisticGlobalDynamicAdjustment.configure">
 <span class="sig-prename descclassname"><span class="pre">RealisticGlobalDynamicAdjustment.</span></span><span class="sig-name descname"><span class="pre">configure</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/polaris/tasks/ocean/realistic_global/dynamic_adjustment/task.html#RealisticGlobalDynamicAdjustment.configure"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.tasks.ocean.realistic_global.dynamic_adjustment.task.RealisticGlobalDynamicAdjustment.configure" title="Link to this definition"></a></dt>
-<dd><p>Rebuild the stages if a user’s setup-time config changed the schedule.</p>
-<p>Nothing is rebuilt when the schedule is unchanged, which is the usual
-case and the only one a downstream consumer of these shared steps sees.
-A schedule that <em>has</em> changed cannot simply be re-requested: the shared
-steps are keyed by work directory, so a stage whose name survived the
-change would come back carrying its old run duration and time step.
-The old ones are therefore dropped first, which
-<a class="reference internal" href="../../generated/polaris.Task.remove_step.html#polaris.Task.remove_step" title="polaris.Task.remove_step"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Task.remove_step()</span></code></a> carries through to the component
-once no task is left using them.</p>
-<p>Only the steps under this mesh’s <code class="docutils literal notranslate"><span class="pre">dynamic_adjustment</span></code> directory are
-dropped and added back.  Doing this to the whole task would evict the
-<code class="docutils literal notranslate"><span class="pre">init</span></code> chain from the component too, and a consumer holding those
-step instances would be left with stale ones.</p>
+<dd><p>Rebuild the steps for the configured model, or for a changed schedule.</p>
+<p>Nothing is rebuilt when neither has changed, which is the usual case
+for MPAS-Ocean.</p>
+<p>For another model, the task swaps every model-dependent step,
+including the init chain’s, for that model’s.  Its config is new and
+has none of the options setup gave this task’s config before
+<code class="docutils literal notranslate"><span class="pre">configure()</span></code>, such as the user’s, and the schedule is read from it
+here.  So it starts from this task’s config, beneath its own options.</p>
+<p>A schedule that has changed for the same model cannot simply be
+re-requested: the shared steps are keyed by work directory, so a stage
+whose name survived the change would come back carrying its old run
+duration and time step.  The model’s adjustment steps are therefore
+dropped first, which <a class="reference internal" href="../../generated/polaris.Task.remove_step.html#polaris.Task.remove_step" title="polaris.Task.remove_step"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polaris.Task.remove_step()</span></code></a> carries
+through to the component once no task is left using them.  The init
+chain stays: it does not depend on the schedule, and a consumer
+holding those step instances would be left with stale ones.</p>
 </dd></dl>
 
 </section>

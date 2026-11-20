@@ -51,6 +51,39 @@ The config options for these tasks are described in
 {ref}`ocean-realistic-global` in the User's Guide.  The shared colormap
 options for the `viz` step live in `realistic_global.cfg`.
 
+(dev-ocean-realistic-global-model-directories)=
+
+### model directories
+
+A step is model-dependent if its outputs, or those of a step it depends on, are
+written for one ocean model.  The `init` and `dynamic_adjustment` factories put
+their model-dependent steps under a directory named for the model, using
+{py:func}`polaris.tasks.ocean.realistic_global.models.model_subdir`, and give
+them a copy of the family's config file there.  A setup for one model then
+rewrites only that model's config files, which matters because a step reads its
+config file at run time, and every setup writes its own `[ocean] model` and
+build paths into the files it writes.  The model-neutral steps keep one
+directory and are the same instances in both models' chains.
+
+The model is resolved when the ocean component is configured, after the tasks
+are built.  Each task that uses these steps is therefore built with
+`DEFAULT_MODEL`'s steps, and its `configure()` asks
+{py:func}`~polaris.tasks.ocean.realistic_global.models.get_configured_model`
+which model the setup is for.  If it is another,
+{py:func}`~polaris.tasks.ocean.realistic_global.models.replace_steps` removes
+the old model's steps and adds the new model's.  The forward and
+`analysis_output` tasks also point their forward step at the new `init` steps,
+through
+{py:func}`~polaris.tasks.ocean.realistic_global.forward.task.swap_init_model`.
+Their own steps keep one directory, so only the `init` steps they consume
+change.
+
+A config file that first appears in `configure()` misses the options setup
+adds to task configs beforehand, including the user's.  It gets them later,
+before it is written, but the `dynamic_adjustment` task reads the new model's
+schedule from it during `configure()`.  The task therefore prepends its own
+config to the new model's before building the new steps.
+
 (dev-ocean-realistic-global-forward)=
 
 ## forward
@@ -397,7 +430,8 @@ without testing anything.
 ## dynamic_adjustment
 
 The `dynamic_adjustment` task family (steps under
-`spherical/realistic_global/{mesh_name}/dynamic_adjustment`) runs a
+`spherical/realistic_global/{mesh_name}/dynamic_adjustment/{model}`; see
+{ref}`dev-ocean-realistic-global-model-directories`) runs a
 restart-chained sequence of forward stages from a mesh's realistic initial
 condition.  One
 {py:class}`polaris.tasks.ocean.realistic_global.dynamic_adjustment.task.RealisticGlobalDynamicAdjustment`
@@ -439,7 +473,10 @@ user's setup-time config changed it — a stage whose name survived the change
 would otherwise be handed back from the shared-step cache still carrying its old
 run duration.  It discards the adjustment steps from the component and then
 simply asks for the whole chain again; the `init` steps upstream do not depend
-on the schedule, so they come back unchanged.
+on the schedule, so they come back unchanged.  When the configured model is not
+the one the task was built for, `configure()` instead swaps every
+model-dependent step, the `init` chain's included, and the task's config, for
+that model's.
 
 ### schedule parsing
 
@@ -764,7 +801,9 @@ density are right.
 ## init
 
 The `init` task family (whose steps live under
-`spherical/realistic_global/{mesh_name}/init`) creates mesh-specific ocean
+`spherical/realistic_global/{mesh_name}/init`, and under `init/{model}` for
+`initial_state`, `forcing` and `viz`; see
+{ref}`dev-ocean-realistic-global-model-directories`) creates mesh-specific ocean
 initial conditions using WOA23 hydrography and the culled mesh produced by
 `e3sm/init`.  One
 {py:class}`polaris.tasks.ocean.realistic_global.init.task.RealisticGlobalInit`

@@ -502,6 +502,7 @@ window.runMermaid = runMermaid;</script>
     <span class="n">machine</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="n">baseline_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="n">job_options</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">suite_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
 <span class="p">):</span>
 <span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Write a file with provenance, such as the git version, conda packages,</span>
@@ -509,7 +510,9 @@ window.runMermaid = runMermaid;</script>
 
 <span class="sd">    This function overwrites any existing provenance file in the work</span>
 <span class="sd">    directory rather than appending, so the provenance reflects the most</span>
-<span class="sd">    recent call to Polaris that used this work directory.</span>
+<span class="sd">    recent call to Polaris that used this work directory.  With a suite</span>
+<span class="sd">    name, it also writes a copy for that suite, which a later setup of</span>
+<span class="sd">    another suite in the same work directory leaves alone.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -534,6 +537,10 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">        The scheduler options that were written to the job script, as</span>
 <span class="sd">        returned by :py:func:`polaris.job.write_job_script()`.  If not</span>
 <span class="sd">        provided, no scheduler metadata is recorded.</span>
+
+<span class="sd">    suite_name : str, optional</span>
+<span class="sd">        The name of the suite being set up, if a copy should be written for</span>
+<span class="sd">        it</span>
 <span class="sd">    """</span>
     <span class="n">polaris_git_info</span> <span class="o">=</span> <span class="n">_get_polaris_git_info</span><span class="p">()</span>
 
@@ -614,7 +621,38 @@ window.runMermaid = runMermaid;</script>
         <span class="s1">'**************************************************'</span>
         <span class="s1">'*********************</span><span class="se">\n</span><span class="s1">'</span>
     <span class="p">)</span>
-    <span class="n">provenance_file</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+    <span class="n">provenance_file</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="n">suite_name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">shutil</span><span class="o">.</span><span class="n">copyfile</span><span class="p">(</span><span class="n">provenance_path</span><span class="p">,</span> <span class="n">_suite_path</span><span class="p">(</span><span class="n">work_dir</span><span class="p">,</span> <span class="n">suite_name</span><span class="p">))</span></div>
+
+
+
+<div class="viewcode-block" id="get_path">
+<a class="viewcode-back" href="../../developers_guide/generated/polaris.provenance.get_path.html#polaris.provenance.get_path">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_path</span><span class="p">(</span><span class="n">work_dir</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">suite_name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    The path of the provenance file for a suite set up in a work directory</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    work_dir : str</span>
+<span class="sd">        The work directory the suite was set up in</span>
+
+<span class="sd">    suite_name : str, optional</span>
+<span class="sd">        The name of the suite</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    path : str</span>
+<span class="sd">        The suite's own provenance file if setup wrote one, or else the work</span>
+<span class="sd">        directory's, which records the most recent setup there</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="n">suite_name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="n">_suite_path</span><span class="p">(</span><span class="n">work_dir</span><span class="p">,</span> <span class="n">suite_name</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">path</span>
+    <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">work_dir</span><span class="p">,</span> <span class="s1">'provenance'</span><span class="p">)</span></div>
 
 
 
@@ -657,7 +695,9 @@ window.runMermaid = runMermaid;</script>
 
 <div class="viewcode-block" id="read">
 <a class="viewcode-back" href="../../developers_guide/generated/polaris.provenance.read.html#polaris.provenance.read">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">read</span><span class="p">(</span><span class="n">work_dir</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">read</span><span class="p">(</span>
+    <span class="n">work_dir</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">suite_name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]:</span>
 <span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Read the provenance file that :py:func:`polaris.provenance.write` wrote</span>
 <span class="sd">    to a work directory</span>
@@ -666,6 +706,10 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">    ----------</span>
 <span class="sd">    work_dir : str</span>
 <span class="sd">        The work directory with the provenance file</span>
+
+<span class="sd">    suite_name : str, optional</span>
+<span class="sd">        The name of a suite set up in the work directory, to read its own</span>
+<span class="sd">        provenance file (see :py:func:`polaris.provenance.get_path`)</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -679,7 +723,7 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">        the source tree at setup rather than from a record of the build</span>
 <span class="sd">        (``at_setup``).  ``None`` if there is no provenance file.</span>
 <span class="sd">    """</span>
-    <span class="n">path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">work_dir</span><span class="p">,</span> <span class="s1">'provenance'</span><span class="p">)</span>
+    <span class="n">path</span> <span class="o">=</span> <span class="n">get_path</span><span class="p">(</span><span class="n">work_dir</span><span class="p">,</span> <span class="n">suite_name</span><span class="p">)</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s1">'r'</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s1">'utf-8'</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
             <span class="n">lines</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span><span class="o">.</span><span class="n">splitlines</span><span class="p">()</span>
@@ -990,6 +1034,11 @@ window.runMermaid = runMermaid;</script>
         <span class="k">return</span>
     <span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">'partition'</span><span class="p">,</span> <span class="s1">'qos'</span><span class="p">,</span> <span class="s1">'queue'</span><span class="p">,</span> <span class="s1">'constraint'</span><span class="p">):</span>
         <span class="n">_write_meta</span><span class="p">(</span><span class="n">provenance_file</span><span class="p">,</span> <span class="n">label</span><span class="p">,</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">job_options</span><span class="p">,</span> <span class="n">label</span><span class="p">,</span> <span class="kc">None</span><span class="p">))</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_suite_path</span><span class="p">(</span><span class="n">work_dir</span><span class="p">,</span> <span class="n">suite_name</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""The path of a suite's own provenance file"""</span>
+    <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">work_dir</span><span class="p">,</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">suite_name</span><span class="si">}</span><span class="s1">_provenance'</span><span class="p">)</span>
 </pre></div>
 
            </div>

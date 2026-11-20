@@ -564,6 +564,47 @@ Omega output.</p>
 Omega writes its history time axis across a restart, and MPAS-Ocean stamps its
 output with <code class="docutils literal notranslate"><span class="pre">xtime</span></code> rather than an elapsed time measured from the start of the
 clock, so the failure it looks for cannot arise there.</p>
+<section id="ocean-realistic-global-model-directories">
+<span id="both-models-in-one-work-directory"></span><h3>both models in one work directory<a class="headerlink" href="#ocean-realistic-global-model-directories" title="Link to this heading"></a></h3>
+<p>The steps whose files are written for one model live in a directory named for
+the model, <code class="docutils literal notranslate"><span class="pre">mpas-ocean</span></code> or <code class="docutils literal notranslate"><span class="pre">omega</span></code>, each with a copy of the config file of its
+own:</p>
+<ul class="simple">
+<li><p>In <code class="docutils literal notranslate"><span class="pre">init</span></code>, the <code class="docutils literal notranslate"><span class="pre">initial_state</span></code>, <code class="docutils literal notranslate"><span class="pre">forcing</span></code> and <code class="docutils literal notranslate"><span class="pre">viz</span></code> steps, under
+<code class="docutils literal notranslate"><span class="pre">init/&lt;model&gt;/</span></code>.</p></li>
+<li><p>In <code class="docutils literal notranslate"><span class="pre">dynamic_adjustment</span></code>, every stage, check, <code class="docutils literal notranslate"><span class="pre">summary</span></code>, <code class="docutils literal notranslate"><span class="pre">viz</span></code> and the
+<code class="docutils literal notranslate"><span class="pre">restarts</span></code> directory, under <code class="docutils literal notranslate"><span class="pre">dynamic_adjustment/&lt;model&gt;/</span></code>.</p></li>
+</ul>
+<p>The other steps, from the mesh through <code class="docutils literal notranslate"><span class="pre">pstar_init</span></code>, do not depend on the
+model and are shared.  A work directory can therefore be set up for one model,
+then the other.  The second setup reuses the shared step directories, and its
+run skips the shared steps that have already completed.</p>
+<p>We recommend giving each setup its own suite name (<code class="docutils literal notranslate"><span class="pre">--suite_name</span> <span class="pre">mpas_ocean</span></code>
+and <code class="docutils literal notranslate"><span class="pre">--suite_name</span> <span class="pre">omega</span></code> in the example below), so the second does not replace
+the first’s job script and pickle.  Each job script sources the load script
+that was sourced before its setup, by its full path, so the two setups can use
+different compilers, gnu for MPAS-Ocean and intel for Omega on Chrysalis, for
+example.  The <code class="docutils literal notranslate"><span class="pre">load_polaris_env.sh</span></code> link in the work directory, by contrast,
+points to the load script of the most recent setup.</p>
+<p>With the gnu load script sourced before the first setup and the intel one
+before the second:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>polaris<span class="w"> </span>setup<span class="w"> </span>-t<span class="w"> </span>ocean/spherical/realistic_global/&lt;mesh&gt;/dynamic_adjustment<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>-w<span class="w"> </span>&lt;work_dir&gt;<span class="w"> </span>-p<span class="w"> </span>&lt;mpas_ocean_build&gt;<span class="w"> </span>--suite_name<span class="w"> </span>mpas_ocean
+polaris<span class="w"> </span>setup<span class="w"> </span>-t<span class="w"> </span>ocean/spherical/realistic_global/&lt;mesh&gt;/dynamic_adjustment<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>-w<span class="w"> </span>&lt;work_dir&gt;<span class="w"> </span>-p<span class="w"> </span>&lt;omega_build&gt;<span class="w"> </span>--suite_name<span class="w"> </span>omega
+</pre></div>
+</div>
+<p>A task’s work directory, such as <code class="docutils literal notranslate"><span class="pre">init</span></code> or <code class="docutils literal notranslate"><span class="pre">dynamic_adjustment</span></code>, contains
+links to the steps of the model it was set up for most recently.  Setting the
+task up for the other model updates these links without removing either
+model’s step directories or outputs.  To run the other model from the task’s
+work directory, set the task up again for that model.  Edit model-specific
+options in the config file in the model’s directory, for example
+<code class="docutils literal notranslate"><span class="pre">dynamic_adjustment/omega/dynamic_adjustment.cfg</span></code>.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">forward</span></code> and <code class="docutils literal notranslate"><span class="pre">analysis_output</span></code> tasks use the model-dependent <code class="docutils literal notranslate"><span class="pre">init</span></code> steps
+but keep their own steps in one directory, so set them up for one model per
+work directory.</p>
+</section>
 </section>
 <section id="ocean-realistic-global-woa23">
 <span id="woa23"></span><h2>woa23<a class="headerlink" href="#ocean-realistic-global-woa23" title="Link to this heading"></a></h2>
@@ -833,6 +874,8 @@ surface/bottom pressure maps and a TEOS-10 in-situ density
 stress components and magnitude are also written, which is where remapping
 artifacts would show up.</p></li>
 </ol>
+<p>Steps 5 to 7 write files for one model and live in <code class="docutils literal notranslate"><span class="pre">init/&lt;model&gt;/</span></code>; see
+<a class="reference internal" href="#ocean-realistic-global-model-directories"><span class="std std-ref">both models in one work directory</span></a>.</p>
 <p>On large meshes, <code class="docutils literal notranslate"><span class="pre">viz</span></code> is the most expensive step: it took 33 minutes of a
 run of about 1.8 hours on <code class="docutils literal notranslate"><span class="pre">u-oi6to18-lr12p5</span></code>.  It runs only in this task;
 other workflows that reuse the init steps leave it out.</p>
@@ -1900,7 +1943,9 @@ drag and Omega’s <code class="docutils literal notranslate"><span class="pre">
 </section>
 <section id="restart-chaining">
 <h3>restart chaining<a class="headerlink" href="#restart-chaining" title="Link to this heading"></a></h3>
-<p>The stages share a <code class="docutils literal notranslate"><span class="pre">restarts</span></code> directory beside them in the task work directory.
+<p>The stages share a <code class="docutils literal notranslate"><span class="pre">restarts</span></code> directory beside them, in their model’s directory
+under the task’s work directory (see
+<a class="reference internal" href="#ocean-realistic-global-model-directories"><span class="std std-ref">both models in one work directory</span></a>).
 Each stage writes <code class="docutils literal notranslate"><span class="pre">restarts/rst.&lt;timestamp&gt;.nc</span></code> at the end of its run and
 declares it as an output; the next stage declares the same file as an input and
 starts from it, so a break in the chain is caught before the model launches.</p>

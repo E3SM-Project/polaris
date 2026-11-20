@@ -190,7 +190,8 @@ Setup finds it from every step’s resources and dependencies.</p></li>
 <li><p><strong>script_filename</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><em>str</em></a><em>, </em><em>optional</em>) – The name of the job script file to write. If not provided, defaults to
 ‘job_script.sh’ or ‘job_script.{suite}.sh’ if suite is specified.</p></li>
 <li><p><strong>run_command</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><em>str</em></a><em>, </em><em>optional</em>) – The command(s) to run in the job script. If not provided, defaults to
-‘polaris serial {{suite}}’.</p></li>
+‘polaris serial {{suite}}’, after sourcing the load script setup was
+run with.</p></li>
 <li><p><strong>concurrent</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.15)"><em>bool</em></a><em>, </em><em>optional</em>) – Whether the job script should run the steps of a suite or task at the
 same time with <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">parallel</span></code> rather than one after another with
 <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">serial</span></code>.  Ignored when <code class="docutils literal notranslate"><span class="pre">run_command</span></code> is given, and it must

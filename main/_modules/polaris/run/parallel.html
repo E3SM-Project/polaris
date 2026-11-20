@@ -653,7 +653,7 @@ window.runMermaid = runMermaid;</script>
             <span class="n">write_suite_results</span><span class="p">,</span>
             <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">work_dir</span><span class="p">,</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">suite_name</span><span class="si">}</span><span class="s1">_results.json'</span><span class="p">),</span>
             <span class="n">suite_name</span><span class="p">,</span>
-            <span class="n">_read_results_provenance</span><span class="p">(</span><span class="n">base_work_dir</span><span class="p">),</span>
+            <span class="n">_read_results_provenance</span><span class="p">(</span><span class="n">base_work_dir</span><span class="p">,</span> <span class="n">suite_name</span><span class="p">),</span>
             <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">astimezone</span><span class="p">(),</span>
         <span class="p">),</span>
     <span class="p">)</span>

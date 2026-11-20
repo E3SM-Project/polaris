@@ -20,7 +20,7 @@
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
     <link rel="next" title="polaris.tasks.ocean.realistic_global.dynamic_adjustment.schedule.load_schedule_stages" href="polaris.tasks.ocean.realistic_global.dynamic_adjustment.schedule.load_schedule_stages.html" />
-    <link rel="prev" title="polaris.tasks.ocean.realistic_global.dynamic_adjustment.steps.get_realistic_dynamic_adjustment_steps" href="polaris.tasks.ocean.realistic_global.dynamic_adjustment.steps.get_realistic_dynamic_adjustment_steps.html" />
+    <link rel="prev" title="polaris.tasks.ocean.realistic_global.dynamic_adjustment.steps.get_dynamic_adjustment_config" href="polaris.tasks.ocean.realistic_global.dynamic_adjustment.steps.get_dynamic_adjustment_config.html" />
     <link href="../../../_static/style.css" rel="stylesheet" type="text/css">
 
 </head>
@@ -144,7 +144,8 @@
 <dl class="py function">
 <dt class="sig sig-object py" id="polaris.tasks.ocean.realistic_global.dynamic_adjustment.steps.adjustment_subdir">
 <span class="sig-prename descclassname"><span class="pre">polaris.tasks.ocean.realistic_global.dynamic_adjustment.steps.</span></span><span class="sig-name descname"><span class="pre">adjustment_subdir</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mesh_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><span class="pre">str</span></a></span></span><a class="reference internal" href="../../../_modules/polaris/tasks/ocean/realistic_global/dynamic_adjustment/steps.html#adjustment_subdir"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.tasks.ocean.realistic_global.dynamic_adjustment.steps.adjustment_subdir" title="Link to this definition"></a></dt>
-<dd><p>The work directory the dynamic-adjustment steps for a mesh live under.</p>
+<dd><p>The work directory of a mesh’s dynamic-adjustment task.  Its steps live in
+a directory under it named for their ocean model.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>mesh_name</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><em>str</em></a>) – The name of the MPAS mesh.</p>
@@ -161,7 +162,7 @@
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="polaris.tasks.ocean.realistic_global.dynamic_adjustment.steps.get_realistic_dynamic_adjustment_steps.html" class="btn btn-neutral float-left" title="polaris.tasks.ocean.realistic_global.dynamic_adjustment.steps.get_realistic_dynamic_adjustment_steps" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="polaris.tasks.ocean.realistic_global.dynamic_adjustment.steps.get_dynamic_adjustment_config.html" class="btn btn-neutral float-left" title="polaris.tasks.ocean.realistic_global.dynamic_adjustment.steps.get_dynamic_adjustment_config" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
         <a href="polaris.tasks.ocean.realistic_global.dynamic_adjustment.schedule.load_schedule_stages.html" class="btn btn-neutral float-right" title="polaris.tasks.ocean.realistic_global.dynamic_adjustment.schedule.load_schedule_stages" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 

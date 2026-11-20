@@ -1,0 +1,6 @@
+﻿polaris.tasks.ocean.realistic\_global.models.model\_subdir
+==========================================================
+
+.. currentmodule:: polaris.tasks.ocean.realistic_global.models
+
+.. autofunction:: model_subdir

@@ -132,8 +132,9 @@ the `-p` or `--component_path` flag.  This can be a relative or absolute path.
 The default for the `landice` component is
 `e3sm_submodules/MALI-Dev/components/mpas-albany-landice`.
 For the `ocean` component, the default value of `component_path` comes from the
-ocean configuration file; by default, both MPAS-Ocean and Omega use the
-`ocean_build` subdirectory of the base work directory supplied with `-w`.  If
+ocean configuration file; by default, MPAS-Ocean uses the `mpas_ocean_build`
+subdirectory and Omega the `omega_build` subdirectory of the base work
+directory supplied with `-w`.  If
 you use MPAS-Ocean or Omega in a different location, supply that directory
 explicitly with `-p` or via a config file.
 
@@ -246,9 +247,9 @@ The following flags give additional control over this behavior:
 Defaults and paths:
 
 - Build output directory (`-p`/`--component_path`) defaults to the
-  `ocean_build` subdirectory of the base work directory you pass with `-w` for
-  both MPAS-Ocean and Omega.  It is named after the component so that two
-  components in the same work directory do not build over one another.
+  `mpas_ocean_build` or `omega_build` subdirectory of the base work directory
+  you pass with `-w`.  It is named after the model so that two models in the
+  same work directory do not build over one another.
 - Generated build scripts are saved to:
    - Omega: `./build_omega/build_omega_<machine>_<compiler>.sh`
    - MPAS-Ocean: `./build_mpas_ocean/build_mpas_ocean_<machine>_<compiler>_<mpi>.sh`

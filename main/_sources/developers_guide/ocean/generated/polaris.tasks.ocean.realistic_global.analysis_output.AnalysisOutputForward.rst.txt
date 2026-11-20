@@ -47,6 +47,7 @@
       ~AnalysisOutputForward.process_inputs_and_outputs
       ~AnalysisOutputForward.run
       ~AnalysisOutputForward.runtime_setup
+      ~AnalysisOutputForward.set_init_condition
       ~AnalysisOutputForward.set_model_resources
       ~AnalysisOutputForward.set_resources
       ~AnalysisOutputForward.set_shared_config
