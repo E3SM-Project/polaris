@@ -7,7 +7,11 @@ from polaris.build.mpas_ocean import make_build_script
 def test_make_build_script_debug_flag(tmp_path, monkeypatch, debug):
     script = _make_script(tmp_path, monkeypatch, debug=debug)
 
-    make_lines = [line for line in script.splitlines() if 'gfortran' in line]
+    make_lines = [
+        line
+        for line in script.splitlines()
+        if line.startswith('make ') and 'gfortran' in line
+    ]
     assert len(make_lines) == 1
     # the MPAS Makefile only builds in debug mode for exactly DEBUG=true
     assert ('DEBUG=true' in make_lines[0].split()) == debug

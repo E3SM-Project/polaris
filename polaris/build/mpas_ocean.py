@@ -7,6 +7,8 @@ from typing import Optional
 
 from jinja2 import Template
 
+from polaris.build.mpas_framework import get_framework_check
+
 
 def build_mpas_ocean(
     branch,
@@ -169,6 +171,21 @@ def make_build_script(
 
     load_script = os.environ['POLARIS_LOAD_SCRIPT']
 
+    framework_check = get_framework_check(
+        e3sm_base_dir=branch,
+        component_dir=mpas_ocean_subdir,
+        build_config=dict(
+            core='ocean',
+            machine=machine,
+            compiler=compiler,
+            mpi=mpilib,
+            target=make_target,
+            flags=make_flags,
+            load_script=load_script,
+        ),
+        clean=clean,
+    )
+
     script = template.render(
         load_script=load_script,
         update_e3sm_submodule=update_e3sm_submodule,
@@ -179,6 +196,7 @@ def make_build_script(
         make_target=make_target,
         clean=clean,
         make_flags=make_flags,
+        framework_check=framework_check,
     )
 
     script_filename = f'build_mpas_ocean_{machine}_{compiler}_{mpilib}.sh'
