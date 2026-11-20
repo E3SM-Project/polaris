@@ -41,7 +41,9 @@ def test_a_login_node_gets_only_its_login_cores(step_name):
 
 def _partition_step(step_name):
     _reset_shared_components()
-    steps, config = get_component_inputs_steps(mesh_name=MESH_NAME)
+    steps, config = get_component_inputs_steps(
+        mesh_name=MESH_NAME, model='mpas-ocean'
+    )
     step = steps[step_name]
     step.config = config
     return step, config
