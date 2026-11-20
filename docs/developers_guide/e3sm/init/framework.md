@@ -61,9 +61,12 @@ tasks are the first to use it.  None of these modules imports from
 
 - `inputdata` — the general names and paths.  Paths are keyed by E3SM's grid
   name for a component, such as `u02-oi30`, not by how a mesh was built.
-  `get_creation_date()` and `set_creation_date()` take the config section that
-  holds `creation_date`, and `get_nonempty_option()` reads an option, such as
-  a name only a person can assign, that is blank until set.
+  `get_creation_date()` and `set_creation_date()` take the config section and
+  option that hold a creation date.  `set_creation_date()` keeps a date a
+  previous setup recorded in the work directory's copy of the config file, so
+  setting a work directory up again does not rename what it already staged.
+  `get_nonempty_option()` reads an option, such as a name only a person can
+  assign, that is blank until set.
 - `partitions` — the core counts a graph is partitioned into
   (`get_core_list()`, ported from Compass), which of them are still to build,
   building them with `gpmetis` several at a time, and graphs of a subset of a
