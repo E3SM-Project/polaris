@@ -11,7 +11,11 @@ tested without a work directory.
 """
 
 from polaris.config import PolarisConfigParser
-from polaris.e3sm.init.inputdata import get_nonempty_option, ocean_dir
+from polaris.e3sm.init.inputdata import (
+    get_nonempty_option,
+    ocean_dir,
+    omega_dir,
+)
 
 #: The culled-mesh regions a SCRIP file is staged for, matching the prefixes
 #: the cull step writes.
@@ -21,6 +25,9 @@ SCRIP_REGIONS = ('ocean', 'ocean_no_cavities', 'land')
 #: products, where the ``ocean`` in the region name is redundant and is
 #: dropped from the filename.
 OCEAN_SCRIP_REGIONS = ('ocean', 'ocean_no_cavities')
+
+#: Each ocean model's inputdata directory for a grid
+OCEAN_MODEL_DIRS = {'mpas-ocean': ocean_dir, 'omega': omega_dir}
 
 #: The culled-mesh regions whose mesh itself is staged.  ``ocean_no_cavities``
 #: is not among them: it exists to build mapping files, and under the
@@ -141,7 +148,9 @@ def scrip_path(short_name: str, creation_date: str, region: str) -> str:
     )
 
 
-def ocean_scrip_path(short_name: str, creation_date: str, region: str) -> str:
+def ocean_scrip_path(
+    short_name: str, creation_date: str, region: str, model: str = 'mpas-ocean'
+) -> str:
     """
     Where a SCRIP description is staged beside the ocean products.
 
@@ -150,8 +159,9 @@ def ocean_scrip_path(short_name: str, creation_date: str, region: str) -> str:
     for them in both: with the mesh files and with the ocean files that were
     built from them.
 
-    Under ``ocn/mpas-o/`` the ``ocean`` in a region name says nothing -- every
-    file there is the ocean's -- so it is dropped, leaving
+    In an ocean model's directory, such as ``ocn/mpas-o/`` or ``ocn/omega/``,
+    the ``ocean`` in a region name says nothing -- every file there is the
+    ocean's -- so it is dropped, leaving
     ``<short>.scrip.<date>.nc`` for the ocean domain and
     ``<short>.no_cavities.scrip.<date>.nc`` for the one without ice-shelf
     cavities.  Land has no copy here, having no business in an ocean
@@ -167,6 +177,10 @@ def ocean_scrip_path(short_name: str, creation_date: str, region: str) -> str:
 
     region : str
         The culled-mesh region, one of :py:data:`OCEAN_SCRIP_REGIONS`.
+
+    model : str, optional
+        The ocean model whose directory the file is staged in, a key of
+        :py:data:`OCEAN_MODEL_DIRS`.
 
     Returns
     -------
@@ -188,7 +202,7 @@ def ocean_scrip_path(short_name: str, creation_date: str, region: str) -> str:
     suffix = region[len('ocean') :].lstrip('_')
     stem = f'{short_name}.{suffix}.scrip' if suffix else f'{short_name}.scrip'
     grid = ocean_grid_name(short_name)
-    return f'{ocean_dir(grid)}/{stem}.{creation_date}.nc'
+    return f'{OCEAN_MODEL_DIRS[model](grid)}/{stem}.{creation_date}.nc'
 
 
 def culled_mesh_path(short_name: str, creation_date: str, region: str) -> str:

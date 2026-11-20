@@ -1,7 +1,6 @@
 from geometric_features.aggregation import get_aggregator_by_name
 
 from polaris.e3sm.init.inputdata import get_creation_date
-from polaris.tasks.e3sm.init.component_inputs.models import check_ocean_model
 from polaris.tasks.mesh.spherical.feature_masks.compute import (
     ComputeFeatureMasksStep,
 )
@@ -91,13 +90,6 @@ class MocMasksStep(ComputeFeatureMasksStep):
         # which is before setup() would set it; this is the same pure call
         # setup() makes, so the two cannot disagree
         self._set_output_filenames(mesh_name, MOC_MASK_GROUP)
-
-    def setup(self):
-        """
-        Set up the step, failing early for a model that cannot be packaged.
-        """
-        check_ocean_model()
-        super().setup()
 
     def _set_output_filenames(self, mesh_name, mask_group):
         """

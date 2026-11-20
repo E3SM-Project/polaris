@@ -6,7 +6,6 @@ from mpas_tools.io import write_netcdf
 
 from polaris import Step
 from polaris.ocean.vertical import compute_zint_zmid_from_layer_thickness
-from polaris.tasks.e3sm.init.component_inputs.models import check_ocean_model
 
 #: The vertical-coordinate fields the staged mesh carries, all of which the
 #: initial-state step already writes.
@@ -80,13 +79,6 @@ class OceanMeshStep(Step):
                 work_dir_target=os.path.join(init_step.path, filename),
             )
         self.add_output_file(filename='ocean_mesh.nc')
-
-    def setup(self):
-        """
-        Refuse a model whose packaging is not supported, before anything runs.
-        """
-        check_ocean_model()
-        super().setup()
 
     def run(self):
         """
