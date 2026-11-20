@@ -1,8 +1,8 @@
 """
 Tests for how a step picks up what its dependencies did when they ran.
 
-``polaris serial`` pickles a step that others depend on once it has run, and
-loads that pickle before running each step that depends on it.  Many steps
+``polaris serial`` pickles each step once it has run, and loads that pickle
+before running each step that depends on it.  Many steps
 refer to a dependency both through ``dependencies`` and directly, as an
 attribute, so loading has to leave both pointing at one object or each
 pickle along a chain of dependencies holds the one before it twice.
@@ -13,8 +13,10 @@ import os
 import pickle
 from collections import Counter
 
+import pytest
+
 from polaris import Component, Step, Task
-from polaris.run import complete_step_run, load_dependencies
+from polaris.run import STEP_COMPLETE_LOG, complete_step_run, load_dependencies
 
 
 class _Chained(Step):
@@ -132,3 +134,56 @@ def test_a_dependency_keeps_its_references_to_the_suite(tmp_path, monkeypatch):
     assert second.previous is first
     assert second.component is third.component
     assert second.tasks['task'] is third.tasks['task']
+
+
+def test_a_step_finished_before_it_had_dependents_can_be_loaded(
+    tmp_path, monkeypatch
+):
+    """
+    A step set up later in the same work directory can depend on one that
+    finished when nothing depended on it, which is not run again.
+    """
+    monkeypatch.chdir(tmp_path)
+    (first,) = _make_chain(str(tmp_path), length=1)
+    assert not first.is_dependency
+    _run_chain([first])
+    first.result = None
+
+    second = _add_later_step(str(tmp_path), first)
+    load_dependencies(second)
+
+    assert first.result == 'step_0 ran'
+
+
+def test_a_finished_dependency_without_a_pickle_says_what_to_do(
+    tmp_path, monkeypatch
+):
+    """
+    A work directory from before every step was pickled has finished steps
+    with no pickle, and rerunning the dependency is what fixes that.
+    """
+    monkeypatch.chdir(tmp_path)
+    (first,) = _make_chain(str(tmp_path), length=1)
+    with open(os.path.join(first.work_dir, STEP_COMPLETE_LOG), 'w') as log:
+        log.write('finished')
+
+    second = _add_later_step(str(tmp_path), first)
+    complete_log = os.path.join(first.work_dir, STEP_COMPLETE_LOG)
+    with pytest.raises(ValueError, match=f'Delete {complete_log}'):
+        load_dependencies(second)
+
+
+def test_a_dependency_that_did_not_run_says_so(tmp_path, monkeypatch):
+    monkeypatch.chdir(tmp_path)
+    first, second = _make_chain(str(tmp_path), length=2)
+
+    with pytest.raises(ValueError, match='was not run'):
+        load_dependencies(second)
+
+
+def _add_later_step(work_dir, previous):
+    """Add a step that depends on ``previous``, as a later setup would."""
+    step = _Chained(previous.component, 'later', previous=previous)
+    step.work_dir = os.path.join(work_dir, step.name)
+    os.makedirs(step.work_dir)
+    return step

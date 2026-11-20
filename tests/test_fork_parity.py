@@ -42,6 +42,17 @@ class _Writer(Step):
             handle.write('the step ran')
 
 
+class _Reporter(_Writer):
+    """
+    A step that records how many cores it may run on.  It is at module scope
+    because a step that succeeds is pickled.
+    """
+
+    def run(self):
+        with open('made.txt', 'w') as handle:
+            handle.write(f'{len(os.sched_getaffinity(0))}')
+
+
 def _writer(tmp_path, name):
     """A real step, set up as far as running one needs."""
     step = _Writer(component=Component(name='ocean'), name=name, subdir=name)
@@ -153,11 +164,6 @@ def test_a_child_is_confined_to_the_cores_it_was_given(tmp_path, cores):
     """The affinity the child sets for itself, since nothing else can."""
     if len(os.sched_getaffinity(0)) < 4:
         pytest.skip('need four cores to place a step on fewer')
-
-    class _Reporter(_Writer):
-        def run(self):
-            with open('made.txt', 'w') as handle:
-                handle.write(f'{len(os.sched_getaffinity(0))}')
 
     step = _writer(tmp_path, f'reporter{cores}')
     step.__class__ = _Reporter

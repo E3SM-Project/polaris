@@ -36,6 +36,10 @@ def run_step(task, step, new_log_file, available_resources, step_log_filename):
     logger = task.logger
     cwd = os.getcwd()
 
+    # before checking the inputs, which include the dependencies' pickles,
+    # so a missing pickle is explained
+    dependency_pickles = load_dependencies(step)
+
     missing_files = list()
     for input_file in step.inputs:
         if not os.path.exists(input_file):
@@ -46,8 +50,6 @@ def run_step(task, step, new_log_file, available_resources, step_log_filename):
             f'input file(s) missing in step {step.name} in '
             f'{step.component.name}/{step.subdir}: {missing_files}'
         )
-
-    dependency_pickles = load_dependencies(step)
 
     # each logger needs a unique name
     logger_name = step.path.replace('/', '_')
