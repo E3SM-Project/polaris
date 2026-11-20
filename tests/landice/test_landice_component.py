@@ -134,6 +134,40 @@ def test_first_order_step_gets_albany_input():
     assert inputs['albany_input.yaml']['copy']
 
 
+@pytest.mark.parametrize(
+    'velocity_solver, gpus_per_node, expected_gpus',
+    [('FO', 4, 4), ('FO', 0, 0), ('sia', 4, 0)],
+)
+def test_gpus_for_albany_on_gpu_machines(
+    velocity_solver, gpus_per_node, expected_gpus
+):
+    component = Landice()
+    component.parallel_system = _FakeParallelSystem(gpus_per_node)
+    step = MaliModelStep(
+        component=component,
+        name='forward',
+        ntasks=4,
+        min_tasks=4,
+        velocity_solver=velocity_solver,
+        albany_input_package=DOME_PACKAGE,
+    )
+
+    step._set_gpus()
+
+    assert step.uses_gpus == (expected_gpus > 0)
+    assert step.gpus == expected_gpus
+    assert step.min_gpus == expected_gpus
+
+
+class _FakeParallelSystem:
+    def __init__(self, gpus_per_node):
+        self.gpus_per_node = gpus_per_node
+
+    def get_config_int(self, option, default=None):
+        assert option == 'gpus_per_node'
+        return self.gpus_per_node
+
+
 def _make_fo_step(component):
     return MaliModelStep(
         component=component,

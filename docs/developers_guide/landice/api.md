@@ -61,6 +61,9 @@
 
    MaliModelStep
    MaliModelStep.needs_albany
+   MaliModelStep.uses_gpus
+   MaliModelStep.setup
+   MaliModelStep.constrain_resources
    MaliModelStep.dynamic_model_config
 ```
 

@@ -16,6 +16,10 @@ any namelist files the step adds.  A step with a velocity solver from Albany
 `albany_input.yaml`, which is copied into the step's work directory.
 {py:attr}`polaris.landice.model.MaliModelStep.needs_albany` tells the
 component whether the MALI build needs Albany (see {ref}`dev-landice-albany`).
+On a machine with GPUs, Albany runs on them, so a step that needs Albany asks
+for one GPU per MPI task
+({py:attr}`polaris.landice.model.MaliModelStep.uses_gpus`).  The rest of MALI
+runs on CPUs, so other steps ask for no GPUs.
 
 The step partitions `graph.info` in its work directory, so a task links that
 file from the step that made the mesh.

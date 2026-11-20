@@ -106,6 +106,51 @@ class MaliModelStep(ModelStep):
         """
         return self.velocity_solver in ALBANY_VELOCITY_SOLVERS
 
+    @property
+    def uses_gpus(self):
+        """
+        Whether the step runs on GPUs
+
+        Albany runs on GPUs on any machine whose parallel config has them,
+        with one GPU per MPI task.  The rest of MALI does not use GPUs.
+
+        Returns
+        -------
+        uses_gpus : bool
+            Whether the step uses Albany on a machine with GPUs
+        """
+        if not self.needs_albany:
+            return False
+        parallel_system = self.component.parallel_system
+        if parallel_system is None:
+            return False
+        gpus_per_node = parallel_system.get_config_int(
+            'gpus_per_node', default=0
+        )
+        return gpus_per_node > 0
+
+    def setup(self):
+        """
+        Request GPUs if the step uses them, then set up the command-line
+        arguments
+        """
+        self._set_gpus()
+        super().setup()
+
+    def constrain_resources(self, available_resources):
+        """
+        Request GPUs if the step uses them, then constrain the step's
+        resources to those available
+
+        Parameters
+        ----------
+        available_resources : dict
+            A dictionary containing available resources (cores, tasks, nodes
+            and cores_per_node)
+        """
+        self._set_gpus()
+        super().constrain_resources(available_resources)
+
     def dynamic_model_config(self, at_setup):
         """
         Set the velocity solver, if one was given
@@ -125,3 +170,17 @@ class MaliModelStep(ModelStep):
             self.add_model_config_options(
                 options={'config_velocity_solver': self.velocity_solver}
             )
+
+    def _set_gpus(self):
+        """
+        Set ``gpus`` and ``min_gpus``: one GPU per task if the step uses GPUs
+
+        The GPUs are a total for the step: a per-task count does not confine
+        a step to those GPUs when steps run at the same time.
+        """
+        if self.uses_gpus:
+            self.gpus = self.ntasks
+            self.min_gpus = self.min_tasks
+        else:
+            self.gpus = 0
+            self.min_gpus = 0
