@@ -342,6 +342,41 @@ def test_read_without_provenance(tmp_path):
     assert provenance.read(str(tmp_path)) is None
 
 
+def test_a_suite_keeps_its_provenance(tmp_path, monkeypatch):
+    """
+    A setup of another suite in the same work directory, for example for
+    another ocean model, rewrites the work directory's provenance but not
+    the first suite's.
+    """
+    monkeypatch.chdir(tmp_path)
+    work_dir = str(tmp_path / 'work')
+    suites = [('mpas_ocean', 'mpas-ocean'), ('omega', 'omega')]
+    for suite_name, model in suites:
+        config = ConfigParser()
+        config.add_section('ocean')
+        config.set('ocean', 'model', model)
+        provenance.write(work_dir, {}, config=config, suite_name=suite_name)
+
+    mpas_ocean = provenance.read(work_dir, 'mpas_ocean')
+    omega = provenance.read(work_dir, 'omega')
+    latest = provenance.read(work_dir)
+    assert mpas_ocean is not None and mpas_ocean['model'] == 'mpas-ocean'
+    assert omega is not None and omega['model'] == 'omega'
+    assert latest is not None and latest['model'] == 'omega'
+
+
+def test_a_suite_without_provenance_reads_the_work_directory(tmp_path):
+    """A work directory set up before suites had provenance of their own"""
+    (tmp_path / 'provenance').write_text(
+        'machine: chrysalis\n', encoding='utf-8'
+    )
+    assert provenance.get_path(str(tmp_path), 'omega') == str(
+        tmp_path / 'provenance'
+    )
+    values = provenance.read(str(tmp_path), 'omega')
+    assert values is not None and values['machine'] == 'chrysalis'
+
+
 def _make_repo(path, tag, exist_ok=False):
     path.mkdir(parents=True, exist_ok=exist_ok)
     (path / 'README').write_text('test\n', encoding='utf-8')

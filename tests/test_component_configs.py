@@ -336,3 +336,42 @@ def test_a_single_component_setup_gets_its_own_options(basic_config, tmp_path):
     assert task.config.get('ocean', 'model') == 'detect'
     assert step.config.get('ocean', 'model') == 'detect'
     assert os.path.exists(os.path.join(str(tmp_path), 'ocean.cfg'))
+
+
+def test_a_later_setup_relinks_the_tasks_config(basic_config, tmp_path):
+    """
+    A task set up again with another shared config file, as a task is for a
+    second ocean model, has to link to that file.  Keeping the first link
+    would leave the task's work directory naming a config it no longer uses.
+    """
+    work_dir = str(tmp_path)
+    targets = list()
+    for name in ['first', 'second']:
+        ocean = Component(name='ocean')
+        task = Task(component=ocean, name='a_task', subdir='a_task')
+        filepath = os.path.join('ocean', 'a_task', name, 'shared.cfg')
+        config = PolarisConfigParser(filepath=filepath)
+        task.set_shared_config(config, link='shared.cfg')
+        setup_configs(basic_config, {task.path: task}, work_dir)
+        targets.append(os.path.join(work_dir, filepath))
+
+    link = os.path.join(work_dir, 'ocean', 'a_task', 'shared.cfg')
+    assert os.readlink(link) == targets[1]
+
+
+def test_a_config_file_at_the_link_path_is_kept(basic_config, tmp_path):
+    """
+    A task whose shared config file sits in its own work directory under the
+    link's name needs no link, and replacing the file with one would lose it.
+    """
+    work_dir = str(tmp_path)
+    ocean = Component(name='ocean')
+    task = Task(component=ocean, name='a_task', subdir='a_task')
+    filepath = os.path.join('ocean', 'a_task', 'shared.cfg')
+    config = PolarisConfigParser(filepath=filepath)
+    task.set_shared_config(config, link='shared.cfg')
+    setup_configs(basic_config, {task.path: task}, work_dir)
+
+    path = os.path.join(work_dir, filepath)
+    assert os.path.isfile(path)
+    assert not os.path.islink(path)

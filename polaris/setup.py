@@ -234,6 +234,7 @@ def setup_tasks(
         config=component_config,
         machine=machine,
         baseline_dir=baseline_dir,
+        suite_name=suite_name,
     )
 
     _build_models(
@@ -342,6 +343,7 @@ def setup_tasks(
         machine=machine,
         baseline_dir=baseline_dir,
         job_options=job_options,
+        suite_name=suite_name,
     )
 
     return tasks
@@ -1119,7 +1121,13 @@ def _write_configs(common_configs, configs, work_dir):
 
 
 def _symlink_configs(tasks, work_dir):
-    """Symlink config files for requested tasks and steps"""
+    """
+    Symlink config files for requested tasks and steps
+
+    A link left by an earlier setup is replaced, since the task may now be set
+    up with another config file, for example for another ocean model.  A
+    config file that is itself at the link's path is left alone.
+    """
 
     symlinks = dict()
     for task in tasks.values():
@@ -1128,7 +1136,7 @@ def _symlink_configs(tasks, work_dir):
         link_path = os.path.join(
             work_dir, task.component.name, task.subdir, task.config_filename
         )
-        if not os.path.exists(link_path) and link_path not in symlinks:
+        if _needs_config_link(link_path) and link_path not in symlinks:
             symlinks[link_path] = config_filepath
 
         for step in task.steps.values():
@@ -1140,7 +1148,7 @@ def _symlink_configs(tasks, work_dir):
                 step.subdir,
                 step.config_filename,
             )
-            if not os.path.exists(link_path) and link_path not in symlinks:
+            if _needs_config_link(link_path) and link_path not in symlinks:
                 symlinks[link_path] = config_filepath
 
         for link_path, config_filepath in symlinks.items():
@@ -1150,6 +1158,14 @@ def _symlink_configs(tasks, work_dir):
             except FileExistsError:
                 pass
             symlink(config_filepath, link_path)
+
+
+def _needs_config_link(link_path):
+    """
+    Whether a link to a config file should be made at ``link_path``: unless
+    a file other than a link is already there, which is the config file itself
+    """
+    return os.path.islink(link_path) or not os.path.exists(link_path)
 
 
 def _clean_tasks_and_steps(tasks, base_work_dir):

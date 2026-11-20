@@ -158,7 +158,7 @@ def test_realistic_global_init_icos240km_steps():
         'spherical/realistic_global/icos240km/init/pstar_init'
     )
     assert task.steps['initial_state'].subdir == (
-        'spherical/realistic_global/icos240km/init/initial_state'
+        'spherical/realistic_global/icos240km/init/mpas-ocean/initial_state'
     )
 
 
@@ -197,7 +197,7 @@ def test_realistic_global_forward_icos240km_steps():
     )
     # the init step is shared with the init task (same work dir)
     assert task.steps['initial_state'].subdir == (
-        'spherical/realistic_global/icos240km/init/initial_state'
+        'spherical/realistic_global/icos240km/init/mpas-ocean/initial_state'
     )
 
 
