@@ -65,9 +65,12 @@
    inputdata.get_nonempty_option
    inputdata.get_creation_date
    inputdata.set_creation_date
+   inputdata.get_recorded_option
    inputdata.ocean_dir
+   inputdata.omega_dir
    inputdata.seaice_dir
    inputdata.ocean_initial_condition_path
+   inputdata.omega_initial_condition_path
    inputdata.ocean_graph_path
    inputdata.ocean_partition_path
    inputdata.seaice_initial_condition_path
@@ -210,11 +213,13 @@
 
    ComponentInputsAssembleStep
    ComponentInputsAssembleStep.run
+   assemble.target_products
 
    ComponentInputsTask
    ComponentInputsTask.configure
 
    get_component_inputs_steps
+   steps.get_component_inputs_config
    add_component_inputs_tasks
 ```
 
@@ -227,20 +232,20 @@
    :toctree: generated/
 
    ocean_mesh.OceanMeshStep
-   ocean_mesh.OceanMeshStep.setup
    ocean_mesh.OceanMeshStep.run
    ocean_mesh.VERT_COORD_VARS
 
    ocean_initial_condition.OceanInitialConditionStep
-   ocean_initial_condition.OceanInitialConditionStep.setup
    ocean_initial_condition.OceanInitialConditionStep.run
 
+   omega_initial_condition.OmegaInitialConditionStep
+   omega_initial_condition.OmegaInitialConditionStep.run
+   omega_initial_condition.STATE_VARS
+
    ocean_graph_partition.OceanGraphPartitionStep
-   ocean_graph_partition.OceanGraphPartitionStep.setup
    ocean_graph_partition.OceanGraphPartitionStep.run
 
    moc_masks.MocMasksStep
-   moc_masks.MocMasksStep.setup
    moc_masks.MocMasksStep.run
    moc_masks.MESH_FILENAME
 ```
