@@ -17,7 +17,7 @@ import sys
 import matplotlib.pyplot as plt
 from matplotlib.patches import Circle, FancyBboxPatch
 
-STATUS_DATE = '2026-11-07'
+STATUS_DATE = '2026-11-21'
 
 SURFACE = '#fcfcfb'
 INK = '#0b0b0b'
@@ -43,11 +43,11 @@ ROWS = [
     ('WP1', 'Standalone ISOMIP+ Ocean0–2 and thin-film tasks',
      'polaris #826 (partial bottom cells), #844', 'review', 0, ''),
     ('WP2', 'Split-explicit wetting and drying with a thin film',
-     "E3SM-O-D #176, #180, #185 merged; #175 awaits review; #861",
+     'E3SM-O-D #176, #180, #185, #187, #189 merged; drafts #175, #194, #861',
      'drafting', 4,
      ''),
     ('WP3', 'Landice component: MALI + Albany in Polaris',
-     'polaris #871; E3SM-O-D #151, #183 merged', 'draft', 0, ''),
+     'polaris #871, E3SM-O-D #151, #183 merged; #942', 'merged', 0, ''),
     ('WP4', 'MISMIP+ spin-up with MALI',
      'polaris #922; 1 km spin-up converged; front restored',
      'draft', 0, ''),
@@ -61,11 +61,11 @@ ROWS = [
      'E3SM-O-D #156–#163 merged; design polaris #937', 'draft',
      0, ''),
     ('WP8', 'Moving grounding line in coupled runs',
-     'E3SM-O-D #164–#174, #179, #181, #182, #184 merged; stage E to restart',
+     'E3SM-O-D #164–#174, #179, #181, #182, #184, #193, #195 merged',
      'started', 2,
      ''),
     ('WP9', 'Analysis of the E3SM runs',
-     'polaris #939 (overturning from the volume budget), #940; 2 km pages',
+     'polaris #939 (overturning from the volume budget); #940 merged',
      'drafting', 1, ''),
     ('WP10', 'Subgrid wetting and drying (optional)', '', 'none', None,
      'no stage needs it'),
