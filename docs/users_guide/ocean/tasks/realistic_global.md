@@ -149,7 +149,9 @@ comes from the ice thickness and does not change.  The sea-surface height
 starts at the draft of ice floating with that pressure.  A column the ice would
 leave too thin, under grounded or floating ice, is a thin film of fresh water
 at its freezing point, 5 cm in each layer.  The wind stress is zero under land
-ice.  The dynamic adjustment begins with SSH adjustment: `[ssh_adjustment]
+ice.  MPAS-Ocean evaluates its equation of state at each layer's own depth
+(`config_eos_jm_pressure_from_zMid`), not at the layer's reference depth, from
+which z-star moves layers far under deep ice.  The dynamic adjustment begins with SSH adjustment: `[ssh_adjustment]
 iterations` short runs, each followed by setting the SSH under land ice to
 where the run left it.
 

@@ -10,6 +10,13 @@ mpas-ocean:
     # so its pressure gradient blends toward the two-term form where a layer
     # leaves either cell's water column, as for E3SM physics in ISOMIP+
     config_jacobian_limit_to_water_column: true
+  eos_jm:
+    # under deep ice, z-star lifts layers hundreds of meters above their
+    # reference depths, so jm evaluates each layer at its own depth rather
+    # than at its reference depth.  Otherwise, density and pressure disagree
+    # on depth, which the two-term pressure gradient near the bed turns into
+    # spurious flow.
+    config_eos_jm_pressure_from_zMid: true
   ALE_vertical_grid:
     # keep every layer at least as thick as wetting and drying needs, while
     # the resting thicknesses stay z-star, so thin columns have uniform
