@@ -1,0 +1,6 @@
+ocean/spherical/icos/galewsky_jet/steady_state
+ocean/spherical/icos/galewsky_jet/adjustment
+ocean/spherical/icos/galewsky_jet/unstable
+ocean/spherical/qu/galewsky_jet/steady_state
+ocean/spherical/qu/galewsky_jet/adjustment
+ocean/spherical/qu/galewsky_jet/unstable

@@ -14,6 +14,7 @@ cosine_bell
 customizable_viz
 external_gravity_wave
 feature_masks
+galewsky_jet
 geostrophic
 realistic_global
 horiz_press_grad

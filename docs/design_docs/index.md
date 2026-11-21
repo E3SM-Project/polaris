@@ -6,6 +6,7 @@
 :titlesonly: true
 
 e3sm_init_component_inputs
+galewsky_jet
 global_ocean_dynamic_adjustment
 global_ocean_forward
 global_ocean_init
