@@ -145,7 +145,10 @@ ice-equivalent thickness at MALI's ice density (see
 {ref}`e3sm-init-topo-tasks`).
 
 Under the ice, the treatment follows the ISOMIP+ tasks.  The land-ice pressure
-comes from the ice thickness and does not change.  The sea-surface height
+comes from the ice thickness and does not change.  Where ice covers only part
+of a cell's ocean, as at a calving front, the pressure is that of the ice
+itself, not diluted by the open water, so the load ends at the front.  The
+sea-surface height
 starts at the draft of ice floating with that pressure.  A column the ice would
 leave too thin, under grounded or floating ice, is a thin film of fresh water
 at its freezing point, 5 cm in each layer.  The wind stress is zero under land

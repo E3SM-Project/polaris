@@ -12,6 +12,7 @@ from polaris.tasks.ocean.realistic_global.init.pstar_init import (
     _clamp_geom_z_bot,
     _fill_tracer_columns,
     _geom_z_bot_from_topo,
+    _ice_covered_thickness,
     add_land_ice_fields,
     compute_land_ice_load,
     estimate_level_count,
@@ -528,6 +529,26 @@ def test_land_ice_fields():
     assert ds_out.thinFilmMask.values.tolist() == [[0, 0, 1]]
     for name in ['landIcePressure', 'landIceDraft']:
         assert ds_out[name].dims == ('Time', 'nCells')
+
+
+def test_ice_covered_thickness_is_the_thickness_of_the_ice_itself():
+    # every cell holds 400 m thick ice: over all of its ocean, over a
+    # quarter of it (a calving front), and over half of the ocean part of a
+    # cell that is half land; the last cell has no ice
+    ds_topo = xr.Dataset(
+        {
+            'ocean_frac': ('nCells', [1.0, 1.0, 0.5, 1.0]),
+            'ocean_masked_ice_frac': ('nCells', [1.0, 0.25, 0.25, 0.0]),
+            'ocean_masked_ice_thickness': (
+                'nCells',
+                [400.0, 100.0, 200.0, 0.0],
+            ),
+        }
+    )
+
+    thickness = _ice_covered_thickness(ds_topo)
+
+    assert thickness.values == pytest.approx([400.0, 400.0, 400.0, 0.0])
 
 
 def test_filling_holes_settles_the_thin_film_layers():

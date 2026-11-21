@@ -154,9 +154,7 @@ class RealisticPStarInitStep(PStarInitStep):
         land_ice_pressure = None
         if has_ice_shelf_cavities(self.config):
             land_ice_pressure = compute_land_ice_pressure_from_thickness(
-                land_ice_thickness=ds_topo.ocean_masked_ice_thickness.fillna(
-                    0.0
-                ),
+                land_ice_thickness=_ice_covered_thickness(ds_topo),
                 modify_mask=ds_topo.landIceMask,
                 land_ice_density=self.config.getfloat(
                     'realistic_global_cavities', 'land_ice_density'
@@ -832,6 +830,32 @@ def _ocean_part_fraction(ds_topo, frac_name):
     has_ocean = ocean_frac > 0.0
     fraction = ds_topo[frac_name].fillna(0.0) / ocean_frac.where(has_ocean)
     return fraction.where(has_ocean, 0.0).clip(0.0, 1.0)
+
+
+def _ice_covered_thickness(ds_topo):
+    """
+    The mean thickness of the land ice over the part of each cell's ocean
+    that it covers.  ``ocean_masked_ice_thickness`` is a mean over the whole
+    ocean part, open water included, so at a calving front it is diluted by
+    the cell's open water, and the load would ramp down over a cell or two
+    instead of ending at the front.
+
+    Parameters
+    ----------
+    ds_topo : xarray.Dataset
+        The culled topography, with ``ocean_frac``,
+        ``ocean_masked_ice_frac`` and ``ocean_masked_ice_thickness``
+
+    Returns
+    -------
+    xarray.DataArray
+        The ice thickness (m), unchanged where no part of the cell's ocean
+        is under ice
+    """
+    thickness = ds_topo.ocean_masked_ice_thickness.fillna(0.0)
+    ice_frac = _ocean_part_fraction(ds_topo, 'ocean_masked_ice_frac')
+    covered = ice_frac > 0.0
+    return (thickness / ice_frac.where(covered)).where(covered, thickness)
 
 
 def _clamp_geom_z_bot(
