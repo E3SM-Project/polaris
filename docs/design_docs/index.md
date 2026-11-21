@@ -14,6 +14,7 @@ horiz_press_grad_reference
 land_locked_cells
 landice_component
 mixed_layer_eddies
+misomip
 ocean_analysis
 ocean_analysis_initial
 omega_pr_testing
