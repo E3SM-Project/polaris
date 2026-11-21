@@ -178,7 +178,10 @@ Wind stress is zero wherever `landIceMask` is set.
 
 Land-ice fluxes are `off` with `config_use_land_ice_pressure`, in FAnSSIE's
 form, during the SSH and dynamic adjustments.  Melting is `active`.
-Wetting and drying is on, with the thin-film options ISOMIP+ uses.  It
+MPAS-Ocean evaluates its `jm` equation of state at each layer's own depth,
+since z-star moves layers under deep ice far from the reference depths `jm`
+otherwise uses.  Wetting and drying is on, with the thin-film options
+ISOMIP+ uses.  It
 exists in MPAS-Ocean's `split_explicit` and `RK4` integrators but not in
 `split_explicit_ab2`, so runs with cavities use `split_explicit`.
 
