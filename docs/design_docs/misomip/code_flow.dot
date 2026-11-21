@@ -51,14 +51,14 @@ digraph fanssie {
     d194 [label=<<b>#194</b>  split-explicit thin film under ice shelves;<br/>dry layers reopen under inflow<br/><font color="#52514e">draft · stacked on #175 · in stage E's runs</font>>, fillcolor="#e8e8e4"];
     d186 [label=<<b>#186–#190, #193</b>  CVMix's boundary-layer index without KPP;<br/>split-explicit tracer limiter on the updated state;<br/>PCD 0.3.0; capped inflow into thin films;<br/>surface fluxes renormalized over each column;<br/>grounded ice left out of glc's shelf geometry<br/><font color="#52514e">merged into FAnSSIE</font>>, fillcolor="#e3fcef"];
     d195 [label=<<b>#195</b>  the ocean melts at most the floating ice MALI has<br/>(option, default off)<br/><font color="#52514e">merged into FAnSSIE Nov 21</font>>, fillcolor="#e3fcef"];
-    dmask [label=<<b>land-ice mask fixed during a run</b><br/>(E3SM#8887's change; undoes #166's update)<br/><font color="#52514e">PR to come</font>>, fillcolor="#ffffff"];
+    dmask [label=<<b>#197</b>  land-ice mask fixed during a run<br/>(E3SM#8887's change; undoes #166's update)<br/><font color="#52514e">merged into FAnSSIE Nov 21</font>>, fillcolor="#e3fcef"];
     d176 [label=<<b>#176, #180</b>  split-explicit Coriolis in RK4's PV-flux form<br/>(option, default off, settable in E3SM's namelists;<br/>also proposed against master as #177)<br/><font color="#52514e">merged into FAnSSIE</font>>, fillcolor="#e3fcef"];
     d178 [label=<<b>#178, #179, #181, #182</b>  MALI skips inactive thermal-forcing fields;<br/>glc's ice-shelf geometry on its own (smoothed) map;<br/>the ocean ramps glc's land-ice pressure;<br/>MALI-Dev #211, cherry-picked<br/><font color="#52514e">merged into FAnSSIE</font>>, fillcolor="#e3fcef"];
     d184 [label=<<b>#184</b>  the thickness flux the integrator applies,<br/>for exact mean transports (option, default off)<br/><font color="#52514e">merged into FAnSSIE</font>>, fillcolor="#e3fcef"];
     dvadv [label=<<b>#185</b>  edge-mean thickness in momentum's<br/>vertical advection at film edges<br/><font color="#52514e">merged into FAnSSIE</font>>, fillcolor="#e3fcef"];
     d151 [label=<<b>#151, #183</b>  merge MALI-Dev's develop (Oct 9, Nov 7)<br/><font color="#52514e">merged into FAnSSIE</font>>, fillcolor="#e3fcef"];
     d158 [label=<<b>#158–#163</b>  ocean without an atmosphere; wetting and drying<br/>and tidal forcing in E3SM; kept floating fraction;<br/>MPAS-Ocean inputs named by case variables;<br/>an option that keeps glc runoff out of the ocean;<br/>conserved fluxes under ice shelves<br/><font color="#52514e">merged into FAnSSIE</font>>, fillcolor="#e3fcef"];
-    d164 [label=<<b>#164–#167</b>  grounded-ice pressure cap in one threaded loop;<br/>one ocean density from pressure to depth;<br/>land-ice mask follows the ice fraction (to be undone);<br/>land-ice geometry in monthly means<br/><font color="#52514e">merged into FAnSSIE</font>>, fillcolor="#e3fcef"];
+    d164 [label=<<b>#164–#167</b>  grounded-ice pressure cap in one threaded loop;<br/>one ocean density from pressure to depth;<br/>land-ice mask follows the ice fraction (undone by #197);<br/>land-ice geometry in monthly means<br/><font color="#52514e">merged into FAnSSIE</font>>, fillcolor="#e3fcef"];
     d168 [label=<<b>#168</b>  MALI's data-mode export follows its thickness file<br/><font color="#52514e">merged into FAnSSIE</font>>, fillcolor="#e3fcef"];
     d169 [label=<<b>#169, #170</b>  no frazil or melt where glc has too little floating ice;<br/>slivers of imported land ice are open ocean<br/><font color="#52514e">merged into FAnSSIE</font>>, fillcolor="#e3fcef"];
     d171 [label=<<b>#171, #172</b>  land ice's heat capacity from E3SM's constants;<br/>ice enthalpy in glc's heat budget<br/><font color="#52514e">merged into FAnSSIE</font>>, fillcolor="#e3fcef"];
@@ -106,7 +106,7 @@ digraph fanssie {
   d194 -> fanssie [style=dashed];
   d186 -> fanssie;
   d195 -> fanssie;
-  dmask -> fanssie [style=dashed];
+  dmask -> fanssie;
   m211 -> malidev;
   m213 -> malidev;
   m219 -> malidev;
