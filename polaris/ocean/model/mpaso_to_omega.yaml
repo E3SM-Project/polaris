@@ -393,12 +393,12 @@ config:
     # since it always uses the fixed-property-style formulation
     config_frazil_fractional_thickness_limit: LayerMassFracMax
     config_frazil_maximum_depth: DepthLimit
-    # Note: config_frazil_heat_of_fusion, config_frazil_ice_density,
-    #       config_frazil_sea_ice_reference_salinity,
-    #       config_frazil_use_surface_pressure,
+    # Note: config_frazil_use_surface_pressure,
     #       config_frazil_maximum_freezing_temperature,
     #       config_use_frazil_ice_porosity and config_frazil_ice_porosity
-    #       have no Omega equivalent; Omega currently uses fixed global
-    #       constants (LatIce, IceRefSal) instead of configurable values
-    #       for these quantities.  Similarly, Omega's Phi and
-    #       ConservationCheck options have no MPAS-Ocean equivalent.
+    #       have no Omega equivalent.  Both models use fixed shared
+    #       constants for the heat of fusion and sea-ice reference
+    #       salinity, but MPAS-Ocean uses the fresh-water density for
+    #       frazil ice where Omega uses the seawater reference density.
+    #       Similarly, Omega's Phi and ConservationCheck options have no
+    #       MPAS-Ocean equivalent.

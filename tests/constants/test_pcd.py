@@ -22,6 +22,7 @@ from polaris.constants.pcd import (
         ('ocean_reference_salinity_teos10', 35.16504),
         ('seconds_per_day', 86400),
         ('iron_molar_mass_reference', 0.055845),
+        ('ice_shelf_seawater_density_reference', 1028.0),
     ],
 )
 def test_get_constant_expected_values(name, expected):
