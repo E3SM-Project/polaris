@@ -1,0 +1,291 @@
+# Regional zoom insets for MPAS ocean mesh checks.
+#
+# Entries are an ordered list; an inset's number is its (1-based) position.
+# Append new regions at the end so existing numbers do not shift.
+#
+# Fields:
+#   name     unique, human-readable region name (used in the figure title).
+#            If the name constains a ":" character it must be single quoted
+#   centlat  latitude of the view center (degrees north)
+#   centlon  longitude of the view center (degrees east)
+#   horizon  angular radius of the orthographic view (degrees, 0-90)
+
+- name: Canadian Archipelago
+  centlat: 75
+  centlon: -94
+  horizon: 10
+
+- name: North Sea, Norwegian Sea, Baltic Sea, and White Sea
+  centlat: 62
+  centlon: 23
+  horizon: 10.5
+
+- name: Kara Sea and Gulf of Ob'
+  centlat: 74
+  centlon: 71
+  horizon: 9
+
+- name: Beaufort Sea
+  centlat: 72
+  centlon: -145
+  horizon: 7
+
+- name: Bering Sea and Chukchi Sea
+  centlat: 64
+  centlon: -172
+  horizon: 6
+
+- name: Sea of Okhotsk
+  centlat: 55
+  centlon: 148
+  horizon: 11.5
+
+- name: Laptev Sea
+  centlat: 75
+  centlon: 135
+  horizon: 8
+
+- name: Sea of Japan
+  centlat: 43.5
+  centlon: 135
+  horizon: 12.5
+
+- name: Hudson Bay
+  centlat: 60.75
+  centlon: -76.5
+  horizon: 10
+
+- name: Gulf of Alaska
+  centlat: 56
+  centlon: -150
+  horizon: 7
+
+- name: Gulf of St. Lawrence
+  centlat: 49
+  centlon: -62
+  horizon: 7
+
+- name: North Pacific
+  centlat: 53
+  centlon: -175
+  horizon: 12
+
+- name: California Coast
+  centlat: 32
+  centlon: -120
+  horizon: 8
+
+- name: North Pacific Coast
+  centlat: 47
+  centlon: -128
+  horizon: 8
+
+- name: South Greenland
+  centlat: 65
+  centlon: -40
+  horizon: 6.5
+
+- name: North Greenland
+  centlat: 76
+  centlon: -40
+  horizon: 8
+
+- name: British Isles
+  centlat: 54
+  centlon: -4
+  horizon: 5.5
+
+- name: West Mediterranean and Bay of Biscay
+  centlat: 40
+  centlon: 0
+  horizon: 9
+
+- name: East Mediterranean
+  centlat: 36
+  centlon: 22
+  horizon: 12.5
+
+- name: Chesapeake Bay and Delaware Bay
+  centlat: 37.5
+  centlon: -75.5
+  horizon: 2.5
+
+- name: Atlantic Coast
+  centlat: 34.5
+  centlon: -73
+  horizon: 9.8
+
+- name: Mexican Pacific
+  centlat: 22
+  centlon: -107
+  horizon: 8
+
+- name: Gulf of Mexico
+  centlat: 24
+  centlon: -90
+  horizon: 8.5
+
+- name: Gulf of Aden
+  centlat: 12
+  centlon: 47
+  horizon: 8
+
+- name: Persian Gulf
+  centlat: 27
+  centlon: 55
+  horizon: 8
+
+- name: Andaman Sea, Strait of Malacca, and Gulf of Thailand
+  centlat: 9
+  centlon: 100
+  horizon: 8
+
+- name: Java Sea
+  centlat: -4
+  centlon: 107
+  horizon: 7
+
+- name: 'Indonesian Throughflow: Celebes Sea, Banda Sea and Timor Sea'
+  centlat: -5
+  centlon: 124
+  horizon: 12
+
+- name: Agulhas Bank and Plateau
+  centlat: -33
+  centlon: 28
+  horizon: 10
+
+- name: Drake Passage
+  centlat: -58
+  centlon: -63
+  horizon: 8
+
+- name: Weddell Sea
+  centlat: -72
+  centlon: -43
+  horizon: 12.4
+
+- name: Bellingshausen Sea
+  centlat: -69
+  centlon: -85
+  horizon: 8
+
+- name: Amundsen Sea
+  centlat: -73
+  centlon: -120
+  horizon: 8
+
+- name: Ross Sea
+  centlat: -78
+  centlon: -170
+  horizon: 8
+
+- name: Maud Rise
+  centlat: -66
+  centlon: 2
+  horizon: 8
+
+- name: Antarctica
+  centlat: -88
+  centlon: 0
+  horizon: 27
+
+- name: 'Northwest Passage: Victoria Island'
+  centlat: 71
+  centlon: -114
+  horizon: 5
+
+- name: Utqiagvik
+  centlat: 71
+  centlon: -156.5
+  horizon: 2
+
+- name: Caribbean Sea
+  centlat: 20
+  centlon: -75
+  horizon: 8
+
+- name: South China Sea
+  centlat: 16
+  centlon: 115
+  horizon: 11
+
+- name: Hawaii
+  centlat: 21
+  centlon: -158
+  horizon: 4
+
+- name: Marshall Islands
+  centlat: 12
+  centlon: 165
+  horizon: 5
+
+- name: New Zealand
+  centlat: -41
+  centlon: 173
+  horizon: 15
+
+- name: Tasmania
+  centlat: -40
+  centlon: 146
+  horizon: 10
+
+- name: Filchner-Ronne Coupling
+  centlat: -72
+  centlon: -30
+  horizon: 8
+
+- name: Mertz Polynya
+  centlat: -66
+  centlon: 144
+  horizon: 5
+
+- name: Terra Nova Polynya
+  centlat: -72
+  centlon: 174
+  horizon: 5
+
+- name: Amazon Outflow
+  centlat: 3
+  centlon: -47
+  horizon: 8
+
+- name: Arafura Sea
+  centlat: -12
+  centlon: 138
+  horizon: 8
+
+- name: Patagonia
+  centlat: -49
+  centlon: -70
+  horizon: 8
+
+- name: Pacific Detail on Sphere
+  centlat: 14.5
+  centlon: 166.4
+  horizon: 0.75
+
+- name: Pacific 4xCO2 Crash Point
+  centlat: 26.5
+  centlon: 144
+  horizon: 20
+
+- name: East Pacific Pentagon
+  centlat: 26.5
+  centlon: -144
+  horizon: 20
+
+- name: South Pacific Pentagon
+  centlat: -26.5
+  centlon: 180
+  horizon: 20
+
+- name: Atlantic Pentagon
+  centlat: 26.5
+  centlon: -72
+  horizon: 20
+
+- name: Central Arctic
+  centlat: 90
+  centlon: -100
+  horizon: 30

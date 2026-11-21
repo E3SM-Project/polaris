@@ -543,6 +543,22 @@
    viz.Viz.run
 ```
 
+### mesh_review
+
+```{eval-rst}
+.. currentmodule:: polaris.tasks.ocean.mesh_review
+
+.. autosummary::
+   :toctree: generated/
+
+   add_mesh_review_tasks
+
+   MeshReviewStep
+   MeshReviewStep.setup
+   MeshReviewStep.run
+   MeshReviewTask
+```
+
 ### merry_go_round
 
 ```{eval-rst}

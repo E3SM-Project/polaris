@@ -20,6 +20,7 @@ from polaris.tasks.ocean.manufactured_solution import (
     add_manufactured_solution_tasks as add_manufactured_solution_tasks,
 )
 from polaris.tasks.ocean.merry_go_round import add_merry_go_round_tasks
+from polaris.tasks.ocean.mesh_review import add_mesh_review_tasks
 from polaris.tasks.ocean.mixed_layer_eddies import (
     add_mixed_layer_eddies_tasks as add_mixed_layer_eddies_tasks,
 )
@@ -67,5 +68,6 @@ def add_ocean_tasks(component):
     add_feature_mask_tasks(component=component)
     add_geostrophic_tasks(component=component)
     add_isomip_plus_tasks(component=component, mesh_type='spherical')
+    add_mesh_review_tasks(component=component)
     add_realistic_global_tasks(component=component)
     add_sphere_transport_tasks(component=component)

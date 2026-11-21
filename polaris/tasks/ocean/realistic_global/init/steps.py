@@ -3,6 +3,7 @@ import os
 from polaris.config import PolarisConfigParser
 from polaris.step import Step
 from polaris.tasks.e3sm.init.topo.cull.steps import get_cull_topo_steps
+from polaris.tasks.ocean.mesh_review import MeshReviewStep
 from polaris.tasks.ocean.realistic_global.forcing.jra55.steps import (
     get_jra55_steps,
 )
@@ -53,7 +54,9 @@ def get_realistic_init_steps(
     * :py:class:`.RealisticPStarInitStep`
     * :py:class:`.InitialStateStep`
     * :py:class:`.ForcingStep`
-    * :py:class:`.VizInitStep`, only if ``include_viz`` is ``True``
+    * :py:class:`.VizInitStep` and
+      :py:class:`~polaris.tasks.ocean.mesh_review.MeshReviewStep`, only if
+      ``include_viz`` is ``True``
 
     :py:class:`.InitialStateStep`, :py:class:`.ForcingStep` and
     :py:class:`.VizInitStep` write or read files in one model's format, so
@@ -75,10 +78,11 @@ def get_realistic_init_steps(
         The name of the MPAS mesh (e.g. ``'icos240km'``).
 
     include_viz : bool, optional
-        Whether to include the (shared) :py:class:`.VizInitStep` in the
-        returned steps.  The step is always created as a shared component step
-        so it is part of the workflow, but it is only added to the returned
-        dict (and therefore to a task's ``steps_to_run``) when this is
+        Whether to include the (shared) :py:class:`.VizInitStep` and
+        :py:class:`~polaris.tasks.ocean.mesh_review.MeshReviewStep` in the
+        returned steps.  The steps are always created as shared component
+        steps so they are part of the workflow, but they are only added to the
+        returned dict (and therefore to a task's ``steps_to_run``) when this is
         ``True``.  The standalone ``RealisticGlobalInit`` task passes
         ``include_viz=True``; other consumers that reuse the init outputs as
         dependencies leave it ``False`` so the plots are not regenerated.
@@ -199,6 +203,18 @@ def get_realistic_init_steps(
         remap_jra55_step=remap_jra55_step,
     )
 
+    mesh_review_step = component.get_or_create_shared_step(
+        step_cls=MeshReviewStep,
+        subdir=os.path.join(base_subdir, 'mesh_review'),
+        config=config,
+        config_filename=config_filename,
+        init_filename=os.path.join(init_step.path, 'init.nc'),
+        mesh_filename=os.path.join(
+            cull_mesh_step.path, 'culled_ocean_mesh.nc'
+        ),
+        vert_coord_filename=os.path.join(init_step.path, 'vert_coord.nc'),
+    )
+
     steps: dict[str, Step] = dict(cull_steps)
     steps.update(woa23_steps)
     steps.update(jra55_steps)
@@ -212,6 +228,7 @@ def get_realistic_init_steps(
     steps[forcing_step.name] = forcing_step
     if include_viz:
         steps[viz_step.name] = viz_step
+        steps[mesh_review_step.name] = mesh_review_step
     return steps, config
 
 
@@ -268,6 +285,9 @@ def _get_init_config(component, subdir, config_filename, mesh_name):
         config.add_from_package(
             'polaris.tasks.ocean.realistic_global.init',
             config_filename,
+        )
+        config.add_from_package(
+            'polaris.tasks.ocean.mesh_review', 'mesh_review.cfg'
         )
         add_realistic_global_mesh_config(config=config, mesh_name=mesh_name)
         return config

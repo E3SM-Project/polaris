@@ -818,8 +818,12 @@ seaice/api
    determine_time_variable
    get_projection
    get_viz_defaults
+   Inset
+   load_insets
    mplstyle_context
    plot_horiz_field
+   plot_inset
+   plot_inset_overviews
    plot_global_lat_lon_field
    plot_global_mpas_field
    plot_lat_elevation_field
