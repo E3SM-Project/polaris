@@ -144,7 +144,7 @@ and that component may have a model of its own to find or build.  Each
 component with a model has its own flags for this:
 
 ```bash
-polaris setup -t e3sm/init/<mesh>/component_inputs/tasks/all \
+polaris setup -t e3sm/init/<mesh>/component_inputs/tasks/mpas-ocean/all \
   -m $MACHINE -w $WORKDIR --ocean_path $OCEAN_BUILD
 ```
 

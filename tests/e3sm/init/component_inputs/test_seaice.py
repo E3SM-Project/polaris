@@ -44,7 +44,9 @@ def test_the_seaice_steps_reach_no_ocean_step():
     them.
     """
     _reset_shared_components()
-    steps, _ = get_component_inputs_steps(mesh_name=MESH_NAME)
+    steps, _ = get_component_inputs_steps(
+        mesh_name=MESH_NAME, model='mpas-ocean'
+    )
     ocean_subdirs = set(ocean.steps)
 
     for name in ALL_SEAICE_STEPS:
@@ -73,7 +75,9 @@ def test_the_seaice_steps_read_only_the_culled_mesh():
     worth pinning exactly rather than just checking it is ocean-free.
     """
     _reset_shared_components()
-    steps, _ = get_component_inputs_steps(mesh_name=MESH_NAME)
+    steps, _ = get_component_inputs_steps(
+        mesh_name=MESH_NAME, model='mpas-ocean'
+    )
     cull_path = steps['cull_mesh'].path
 
     for name in SEAICE_STEPS:
@@ -92,7 +96,9 @@ def test_the_mapping_file_is_built_by_its_own_step():
     and must reach the weights through the step that is.
     """
     _reset_shared_components()
-    steps, _ = get_component_inputs_steps(mesh_name=MESH_NAME)
+    steps, _ = get_component_inputs_steps(
+        mesh_name=MESH_NAME, model='mpas-ocean'
+    )
 
     partition_map = steps['seaice_partition_map']
     graph_partition = steps['seaice_graph_partition']
@@ -115,7 +121,9 @@ def test_the_mapping_tool_resources_travelled_to_the_mapping_step():
     partitioning step is left serial.
     """
     _reset_shared_components()
-    steps, _ = get_component_inputs_steps(mesh_name=MESH_NAME)
+    steps, _ = get_component_inputs_steps(
+        mesh_name=MESH_NAME, model='mpas-ocean'
+    )
 
     assert steps['seaice_partition_map'].ntasks > 1
     assert steps['seaice_graph_partition'].ntasks == 1
@@ -123,7 +131,9 @@ def test_the_mapping_tool_resources_travelled_to_the_mapping_step():
 
 def test_the_seaice_steps_belong_to_e3sm_init():
     _reset_shared_components()
-    steps, _ = get_component_inputs_steps(mesh_name=MESH_NAME)
+    steps, _ = get_component_inputs_steps(
+        mesh_name=MESH_NAME, model='mpas-ocean'
+    )
 
     base = f'{MESH_NAME}/component_inputs'
     assert steps['seaice_mesh'].subdir == f'{base}/seaice_mesh'
@@ -203,7 +213,9 @@ def test_a_rerun_with_every_partition_built_still_writes_the_plot(tmp_path):
     even though there is nothing left to partition.
     """
     _reset_shared_components()
-    steps, config = get_component_inputs_steps(mesh_name=MESH_NAME)
+    steps, config = get_component_inputs_steps(
+        mesh_name=MESH_NAME, model='mpas-ocean'
+    )
     step = steps['seaice_graph_partition']
     config.set('component_inputs', 'max_cells_per_core', '20')
     config.set('component_inputs', 'min_cells_per_core', '10')
@@ -266,7 +278,9 @@ def _run_seaice_initial_condition(ds_mesh, tmp_path):
     Coriolis, or started copying it from somewhere, would fail here.
     """
     _reset_shared_components()
-    steps, config = get_component_inputs_steps(mesh_name=MESH_NAME)
+    steps, config = get_component_inputs_steps(
+        mesh_name=MESH_NAME, model='mpas-ocean'
+    )
     step = steps['seaice_initial_condition']
     assert isinstance(step, SeaiceInitialConditionStep)
 

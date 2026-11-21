@@ -20,10 +20,11 @@ fails as an import error that is hard to place.
 
 ## Steps
 
-`get_component_inputs_steps(mesh_name, target)` follows the same pattern as
-`get_cull_topo_steps` and `get_realistic_dynamic_adjustment_steps`: every step
-comes from `Component.get_or_create_shared_step`, so the three tasks that
-share most of these steps get the same instances.
+`get_component_inputs_steps(mesh_name, target, model)` follows the same
+pattern as `get_cull_topo_steps` and `get_realistic_dynamic_adjustment_steps`:
+every step comes from `Component.get_or_create_shared_step`, so the tasks that
+share most of these steps get the same instances.  `target_products()` in
+`assemble.py` says which products each target stages for each ocean model.
 
 It builds **only what `target` needs**.  Asking for `seaice` does not create
 the dynamic-adjustment steps at all, so a sea-ice task never waits for a model
@@ -34,8 +35,9 @@ it needs, from the base mesh onward, so it can be set up on its own.
 |---|---|---|
 | `BaseMeshStep` | `base_mesh.nc`, the three `*_map_culled_to_base.nc` | `base_mesh_with_maps.nc` |
 | `ScripStep` | the cull step's three SCRIP files | `<region>.scrip.nc` |
-| `OceanMeshStep` | the initial state's `mesh.nc` and `init.nc` | `ocean_mesh.nc` |
-| `OceanInitialConditionStep` | the final adjustment stage's restart, once that stage's check has passed | `ocean_initial_condition.nc` |
+| `OceanMeshStep` | MPAS-Ocean's initial state's `mesh.nc` and `init.nc` | `ocean_mesh.nc` |
+| `OceanInitialConditionStep` | MPAS-Ocean's final adjustment stage's restart, once that stage's check has passed | `ocean_initial_condition.nc` |
+| `OmegaInitialConditionStep` | Omega's initial state's `mesh.nc` and `vert_coord.nc`, and its final adjustment stage's restart, once that stage's check has passed | `ocean_initial_condition.nc` |
 | `OceanGraphPartitionStep` | `culled_ocean_graph.info` | `mpas-o.graph.info.part.*` |
 | `MocMasksStep` | `culled_ocean_mesh.nc` | `<mesh>_mocBasinsAndTransects<features_date>.nc` |
 | `SeaiceMeshStep` | `culled_ocean_mesh.nc` | `seaice_mesh.nc`, read by the partition steps rather than staged |
@@ -52,11 +54,28 @@ on it and reads the weights off its remapper, since the mapping file's path is
 not known until it has run.  This is the same division `realistic_global` uses
 between `Woa23MapStep` and `RemapWoa23Step`.
 
-Work directories are `e3sm/init/<mesh>/component_inputs/<step_name>`, and the
-tasks are at `e3sm/init/<mesh>/component_inputs/tasks/{ocean,seaice,all}`.
-Putting the tasks under `tasks/` keeps a task subdirectory from colliding with
-a step subdirectory, which is a real risk when three tasks share most of their
-steps.
+Work directories are `e3sm/init/<mesh>/component_inputs/<step_name>` for the
+steps whose outputs do not depend on the ocean model, and
+`e3sm/init/<mesh>/component_inputs/<model>/<step_name>` for those that do: the
+ocean initial condition, the MPAS-Ocean mesh and the ocean targets' assembly
+steps.  The model's steps read their own copy of `component_inputs.cfg` in
+that directory, as the realistic-global model-dependent steps do (see
+{ref}`dev-ocean-realistic-global-model-directories`).  The ocean graph
+partitions and MOC masks are MPAS-Ocean products but depend only on the
+culled mesh, so they keep one directory.
+
+The tasks are at `e3sm/init/<mesh>/component_inputs/tasks/seaice` and
+`e3sm/init/<mesh>/component_inputs/tasks/<model>/{ocean,all}`.  An ocean
+model's tasks are built for that model, so its task directories never hold
+the other model's step links or logs.  Putting the tasks under `tasks/` keeps
+a task subdirectory from colliding with a step subdirectory, which is a real
+risk when the tasks share most of their steps.
+
+`ComponentInputsTask.configure()` fills in the creation dates.  The mesh's
+date is recorded in the model-neutral `component_inputs.cfg`, which every
+setup writes, and copied into the model's, so a second model's setup stamps
+the shared products with the date already used for them.  Each model's
+`ocean_creation_date` is its own.
 
 The land mesh has no step of its own.  Unlike the SCRIP files it carries no
 mesh name to restamp, and unlike the ocean mesh it needs no vertical
@@ -103,13 +122,12 @@ without a work directory.
   every forward-map value is a valid base index and that no base index appears
   twice; a violation means a stale file from a different mesh, which would
   otherwise scatter into a plausible-looking wrong answer.
-- `models.py` — the ocean model gate, which each ocean staging step calls at
-  the start of setup.  It reads the model the ocean component was configured
-  with, so the staged files always match the model the dynamic adjustment
-  ran.  It exists even though only MPAS-Ocean is supported, so that adding
-  Omega means filling in a gate that is already there rather than adding
-  model selection to steps that assumed MPAS-Ocean.  Sea ice needs no gate:
-  which task is set up decides whether sea-ice files are staged.
+- `models.py` — the check, made by each ocean task's `configure()`, that the
+  ocean component is set up for the task's model.  The staged files always
+  match the model the dynamic adjustment ran, and a mismatch stops setup
+  rather than staging one model's output under the other's name.  Sea ice
+  needs no check: which task is set up decides whether sea-ice files are
+  staged.
 
 ## The MOC masks borrow behavior without borrowing a component
 

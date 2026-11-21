@@ -11,7 +11,7 @@ from polaris.tasks.e3sm.init import e3sm_init
 from polaris.tasks.e3sm.init.component_inputs import names
 from polaris.tasks.e3sm.init.component_inputs.assemble import (
     SHARED_PRODUCTS,
-    TARGET_PRODUCTS,
+    target_products,
 )
 from polaris.tasks.e3sm.init.component_inputs.steps import (
     get_component_inputs_steps,
@@ -29,6 +29,17 @@ SHORT_NAME = 'u02-oi30-lr10'
 MESH_ID = 'u02'
 OCEAN_GRID = 'u02-oi30'
 CREATION_DATE = '20250101'
+# a date of its own, so the tests can tell which products carry which
+OCEAN_DATE = '20250303'
+
+# every target, with the ocean model its tasks are built for
+CASES = [
+    ('ocean', 'mpas-ocean'),
+    ('seaice', None),
+    ('all', 'mpas-ocean'),
+    ('ocean', 'omega'),
+    ('all', 'omega'),
+]
 
 # read from the aggregation rather than hard-coded, since the whole point of
 # carrying this date separately is that it can change without us
@@ -60,7 +71,9 @@ def test_the_seaice_task_never_builds_the_ocean_chain():
 def test_the_ocean_task_does_build_the_ocean_chain():
     """The counterpart, so the test above cannot pass by building nothing."""
     _reset_shared_components()
-    steps, _ = get_component_inputs_steps(mesh_name=MESH_NAME, target='ocean')
+    steps, _ = get_component_inputs_steps(
+        mesh_name=MESH_NAME, target='ocean', model='mpas-ocean'
+    )
 
     assert [
         name for name, step in steps.items() if step.path.startswith('ocean/')
@@ -68,28 +81,37 @@ def test_the_ocean_task_does_build_the_ocean_chain():
     assert 'simulation' in steps
 
 
-@pytest.mark.parametrize('target', ['ocean', 'seaice', 'all'])
-def test_each_target_stages_its_own_products(target):
+@pytest.mark.parametrize(('target', 'model'), CASES)
+def test_each_target_stages_its_own_products(target, model):
     _reset_shared_components()
-    steps, _ = get_component_inputs_steps(mesh_name=MESH_NAME, target=target)
+    steps, _ = get_component_inputs_steps(
+        mesh_name=MESH_NAME, target=target, model=model
+    )
     assemble = steps[f'assemble_{target}']
 
-    expected = set(SHARED_PRODUCTS) | set(TARGET_PRODUCTS[target])
+    expected = set(SHARED_PRODUCTS) | set(target_products(target, model))
     assert set(assemble.product_steps) == expected
 
 
-@pytest.mark.parametrize('target', ['ocean', 'seaice', 'all'])
-def test_assembly_waits_for_the_partition_steps(target):
+@pytest.mark.parametrize(
+    ('target', 'model'),
+    [case for case in CASES if case != ('ocean', 'omega')],
+)
+def test_assembly_waits_for_the_partition_steps(target, model):
     """
     The partitions cannot be declared as inputs, so without a dependency a
     parallel run assembles while the partition steps are still running.
     """
     _reset_shared_components()
-    steps, _ = get_component_inputs_steps(mesh_name=MESH_NAME, target=target)
+    steps, _ = get_component_inputs_steps(
+        mesh_name=MESH_NAME, target=target, model=model
+    )
     assemble = steps[f'assemble_{target}']
 
     partition_keys = [
-        key for key in TARGET_PRODUCTS[target] if key.endswith('partition')
+        key
+        for key in target_products(target, model)
+        if key.endswith('partition')
     ]
     assert partition_keys
     for key in partition_keys:
@@ -99,48 +121,77 @@ def test_assembly_waits_for_the_partition_steps(target):
 def test_an_unknown_target_is_rejected():
     _reset_shared_components()
     with pytest.raises(ValueError, match='land'):
-        get_component_inputs_steps(mesh_name=MESH_NAME, target='land')
+        get_component_inputs_steps(
+            mesh_name=MESH_NAME, target='land', model='mpas-ocean'
+        )
+
+
+@pytest.mark.parametrize('target', ['ocean', 'all'])
+def test_a_target_with_ocean_products_needs_a_model(target):
+    with pytest.raises(ValueError, match='needs an ocean model'):
+        target_products(target, None)
+
+
+def test_the_seaice_target_takes_no_model():
+    with pytest.raises(ValueError, match='takes no ocean model'):
+        target_products('seaice', 'omega')
 
 
 def test_the_tasks_live_under_a_directory_of_their_own():
     """
-    Three tasks share most of their steps, so a task subdirectory could
-    otherwise collide with a step subdirectory of the same name.
+    The tasks share most of their steps, so a task subdirectory could
+    otherwise collide with a step subdirectory of the same name.  Each ocean
+    model's tasks have a directory of their own, so that both models' can be
+    set up in one work directory.
     """
     _reset_shared_components()
     add_component_inputs_tasks(component=e3sm_init)
 
-    for target in TARGET_PRODUCTS:
-        subdir = f'{MESH_NAME}/component_inputs/tasks/{target}'
-        assert subdir in e3sm_init.tasks
-        # no step lives under tasks/
-        assert not [s for s in e3sm_init.steps if s.startswith(f'{subdir}/')]
+    tasks = f'{MESH_NAME}/component_inputs/tasks'
+    subdirs = [f'{tasks}/seaice'] + [
+        f'{tasks}/{model}/{target}'
+        for model in ['mpas-ocean', 'omega']
+        for target in ['ocean', 'all']
+    ]
+    assert sorted(
+        subdir for subdir in e3sm_init.tasks if subdir.startswith(f'{tasks}/')
+    ) == sorted(subdirs)
+    # no step lives under tasks/
+    assert not [s for s in e3sm_init.steps if s.startswith(f'{tasks}/')]
 
 
-def test_the_creation_date_is_fixed_at_setup():
+def test_the_creation_dates_are_fixed_at_setup(monkeypatch):
     """
-    Filled in during configure so it lands in the work directory's config; a
-    re-run then keeps the date it was set up with rather than renaming every
+    Filled in during configure so they land in the work directory's config; a
+    re-run then keeps the dates it was set up with rather than renaming every
     staged file to today's.
     """
     _reset_shared_components()
     add_component_inputs_tasks(component=e3sm_init)
-    task = e3sm_init.tasks[f'{MESH_NAME}/component_inputs/tasks/all']
+    tasks = f'{MESH_NAME}/component_inputs/tasks'
+    task = e3sm_init.tasks[f'{tasks}/mpas-ocean/all']
+    monkeypatch.setattr(ocean, 'model', 'mpas-ocean')
 
-    task.config.set('component_inputs', 'creation_date', '')
+    first = dict()
+    for option in ['creation_date', 'ocean_creation_date']:
+        task.config.set('component_inputs', option, '')
     task.configure()
-    first = task.config.get('component_inputs', 'creation_date')
-    assert first != ''
+    for option in ['creation_date', 'ocean_creation_date']:
+        first[option] = task.config.get('component_inputs', option)
+        assert first[option] != ''
     task.configure()
-    assert task.config.get('component_inputs', 'creation_date') == first
+    for option in ['creation_date', 'ocean_creation_date']:
+        assert task.config.get('component_inputs', option) == first[option]
 
 
-@pytest.mark.parametrize('target', ['ocean', 'seaice', 'all'])
-def test_every_product_lands_at_its_e3sm_path(tmp_path, target):
+@pytest.mark.parametrize(('target', 'model'), CASES)
+def test_every_product_lands_at_its_e3sm_path(tmp_path, target, model):
     """
-    The D5 table, checked by running the step and listing what it built.
+    The staged layout, checked by running the step and listing what it built.
+    The model-neutral products carry the mesh's date and the ocean initial
+    condition the model's own.
     """
-    staged = _run_assemble(tmp_path, target)
+    staged = _run_assemble(tmp_path, target, model)
 
     mesh_dir = f'inputdata/share/meshes/mpas/unified/{MESH_ID}'
     expected = {
@@ -151,11 +202,19 @@ def test_every_product_lands_at_its_e3sm_path(tmp_path, target):
         f'{mesh_dir}/{SHORT_NAME}.land.scrip.{CREATION_DATE}.nc',
         f'{mesh_dir}/{SHORT_NAME}.land.{CREATION_DATE}.nc',
     }
-    if 'ocean_mesh' in TARGET_PRODUCTS[target]:
+    products = target_products(target, model)
+    if model == 'omega':
+        ocn = f'inputdata/ocn/omega/{OCEAN_GRID}'
+        expected |= {
+            f'{ocn}/omega.{OCEAN_GRID}.{OCEAN_DATE}.nc',
+            f'{ocn}/{SHORT_NAME}.scrip.{CREATION_DATE}.nc',
+            f'{ocn}/{SHORT_NAME}.no_cavities.scrip.{CREATION_DATE}.nc',
+        }
+    if 'ocean_mesh' in products:
         ocn = f'inputdata/ocn/mpas-o/{OCEAN_GRID}'
         expected |= {
             f'{mesh_dir}/{SHORT_NAME}.ocean.{CREATION_DATE}.nc',
-            f'{ocn}/mpaso.{OCEAN_GRID}.{CREATION_DATE}.nc',
+            f'{ocn}/mpaso.{OCEAN_GRID}.{OCEAN_DATE}.nc',
             f'{ocn}/{SHORT_NAME}.mocBasinsAndTransects'
             f'{FEATURES_DATE}.{CREATION_DATE}.nc',
             f'{ocn}/{SHORT_NAME}.scrip.{CREATION_DATE}.nc',
@@ -166,7 +225,7 @@ def test_every_product_lands_at_its_e3sm_path(tmp_path, target):
             f'{ocn}/partitions/mpas-o.graph.info.{CREATION_DATE}.part.{n}'
             for n in NCORES
         }
-    if 'seaice_initial_condition' in TARGET_PRODUCTS[target]:
+    if 'seaice_initial_condition' in products:
         ice = f'inputdata/ice/mpas-seaice/{OCEAN_GRID}'
         expected |= {
             f'{ice}/mpassi.{OCEAN_GRID}.{CREATION_DATE}.nc',
@@ -184,13 +243,13 @@ def test_the_staged_files_point_at_the_products(tmp_path):
     actually wrote.
     """
     _run_assemble(tmp_path, 'all')
-    root = tmp_path / 'assemble' / 'all' / ASSEMBLED_FILES
+    root = _assembly_dir(tmp_path, 'all') / ASSEMBLED_FILES
 
     mesh = (
         root
         / 'inputdata/ocn/mpas-o'
         / OCEAN_GRID
-        / f'mpaso.{OCEAN_GRID}.{CREATION_DATE}.nc'
+        / f'mpaso.{OCEAN_GRID}.{OCEAN_DATE}.nc'
     )
     assert mesh.is_symlink()
     assert os.path.realpath(mesh).endswith(
@@ -204,11 +263,15 @@ def test_a_partition_step_that_produced_nothing_is_an_error(tmp_path):
     directory would otherwise stage a silently incomplete tree.
     """
     with pytest.raises(FileNotFoundError, match='no partition files'):
-        _run_assemble(tmp_path, 'ocean', partitions=[])
+        _run_assemble(tmp_path, 'ocean', 'mpas-ocean', partitions=[])
 
 
 def _run_assemble(
-    tmp_path, target, partitions=None, creation_date=CREATION_DATE
+    tmp_path,
+    target,
+    model='mpas-ocean',
+    partitions=None,
+    creation_date=CREATION_DATE,
 ):
     """
     Run the assembly step over fake products, and list what it staged.
@@ -221,14 +284,15 @@ def _run_assemble(
 
     _reset_shared_components()
     steps, config = get_component_inputs_steps(
-        mesh_name=MESH_NAME, target=target
+        mesh_name=MESH_NAME, target=target, model=model
     )
     step = steps[f'assemble_{target}']
 
     config.set('component_inputs', 'creation_date', creation_date)
+    config.set('component_inputs', 'ocean_creation_date', OCEAN_DATE)
     step.config = config
     step.logger = LOGGER
-    step.work_dir = str(tmp_path / 'assemble' / target)
+    step.work_dir = str(_assembly_dir(tmp_path, target, model))
     os.makedirs(step.work_dir, exist_ok=True)
 
     # the declared inputs, as the step will look for them
@@ -267,6 +331,17 @@ def _run_assemble(
             full = os.path.join(dirpath, filename)
             staged.add(os.path.relpath(full, root))
     return staged
+
+
+def _assembly_dir(tmp_path, target, model='mpas-ocean'):
+    """
+    Where a test runs an assembly step, laid out below ``tmp_path`` as the
+    step is below the mesh's component-inputs directory, so that the step
+    finds the partition steps' directories at ``tmp_path/<step>``.
+    """
+    if model is None:
+        return tmp_path / 'assemble' / target
+    return tmp_path / model / 'assemble' / target
 
 
 def _reset_shared_components():
@@ -315,7 +390,7 @@ def test_the_meshes_are_staged_beside_the_base_mesh(tmp_path):
     ]
     ocn = f'inputdata/ocn/mpas-o/{OCEAN_GRID}'
     assert set(under_ocn) == {
-        f'{ocn}/mpaso.{OCEAN_GRID}.{CREATION_DATE}.nc',
+        f'{ocn}/mpaso.{OCEAN_GRID}.{OCEAN_DATE}.nc',
         f'{ocn}/{SHORT_NAME}.mocBasinsAndTransects'
         f'{FEATURES_DATE}.{CREATION_DATE}.nc',
         f'{ocn}/{SHORT_NAME}.scrip.{CREATION_DATE}.nc',
@@ -350,8 +425,8 @@ def test_the_land_mesh_is_staged_for_every_target(tmp_path):
     a sea-ice-only task stages it too, exactly as it stages the SCRIP files.
     """
     mesh_dir = f'inputdata/share/meshes/mpas/unified/{MESH_ID}'
-    for target in ['ocean', 'seaice', 'all']:
-        staged = _run_assemble(tmp_path / target, target)
+    for target, model in CASES:
+        staged = _run_assemble(tmp_path / f'{target}_{model}', target, model)
         assert f'{mesh_dir}/{SHORT_NAME}.land.{CREATION_DATE}.nc' in staged
 
 
@@ -367,16 +442,21 @@ def test_no_mesh_is_staged_for_the_no_cavities_domain():
         names.culled_mesh_path(SHORT_NAME, CREATION_DATE, 'ocean_no_cavities')
 
 
-def test_the_ocean_scrip_files_are_staged_in_both_places(tmp_path):
+@pytest.mark.parametrize(
+    ('model', 'model_dir'), [('mpas-ocean', 'mpas-o'), ('omega', 'omega')]
+)
+def test_the_ocean_scrip_files_are_staged_in_both_places(
+    tmp_path, model, model_dir
+):
     """
     Developers look for them beside the ocean products as well as with the
     mesh files they were built from.  Both names point at the same file.
     """
-    staged = _run_assemble(tmp_path, 'all')
-    root = tmp_path / 'assemble' / 'all' / ASSEMBLED_FILES
+    staged = _run_assemble(tmp_path, 'all', model)
+    root = _assembly_dir(tmp_path, 'all', model) / ASSEMBLED_FILES
 
     mesh_dir = f'inputdata/share/meshes/mpas/unified/{MESH_ID}'
-    ocn = f'inputdata/ocn/mpas-o/{OCEAN_GRID}'
+    ocn = f'inputdata/ocn/{model_dir}/{OCEAN_GRID}'
     pairs = [
         (
             f'{mesh_dir}/{SHORT_NAME}.ocean.scrip.{CREATION_DATE}.nc',
@@ -421,7 +501,7 @@ def test_no_sea_ice_mesh_is_staged(tmp_path):
     _reset_shared_components()
     steps, _ = get_component_inputs_steps(mesh_name=MESH_NAME, target='seaice')
     assert 'seaice_mesh' in steps
-    assert 'seaice_mesh' not in TARGET_PRODUCTS['seaice']
+    assert 'seaice_mesh' not in target_products('seaice', None)
 
     staged = _run_assemble(tmp_path, 'all')
     ice = f'inputdata/ice/mpas-seaice/{OCEAN_GRID}'
@@ -439,7 +519,9 @@ def test_the_sync_script_is_available_but_not_staged(tmp_path):
     in the staged tree either, since it is not an E3SM input.
     """
     _reset_shared_components()
-    steps, _ = get_component_inputs_steps(mesh_name=MESH_NAME)
+    steps, _ = get_component_inputs_steps(
+        mesh_name=MESH_NAME, model='mpas-ocean'
+    )
 
     declared = [
         entry['filename'] for entry in steps['assemble_all'].input_data
@@ -473,6 +555,9 @@ def test_directories_follow_e3sm_grid_names(short_name, mesh_dir, ocean_dir):
     )
     assert inputdata.ocean_initial_condition_path(grid, date) == (
         f'inputdata/ocn/mpas-o/{ocean_dir}/mpaso.{ocean_dir}.{date}.nc'
+    )
+    assert inputdata.omega_initial_condition_path(grid, date) == (
+        f'inputdata/ocn/omega/{ocean_dir}/omega.{ocean_dir}.{date}.nc'
     )
     assert inputdata.seaice_initial_condition_path(grid, date) == (
         f'inputdata/ice/mpas-seaice/{ocean_dir}/mpassi.{ocean_dir}.{date}.nc'

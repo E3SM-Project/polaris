@@ -7,6 +7,7 @@ built, so any workflow that stages files for E3SM can use them.  Like the
 rest of the staging helpers, this module imports no step and opens no file.
 """
 
+import os
 from datetime import datetime
 
 from polaris.config import PolarisConfigParser
@@ -46,7 +47,9 @@ def get_nonempty_option(
     return value if value else None
 
 
-def get_creation_date(config: PolarisConfigParser, section: str) -> str:
+def get_creation_date(
+    config: PolarisConfigParser, section: str, option: str = 'creation_date'
+) -> str:
     """
     The creation date the staged files are stamped with, as ``YYYYMMDD``.
 
@@ -59,7 +62,10 @@ def get_creation_date(config: PolarisConfigParser, section: str) -> str:
         The config options.
 
     section : str
-        The config section with the ``creation_date`` option.
+        The config section with the date.
+
+    option : str, optional
+        The config option with the date.
 
     Returns
     -------
@@ -72,41 +78,106 @@ def get_creation_date(config: PolarisConfigParser, section: str) -> str:
         If the date has not been set.  :py:func:`set_creation_date` sets it at
         setup time, so this means it was cleared afterwards.
     """
-    creation_date = get_nonempty_option(config, section, 'creation_date')
+    creation_date = get_nonempty_option(config, section, option)
     if creation_date is None:
         raise ValueError(
-            f'No [{section}] creation_date is set.  It is normally filled in '
-            f'at setup time.'
+            f'No [{section}] {option} is set.  It is normally filled in at '
+            f'setup time.'
         )
     return creation_date
 
 
-def set_creation_date(config: PolarisConfigParser, section: str) -> str:
+def set_creation_date(
+    config: PolarisConfigParser,
+    section: str,
+    option: str = 'creation_date',
+    recorded_in: str | None = None,
+) -> str:
     """
-    Set the creation date to today if it is not already set, and return it.
+    Set a creation date if it is not already set, and return it.
 
     Called at setup so the date lands in the work directory's config file.
     Re-running a step then reuses the date it was set up with, rather than
     silently renaming every staged file to today's.
 
+    A date that is not set is taken from the work directory's copy of the
+    config file, if a previous setup recorded one there, and is otherwise
+    today's.  Setting the work directory up again therefore keeps the names
+    already staged; to stamp a new date, set it in a user config file.
+
     Parameters
     ----------
     config : polaris.config.PolarisConfigParser
-        The config options, updated in place.
+        The config options, updated in place.  Its ``[paths] base_work_dir``
+        locates the work directory.
 
     section : str
-        The config section with the ``creation_date`` option.
+        The config section with the date.
+
+    option : str, optional
+        The config option with the date.
+
+    recorded_in : str, optional
+        The config file, relative to the base work directory, in which a
+        previous setup recorded the date.  The default is ``config``'s own
+        file.
 
     Returns
     -------
     str
         The creation date, as ``YYYYMMDD``.
     """
-    creation_date = get_nonempty_option(config, section, 'creation_date')
+    creation_date = get_nonempty_option(config, section, option)
+    if creation_date is None:
+        if recorded_in is None:
+            recorded_in = config.filepath
+        creation_date = get_recorded_option(
+            config, recorded_in, section, option
+        )
     if creation_date is None:
         creation_date = datetime.now().strftime('%Y%m%d')
-        config.set(section, 'creation_date', creation_date)
+    config.set(section, option, creation_date)
     return creation_date
+
+
+def get_recorded_option(
+    config: PolarisConfigParser,
+    filepath: str | None,
+    section: str,
+    option: str,
+) -> str | None:
+    """
+    The value a previous setup recorded in the work directory's copy of a
+    config file, if there is one.
+
+    Parameters
+    ----------
+    config : polaris.config.PolarisConfigParser
+        Config options with ``[paths] base_work_dir``.
+
+    filepath : str or None
+        The config file, relative to the base work directory.
+
+    section : str
+        The config section.
+
+    option : str
+        The config option.
+
+    Returns
+    -------
+    str or None
+        The recorded value, or ``None`` if there is no such file or it records
+        no value.
+    """
+    if filepath is None or not config.has_option('paths', 'base_work_dir'):
+        return None
+    path = os.path.join(config.get('paths', 'base_work_dir'), filepath)
+    if not os.path.isfile(path):
+        return None
+    recorded = PolarisConfigParser()
+    recorded.add_from_file(path)
+    return get_nonempty_option(recorded, section, option)
 
 
 def ocean_dir(grid: str) -> str:
@@ -124,6 +195,23 @@ def ocean_dir(grid: str) -> str:
         The path, relative to :py:data:`ASSEMBLED_FILES`.
     """
     return f'inputdata/ocn/mpas-o/{grid}'
+
+
+def omega_dir(grid: str) -> str:
+    """
+    The Omega directory for a grid.
+
+    Parameters
+    ----------
+    grid : str
+        E3SM's name for the ocean grid.
+
+    Returns
+    -------
+    str
+        The path, relative to :py:data:`ASSEMBLED_FILES`.
+    """
+    return f'inputdata/ocn/omega/{grid}'
 
 
 def seaice_dir(grid: str) -> str:
@@ -161,6 +249,29 @@ def ocean_initial_condition_path(grid: str, creation_date: str) -> str:
         The path, relative to :py:data:`ASSEMBLED_FILES`.
     """
     return f'{ocean_dir(grid)}/mpaso.{grid}.{creation_date}.nc'
+
+
+def omega_initial_condition_path(grid: str, creation_date: str) -> str:
+    """
+    Where the Omega initial condition for a grid is staged.
+
+    The one file holds what Omega reads at startup in E3SM: the horizontal
+    mesh, the vertical coordinate and the initial state.
+
+    Parameters
+    ----------
+    grid : str
+        E3SM's name for the ocean grid.
+
+    creation_date : str
+        The creation date, as ``YYYYMMDD``.
+
+    Returns
+    -------
+    str
+        The path, relative to :py:data:`ASSEMBLED_FILES`.
+    """
+    return f'{omega_dir(grid)}/omega.{grid}.{creation_date}.nc'
 
 
 def ocean_graph_path(grid: str, creation_date: str) -> str:
