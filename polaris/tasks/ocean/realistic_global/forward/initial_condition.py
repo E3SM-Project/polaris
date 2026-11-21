@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING, Dict, Optional
 
 if TYPE_CHECKING:
     from polaris import Step
-    from polaris.ocean.model import OceanModelStep
+    from polaris.ocean.model import OceanModelFilesMixin
 
 
 class InitialCondition(ABC):
@@ -36,20 +36,21 @@ class InitialCondition(ABC):
     graph_target: Optional[str] = None
 
     @abstractmethod
-    def add_input_files(self, step: 'OceanModelStep') -> None:
+    def add_input_files(self, step: 'OceanModelFilesMixin') -> None:
         """
         Add the model input files this source provides to ``step``.
 
         Called from the forward step's ``setup()`` (so ``step.config`` and the
-        configured model are available).
+        configured model are available), or from the ``setup()`` of another
+        step that reads the same files.
 
         Parameters
         ----------
-        step : polaris.ocean.model.OceanModelStep
-            The forward step to add input files to.
+        step : polaris.ocean.model.OceanModelFilesMixin
+            The forward step, or other ocean step, to add input files to.
         """
 
-    def get_forcing_filename(self, step: 'OceanModelStep') -> str:
+    def get_forcing_filename(self, step: 'OceanModelFilesMixin') -> str:
         """
         The local filename the model's forcing streams should read.
 
@@ -61,7 +62,7 @@ class InitialCondition(ABC):
 
         Parameters
         ----------
-        step : polaris.ocean.model.OceanModelStep
+        step : polaris.ocean.model.OceanModelFilesMixin
             The forward step, which knows the configured staged filenames.
 
         Returns
@@ -153,7 +154,7 @@ class StepInitialCondition(InitialCondition):
             forcing_step=init_steps['forcing'],
         )
 
-    def add_input_files(self, step: 'OceanModelStep') -> None:
+    def add_input_files(self, step: 'OceanModelFilesMixin') -> None:
         """
         Link the mesh, vertical coordinate, initial state and surface forcing
         from the init steps' work directories.  The vertical-coordinate entry
@@ -276,7 +277,7 @@ class DatabaseInitialCondition(InitialCondition):
         # directory, and is added in add_input_files() once the model is known
         self.graph_target = None
 
-    def add_input_files(self, step: 'OceanModelStep') -> None:
+    def add_input_files(self, step: 'OceanModelFilesMixin') -> None:
         """
         Add the database files the configured model reads.
 
@@ -300,13 +301,13 @@ class DatabaseInitialCondition(InitialCondition):
                 database=database,
             )
 
-    def get_forcing_filename(self, step: 'OceanModelStep') -> str:
+    def get_forcing_filename(self, step: 'OceanModelFilesMixin') -> str:
         """
         The initial-condition file, which is where the wind stress lives.
         """
         return step.get_init_filename()
 
-    def _filename(self, step: 'OceanModelStep', model: str) -> str:
+    def _filename(self, step: 'OceanModelFilesMixin', model: str) -> str:
         """The database filename for ``model``."""
         if model != 'omega':
             return f'ocean.{self.mesh_name}.{self.mpaso_id}.zerovel.nc'
@@ -327,7 +328,7 @@ class DatabaseInitialCondition(InitialCondition):
         )
 
 
-def _reads_initial_state(step: 'OceanModelStep') -> bool:
+def _reads_initial_state(step: 'OceanModelFilesMixin') -> bool:
     """
     Whether ``step`` reads an initial state, as opposed to a restart.
 
