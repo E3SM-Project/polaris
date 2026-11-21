@@ -35,3 +35,4 @@ ocean/spherical/icos/cosine_bell/restart
 ocean/spherical/icos/geostrophic/convergence_both
 ocean/spherical/qu/rotation_2d
 ocean/spherical/realistic_global/e3sm-qu240/restart
+ocean/spherical/realistic_global/e3sm-qu240/analysis_output/sampling_convergence
