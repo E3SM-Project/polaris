@@ -3,7 +3,7 @@
 # realistic_global
 
 The `realistic_global` tasks in `polaris.tasks.ocean.realistic_global` use
-realistic global ocean meshes, bathymetry and forcing.  They fall into seven
+realistic global ocean meshes, bathymetry and forcing.  They fall into eight
 groups:
 
 - `hydrography/woa23`, a mesh-independent preprocessing task that builds a
@@ -20,6 +20,8 @@ groups:
   condition that write what the ocean analysis reads.
 - `restart`, a short Omega run continued from a restart, checking that it
   matches the uninterrupted run, history output included.
+- `min_level_cell`, a short MPAS-Ocean run with an inactive level above every
+  column, checking that it matches the same run without it.
 
 Tasks are added to the ocean component by
 {py:func}`polaris.tasks.ocean.realistic_global.add_realistic_global_tasks`,
@@ -28,8 +30,9 @@ a `forward` task per mesh for each of
 {py:data}`polaris.tasks.ocean.realistic_global.forward.TIME_INTEGRATORS`, the
 same `cached_forward` variants for each mesh in
 {py:data}`polaris.tasks.ocean.realistic_global.forward.tasks.CACHED_MESHES`,
-an `analysis_output/1_year` task for every mesh of either kind, and a single
-`restart` task on `e3sm-qu240`.  Adding a cached mesh requires an entry in that
+an `analysis_output/1_year` task for every mesh of either kind, a single
+`restart` task on `e3sm-qu240`, and `min_level_cell` tasks on `e3sm-qu240`
+for each of the same time integrators.  Adding a cached mesh requires an entry in that
 dictionary, keyed by the E3SM mesh's name in lower case with an `e3sm-` prefix,
 giving the name the database files carry, the MPAS-Ocean and Omega
 initial-condition IDs, the minimum resolution and the cell count, and a
@@ -424,6 +427,62 @@ takes.  It also checks that the history up to the restart holds fewer frames
 than the full run's and matches its first ones; otherwise the restart run
 would have had nothing to append to, and the time-axis check would pass
 without testing anything.
+
+(dev-ocean-realistic-global-min-level-cell)=
+
+## min_level_cell
+
+The {py:class}`polaris.tasks.ocean.realistic_global.min_level_cell.MinLevelCell`
+task runs the same realistic_global forward run twice, once from an initial
+condition and once from a copy with an inactive level added above every
+column, and checks that the two are bit-for-bit identical one level apart.
+Both runs are plain
+{py:class}`~polaris.tasks.ocean.realistic_global.forward.forward.Forward`
+steps with the same config; they differ only in their
+{py:class}`~polaris.tasks.ocean.realistic_global.forward.initial_condition.InitialCondition`.
+
+### add_top_level
+
+{py:func}`polaris.tasks.ocean.realistic_global.min_level_cell.add_top_level.add_top_level`
+prepends a level of zeros to every variable with an `nVertLevels` or
+`nVertLevelsP1` dimension and adds one to the level indices (`minLevelCell`,
+`maxLevelCell` and their edge and vertex counterparts, if present), leaving
+zero, which marks land, alone.  A dataset without `minLevelCell` gets 2
+everywhere.  Zero is the one value that keeps the reference coordinate exact:
+a reference layer of zero thickness at the surface leaves every active level
+at the reference depth it had.  E3SM initial conditions also hold zeros in the
+inactive levels below the bottom, and MPAS-Ocean overwrites inactive tracers
+and velocities with fill values at startup.
+
+The {py:class}`~polaris.tasks.ocean.realistic_global.min_level_cell.add_top_level.AddTopLevel`
+step gets its inputs by calling its source's `add_input_files()`, as a forward
+step would, so it works for any source.  MPAS-Ocean reads its dimensions from
+the `mesh` stream in forward mode, so the mesh has to have the added level as
+well as the initial state.  A source that gives both in one file, as a cached
+initial condition does, is shifted once and the second output is a link to
+the first.  The graph file, and a separate forcing file if the source has one,
+have no vertical dimension and pass through as links.
+{py:class}`~polaris.tasks.ocean.realistic_global.min_level_cell.add_top_level.TopLevelInitialCondition`
+then gives the `shifted` run those files in place of the source's.
+
+### compare
+
+{py:func}`polaris.tasks.ocean.realistic_global.min_level_cell.compare.compare_shifted`
+drops the first level of the shifted run and compares every variable exactly.
+It does not use {py:func}`polaris.validate.compare_variables`, which skips
+values that are not finite in either file and so would pass a NaN that only
+one run produced.  It also requires the shifted run to have exactly one more
+level, so that comparing a run with itself fails rather than passing without
+testing anything.  Besides `output.nc`, it compares MPAS-Ocean's
+`mixed_layer_depths.nc`, whose searches down each column also have to start at
+`minLevelCell`.  The forward steps do not declare that file as an output, so
+the task does.
+
+### Omega
+
+`configure()` sets a `skip_reason` for Omega.  Supporting it needs
+`add_top_level` to shift Omega's vertical-coordinate file and its level
+indices as well.
 
 (dev-ocean-realistic-global-dynamic-adjustment)=
 
