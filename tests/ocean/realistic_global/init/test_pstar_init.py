@@ -502,8 +502,10 @@ def test_land_ice_fields():
     ds_topo = xr.Dataset(
         {
             'landIceMask': ('nCells', [0, 1, 1]),
-            'ocean_masked_ice_frac': ('nCells', [0.2, 1.0, 1.0]),
-            'ocean_masked_grounded_frac': ('nCells', [0.0, 0.25, 1.0]),
+            # the second cell is half land, and its ocean is all under ice
+            'ocean_frac': ('nCells', [1.0, 0.5, 1.0]),
+            'ocean_masked_ice_frac': ('nCells', [0.2, 0.5, 1.0]),
+            'ocean_masked_grounded_frac': ('nCells', [0.0, 0.125, 1.0]),
         }
     )
     ds_out = xr.Dataset({'ssh': (('Time', 'nCells'), [[0.0, -500.0, -9.0]])})
@@ -513,7 +515,8 @@ def test_land_ice_fields():
     ds_out = add_land_ice_fields(ds_out, ds_topo, pressure, thin_film)
 
     assert ds_out.landIceMask.values.tolist() == [[0, 1, 1]]
-    # ice outside the land-ice mask is not land ice
+    # ice outside the land-ice mask is not land ice, and the fractions are
+    # of each cell's ocean part, not of the whole cell
     assert ds_out.landIceFraction.values.tolist() == [[0.0, 1.0, 1.0]]
     assert ds_out.landIceFloatingFraction.values[0] == pytest.approx(
         [0.0, 0.75, 0.0]

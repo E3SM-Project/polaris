@@ -746,10 +746,11 @@ def add_land_ice_fields(ds_out, ds_topo, land_ice_pressure, thin_film):
         The p-star initial condition, with ``ssh``
 
     ds_topo : xarray.Dataset
-        The culled topography, with ``landIceMask``, and
+        The culled topography, with ``landIceMask``, ``ocean_frac``, and
         ``ocean_masked_ice_frac`` and ``ocean_masked_grounded_frac``, the
-        fractions of the ocean part of each cell under land ice and under
-        grounded ice
+        fractions of each whole cell that are ocean under land ice and ocean
+        under grounded ice.  The land-ice fractions written are fractions of
+        each cell's ocean part, which is all of an MPAS-Ocean cell.
 
     land_ice_pressure : xarray.DataArray
         The full pressure (Pa) of the land ice, before MPAS-Ocean caps it
@@ -763,8 +764,8 @@ def add_land_ice_fields(ds_out, ds_topo, land_ice_pressure, thin_film):
         The initial condition with the land-ice fields added
     """
     land_ice_mask = ds_topo.landIceMask == 1
-    ice_frac = ds_topo.ocean_masked_ice_frac
-    grounded_frac = ds_topo.ocean_masked_grounded_frac
+    ice_frac = _ocean_part_fraction(ds_topo, 'ocean_masked_ice_frac')
+    grounded_frac = _ocean_part_fraction(ds_topo, 'ocean_masked_grounded_frac')
     land_ice_fraction = ice_frac.where(land_ice_mask, 0.0)
     floating_fraction = np.maximum(ice_frac - grounded_frac, 0.0).where(
         land_ice_mask, 0.0
@@ -804,6 +805,33 @@ def add_land_ice_fields(ds_out, ds_topo, land_ice_pressure, thin_film):
         da.attrs = attrs
         ds_out[name] = da.expand_dims(dim='Time', axis=0)
     return ds_out
+
+
+def _ocean_part_fraction(ds_topo, frac_name):
+    """
+    The fraction of each cell's ocean part that an ``ocean_masked_*_frac``
+    field covers.  Remapping gives these as fractions of the whole cell,
+    land included, so next to a grounding line, where much of a cell is
+    land, the ocean part can be fully under ice while the whole-cell
+    fraction is far below 1.
+
+    Parameters
+    ----------
+    ds_topo : xarray.Dataset
+        The culled topography, with ``ocean_frac`` and ``frac_name``
+
+    frac_name : str
+        The name of the ``ocean_masked_*_frac`` field
+
+    Returns
+    -------
+    xarray.DataArray
+        The fraction, between 0 and 1, and 0 in cells with no ocean
+    """
+    ocean_frac = ds_topo.ocean_frac
+    has_ocean = ocean_frac > 0.0
+    fraction = ds_topo[frac_name].fillna(0.0) / ocean_frac.where(has_ocean)
+    return fraction.where(has_ocean, 0.0).clip(0.0, 1.0)
 
 
 def _clamp_geom_z_bot(
