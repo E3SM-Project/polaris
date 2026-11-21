@@ -113,7 +113,10 @@ p_{li} = \rho_i g H_i
 $$
 
 with $H_i$ the remapped ice thickness, applied in every cell of the land-ice
-mask, grounded or floating.
+mask, grounded or floating.  $H_i$ is the thickness of the ice itself: where
+ice covers only part of a cell's ocean, as at a calving front, the remapped
+mean over the ocean part is divided by the fraction under ice, so the load
+ends at the front instead of ramping down with the open water.
 
 ### Algorithm Design: The sea surface follows the land-ice load
 
@@ -211,7 +214,10 @@ mask onto the culled ocean mesh.
 `polaris.ocean.ice_shelf.compute_land_ice_pressure_from_thickness()`.  The
 initial state writes `landIcePressure`, `landIceDraft`, `landIceMask`,
 `landIceFraction`, `landIceFloatingMask` and `landIceFloatingFraction`.  The
-floating fields come from the grounded fraction.
+floating fields come from the grounded fraction.  Remapping gives the ice and
+grounded fractions of each whole cell, land included, so they are divided by
+the ocean fraction: MPAS-Ocean's fractions are of its cell, which is all
+ocean.
 
 MPAS-Ocean's z-star requires `restingThickness` to sum to `bottomDepth`:
 it is the thickness at zero SSH, not at rest under the ice.  The z-star
