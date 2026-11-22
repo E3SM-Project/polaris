@@ -25,6 +25,10 @@ from polaris.ocean.vertical.diagnostics import (
     compute_zint_zmid_from_layer_thickness,
 )
 from polaris.ocean.vertical.grid_1d import generate_1d_grid
+from polaris.ocean.vertical.ice_shelf import (
+    cap_min_level_cell,
+    stretch_to_column,
+)
 
 __all__ = ['init_pstar_vertical_coord']
 
@@ -32,7 +36,7 @@ Gravity = get_constant('standard_acceleration_of_gravity')
 RhoSw = get_constant('seawater_density_reference')
 
 
-def init_pstar_vertical_coord(config, ds):
+def init_pstar_vertical_coord(config, ds, min_level_cell=None):
     """
     Create a p-star vertical coordinate based on the config options in the
     ``vertical_grid`` section and the ``BottomPressure`` and
@@ -46,11 +50,18 @@ def init_pstar_vertical_coord(config, ds):
     analogue of z-star's ``layerThickness = restingThickness *
     (ssh + bottomDepth) / bottomDepth``.
 
+    With ``min_level_cell``, columns start at the given reference level
+    rather than the top one, for example under ice shelves (see
+    :py:func:`polaris.ocean.vertical.ice_shelf.compute_ice_shelf_min_level_cell`).
+    Each column keeps at least ``min_vert_levels`` levels, and the remaining
+    levels follow p-star: their reference pseudo-thicknesses are stretched to
+    sum to the pseudo-depth of the seafloor.
+
     The following new variables are added to ``ds``, each with its own
     ``long_name`` and (where meaningful) ``units``:
 
-    * ``minLevelCell`` — index of the topmost valid layer (1-based; always
-      1, since non-zero top levels are not supported)
+    * ``minLevelCell`` — index of the topmost valid layer (1-based; 1 unless
+      ``min_level_cell`` is given)
     * ``maxLevelCell`` — index of the bottommost valid layer (1-based)
     * ``cellMask`` — boolean mask of valid layers
     * ``RefPseudoThickness`` — reference pseudo-thickness (no Time dim)
@@ -74,7 +85,14 @@ def init_pstar_vertical_coord(config, ds):
         variables (both in Pa with dimension ``nCells``) used to construct
         the vertical coordinate.  Also requires ``nVertLevels`` to be a
         dimension of ``ds``.
+
+    min_level_cell : xarray.DataArray, optional
+        The zero-based index of the first reference level of each column
     """
+    # the first level the caller asks for, if any, since the name is reused
+    # below for the first level of each column
+    first_level = min_level_cell
+
     interfaces = generate_1d_grid(config=config)
     ref_pseudo_depth_top = xr.DataArray(interfaces[:-1], dims=['nVertLevels'])
     ref_pseudo_depth_bot = xr.DataArray(interfaces[1:], dims=['nVertLevels'])
@@ -115,6 +133,11 @@ def init_pstar_vertical_coord(config, ds):
         config, pseudo_bottom_depth, ref_pseudo_depth_bot, max_level_cell
     )
 
+    if first_level is not None:
+        min_level_cell = cap_min_level_cell(
+            first_level, max_level_cell, min_vert_levels
+        )
+
     # Update BottomPressure after partial-cell snap.  The reference depth
     # (SurfacePressure = 0) determines the snap; SurfacePressure then scales
     # the layers uniformly, analogous to ssh in z-star.
@@ -132,6 +155,10 @@ def init_pstar_vertical_coord(config, ds):
         min_level_cell,
         max_level_cell,
     )
+    if first_level is not None:
+        ref_pseudo_thickness = stretch_to_column(
+            ref_pseudo_thickness, pseudo_bottom_depth, min_level_cell
+        )
 
     scale = xr.where(
         ds.BottomPressure > 0,
@@ -214,7 +241,8 @@ def _compute_min_max_level_cell(
     )
     cell_mask = np.logical_and(above_bot_mask, valid)
 
-    # non-zero top index (e.g. ice-shelf cavities) is not supported
+    # columns start at the top level here: a first level requested by the
+    # caller, for example under ice shelves, is applied after the bottom snap
     min_level_cell = xr.zeros_like(pseudo_bottom_depth).astype(int)
     max_level_cell = (cell_mask.sum(dim='nVertLevels') - 1).where(valid, 0)
     max_level_cell = np.maximum(

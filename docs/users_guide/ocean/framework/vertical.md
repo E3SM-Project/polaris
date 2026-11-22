@@ -288,6 +288,38 @@ for a z-star coordinate.  This means that the initial layers are squashed
 significantly from their "resting" thickness under ice shelves as if they were
 being pressed down by the weight of the ice.
 
+(ocean-z-star-ice-shelves)=
+
+#### Columns under ice shelves
+
+Under deep ice, squashing the whole column leaves thin top layers whose
+interfaces slope steeply across calving fronts and steps in the draft.  With
+
+```cfg
+[vertical_grid]
+ice_shelf_top_level = front_draft
+```
+
+columns under ice shelves drop reference levels at their top instead, and
+z-star applies to the levels that remain:
+
+- Each ice shelf drops the levels lying entirely above a percentile
+  (`ice_shelf_front_percentile`) of the drafts along its calving front,
+  weighted by the length of the front.
+- A cell at a calving front that faces open water drops exactly the levels
+  above its own draft, so its layers line up with those of the open ocean.
+- Where neighboring columns are still steeper than `ice_shelf_max_rx1`, the
+  cell with the deeper draft drops the fewest further levels that meet it.
+  A column under floating ice whose draft is below its neighbor's seafloor
+  drops past the neighbor's last level, so the two share no levels.
+
+Every column keeps at least `min_vert_levels` levels, and thin-film cells
+under grounded ice drop nothing.  The ice shelves are numbered once, at init,
+by a flood fill of the floating and then the grounded cells, and the
+initial state records them in `iceShelfGroup`.  With the default, `surface`,
+every column starts at the top reference level.  The same options apply to
+the {ref}`ocean-p-star` initialization.
+
 (ocean-z-level)=
 
 ### z-level

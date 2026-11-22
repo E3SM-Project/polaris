@@ -298,11 +298,18 @@ class Init(PStarInitStep, OceanIOStep):
         ds_mesh: xr.Dataset,
         bottom_pressure: xr.DataArray,
         surface_pressure: xr.DataArray | None = None,
+        min_level_cell: xr.DataArray | None = None,
     ) -> xr.Dataset:
         """
         Build the p-star coordinate per cell, allowing each column to have a
         different reference pseudo-depth set by ``z_tilde_bot`` in config.
+        Every column starts at the top reference level.
         """
+        if min_level_cell is not None:
+            raise ValueError(
+                'The horizontal pressure-gradient init does not support '
+                'min_level_cell.'
+            )
         config = self.config
         x = self.x
 

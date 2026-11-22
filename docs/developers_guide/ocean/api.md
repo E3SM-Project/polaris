@@ -1420,6 +1420,11 @@
    vertical.elevation.elevation_range_weights
    vertical.grid_1d.generate_1d_grid
    vertical.grid_1d.write_1d_grid
+   vertical.ice_shelf.compute_ice_shelf_min_level_cell
+   vertical.ice_shelf.compute_ice_shelf_groups
+   vertical.ice_shelf.weighted_percentile
+   vertical.ice_shelf.cap_min_level_cell
+   vertical.ice_shelf.stretch_to_column
    vertical.partial_cells.alter_bottom_depth
    vertical.partial_cells.alter_ssh
    vertical.sigma.init_sigma_vertical_coord

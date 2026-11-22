@@ -2,6 +2,10 @@ import numpy
 import xarray
 
 from polaris.ocean.vertical.grid_1d import add_1d_grid
+from polaris.ocean.vertical.ice_shelf import (
+    cap_min_level_cell,
+    stretch_to_column,
+)
 from polaris.ocean.vertical.partial_cells import alter_bottom_depth
 from polaris.ocean.vertical.zlevel import (
     compute_min_max_level_cell,
@@ -9,11 +13,18 @@ from polaris.ocean.vertical.zlevel import (
 )
 
 
-def init_z_star_vertical_coord(config, ds):
+def init_z_star_vertical_coord(config, ds, min_level_cell=None):
     """
     Create a z-star vertical coordinate based on the config options in the
     ``vertical_grid`` section and the ``bottomDepth`` and ``ssh`` variables of
     the mesh data set.
+
+    With ``min_level_cell``, columns start at the given reference level
+    rather than the top one, for example under ice shelves (see
+    :py:func:`polaris.ocean.vertical.ice_shelf.compute_ice_shelf_min_level_cell`).
+    Each column keeps at least ``min_vert_levels`` levels, and the remaining
+    levels follow z-star: their resting thicknesses are stretched to sum to
+    ``bottomDepth``.
 
     The following new variables will be added to the data set:
 
@@ -59,6 +70,9 @@ def init_z_star_vertical_coord(config, ds):
     ds : xarray.Dataset
         A data set containing ``bottomDepth`` and ``ssh`` variables used to
         construct the vertical coordinate
+
+    min_level_cell : xarray.DataArray, optional
+        The zero-based index of the first reference level of each column
     """
     add_1d_grid(config, ds)
 
@@ -84,6 +98,11 @@ def init_z_star_vertical_coord(config, ds):
         config, ds.bottomDepth, ds.refBottomDepth, ds.maxLevelCell
     )
 
+    if min_level_cell is not None:
+        ds['minLevelCell'] = cap_min_level_cell(
+            min_level_cell, ds.maxLevelCell, min_vert_levels
+        )
+
     ds['restingThickness'] = compute_z_level_layer_thickness(
         ds.refTopDepth,
         ds.refBottomDepth,
@@ -92,6 +111,11 @@ def init_z_star_vertical_coord(config, ds):
         ds.minLevelCell,
         ds.maxLevelCell,
     )
+
+    if min_level_cell is not None:
+        ds['restingThickness'] = stretch_to_column(
+            ds.restingThickness, ds.bottomDepth, ds.minLevelCell
+        )
 
     ds['layerThickness'] = _compute_z_star_layer_thickness(
         ds.restingThickness,
