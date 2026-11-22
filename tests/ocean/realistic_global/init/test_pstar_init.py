@@ -372,6 +372,7 @@ class _StubPStarInitStep(RealisticPStarInitStep):
         geom_z_bot,
         surface_pressure=None,
         sea_surface_height=None,
+        min_level_cell=None,
     ):
         self.geom_z_bots.append(geom_z_bot)
         self.sea_surface_heights.append(sea_surface_height)

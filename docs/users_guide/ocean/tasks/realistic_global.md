@@ -151,7 +151,9 @@ itself, not diluted by the open water, so the load ends at the front.  The
 sea-surface height
 starts at the draft of ice floating with that pressure.  A column the ice would
 leave too thin, under grounded or floating ice, is a thin film of fresh water
-at its freezing point, 5 cm in each layer.  The wind stress is zero under land
+at its freezing point, 5 cm in each layer.  Columns under ice shelves drop
+reference levels at their top, below the drafts along each shelf's calving
+front (see {ref}`ocean-z-star-ice-shelves`).  The wind stress is zero under land
 ice.  MPAS-Ocean evaluates its equation of state at each layer's own depth
 (`config_eos_jm_pressure_from_zMid`), not at the layer's reference depth, from
 which z-star moves layers far under deep ice.  The dynamic adjustment begins with SSH adjustment: `[ssh_adjustment]
