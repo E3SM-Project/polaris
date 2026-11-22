@@ -109,22 +109,6 @@ def test_ice_facing_a_shallower_bed_is_not_a_front():
     assert min_level_cell.values.tolist() == [0, 4, 4, 0]
 
 
-def test_ice_below_a_neighbors_seafloor_shares_no_levels_with_it():
-    """
-    Cell 1's water, under a 650 m draft, lies entirely below the 450 m bed
-    of open-water cell 0 (levels 0-4), so it starts below them.  Cell 0's
-    bed is above the draft, so the edge is not a front.
-    """
-    ds_mesh, ssh, bottom, land_ice, film = _strip([0, 650], bed=[450, 1000])
-    config = _config(max_rx1=np.inf)
-
-    min_level_cell, _ = compute_ice_shelf_min_level_cell(
-        config, ds_mesh, ssh, bottom, land_ice, film, FILM
-    )
-
-    assert min_level_cell.values.tolist() == [0, 5]
-
-
 def test_film_cells_drop_nothing():
     ds_mesh, ssh, bottom, land_ice, film = _strip(
         [0, 250, 450, 1000 - 3 * FILM]

@@ -45,7 +45,6 @@ def compute_ice_shelf_min_level_cell(
     land_ice_mask,
     thin_film_mask,
     thin_film_layer_thickness,
-    max_level_cell=None,
     logger=None,
 ):
     """
@@ -85,11 +84,6 @@ def compute_ice_shelf_min_level_cell(
         The thickness (m) of each layer of the thin film.  A calving front
         only counts where the open water's bed is below the ice draft by more
         than ``min_vert_levels`` of these layers.
-
-    max_level_cell : numpy.ndarray, optional
-        The zero-based last level of each column, if known, for example from
-        an earlier p-star solve.  By default, it is found as z-star would
-        find it.
 
     logger : logging.Logger, optional
         A logger for a summary of the drops
@@ -140,7 +134,6 @@ def compute_ice_shelf_min_level_cell(
             max_rx1=section.getfloat('ice_shelf_max_rx1'),
             front_margin=min_vert_levels * thin_film_layer_thickness,
             min_vert_levels=min_vert_levels,
-            max_level_cell=max_level_cell,
             logger=logger,
         )
 
@@ -289,7 +282,7 @@ class _ReferenceColumns:
     build them
     """
 
-    def __init__(self, config, ssh, bottom_depth, known_max_level_cell=None):
+    def __init__(self, config, ssh, bottom_depth):
         section = config['vertical_grid']
         interfaces = generate_1d_grid(config=config)
         ref_top = xr.DataArray(interfaces[:-1], dims=['nVertLevels'])
@@ -318,8 +311,6 @@ class _ReferenceColumns:
         self.ssh = ssh.values
         self.bottom_depth = bottom_depth.values
         self.max_level_cell = max_level_cell.values.astype(int)
-        if known_max_level_cell is not None:
-            self.max_level_cell = known_max_level_cell.astype(int)
         self.resting = resting.transpose('nCells', 'nVertLevels').values
 
     def interfaces(self, cells, ndrop):
@@ -374,7 +365,6 @@ def _compute_drops(
     max_rx1,
     front_margin,
     min_vert_levels,
-    max_level_cell,
     logger,
 ):
     """
@@ -400,9 +390,6 @@ def _compute_drops(
         config,
         ssh.isel(nCells=cells),
         bottom_depth.isel(nCells=cells),
-        known_max_level_cell=(
-            None if max_level_cell is None else max_level_cell[cells]
-        ),
     )
     land_ice = land_ice[cells]
     film = film[cells]
@@ -455,20 +442,6 @@ def _compute_drops(
             unmet += 1
             drop = max_drop[cell]
         ndrop[cell] = max(ndrop[cell], drop)
-
-    # an edge whose columns share levels but not depths is too steep whatever
-    # its rx1, which thick layers can keep small: a column under floating ice
-    # that lies entirely below its neighbor's seafloor drops past the
-    # neighbor's last level, where it can keep enough levels
-    deeper = np.where(column.ssh[cell_a] < column.ssh[cell_b], cell_a, cell_b)
-    other = np.where(deeper == cell_a, cell_b, cell_a)
-    past = column.max_level_cell[other] + 1
-    apart = (
-        floating[deeper]
-        & (draft[deeper] > column.bottom_depth[other])
-        & (past <= max_drop[deeper])
-    )
-    np.maximum.at(ndrop, deeper[apart], past[apart])
 
     if logger is not None:
         inner = no_film & land_ice[cell_a] & land_ice[cell_b]

@@ -310,8 +310,6 @@ z-star applies to the levels that remain:
   above its own draft, so its layers line up with those of the open ocean.
 - Where neighboring columns are still steeper than `ice_shelf_max_rx1`, the
   cell with the deeper draft drops the fewest further levels that meet it.
-  A column under floating ice whose draft is below its neighbor's seafloor
-  drops past the neighbor's last level, so the two share no levels.
 
 Every column keeps at least `min_vert_levels` levels, and thin-film cells
 under grounded ice drop nothing.  The ice shelves are numbered once, at init,
