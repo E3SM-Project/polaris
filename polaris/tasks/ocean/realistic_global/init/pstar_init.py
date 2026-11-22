@@ -318,9 +318,6 @@ class RealisticPStarInitStep(PStarInitStep):
                     'vertical_grid', 'min_vert_levels'
                 ),
             )
-        # the last level of each column that the first levels under ice
-        # shelves were computed from, which the first solve estimates
-        drop_levels = None
         ds_out = self._run_pstar_init_with_load(
             ds_mesh, geom_z_bot, land_ice_pressure, level_count, land_ice_mask
         )
@@ -358,23 +355,7 @@ class RealisticPStarInitStep(PStarInitStep):
                     geom_z_bot,
                 )
 
-            # the first levels under ice shelves depend on the last levels of
-            # neighboring columns, which only the p-star solve gives exactly
-            n_redropped = 0
-            if land_ice_mask is not None:
-                solved_levels = _squeeze_time(ds_out.maxLevelCell).values - 1
-                if drop_levels is None:
-                    n_redropped = int((land_ice_mask.values == 1).sum())
-                else:
-                    n_redropped = int((solved_levels != drop_levels).sum())
-                drop_levels = solved_levels
-
-            if (
-                n_filled == 0
-                and n_relayered == 0
-                and n_moved == 0
-                and n_redropped == 0
-            ):
+            if n_filled == 0 and n_relayered == 0 and n_moved == 0:
                 if outer > 0:
                     self.logger.info(
                         f'No bathymetry holes remain and the thin film is '
@@ -414,10 +395,8 @@ class RealisticPStarInitStep(PStarInitStep):
             self.logger.info(
                 f'Bathymetry-hole pass {outer}: capping {n_filled} holes at '
                 f'the deepest ocean neighbor, updating the thin film in '
-                f'{n_relayered} cells, the land-ice load in {n_moved} '
-                f'cells whose seafloor moved and the last levels of '
-                f'{n_redropped} columns for the first levels under ice '
-                f'shelves, then re-running p-star init.'
+                f'{n_relayered} cells and the land-ice load in {n_moved} '
+                f'cells whose seafloor moved, then re-running p-star init.'
             )
             ds_out = self._run_pstar_init_with_load(
                 ds_mesh,
@@ -425,15 +404,13 @@ class RealisticPStarInitStep(PStarInitStep):
                 land_ice_pressure,
                 level_count,
                 land_ice_mask,
-                drop_levels,
             )
 
         raise ValueError(
-            f'Bathymetry holes, thin-film layers or the last levels under '
-            f'ice shelves still change after {max_passes} passes.  The '
-            f'initial condition would keep cells deeper than all of their '
-            f'neighbors, or a thin film inconsistent with its layers, so it '
-            f'is not written.'
+            f'Bathymetry holes or thin-film layers still change after '
+            f'{max_passes} passes.  The initial condition would keep cells '
+            f'deeper than all of their neighbors, or a thin film inconsistent '
+            f'with its layers, so it is not written.'
         )
 
     def _run_pstar_init_with_load(
@@ -443,14 +420,11 @@ class RealisticPStarInitStep(PStarInitStep):
         land_ice_pressure,
         level_count,
         land_ice_mask=None,
-        max_level_cell=None,
     ):
         """
         Run :py:meth:`run_pstar_init`, with the land-ice load MPAS-Ocean will
         apply when there are ice-shelf cavities and, with ``land_ice_mask``,
-        the first level of each column under ice shelves, computed from the
-        zero-based last levels ``max_level_cell`` of an earlier solve if
-        given.
+        the first level of each column under ice shelves.
         """
         if land_ice_pressure is None:
             return self.run_pstar_init(ds_mesh, geom_z_bot)
@@ -482,7 +456,6 @@ class RealisticPStarInitStep(PStarInitStep):
                 land_ice_mask=land_ice_mask,
                 thin_film_mask=thin_film_mask,
                 thin_film_layer_thickness=thin_film_layer_thickness,
-                max_level_cell=max_level_cell,
                 logger=self.logger,
             )
             self._thin_film['iceShelfGroup'] = ice_shelf_group
