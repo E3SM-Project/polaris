@@ -35,6 +35,9 @@ rrs6to18km meshes, under both conventions, that runs to the end of its
 SSH adjustment whose largest change falls with each iteration.  A by-hand
 extension of `simulation` with melting must also run.
 
+Under the ice, z-star drops reference levels at the top of each column, as
+designed in [ice_shelf_vertical_coordinate](ice_shelf_vertical_coordinate.md).
+
 Omega has no ice-shelf cavities, so this design is for MPAS-Ocean only.  It
 needs MPAS-Ocean from FAnSSIE with split-explicit wetting and drying.
 
