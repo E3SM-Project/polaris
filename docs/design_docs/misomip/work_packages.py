@@ -17,7 +17,7 @@ import sys
 import matplotlib.pyplot as plt
 from matplotlib.patches import Circle, FancyBboxPatch
 
-STATUS_DATE = '2026-11-21'
+STATUS_DATE = '2026-11-22'
 
 SURFACE = '#fcfcfb'
 INK = '#0b0b0b'
@@ -70,7 +70,7 @@ ROWS = [
     ('WP10', 'Subgrid wetting and drying (optional)', '', 'none', None,
      'no stage needs it'),
     ('WP11', "E3SM's physics in ISOMIP+ (+ COM variants)",
-     'E3SM-O-D #145–#150 merged; polaris #862', 'draft', 0, ''),
+     'E3SM-O-D #145–#150, #198 merged; polaris #862', 'draft', 0, ''),
 ]
 
 STAGES = [

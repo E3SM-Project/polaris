@@ -52,6 +52,7 @@ digraph fanssie {
     d186 [label=<<b>#186–#190, #193</b>  CVMix's boundary-layer index without KPP;<br/>split-explicit tracer limiter on the updated state;<br/>PCD 0.3.0; capped inflow into thin films;<br/>surface fluxes renormalized over each column;<br/>grounded ice left out of glc's shelf geometry<br/><font color="#52514e">merged into FAnSSIE</font>>, fillcolor="#e3fcef"];
     d195 [label=<<b>#195</b>  the ocean melts at most the floating ice MALI has<br/>(option, default off)<br/><font color="#52514e">merged into FAnSSIE Nov 21</font>>, fillcolor="#e3fcef"];
     dmask [label=<<b>#197</b>  land-ice mask fixed during a run<br/>(E3SM#8887's change; undoes #166's update)<br/><font color="#52514e">merged into FAnSSIE Nov 21</font>>, fillcolor="#e3fcef"];
+    d198 [label=<<b>#198</b>  GM bolus velocity limited with wetting and drying,<br/>as #145 limits the submesoscale velocity<br/><font color="#52514e">merged into FAnSSIE Nov 22</font>>, fillcolor="#e3fcef"];
     d176 [label=<<b>#176, #180</b>  split-explicit Coriolis in RK4's PV-flux form<br/>(option, default off, settable in E3SM's namelists;<br/>also proposed against master as #177)<br/><font color="#52514e">merged into FAnSSIE</font>>, fillcolor="#e3fcef"];
     d178 [label=<<b>#178, #179, #181, #182</b>  MALI skips inactive thermal-forcing fields;<br/>glc's ice-shelf geometry on its own (smoothed) map;<br/>the ocean ramps glc's land-ice pressure;<br/>MALI-Dev #211, cherry-picked<br/><font color="#52514e">merged into FAnSSIE</font>>, fillcolor="#e3fcef"];
     d184 [label=<<b>#184</b>  the thickness flux the integrator applies,<br/>for exact mean transports (option, default off)<br/><font color="#52514e">merged into FAnSSIE</font>>, fillcolor="#e3fcef"];
@@ -107,6 +108,7 @@ digraph fanssie {
   d186 -> fanssie;
   d195 -> fanssie;
   dmask -> fanssie;
+  d198 -> fanssie;
   m211 -> malidev;
   m213 -> malidev;
   m219 -> malidev;
@@ -130,6 +132,6 @@ e3sm_submodules/FAnSSIE", penwidth=1.5];
   legend [shape=plaintext, style="", label=<
     <table border="0" cellborder="1" cellspacing="4" cellpadding="4" color="#c3c2b7">
       <tr><td bgcolor="#e3fcef">merged</td><td bgcolor="#deebff">open</td><td bgcolor="#e8e8e4">draft</td><td bgcolor="#ffffff">no PR yet</td></tr>
-      <tr><td colspan="4" border="0"><font point-size="10" color="#52514e">dashed: not merged yet · as of 2026-11-21</font></td></tr>
+      <tr><td colspan="4" border="0"><font point-size="10" color="#52514e">dashed: not merged yet · as of 2026-11-22</font></td></tr>
     </table>>];
 }
