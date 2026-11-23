@@ -56,8 +56,10 @@ Omega writes its history time axis across a restart, and MPAS-Ocean stamps its
 output with `xtime` rather than an elapsed time measured from the start of the
 clock, so the failure it looks for cannot arise there.
 
-The `min_level_cell` tasks support both models.  With MPAS-Ocean, they fail
-until the E3SM submodule includes the fixes in
+The `min_level_cell` tasks support both models.  With Omega, they fail until
+the Omega submodule includes the fixes in
+[E3SM-Project/Omega#716](https://github.com/E3SM-Project/Omega/pull/716).
+With MPAS-Ocean, they fail until the E3SM submodule includes the fixes in
 [E3SM-Ocean-Discussion/E3SM#196](https://github.com/E3SM-Ocean-Discussion/E3SM/pull/196)
 and [E3SM-Project/E3SM#9191](https://github.com/E3SM-Project/E3SM/pull/9191).
 
