@@ -157,34 +157,44 @@ class SshForward(OceanModelStep):
             self.add_yaml_file('polaris.ocean.config', 'single_layer.yaml')
 
         section = config['ssh_adjustment']
+        method = section.get('method')
 
-        # dt is proportional to resolution
-        time_integrator = section.get('time_integrator')
-
-        if time_integrator == 'RK4':
-            dt_per_km = section.getfloat('rk4_dt_per_km')
-        else:
-            dt_per_km = section.getfloat('split_dt_per_km')
-        dt_str = get_time_interval_string(
-            seconds=dt_per_km * self.min_resolution
-        )
-
-        # btr_dt is also proportional to resolution
+        # btr_dt is proportional to resolution
         btr_dt_per_km = section.getfloat('btr_dt_per_km')
         btr_dt_str = get_time_interval_string(
             seconds=btr_dt_per_km * self.min_resolution
         )
 
-        s_per_hour = 3600.0
-        run_duration = section.getfloat('run_duration')
-        run_duration_str = get_time_interval_string(
-            seconds=run_duration * s_per_hour
-        )
+        time_integrator = section.get('time_integrator')
 
-        output_interval = section.getfloat('output_interval')
-        output_interval_str = get_time_interval_string(
-            seconds=output_interval * s_per_hour
-        )
+        if method == 'solve':
+            # a single short step from rest, with output before and after it
+            dt_per_km = section.getfloat('solve_dt_per_km')
+            dt_str = get_time_interval_string(
+                seconds=dt_per_km * self.min_resolution
+            )
+            run_duration_str = dt_str
+            output_interval_str = dt_str
+        else:
+            # dt is proportional to resolution
+            if time_integrator == 'RK4':
+                dt_per_km = section.getfloat('rk4_dt_per_km')
+            else:
+                dt_per_km = section.getfloat('split_dt_per_km')
+            dt_str = get_time_interval_string(
+                seconds=dt_per_km * self.min_resolution
+            )
+
+            s_per_hour = 3600.0
+            run_duration = section.getfloat('run_duration')
+            run_duration_str = get_time_interval_string(
+                seconds=run_duration * s_per_hour
+            )
+
+            output_interval = section.getfloat('output_interval')
+            output_interval_str = get_time_interval_string(
+                seconds=output_interval * s_per_hour
+            )
 
         replacements = dict(
             dt=dt_str,
