@@ -4,9 +4,10 @@ from polaris.ocean.init_state import apply_min_max_layer_thickness
 
 class RealisticSshAdjustment(SshAdjustment):
     """
-    A step that adjusts the sea-surface height under land ice to the
-    MPAS-Ocean state at the end of a short forward run, leaving the land-ice
-    pressure unchanged, for a realistic global ocean with ice-shelf cavities.
+    A step that adjusts the sea-surface height under land ice so that it
+    cancels the depth-mean acceleration of a single step from rest, leaving
+    the land-ice pressure unchanged, for a realistic global ocean with
+    ice-shelf cavities.
 
     The layer thicknesses follow the adjusted sea-surface height as
     MPAS-Ocean's z-star coordinate places them, with its minimum layer

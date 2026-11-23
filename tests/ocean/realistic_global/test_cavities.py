@@ -8,14 +8,14 @@ from polaris.tasks.ocean.realistic_global.cavities import (
     get_antarctic_boundary_convention,
     has_ice_shelf_cavities,
 )
-from polaris.tasks.ocean.realistic_global.dynamic_adjustment.ssh_adjustment import (  # noqa: E501
-    RealisticSshAdjustment,
-)
 from polaris.tasks.ocean.realistic_global.dynamic_adjustment.steps import (
     get_realistic_dynamic_adjustment_steps,
 )
 from polaris.tasks.ocean.realistic_global.dynamic_adjustment.task import (
     RealisticGlobalDynamicAdjustment,
+)
+from polaris.tasks.ocean.realistic_global.ssh_adjustment import (
+    get_realistic_ssh_adjustment_steps,
 )
 
 
@@ -85,8 +85,9 @@ def _ssh_steps(task):
 
 
 def test_cavities_add_ssh_adjustment_before_the_first_stage():
+    component = Ocean()
     task = RealisticGlobalDynamicAdjustment(
-        component=Ocean(), mesh_name='qu240km'
+        component=component, mesh_name='qu240km'
     )
     assert not task.cavities
     assert _ssh_steps(task) == []
@@ -100,19 +101,14 @@ def test_cavities_add_ssh_adjustment_before_the_first_stage():
     task.configure()
 
     assert task.cavities
-    iterations = task.config.getint('ssh_adjustment', 'iterations')
-    names = _ssh_steps(task)
-    assert len(names) == 2 * iterations
-    last_adjust = task.steps[f'ssh_adjust_{iterations - 1}']
-    assert isinstance(last_adjust, RealisticSshAdjustment)
+    # the same steps as every other run with cavities on this mesh
+    ssh_steps, _, adjusted_target = get_realistic_ssh_adjustment_steps(
+        component=component, mesh_name='qu240km'
+    )
+    assert _ssh_steps(task) == list(ssh_steps)
+    for name, step in ssh_steps.items():
+        assert task.steps[name] is step
 
     # the first stage starts from the last adjusted state
     first = task.steps[task.stages[0].name]
-    assert first.init_condition.init_target == (
-        f'{last_adjust.path}/output.nc'
-    )
-    # and each SSH forward run from the adjustment before it
-    second_forward = task.steps['ssh_forward_1']
-    assert second_forward.init_condition.init_target == (
-        f'{task.steps["ssh_adjust_0"].path}/output.nc'
-    )
+    assert first.init_condition.init_target == adjusted_target

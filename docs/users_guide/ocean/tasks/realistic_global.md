@@ -156,9 +156,9 @@ reference levels at their top, below the drafts along each shelf's calving
 front (see {ref}`ocean-z-star-ice-shelves`).  The wind stress is zero under land
 ice.  MPAS-Ocean evaluates its equation of state at each layer's own depth
 (`config_eos_jm_pressure_from_zMid`), not at the layer's reference depth, from
-which z-star moves layers far under deep ice.  The dynamic adjustment begins with SSH adjustment: `[ssh_adjustment]
-iterations` short runs, each followed by setting the SSH under land ice to
-where the run left it.
+which z-star moves layers far under deep ice.  The `forward` and
+`dynamic_adjustment` tasks start from SSH adjusted to the land-ice pressure
+(see {ref}`ocean-realistic-global-ssh-adjustment`).
 
 The forward runs need wetting and drying, so MPAS-Ocean runs its
 `split_explicit` integrator in place of `split_explicit_ab2`
@@ -702,6 +702,56 @@ cell count: one task per `remap_cells_per_task` cells, and no fewer than one
 per `remap_min_cells_per_task` cells.  Both are rounded to the nearest whole
 task, so they are rules of thumb rather than hard limits.  The other steps of
 this task run serially.
+
+(ocean-realistic-global-ssh-adjustment)=
+
+## ssh_adjustment
+
+With ice-shelf cavities, the `forward` and `dynamic_adjustment` tasks start
+from SSH that is consistent with the land-ice pressure.  The `ssh_adjustment`
+task makes that initial state on its own:
+
+```bash
+polaris setup -t ocean/spherical/realistic_global/so12to30km/ssh_adjustment \
+    -f cavities.cfg ...
+```
+
+The user config must set `[spherical_mesh] antarctic_boundary_convention` to
+`grounding_line` or `bedrock_zero`, and the task can't be set up without
+cavities.  It runs the `init` steps, then pairs of steps:
+
+1. `ssh_forward_<n>` runs MPAS-Ocean for a single step from rest, with the
+   land-ice pressure and no land-ice fluxes.  It uses the
+   `[realistic_global_forward]` options, including the forward runs' time
+   integrator.
+2. `ssh_adjust_<n>` solves for the change in SSH under land ice that cancels
+   the step's depth-mean acceleration, as the `solve` method in
+   {ref}`ocean-ssh-adjustment` does.  The land-ice pressure doesn't change,
+   and the layers follow the new SSH as in the `init` step.
+
+Each `ssh_adjust_<n>/maxDeltaSSH.log` gives the largest change in SSH and the
+root-mean-square acceleration before and after the change.  The options are:
+
+```cfg
+[ssh_adjustment]
+
+# How to make SSH consistent with the land-ice pressure.  Only "solve" is
+# supported for realistic global runs.
+method = solve
+
+# The number of iterations of SSH adjustment
+iterations = 2
+
+# The time step in seconds, as a function of the mesh's minimum resolution
+# in km, of the single step from rest
+solve_dt_per_km = 1.0
+
+# Adjust the SSH rather than the land-ice pressure
+adjust_variable = ssh
+
+# The variable in the initial state that marks where to adjust SSH
+mask_variable = sshAdjustmentMask
+```
 
 (ocean-realistic-global-restart)=
 

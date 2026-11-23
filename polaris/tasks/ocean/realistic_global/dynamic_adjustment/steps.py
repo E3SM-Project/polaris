@@ -1,4 +1,3 @@
-import dataclasses
 import os
 from functools import partial
 from typing import Any, Dict, List, Tuple
@@ -29,9 +28,11 @@ from polaris.tasks.ocean.realistic_global.models import (
     DEFAULT_MODEL,
     model_subdir,
 )
+from polaris.tasks.ocean.realistic_global.ssh_adjustment.steps import (
+    get_realistic_ssh_adjustment_steps,
+)
 
 from .schedule import load_schedule_stages
-from .ssh_adjustment import RealisticSshAdjustment
 from .summary import Summary
 from .validate import StageCheck
 from .viz import VizDynamicAdjustmentStep
@@ -133,17 +134,11 @@ def get_realistic_dynamic_adjustment_steps(
 
     init_target = f'{init_step.path}/init.nc'
     if has_ice_shelf_cavities(config):
-        init_target = _add_ssh_adjustment_steps(
-            component=component,
-            base_subdir=base_subdir,
-            config=config,
-            init_step=init_step,
-            forcing_step=forcing_step,
-            min_res=min_res,
-            approx_cell_count=approx_cell_count,
-            first_stage=stages[0],
-            steps=steps,
+        # every run with cavities starts from the shared SSH adjustment
+        ssh_steps, _, init_target = get_realistic_ssh_adjustment_steps(
+            component=component, mesh_name=mesh_name, model=model
         )
+        steps.update(ssh_steps)
 
     previous = None
     previous_check = None
@@ -239,78 +234,6 @@ def adjustment_subdir(mesh_name: str) -> str:
         The subdirectory, relative to the component.
     """
     return f'spherical/realistic_global/{mesh_name}/dynamic_adjustment'
-
-
-def _add_ssh_adjustment_steps(
-    component: Any,
-    base_subdir: str,
-    config: PolarisConfigParser,
-    init_step: Step,
-    forcing_step: Step,
-    min_res: float,
-    approx_cell_count: Any,
-    first_stage: ForwardStage,
-    steps: Dict[str, Step],
-) -> str:
-    """
-    Add the forward runs and adjustments of SSH under land ice that come
-    before the dynamic adjustment, and return the adjusted initial state.
-
-    Each forward run is the first stage, shortened to the
-    ``[ssh_adjustment] run_duration`` and without a restart.  It starts
-    from the initial state, or from the previous adjustment, and the
-    adjustment that follows it sets the SSH under land ice to where the run
-    left it.
-    """
-    section = config['ssh_adjustment']
-    iterations = section.getint('iterations')
-    run_duration = section.get('run_duration').strip()
-
-    init_target = f'{init_step.path}/init.nc'
-    for iteration in range(iterations):
-        name = f'ssh_forward_{iteration}'
-        stage = dataclasses.replace(
-            first_stage,
-            name=name,
-            run_duration=run_duration,
-            output_interval=run_duration,
-            restart_interval=run_duration,
-            stats_interval=run_duration,
-            output_density=True,
-            do_restart=False,
-            restart_in=None,
-            restart_out=None,
-        )
-        forward_step = component.get_or_create_shared_step(
-            step_cls=Forward,
-            subdir=os.path.join(base_subdir, 'ssh_adjustment', name),
-            config=config,
-            config_filename=CONFIG_FILENAME,
-            name=name,
-            init_condition=StepInitialCondition(
-                init_step,
-                min_res=min_res,
-                approx_cell_count=approx_cell_count,
-                forcing_step=forcing_step,
-                init_target=init_target,
-            ),
-            stage=stage,
-        )
-        steps[forward_step.name] = forward_step
-
-        name = f'ssh_adjust_{iteration}'
-        adjust_step = component.get_or_create_shared_step(
-            step_cls=RealisticSshAdjustment,
-            subdir=os.path.join(base_subdir, 'ssh_adjustment', name),
-            config=config,
-            config_filename=CONFIG_FILENAME,
-            mesh_filename=f'{init_step.path}/mesh.nc',
-            forward=forward_step,
-            name=name,
-        )
-        steps[adjust_step.name] = adjust_step
-        init_target = f'{adjust_step.path}/output.nc'
-    return init_target
 
 
 def get_dynamic_adjustment_config(

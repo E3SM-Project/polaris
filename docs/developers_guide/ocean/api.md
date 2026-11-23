@@ -1009,9 +1009,6 @@
    steps.get_dynamic_adjustment_config
    steps.adjustment_subdir
 
-   ssh_adjustment.RealisticSshAdjustment
-   ssh_adjustment.RealisticSshAdjustment.update_layer_thickness
-
    schedule.load_schedule_stages
    schedule.excluded_days_in_stage
 
@@ -1031,6 +1028,32 @@
    viz.TracerChange
    viz.tracer_changes
    viz.plot_tracer_changes
+```
+
+### realistic_global.ssh_adjustment
+
+```{eval-rst}
+.. currentmodule:: polaris.tasks.ocean.realistic_global.ssh_adjustment
+
+.. autosummary::
+   :toctree: generated/
+
+   tasks.add_realistic_global_ssh_adjustment_tasks
+
+   task.RealisticGlobalSshAdjustment
+   task.RealisticGlobalSshAdjustment.configure
+
+   steps.get_realistic_ssh_adjustment_steps
+   steps.add_ssh_adjustment_steps
+   steps.get_ssh_adjustment_config
+   steps.ssh_adjustment_subdir
+
+   forward.SshForward
+   forward.SshForward.get_stage
+   forward.SshForward.dynamic_model_config
+
+   adjust.RealisticSshAdjustment
+   adjust.RealisticSshAdjustment.update_layer_thickness
 ```
 
 ### seamount

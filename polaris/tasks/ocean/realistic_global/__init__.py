@@ -19,12 +19,15 @@ from polaris.tasks.ocean.realistic_global.init.tasks import (
     add_realistic_global_init_tasks,
 )
 from polaris.tasks.ocean.realistic_global.restart import Restart as Restart
+from polaris.tasks.ocean.realistic_global.ssh_adjustment.tasks import (
+    add_realistic_global_ssh_adjustment_tasks,
+)
 
 
 def add_realistic_global_tasks(component):
     """
     Add tasks for realistic global ocean preprocessing, initialization,
-    forward runs, and dynamic adjustment.
+    SSH adjustment, forward runs, and dynamic adjustment.
 
     Parameters
     ----------
@@ -34,6 +37,7 @@ def add_realistic_global_tasks(component):
     component.add_task(Woa23(component=component))
     component.add_task(Jra55(component=component))
     add_realistic_global_init_tasks(component=component)
+    add_realistic_global_ssh_adjustment_tasks(component=component)
     add_realistic_global_forward_tasks(component=component)
     add_realistic_global_cached_forward_tasks(component=component)
     add_realistic_global_analysis_output_tasks(component=component)
