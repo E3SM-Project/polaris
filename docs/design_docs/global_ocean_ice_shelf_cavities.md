@@ -164,12 +164,16 @@ as the minimum stops binding, which a retreating grounding line needs.  The
 initial layer thicknesses are the same adjusted z-star thicknesses, so the
 model's first step does not move them.
 
-### Algorithm Design: The SSH is adjusted to the land-ice load before the dynamic adjustment
+### Algorithm Design: The SSH is adjusted to the land-ice load before every run
 
-The SSH adjustment iterates the following, as in ISOMIP+:
+The SSH adjustment uses the `solve` method of
+[ice_shelf_ssh_adjustment](ice_shelf_ssh_adjustment.md), iterating the
+following:
 
-1. Run MPAS-Ocean briefly with the land-ice pressure and no fluxes.
-2. Take its final SSH under land ice, holding the pressure fixed.
+1. Run MPAS-Ocean for a single short step from rest with the land-ice
+   pressure and no fluxes, using the forward runs' time integrator.
+2. Solve for the change in SSH under land ice that cancels the step's
+   depth-mean acceleration, holding the pressure fixed.
 3. Place the layers for that SSH as MPAS-Ocean's z-star coordinate does,
    with its minimum layer thickness, keeping the tracers.
 
@@ -254,23 +258,25 @@ adjustment moves the interfaces.
 
 The film layer thickness, the maximum-thickness factor and the land-ice and
 draft densities are options in `[realistic_global_cavities]`
-(`cavities.cfg`), which both the init and dynamic-adjustment configs
-include.  The first two must match `config_drying_min_cell_height` and
+(`cavities.cfg`), which the init, SSH-adjustment and dynamic-adjustment
+configs include.  The first two must match `config_drying_min_cell_height` and
 `config_max_thickness_factor`.  The film's freezing point comes from
 `polaris.ocean.ice_shelf.compute_freezing_temperature()`, converted to
 conservative temperature.
 
-### Implementation: The SSH is adjusted to the land-ice load before the dynamic adjustment
+### Implementation: The SSH is adjusted to the land-ice load before every run
 
-With cavities on, the dynamic-adjustment steps begin with
-`[ssh_adjustment] iterations` pairs of shared steps.  The first of each is a
-`realistic_global` `Forward` running the first stage's physics and time
-steps for `run_duration`.  The second is `RealisticSshAdjustment`, the shared
-`SshAdjustment` in its SSH mode, overriding its layer update with
-`apply_min_max_layer_thickness()`.  `StepInitialCondition` takes an
-`init_target`, so each run starts from the previous adjustment and the
-first stage from the last.  Cavities are known only once a user's config
-is applied, so the task rebuilds its steps in `configure()`.
+`polaris.tasks.ocean.realistic_global.ssh_adjustment` builds
+`[ssh_adjustment] iterations` pairs of shared steps per mesh.  The first of
+each is `SshForward`, a `realistic_global` `Forward` whose stage is one time
+step of `solve_dt_per_km` times the mesh's minimum resolution.  The second is
+`RealisticSshAdjustment`, the shared `SshAdjustment` with `method = solve`,
+overriding its layer update with `apply_min_max_layer_thickness()`.
+`StepInitialCondition` takes an `init_target`, so each step starts from the
+previous adjustment.  The `ssh_adjustment` task runs these steps alone, and
+the `dynamic_adjustment` and `forward` tasks add them and start from the last
+adjustment.  Cavities are known only once a user's config is applied, so
+those tasks add the steps in `configure()`.
 
 ### Implementation: There is no surface forcing under land ice
 
