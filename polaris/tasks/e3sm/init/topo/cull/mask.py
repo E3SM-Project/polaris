@@ -15,6 +15,7 @@ from mpas_tools.ocean.coastline_alteration import widen_transect_edge_masks
 from polaris import Step
 from polaris.cf import add_cf_conventions, add_var_attrs
 from polaris.mesh.connectivity import seed_mask_from_points
+from polaris.mesh.spherical.coastline import add_convention_setup_only_option
 from polaris.mesh.spherical.critical_transects import (
     load_default_critical_transects,
 )
@@ -124,6 +125,7 @@ class CullMaskStep(Step):
             cores=None,
             min_cores=None,
         )
+        add_convention_setup_only_option(self)
         self.base_mesh_step = base_mesh_step
         self.unsmoothed_topo_step = unsmoothed_topo_step
         self.sizing_field_step = sizing_field_step

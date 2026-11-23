@@ -5,6 +5,9 @@ from scipy.signal import convolve2d
 
 from polaris import Step
 from polaris.cf import add_cf_conventions, drop_dangling_references
+from polaris.tasks.e3sm.init.topo.antarctic_dataset import (
+    check_combine_topo_dataset,
+)
 
 from .month import get_month_abbreviation, get_woa23_month
 
@@ -58,6 +61,7 @@ class ExtrapolateStep(Step):
         Set up input and output files for the step.
         """
         super().setup()
+        check_combine_topo_dataset(self)
         self.add_input_file(
             filename='woa.nc',
             work_dir_target=(

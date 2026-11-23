@@ -8,6 +8,10 @@ from mpas_tools.logging import check_call
 from polaris import Step
 from polaris.cf import add_cf_conventions
 from polaris.io import symlink
+from polaris.tasks.e3sm.init.topo.antarctic_dataset import (
+    add_antarctic_dataset_option,
+    check_combine_topo_dataset,
+)
 from polaris.tasks.e3sm.init.topo.combine.step import (
     COMBINE_TOPO_VALIDATE_VARS,
 )
@@ -145,6 +149,7 @@ class RemapTopoStep(Step):
         )
         self.base_mesh_step = base_mesh_step
         self.combine_topo_step = combine_topo_step
+        add_antarctic_dataset_option(self)
         self.mask_topo_step = mask_topo_step
         self.prepare_step = prepare_step
         self.weights_step = weights_step
@@ -169,6 +174,7 @@ class RemapTopoStep(Step):
         Set up the step in the work directory, including linking input files
         """
         super().setup()
+        check_combine_topo_dataset(self)
 
         masked_topo_step = self.mask_topo_step
         self.add_input_file(

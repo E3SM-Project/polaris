@@ -6,15 +6,30 @@ import numpy as np
 
 from polaris.e3sm.init.topo import format_lat_lon_resolution_name
 
-# change these to update to the latest datasets
+# change these to update to the latest datasets.  ANTARCTIC is the default
+# Antarctic dataset, the one downstream tasks use.
 ANTARCTIC = 'bedmap3'
 GLOBAL = 'gebco2023'
 
+#: the Antarctic datasets there are combine tasks for
+ANTARCTIC_DATASETS = ('bedmap3', 'bedmachinev4')
+
+# An Antarctic dataset with a ``firn_dataset`` has a thickness that includes
+# firn air.  The firn air content of the ``firn_dataset`` is subtracted from
+# it so that, like BedMachine's, it is an ice-equivalent thickness.
 DATASETS = {
     'bedmachinev3': {
         'filename': 'BedMachineAntarctica-v3.nc',
         'proj4': 'epsg:3031',
         'mesh_name': 'BedMachineAntarcticav3_500m',
+    },
+    'bedmachinev4': {
+        # NSIDC-0756 version 4.1, which needs an Earthdata login to download
+        'filename': (
+            'NSIDC-0756_BedMachineAntarctica_19700101-20191001_V04.1.nc'
+        ),
+        'proj4': 'epsg:3031',
+        'mesh_name': 'BedMachineAntarcticav4_500m',
     },
     'bedmap3': {
         'filename': 'bedmap3.nc',
@@ -25,6 +40,7 @@ DATASETS = {
             'bedmap3.nc?entryid=synth%3A2d0e4791-8e20-46a3-80e4-'
             'f5f6716025d2%3AL2JlZG1hcDMubmM%3D'
         ),
+        'firn_dataset': 'bedmachinev4',
     },
     'gebco2023': {
         'filename': 'GEBCO_2023.nc',
@@ -82,6 +98,9 @@ class CombineFiles:
     resolution_name : str
         Either x.xxxxx_degree or neXXX
 
+    antarctic : str
+        The Antarctic dataset, a key of ``DATASETS``
+
     target_scrip : str
         The SCRIP file for the target grid
 
@@ -118,6 +137,7 @@ class CombineFiles:
 
     resolution: Union[int, float]
     resolution_name: str
+    antarctic: str
     target_scrip: str
     exodus: Optional[str]
     global_extracted: str
@@ -162,8 +182,9 @@ def get_combine_files(config):
             'Valid options are cubed_sphere or lat_lon'
         )
 
-    if ANTARCTIC not in DATASETS:
-        raise ValueError(f'Unrecognized antarctic dataset: {ANTARCTIC}')
+    antarctic = section.get('antarctic_dataset')
+    if antarctic not in ANTARCTIC_DATASETS:
+        raise ValueError(f'Unrecognized antarctic dataset: {antarctic}')
     if GLOBAL not in DATASETS:
         raise ValueError(f'Unrecognized global dataset: {GLOBAL}')
 
@@ -175,10 +196,10 @@ def get_combine_files(config):
     else:
         global_modified = global_extracted
 
-    antarctic_modified = DATASETS[ANTARCTIC]['filename'].replace(
+    antarctic_modified = DATASETS[antarctic]['filename'].replace(
         '.nc', '_mod.nc'
     )
-    antarctic_mesh_name = DATASETS[ANTARCTIC]['mesh_name']
+    antarctic_mesh_name = DATASETS[antarctic]['mesh_name']
 
     tiles = list()
     for lat_tile in range(section.getint('lat_tiles')):
@@ -200,6 +221,7 @@ def get_combine_files(config):
     return CombineFiles(
         resolution=resolution,
         resolution_name=resolution_name,
+        antarctic=antarctic,
         target_scrip=f'{resolution_name}.scrip.nc',
         exodus=exodus,
         global_extracted=global_extracted,
@@ -216,7 +238,7 @@ def get_combine_files(config):
         antarctic_remapped=antarctic_modified.replace(
             '.nc', f'_{resolution_name}.nc'
         ),
-        combined=f'{ANTARCTIC}_{GLOBAL}_{resolution_name}.nc',
+        combined=f'{antarctic}_{GLOBAL}_{resolution_name}.nc',
     )
 
 

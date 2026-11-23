@@ -10,6 +10,7 @@ from cartopy.mpl.geoaxes import GeoAxes
 from matplotlib.lines import Line2D
 from shapely.geometry import LineString, MultiLineString, box, shape
 
+from polaris.mesh.spherical.coastline import add_convention_setup_only_option
 from polaris.mesh.spherical.unified.river.distance import (
     haversine_distance,
 )
@@ -60,6 +61,7 @@ class VizRiverStep(Step):
             name='viz_river_network',
             subdir=subdir,
         )
+        add_convention_setup_only_option(self)
         self.simplify_step = simplify_step
         self.rasterize_step = rasterize_step
         self.clip_step = clip_step

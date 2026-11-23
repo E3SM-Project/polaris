@@ -60,25 +60,36 @@ class CombineStep(Step):
 
     weights_step : polaris.tasks.e3sm.init.topo.combine.CombineWeightsStep
         The step that makes the remapping weights
+
+    antarctic_dataset : str
+        The Antarctic dataset
     """
 
-    # the datasets are set in polaris.tasks.e3sm.init.topo.combine.files
+    # the datasets are set in polaris.tasks.e3sm.init.topo.combine.files;
+    # ANTARCTIC is the default Antarctic dataset
     ANTARCTIC = ANTARCTIC
     GLOBAL = GLOBAL
     DATASETS = DATASETS
 
-    @staticmethod
-    def get_subdir():
+    @classmethod
+    def get_subdir(cls, antarctic_dataset=ANTARCTIC):
         """
         Get the base subdirectory for the step based on the datasets.
+
+        Parameters
+        ----------
+        antarctic_dataset : str, optional
+            The Antarctic dataset, by default the one downstream tasks use
         """
-        subdir = f'combine_{CombineStep.ANTARCTIC}_{CombineStep.GLOBAL}'
+        subdir = f'combine_{antarctic_dataset}_{cls.GLOBAL}'
         return os.path.join('topo', subdir)
 
     @classmethod
-    def get_name(cls, target_grid, resolution_name):
+    def get_name(
+        cls, target_grid, resolution_name, antarctic_dataset=ANTARCTIC
+    ):
         """
-        Get the step name based on the current datasets and target grid.
+        Get the step name based on the datasets and target grid.
 
         Parameters
         ----------
@@ -87,9 +98,12 @@ class CombineStep(Step):
 
         resolution_name : str
             The target resolution name for the combined topography
+
+        antarctic_dataset : str, optional
+            The Antarctic dataset, by default the one downstream tasks use
         """
         return (
-            f'combine_topo_{cls.ANTARCTIC}_{cls.GLOBAL}'
+            f'combine_topo_{antarctic_dataset}_{cls.GLOBAL}'
             f'_{target_grid}_{resolution_name}'
         )
 
@@ -101,6 +115,7 @@ class CombineStep(Step):
         resolution_name,
         prepare_step,
         weights_step,
+        antarctic_dataset=ANTARCTIC,
     ):
         """
         Create a new step
@@ -124,8 +139,11 @@ class CombineStep(Step):
 
         weights_step : polaris.tasks.e3sm.init.topo.combine.CombineWeightsStep
             The step that makes the remapping weights
+
+        antarctic_dataset : str, optional
+            The Antarctic dataset, by default the one downstream tasks use
         """
-        name = self.get_name(target_grid, resolution_name)
+        name = self.get_name(target_grid, resolution_name, antarctic_dataset)
         super().__init__(
             component=component,
             name=name,
@@ -136,6 +154,7 @@ class CombineStep(Step):
         self.default_cached = True
         self.prepare_step = prepare_step
         self.weights_step = weights_step
+        self.antarctic_dataset = antarctic_dataset
         self.resolution = None
         self.resolution_name = None
         self.combined_filename = None

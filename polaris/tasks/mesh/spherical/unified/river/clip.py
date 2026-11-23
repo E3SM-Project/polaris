@@ -6,6 +6,7 @@ from mpas_tools.mesh.interpolation import interp_bilin
 from shapely.geometry import LineString
 
 from polaris.cf import add_cf_conventions, add_lat_lon_attrs
+from polaris.mesh.spherical.coastline import add_convention_setup_only_option
 from polaris.mesh.spherical.unified.river.geojson import (
     read_geojson,
     write_geojson,
@@ -50,6 +51,7 @@ class ClipRiverNetworkStep(Step):
             name='river_clip',
             subdir=subdir,
         )
+        add_convention_setup_only_option(self)
         self.simplify_step = simplify_step
         self.coastline_step = coastline_step
         self.clipped_filename = 'clipped_river_network.geojson'
