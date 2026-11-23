@@ -72,7 +72,7 @@ run_duration = 1.0
 mask_variable = adjustSSHMask
 
 # Whether to adjust land ice pressure or SSH
-adjust_variable = landIcePressure
+adjust_variable = ssh
 
 # Time integration scheme: split_explicit_ab2, split_explicit or RK4
 time_integrator = split_explicit_ab2

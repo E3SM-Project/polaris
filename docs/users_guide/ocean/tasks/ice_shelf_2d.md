@@ -15,41 +15,24 @@ the mesh and initial condition, a series of `ssh_adjustment` steps (see
 {ref}`ocean-ssh-adjustment`), and a forward step. Some cases include additional
 steps, described below.
 
-All test cases include a relatively strenuous, iterative process to
-dynamically adjust `landIcePressure` or `ssh` to be compatible with one
-another in the `ssh_adjustment` steps. In this test case, we perform 10
-iterations of adjustment, enough that changes in pressure should be quite
-small compared to those in the first iteration. Reducing the number of
-iterations will make the test case run more quickly at the risk of
-having longer-lived transients at the beginning of the simulation.
+The land-ice pressure comes from the ice draft, and the `ssh_adjustment` steps
+adjust `ssh` to be compatible with it, using the `solve` method.  Two passes
+are enough that the second changes SSH far less than the first.  The
+measuring step uses split-explicit time integration, as the default forward
+runs do; the single-layer tasks use RK4, as their tidal forward runs do:
 
 ```cfg
 # Options related to ssh adjustment steps
 [ssh_adjustment]
 
+# Solve for the SSH that is consistent with the land-ice pressure
+method = solve
+
 # Number of ssh adjustment iterations
-iterations = 10
+iterations = 2
 
-# Output interval for the ssh adjustment phase in hours
-output_interval = 1.0
-
-# Run duration of each ssh adjustment phase in hours
-run_duration = 1.0
-
-# Whether to adjust land ice pressure or SSH
-adjust_variable = land_ice_pressure
-
-# Time integration scheme: split_explicit_ab2, split_explicit or RK4
-time_integrator = split_explicit_ab2
-
-# Time step in seconds as a function of resolution
-rk4_dt_per_km = 10
-
-# Time step in seconds as a function of resolution
-split_dt_per_km = 10
-
-# Time step in seconds as a function of resolution
-btr_dt_per_km = 2.5
+# Time integration scheme of the default forward runs
+time_integrator = split_explicit
 ```
 
 If a baseline run of the test case was provided for comparison, we perform
