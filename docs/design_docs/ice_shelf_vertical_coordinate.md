@@ -14,47 +14,61 @@ flow.  In a `realistic_global` so12to30km run with ice-shelf cavities, z-star
 blows up within 4 hours at a Totten front where an 847 m draft sits on a
 21 m column next to open water.
 
-This design drops reference levels from the top of each column under an ice
-shelf, raising `minLevelCell`, and applies z-star to the shorter reference
-column that remains.  Each ice shelf drops the levels above a percentile of
-the drafts along its calving front.  Cells at the front drop just the levels
-above their own draft, so their layers line up with the open ocean.  A few
-more levels are dropped where neighboring columns would still be too steep.
-The coordinate belongs to the ocean framework, so idealized tasks such as
-ISOMIP+ and MISOMIP can use it as well as `realistic_global`.
+This design starts each column under an ice shelf at a top depth and applies
+z-star to the reference column below it.  Each ice shelf takes its top depth
+from a percentile of the drafts along its calving front.  Cells at the front
+take their own draft, so their layers line up with the open ocean.  Cells
+whose neighbors would still be too steep take deeper top depths.  Reference
+levels entirely above a column's top depth are dropped, raising
+`minLevelCell`, and the level containing it becomes a partial top level,
+like a partial bottom cell upside down.  The coordinate is a function of the
+current geometry and the ice shelves of the initial state.  It changes
+continuously with the geometry, except where an interface near the top of a
+column appears or disappears.  The coordinate belongs to the ocean
+framework, so idealized tasks such as ISOMIP+ and MISOMIP can use it as well
+as `realistic_global`.
 
 The design has two stages:
 
 | stage | what it delivers |
 | --- | --- |
-| **fixed geometry** | the drop, computed by Polaris at initialization and fixed during a run |
-| **evolving geometry** | the drop, recomputed by the ocean model as the ice changes in a coupled run, with levels added and removed by Lagrangian vertical remapping |
+| **fixed geometry** | the top depths, computed by Polaris at initialization and fixed during a run |
+| **evolving geometry** | the top depths, recomputed by the ocean model as the ice changes in a coupled run |
 
 The fixed-geometry stage succeeds with a `realistic_global` dynamic
 adjustment on so12to30km and qu30km, under the `grounding_line` convention,
 that runs to the end of its `simulation` stage with flow under the ice below
 0.5 m/s.  The evolving-geometry stage succeeds with ISOMIP+ runs whose ice
 geometry changes in time, and then coupled MISOMIP runs, that conserve heat
-and salt as levels come and go.
+and salt as the layers change.
 
 Requirements, algorithms and tests for the evolving-geometry stage are marked
 as such.  Everything else applies to both stages.
 
 ## Open questions
 
-These concern the evolving-geometry stage only.
-
-- **The hysteresis margin.**  How far a draft must pass a level boundary
-  before a drop changes.  Half a level is a starting point.
-- **Lagrangian vertical remapping in MPAS-Ocean.**  It exists but still
-  needs debugging and testing before this stage can rely on it.
+- **The minimum fraction of a partial top level.**  Below it, the partial
+  level merges into the level below.  A smaller fraction allows thinner top
+  layers, and a larger one changes the column more when a level merges or
+  splits off.  Half a level is a starting point.
+- **A shelf top depth that changes continuously.**  Evolving-geometry stage.
+  A percentile jumps when it crosses a gap between front drafts, which moves
+  the layers of the whole shelf at once.  A percentile of a smoothed
+  histogram, or a weighted soft minimum, would change continuously and still
+  need only one global sum.
+- **An rx1 search that changes continuously.**  Evolving-geometry stage.
+  The shallowest top depth that meets the rx1 maximum can jump where
+  $r_{x1}$ does not fall steadily as the top depth deepens, or where a
+  partial top level merges.
 
 ## Example
 
 The figures compare z-star (top of each) with the coordinate (bottom) in the
 `realistic_global` so12to30km initial state with ice-shelf cavities under
 the `grounding_line` convention.  Both come from the same initialization and
-differ only in `ice_shelf_top_level`.  The fill is layer thickness.  Orange
+differ only in `ice_shelf_top_level`.  The coordinate shown is an earlier
+version that rounds each top depth up to the top of its level, so it has no
+partial top levels.  The fill is layer thickness.  Orange
 lines are the bottoms of every tenth layer, pale blue-gray is land ice and
 tan is the seafloor.
 
@@ -130,65 +144,96 @@ leaving other tasks unchanged.
 ### Requirement: The coordinate follows the ice as it evolves
 
 Evolving-geometry stage.  When the ice geometry changes during a run, each
-column's first level shall follow the new geometry by the same rules as at
-init.
+column's layers shall follow the new geometry by the same rules as at init.
+
+### Requirement: The layers depend only on the current geometry
+
+Evolving-geometry stage.  Once a change in the ice geometry has been
+applied, a run's layers shall be those of an initial state made from the
+same geometry and the same ice shelves, whatever geometry the run started
+from.
+
+### Requirement: Small changes in the geometry make small changes in the layers
+
+Evolving-geometry stage.  A small change in the ice geometry, including one
+near any threshold of the coordinate, shall make only a small change in the
+layers, so that a geometry that wavers does not reshape its columns again
+and again.
 
 ### Requirement: Levels come and go without changing the ocean's content
 
-Evolving-geometry stage.  When a column gains or loses top levels, its heat,
-salt and momentum shall be conserved and continuous in time.
-
-### Requirement: A column's levels do not flicker
-
-Evolving-geometry stage.  A draft that stays near a level boundary shall not
-add and remove the same level again and again.
+Evolving-geometry stage.  When a column's layers change, including when it
+gains or loses top levels, its heat, salt and momentum shall be conserved
+and continuous in time.
 
 ## Algorithm Design
 
 ### Algorithm Design: Layers under ice shelves stay near their reference thicknesses
 
-Each ice shelf (see below) drops the reference levels lying entirely above
-the 20th percentile of the drafts of its front cells.  The percentile is
-weighted by each cell's length of calving front (`dvEdge`).  Floating cells
-of the shelf take this drop, and film cells drop nothing.  A column keeps at
-least `min_vert_levels` levels.  A shelf with no front that faces open water
-gets no drop of its own.
+Each ice shelf (see below) has a top depth $z_t$, the 20th percentile of
+the drafts of its front cells.  The percentile is weighted by each front's
+length (`dvEdge`) and its front weight (see below).  Floating cells of the
+shelf start at this depth, and film cells at the surface.  A shelf with no
+front that faces open water starts at the surface.  A column's top depth is
+no deeper than leaves it `min_vert_levels` levels.
 
-The remaining levels follow z-star over the reduced reference column.  With
-$k_{min}$ the first remaining level, $z_{k_{min}}$ the depth of its top and
-$\Delta z_k$ the reference thicknesses, the resting thickness, which
-MPAS-Ocean requires to sum to the bed depth $H$, is
+Reference levels lying entirely above $z_t$ are dropped.  With depths
+positive down, level $k$ spanning $z_k$ to $z_{k+1}$ and
+$\Delta z_k = z_{k+1} - z_k$, the level $k_t$ containing $z_t$ keeps the
+fraction
 
 $$
-h_{rest,k} = \Delta z_k \frac{H}{H - z_{k_{min}}},
+f = \frac{z_{k_t+1} - z_t}{\Delta z_{k_t}}
+$$
+
+of its reference thickness as a partial top level.  Where $f$ is below a
+minimum fraction, the partial level merges into the level below, which
+gains $f \Delta z_{k_t}$.  Either way, the reference thicknesses
+$\Delta z'_k$ that remain sum to $H - z_t$, with $H$ the bed depth.  They
+follow z-star, and the resting thickness, which MPAS-Ocean requires to sum
+to $H$, is
+
+$$
+h_{rest,k} = \Delta z'_k \frac{H}{H - z_t},
 \qquad
 h_k = h_{rest,k} \frac{H + \eta}{H}
 $$
 
-so a layer under a draft near $z_{k_{min}}$ is close to its reference
-thickness.
+so a layer under a draft near $z_t$ is close to its reference thickness.
 
-> **Rationale.**  The shallowest front draft let one front cell with a draft
-> of a few meters keep the Ross Ice Shelf at 3 to 4 dropped levels, with top
-> layers 1.5–5 m thick.  The 10th and 20th percentiles gave the same flow
-> through a full so12to30km dynamic adjustment, and the 20th needs fewer
-> extra drops between cells inside a shelf (1042 against 1392).
+> **Rationale.**  With whole levels, the shallowest front draft let one
+> front cell with a draft of a few meters keep the Ross Ice Shelf at 3 to 4
+> dropped levels, with top layers 1.5–5 m thick.  The 10th and 20th
+> percentiles gave the same flow through a full so12to30km dynamic
+> adjustment, and the 20th needs fewer extra drops between cells inside a
+> shelf (1042 against 1392).
 
 ### Algorithm Design: Layers at calving fronts line up with the open ocean
 
 A front is an edge between a cell under land ice and an open-water cell,
 neither of them a film, where the open cell's bed is below the ice cell's
 draft by more than a film column: `min_vert_levels` times the film's layer
-thickness.  A front cell drops exactly the reference levels lying entirely
-above its own draft, even where that is fewer than its shelf drops, so its
-first layer starts just above the draft and faces open water at the same
-depths.
+thickness.  Each front has a weight, the product of two linear ramps from 0
+to 1: one as the open cell's bed goes from a film column below the draft to
+a film column plus the reference thickness at the draft, and one as the ice
+cell's column goes from one film column to two.  A front cell's top depth is its own
+draft $d$ blended with its shelf's top depth by its largest front weight
+$w$:
+
+$$
+z_t = w\,d + (1 - w)\,z_{t,shelf}
+$$
+
+Where $w$ is 1, the cell's layers are the reference levels below its draft,
+so they face open water at the same depths, even where its draft is
+shallower than its shelf's top depth.
 
 > **Rationale.**  Ice that nearly reaches the bed may face open water whose
 > bed is above the draft.  Taking its own draft would leave its cell a thin
 > column of a few thick layers, which escape the wetting-and-drying velocity
 > ramp and burst against a thicker neighbor.  Such an edge is therefore not
-> a front.
+> a front.  The weight keeps a cell's top depth, and its shelf's, from
+> jumping when an edge becomes or stops being a front.
 
 ### Algorithm Design: Neighboring columns are not too steep
 
@@ -200,14 +245,14 @@ r_{x1} = \max_k \frac{\left|z^{top}_{a,k} - z^{top}_{b,k}
 + z^{bot}_{a,k} - z^{bot}_{b,k}\right|}{h_{a,k} + h_{b,k}}
 $$
 
-After the shelf and front drops, on each edge touching land ice with no film
-cell whose $r_{x1}$ exceeds the maximum (30 by default), the cell with the
-deeper draft drops the fewest further levels that bring the edge to the
-maximum, with its neighbor at its shelf or front drop.  Where no drop does,
-it drops all but `min_vert_levels`.  A cell takes the largest drop over its
-edges.  Where both cells of an edge drop further, $r_{x1}$ can stay above
-the maximum, but rarely: on so12to30km with the 20th percentile, the 99th
-percentile of $r_{x1}$ under the ice is 26.
+After the shelf and front top depths, on each edge touching land ice with no
+film cell whose $r_{x1}$ exceeds the maximum (30 by default), the cell with
+the deeper draft takes the shallowest deeper top depth that brings the edge
+to the maximum, with its neighbor at its shelf or front top depth.  Where
+none does, it keeps only `min_vert_levels` levels.  A cell takes the deepest
+top depth over its edges.  Where both cells of an edge go deeper, $r_{x1}$
+can stay above the maximum, but rarely: with whole levels on so12to30km and
+the 20th percentile, the 99th percentile of $r_{x1}$ under the ice is 26.
 
 ### Algorithm Design: Each ice shelf is known at init for every possible ocean cell
 
@@ -224,9 +269,9 @@ written to the initial state as `iceShelfGroup`, 0 away from land ice.
 
 ### Algorithm Design: Ocean tasks with ice-shelf cavities can use the coordinate
 
-The drop is computed from the geometric draft (`ssh`), bed depth, land-ice
-and film masks and the mesh, before the vertical coordinate is built, and
-the coordinate takes the result as the first level of each column.  The
+The top depths are computed from the geometric draft (`ssh`), bed depth,
+land-ice and film masks and the mesh, before the vertical coordinate is
+built, and the coordinate starts each column at its top depth.  The
 p-star coordinate ([pstar_init](pstar_init.md)) compares geometric depths
 with its reference pseudo-depths, which differ by the ratio of the density
 to the reference density, a few percent at most.
@@ -234,62 +279,84 @@ to the reference density, a few percent at most.
 ### Algorithm Design: The coordinate follows the ice as it evolves
 
 Evolving-geometry stage.  Each time the coupler updates the land-ice fields,
-the ocean model recomputes the drops with the algorithms above, from the
-current draft (the SSH under land ice), bed depth and masks:
+the ocean model recomputes the top depths with the algorithms above, from
+the current draft (the SSH under land ice), bed depth and masks:
 
-1. Find the fronts.
-2. For each shelf, gather the front drafts into a histogram over shelves and
-   reference levels, weighted by `dvEdge`, with one global sum.  The
-   histogram gives each shelf's percentile draft.
-3. Compute the shelf, front and rx1 drops, which need only each cell's
+1. Find the fronts and their weights.
+2. Gather each shelf's weighted front drafts with one global sum, which
+   gives each shelf's top depth.
+3. Compute the front and rx1 top depths, which need only each cell's
    neighbors.
+
+Over the coupling interval that follows, each column's top depth moves
+linearly in time from its old value to its new one, and its resting
+thicknesses follow at each time step.
 
 The shelves are the `iceShelfGroup` of the initial state and never change.
 
+### Algorithm Design: The layers depend only on the current geometry
+
+Evolving-geometry stage.  The top depths come from the current geometry and
+the shelves alone, with no margin.  The previous top depths are used only
+to move each column across a coupling interval.  At its end, each column's
+top depth is the one computed from the latest geometry, so the layers match
+those of an initial state made from that geometry.
+
+### Algorithm Design: Small changes in the geometry make small changes in the layers
+
+Evolving-geometry stage.  The top depths are not rounded to whole levels,
+and the front weights ramp rather than switch, so the top depths change
+continuously with the geometry.  Interfaces then move continuously, with two
+exceptions:
+
+- the interface between a partial top level and the level below appears or
+  disappears where the partial fraction crosses its minimum, which mixes
+  those two layers;
+- a cell that becomes or stops being a film changes its top depth at once,
+  but its column is then only a film thick.
+
+A geometry that wavers near either threshold can still cause these changes,
+at most once per coupling interval, but each one is small.  The shelf top
+depths and the rx1 search are not yet continuous everywhere; see the open
+questions.
+
 ### Algorithm Design: Levels come and go without changing the ocean's content
 
-Evolving-geometry stage.  A change in a column's first level is applied with
-Lagrangian vertical remapping.  The column's tracers are remapped from the
-old layers to the new ones, conserving each tracer's content.  The normal
-velocity on each edge is remapped the same way, so momentum is conserved
-too.  A new top level starts with the properties of the layer it is split
-from, and a removed top level is merged into the layer below it.
-
-### Algorithm Design: A column's levels do not flicker
-
-Evolving-geometry stage.  A drop changes only when the value that sets it
-passes a level boundary by more than a margin, a fraction of the level's
-thickness:
-
-- a shelf's drop, when its percentile draft does;
-- a front cell's own drop, when its draft does;
-- an rx1 drop, when the edge's $r_{x1}$ passes the maximum by a margin.
-
-A drop then changes by one level at a time.  The current drop is the only
-history the coordinate keeps.
+Evolving-geometry stage.  As a top depth moves, the resting thicknesses
+change and the interfaces move with them.  The ALE vertical transport
+carries tracers and momentum between layers, as it does when the interfaces
+move with the SSH.  When a partial top level merges into the level below,
+the merged layer takes the sum of the two layers' thicknesses and tracer
+contents, and on each edge their thickness-weighted velocity.  When a level
+splits off again, both layers start with the properties of the layer they
+come from.
 
 ## Implementation
 
 ### Implementation: Layers under ice shelves stay near their reference thicknesses
 
-`polaris.ocean.vertical.ice_shelf.compute_ice_shelf_min_level_cell()` takes
-the config, the mesh, `ssh`, `bottomDepth`, `landIceMask`, the film mask and
-the film's layer thickness, and returns the zero-based first level of each
-column and `iceShelfGroup`.  It builds the reference column of each cell with
+`polaris.ocean.vertical.ice_shelf.compute_ice_shelf_top_depth()` takes the
+config, the mesh, `ssh`, `bottomDepth`, `landIceMask`, the film mask and the
+film's layer thickness, and returns the top depth of each column and
+`iceShelfGroup`.  It builds the reference column of each cell with
 the z-star helpers, including partial bottom cells, to find each cell's
 levels.  The options, in `[vertical_grid]`, are:
 
 ```cfg
 [vertical_grid]
 
-# how the first level of each column under an ice shelf is chosen:
-# "surface" (the top reference level) or "front_draft" (below the levels
-# above the shelf's calving-front drafts)
+# how the top of each column under an ice shelf is chosen: "surface" (the
+# top reference level) or "front_draft" (a top depth set by the shelf's
+# calving-front drafts)
 ice_shelf_top_level = surface
 
 # the percentile of each shelf's calving-front drafts, weighted by the length
-# of front, above which the shelf drops reference levels
+# of front, that sets the shelf's top depth
 ice_shelf_front_percentile = 20.0
+
+# the smallest fraction of its reference thickness that a partial top level
+# keeps before it merges into the level below
+ice_shelf_min_top_fraction = 0.5
 
 # the largest rx1 allowed between columns under ice shelves
 ice_shelf_max_rx1 = 30.0
@@ -299,15 +366,16 @@ With `surface`, the function returns zeros.
 
 ### Implementation: Layers at calving fronts line up with the open ocean
 
-The front test and each front cell's own drop are in the same function, with
-the film layer thickness passed by the caller from its own options, since
-each task with a film already has one.
+The front test, the front weights and each front cell's top depth are in the
+same function, with the film layer thickness passed by the caller from its
+own options, since each task with a film already has one.
 
 ### Implementation: Neighboring columns are not too steep
 
-The extra drops use the layers of the reduced z-star column at the
-initial `ssh`.  Only edges above the maximum are visited, each with a short
-search over the drops of its deeper cell.
+The deeper top depths use the layers of the z-star column at the initial
+`ssh`.  Only edges above the maximum are visited, each with a search over
+the top depths of its deeper cell, between its shelf or front top depth and
+the deepest one that leaves it `min_vert_levels` levels.
 
 ### Implementation: Each ice shelf is known at init for every possible ocean cell
 
@@ -318,17 +386,17 @@ cells one ring at a time.
 ### Implementation: Ocean tasks with ice-shelf cavities can use the coordinate
 
 - `init_vertical_coord()` and `init_z_star_vertical_coord()` take an
-  optional `min_level_cell`.  The first level is capped so a column keeps
-  `min_vert_levels` levels, and `restingThickness` is rescaled to sum to
-  `bottomDepth`.
+  optional `top_depth`, capped so a column keeps `min_vert_levels` levels.
+  They set `minLevelCell` below the dropped levels, cut or merge the partial
+  top level, and rescale `restingThickness` to sum to `bottomDepth`.
 - `init_pstar_vertical_coord()` and `PStarInitStep.run_pstar_init()` take
   the same argument, and `RefPseudoThickness` is rescaled to sum to the
   pseudo-depth of the bed.
-- `realistic_global`: its p-star init step computes the drop with the draft
-  and film mask of each p-star solve, and its cavity options set
+- `realistic_global`: its p-star init step computes the top depths with the
+  draft and film mask of each p-star solve, and its cavity options set
   `ice_shelf_top_level = front_draft`.  The initial state writes
   `iceShelfGroup`.
-- ISOMIP+ and MISOMIP can pass the drop to `init_vertical_coord()` in the
+- ISOMIP+ and MISOMIP can pass top depths to `init_vertical_coord()` in the
   same way.  They are not changed in the fixed-geometry stage.
 
 ### Implementation: The coordinate follows the ice as it evolves
@@ -336,48 +404,54 @@ cells one ring at a time.
 Evolving-geometry stage.  This stage is mostly MPAS-Ocean work, and Omega
 work once Omega has ice-shelf cavities.
 
-- The ocean model computes the drops as
-  `compute_ice_shelf_min_level_cell()` does, after each update of the
-  land-ice fields from the coupler.  It reads `iceShelfGroup` from the
-  initial state, and the `[vertical_grid]` options above become namelist
-  options.
-- `minLevelCell` and the fields derived from it, such as the first level
-  of each edge and vertex and the cell and edge masks, become time-varying
-  and go in the restart file.
+- The ocean model computes the top depths as
+  `compute_ice_shelf_top_depth()` does, after each update of the land-ice
+  fields from the coupler.  It reads `iceShelfGroup` from the initial
+  state, and the `[vertical_grid]` options above become namelist options.
+- `restingThickness`, `minLevelCell` and the fields derived from them, such
+  as the first level of each edge and vertex and the cell and edge masks,
+  become time-varying.  They and the top depths at the last two updates go
+  in the restart file.
 - Polaris keeps the Python function as the reference.  A Polaris task with
-  evolving geometry turns the drop on in the model's namelist, and its
-  initial state supplies the first drop and `iceShelfGroup`.
+  evolving geometry turns the top depths on in the model's namelist, and
+  its initial state supplies the first top depths and `iceShelfGroup`.
+
+### Implementation: The layers depend only on the current geometry
+
+Evolving-geometry stage.  The coordinate keeps no state beyond the top
+depths at the last two updates, which the interpolation across a coupling
+interval needs.
+
+### Implementation: Small changes in the geometry make small changes in the layers
+
+Evolving-geometry stage.  `ice_shelf_min_top_fraction` becomes a namelist
+option.  The ramps of the front weights have no options.
 
 ### Implementation: Levels come and go without changing the ocean's content
 
-Evolving-geometry stage.  MPAS-Ocean's Lagrangian vertical remapping applies
-the change in `minLevelCell` in the same time step that the drops are
-recomputed.
-
-### Implementation: A column's levels do not flicker
-
-Evolving-geometry stage.  The margin is a namelist option, with a matching
-`[vertical_grid] ice_shelf_drop_margin` in Polaris so that a task can set
-it.  The drop at the start of the run comes from the initial state, so the
-first recomputation already has a drop to compare with.
+Evolving-geometry stage.  MPAS-Ocean's ALE thickness is `restingThickness`
+plus a share of the SSH, so updating `restingThickness` at each time step
+moves the interfaces, and the existing vertical transport moves tracers and
+momentum with them.  A merge or split is applied in the time step in which
+the partial fraction crosses its minimum.
 
 ## Testing
 
 ### Testing and Validation: Layers under ice shelves stay near their reference thicknesses
 
-Unit tests of the weighted percentile and of the drops on a small synthetic
-mesh.  On so12to30km, the drops match those of the offline prototype that
-completed the dynamic adjustment.
+Unit tests of the weighted percentile and of the top depths on a small
+synthetic mesh.
 
 ### Testing and Validation: Layers at calving fronts line up with the open ocean
 
-A unit test that a front cell takes its own draft's levels and that an edge
-facing a shallower bed is not a front.
+A unit test that a front cell takes its own draft as its top depth, that an
+edge facing a shallower bed is not a front, and that the weight ramps
+between them.
 
 ### Testing and Validation: Neighboring columns are not too steep
 
-A unit test that a steep edge gets the fewest extra drops that meet the
-maximum.
+A unit test that a steep edge gets the shallowest deeper top depth that
+meets the maximum.
 
 ### Testing and Validation: Each ice shelf is known at init for every possible ocean cell
 
@@ -386,8 +460,9 @@ and a grounded region reached from neither.
 
 ### Testing and Validation: Ocean tasks with ice-shelf cavities can use the coordinate
 
-Unit tests that z-star and p-star columns with dropped levels sum to the bed
-depth, and that the default leaves them unchanged.  The `realistic_global`
+Unit tests that z-star and p-star columns with a top depth sum to the bed
+depth, with partial top levels above and below the minimum fraction, and
+that the default leaves them unchanged.  The `realistic_global`
 dynamic adjustment on so12to30km and qu30km with `grounding_line` runs to
 the end of `simulation`, with flow under the ice below 0.5 m/s.
 
@@ -398,23 +473,29 @@ needs fixes for columns whose top levels are inactive.
 
 ### Testing and Validation: The coordinate follows the ice as it evolves
 
-Evolving-geometry stage.  The model's drops match those of the Python
+Evolving-geometry stage.  The model's top depths match those of the Python
 function for the same geometry, at the start of a run and after the
 geometry has changed.  The ISOMIP+ tasks whose ice geometry changes in time
 run with the coordinate on, and then coupled MISOMIP runs.
 
+### Testing and Validation: The layers depend only on the current geometry
+
+Evolving-geometry stage.  In the ISOMIP+ runs, at the end of a coupling
+interval, the model's layers match those of a Polaris initial state made
+from the geometry at that time with the run's shelves.
+
+### Testing and Validation: Small changes in the geometry make small changes in the layers
+
+Evolving-geometry stage.  A unit test sweeps a draft through a level
+boundary and back.  The interfaces move continuously except for one merge
+and one split, and the layers are the same at the same draft in both
+directions.
+
 ### Testing and Validation: Levels come and go without changing the ocean's content
 
 Evolving-geometry stage.  In those runs, the global heat and salt content
-change only through the surface and land-ice fluxes, to round-off, across
-every change in a column's levels.
-
-### Testing and Validation: A column's levels do not flicker
-
-Evolving-geometry stage.  A unit test that a draft oscillating within the
-margin keeps its drop, and one that crosses it changes the drop by one
-level.  In the ISOMIP+ runs, no column changes its first level back and
-forth within a few coupling intervals.
+change only through the surface and land-ice fluxes, to round-off, as top
+depths move and partial top levels merge and split.
 
 ## Decisions
 
@@ -429,14 +510,35 @@ forth within a few coupling intervals.
 - **The fixed-geometry stage comes first.**  It needs no MPAS-Ocean changes
   beyond fixes for inactive top levels, and it supports the realistic global
   runs with ice-shelf cavities now.  The evolving-geometry stage needs
-  run-time drops and Lagrangian vertical remapping in the ocean model.
-- **One global sum per coupling interval, not drops from neighbors alone.**
-  A drop computed from each cell's neighbors cannot know its shelf's
-  percentile.  The sum is one value per shelf and level, once per coupling
-  interval.
-- **Hysteresis, not drops free to change at every update.**  A drop that
-  follows its draft exactly would flicker for a draft near a level boundary,
-  with a remap each time.
+  run-time top depths and resting thicknesses that change during a run in
+  the ocean model.
+- **One global sum per coupling interval, not top depths from neighbors
+  alone.**  A top depth computed from each cell's neighbors cannot know its
+  shelf's percentile.  The sum is a few values per shelf, or one per shelf
+  and level for a histogram, once per coupling interval.
+- **Partial top levels, not whole levels with hysteresis.**  Any whole-level
+  rule driven by the current geometry has thresholds, and a draft that stays
+  at one changes the level at every update, with or without relaxation
+  toward it.  Only hysteresis stops that, and it makes the layers depend on
+  the geometry's history.  A partial top level lets the coordinate depend on
+  the current geometry alone, and a merge or split moves one interface
+  instead of the whole column.
+- **A partial top level at a shared top depth, not at each column's own
+  draft.**  Cells in a shelf share their top depth, so they share the
+  fraction of their partial level, and z-star spreads it smoothly.
+  Fractions differ only at fronts and steep edges, where levels already
+  jump.  A z-level coordinate with partial top cells at each column's own
+  draft was tried before, and its stair-steps at the ice–ocean interface
+  made flow and melt rates very noisy.
+- **Partial top levels in both stages.**  An evolving run starts from a
+  Polaris initial state, which must match what the ocean model computes for
+  the same geometry.  The example and the whole-level results above come
+  from an earlier version that rounded each top depth up to the top of its
+  level.
+- **The ALE vertical transport, not Lagrangian vertical remapping.**
+  Interfaces move continuously, so the vertical transport that already
+  moves them with the SSH can carry the change.  A merge or split involves
+  only two layers.
 - **Moving calving fronts are set aside.**  Cells that start or stop being
   ocean when ice calves or a front advances need more than a change of first
   level.
