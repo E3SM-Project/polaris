@@ -18,6 +18,7 @@ from polaris.constants import get_constant
 from polaris.io import download
 from polaris.mesh.info import is_spherical
 from polaris.mesh.radius import rescale_sphere_radius
+from polaris.ocean.model.layer_indices import layer_indices_to_omega
 
 # These should probably move to a config file
 FORCING_VARIABLES = [
@@ -333,6 +334,7 @@ def convert_to_omega(
 
     spherical = is_spherical(ds_input)
     _check_sphere_radius(ds_input, spherical)
+    _fill_vert_coord_defaults(ds_input)
 
     output_file = _append_eos_suffix(output_file, eos_type)
 
@@ -859,7 +861,36 @@ def _zero_velocity_fields(ds):
     return velocity_fields
 
 
+def _fill_vert_coord_defaults(ds):
+    """
+    Fill in vertical-coordinate variables that older MPAS-Ocean initial
+    conditions lack or leave unset, so that Omega reads them as MPAS-Ocean
+    would use them: ``minLevelCell`` (top layer active everywhere) if it is
+    missing and ``vertCoordMovementWeights`` of 1 if they are all 0, which
+    MPAS-Ocean's default ``uniform_stretching`` overrides but Omega does not.
+    """
+    if 'minLevelCell' not in ds and 'maxLevelCell' in ds:
+        ds['minLevelCell'] = xr.ones_like(ds.maxLevelCell)
+        ds.minLevelCell.attrs = {
+            'long_name': 'Index to the top active level in each cell'
+        }
+        print('Added minLevelCell = 1 (missing from the input file)')
+
+    if 'vertCoordMovementWeights' in ds:
+        weights = ds.vertCoordMovementWeights
+        if not (weights != 0.0).any():
+            attrs = weights.attrs
+            ds['vertCoordMovementWeights'] = xr.ones_like(weights)
+            ds.vertCoordMovementWeights.attrs = attrs
+            print(
+                'Set vertCoordMovementWeights to 1 (all 0 in the input file)'
+            )
+
+
 def _map_mpaso_to_omega(ds):
+    # Omega's MinLayerCell and MaxLayerCell are zero-based
+    ds = layer_indices_to_omega(ds)
+
     yaml_path = (
         Path(__file__).resolve().parents[2]
         / 'polaris'
