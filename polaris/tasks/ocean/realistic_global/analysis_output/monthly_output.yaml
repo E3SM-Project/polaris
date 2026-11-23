@@ -12,9 +12,12 @@ Omega:
       # The fields the ocean analysis reads: the plotted fields, and what is
       # needed to turn pseudo-thickness into geometric thickness and layer
       # elevations offline.  Omega has no cell-centered reconstructed
-      # velocity yet, so the edge-normal velocity is written instead.
+      # velocity yet, so the edge-normal velocity is written instead.  The
+      # normal transport velocity, which includes any eddy-induced velocity,
+      # is what the regional overturning is computed from offline.
       Fields: [Temperature, Salinity, PseudoThickness, SpecVol, GeomZMid,
-               GeomZInterface, SshCell, NormalVelocity, KineticEnergyCell]
+               GeomZInterface, SshCell, NormalVelocity,
+               NormalTransportVelocity, KineticEnergyCell]
       ReductionPeriod: [1Month]
       # Omega inserts "_1MonthTimeStats" before the timestamp template, so
       # the files are monthly_means_1MonthTimeStats.$Y-$M.nc; the ".nc"

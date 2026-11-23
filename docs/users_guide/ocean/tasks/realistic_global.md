@@ -1268,7 +1268,8 @@ The run writes, in the `forward` step's work directory:
 - `monthly_means_1MonthTimeStats.<year>-<month>.nc`, the monthly means from
   the `MonthlyAverages` group of conservative temperature, absolute salinity,
   pseudo-thickness, specific volume, the layer-midpoint and interface
-  elevations, sea surface height, normal velocity and kinetic energy;
+  elevations, sea surface height, normal velocity, normal transport velocity
+  and kinetic energy;
 - `moc_1MonthTimeStats.<year>-<month>.nc`, the monthly-mean global overturning
   streamfunction from the `MOC` group, in `moc_num_bins` latitude bins:
   Omega's default of 180, or 60 on the 240-km meshes;
