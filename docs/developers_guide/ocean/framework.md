@@ -866,16 +866,19 @@ changed.  After thicknesses are updated, tasks can call
 {py:func}`polaris.ocean.vertical.diagnostics.compute_zint_zmid_from_layer_thickness()`
 to recover `GeomZInterface` and `zMid` from the resulting layer thickness.
 
-Under ice shelves, columns can start below the top reference level (see
+Under ice shelves, columns can start below the surface (see
 {ref}`ocean-z-star-ice-shelves`).
-{py:func}`polaris.ocean.vertical.ice_shelf.compute_ice_shelf_min_level_cell()`
-computes the first level of each column, and the ice shelf of each cell, from
+{py:func}`polaris.ocean.vertical.ice_shelf.compute_ice_shelf_top_depth()`
+computes the top depth of each column, and the ice shelf of each cell, from
 `ssh`, `bottomDepth`, the land-ice and thin-film masks, the mesh and the
 `ice_shelf_*` options in `vertical_grid`.  Tasks pass the result as
-`min_level_cell` to `init_vertical_coord()` for z-star, or to
+`top_depth` to `init_vertical_coord()` for z-star, or to
 {py:meth}`polaris.ocean.vertical.pstar_init.PStarInitStep.run_pstar_init()`
-for p-star.  Either keeps at least `min_vert_levels` levels in each column and
-stretches the remaining resting (or reference pseudo-) thicknesses to the bed.
+for p-star.  Either calls
+{py:func}`polaris.ocean.vertical.ice_shelf.start_columns_at_top_depth()`,
+which keeps at least `min_vert_levels` levels in each column, cuts or merges
+the partial top level and stretches the resting (or reference pseudo-)
+thicknesses to the bed.
 
 For workflows that need pseudo-height/pressure conversion, the
 `polaris.ocean.vertical.ztilde` module provides utilities:

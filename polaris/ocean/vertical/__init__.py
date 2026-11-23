@@ -37,16 +37,16 @@ _VERT_COORD_VARS = [
 ]
 
 
-def init_vertical_coord(config, ds, min_level_cell=None):
+def init_vertical_coord(config, ds, top_depth=None):
     """
     Create a vertical coordinate based on the config options in the
     ``vertical_grid`` section and the ``bottomDepth`` and ``ssh`` variables of
     the mesh data set.
 
-    With ``min_level_cell``, for example under ice shelves (see
-    :py:func:`polaris.ocean.vertical.ice_shelf.compute_ice_shelf_min_level_cell`),
-    columns start at the given reference level.  Only the z-star coordinate
-    supports it.
+    With ``top_depth``, for example under ice shelves (see
+    :py:func:`polaris.ocean.vertical.ice_shelf.compute_ice_shelf_top_depth`),
+    columns start at the given depth, with a partial top level.  Only the
+    z-star coordinate supports it.
 
     The following new variables will be added to the data set:
 
@@ -93,8 +93,8 @@ def init_vertical_coord(config, ds, min_level_cell=None):
         A data set containing ``bottomDepth`` and ``ssh`` variables used to
         construct the vertical coordinate
 
-    min_level_cell : xarray.DataArray, optional
-        The zero-based index of the first reference level of each column
+    top_depth : xarray.DataArray, optional
+        The positive-down depth (m) at which each column starts
     """
 
     for var in ['bottomDepth', 'ssh']:
@@ -107,16 +107,15 @@ def init_vertical_coord(config, ds, min_level_cell=None):
 
     coord_type = config.get('vertical_grid', 'coord_type')
 
-    if min_level_cell is not None and coord_type != 'z-star':
+    if top_depth is not None and coord_type != 'z-star':
         raise ValueError(
-            f'Only the z-star coordinate supports min_level_cell, not '
-            f'{coord_type}.'
+            f'Only the z-star coordinate supports top_depth, not {coord_type}.'
         )
 
     if coord_type == 'z-level':
         init_z_level_vertical_coord(config, ds)
     elif coord_type == 'z-star':
-        init_z_star_vertical_coord(config, ds, min_level_cell=min_level_cell)
+        init_z_star_vertical_coord(config, ds, top_depth=top_depth)
     elif coord_type == 'sigma':
         init_sigma_vertical_coord(config, ds)
     elif coord_type == 'p-star':

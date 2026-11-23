@@ -300,19 +300,26 @@ interfaces slope steeply across calving fronts and steps in the draft.  With
 ice_shelf_top_level = front_draft
 ```
 
-columns under ice shelves drop reference levels at their top instead, and
-z-star applies to the levels that remain:
+columns under ice shelves start at a top depth instead, and z-star applies
+to the reference column below it:
 
-- Each ice shelf drops the levels lying entirely above a percentile
-  (`ice_shelf_front_percentile`) of the drafts along its calving front,
-  weighted by the length of the front.
-- A cell at a calving front that faces open water drops exactly the levels
-  above its own draft, so its layers line up with those of the open ocean.
+- Each ice shelf starts at a percentile (`ice_shelf_front_percentile`) of
+  the drafts along its calving front, weighted by the length of the front.
+- A cell at a calving front that faces open water starts at its own draft,
+  so its layers line up with those of the open ocean.  Its weight as a front
+  ramps up as the open water's bed deepens below the draft and as the ice
+  cell's column thickens beyond a thin film, and the cell's top depth
+  blends its own draft with its shelf's by that weight.
 - Where neighboring columns are still steeper than `ice_shelf_max_rx1`, the
-  cell with the deeper draft drops the fewest further levels that meet it.
+  cell with the deeper draft starts at the shallowest deeper top depth that
+  meets it.
 
-Every column keeps at least `min_vert_levels` levels, and thin-film cells
-under grounded ice drop nothing.  The ice shelves are numbered once, at init,
+Reference levels entirely above the top depth are dropped, and the level
+containing it becomes a partial top level, like a partial bottom cell upside
+down.  A partial top level thinner than `ice_shelf_min_top_fraction` of its
+reference thickness merges into the level below.  Every column keeps at least
+`min_vert_levels` levels, and thin-film cells under grounded ice start at the
+surface.  The ice shelves are numbered once, at init,
 by a flood fill of the floating and then the grounded cells, and the
 initial state records them in `iceShelfGroup`.  With the default, `surface`,
 every column starts at the top reference level.  The same options apply to

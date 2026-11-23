@@ -1,24 +1,28 @@
 """
-The first level of each ocean column under ice shelves.
+The top depth of each ocean column under ice shelves.
 
 Under an ice shelf, z-star would squeeze the whole reference column between
-the ice draft and the bed.  Instead, each column under a shelf drops the
-reference levels at its top and follows z-star over the levels that remain:
+the ice draft and the bed.  Instead, each column under a shelf starts at a
+top depth and follows z-star over the reference column below it:
 
-* each ice shelf drops the levels lying entirely above a percentile of the
-  drafts along its calving front, weighted by the length of front;
+* each ice shelf starts at a percentile of the drafts along its calving
+  front, weighted by the length and the weight of each front;
 
-* a cell at a calving front that faces open water drops exactly the levels
-  lying entirely above its own draft, so its layers line up with the open
-  ocean;
+* a cell at a calving front that faces open water starts at its own draft,
+  blended with its shelf's top depth by the front's weight, so its layers
+  line up with the open ocean;
 
 * where the layers of neighboring columns are still too steep, the cell
-  with the deeper draft drops the fewest further levels that bring the
-  hydrostatic consistency number rx1 down to a maximum.
+  with the deeper draft starts at the shallowest deeper top depth that
+  brings the hydrostatic consistency number rx1 down to a maximum.
 
-Film cells drop nothing, and every column keeps at least ``min_vert_levels``
-levels.  The ice shelves are found once, by a flood fill of the floating
-cells and then of the grounded (film) cells.
+Reference levels lying entirely above a column's top depth are dropped, and
+the level containing it becomes a partial top level.  A partial top level
+that keeps less than ``ice_shelf_min_top_fraction`` of its reference
+thickness merges into the level below.  Film cells start at the surface, and
+every column keeps at least ``min_vert_levels`` levels.  The ice shelves are
+found once, by a flood fill of the floating cells and then of the grounded
+(film) cells.
 """
 
 import numpy as np
@@ -36,8 +40,14 @@ from polaris.ocean.vertical.zlevel import (
 #: the values of ``[vertical_grid] ice_shelf_top_level``
 ICE_SHELF_TOP_LEVELS = ('surface', 'front_draft')
 
+# the top depths sampled in each part of a level when searching for the
+# shallowest that meets the rx1 maximum, and the number of times the search
+# narrows in on it
+_RX1_SAMPLES = 8
+_RX1_REFINEMENTS = 4
 
-def compute_ice_shelf_min_level_cell(
+
+def compute_ice_shelf_top_depth(
     config,
     ds_mesh,
     ssh,
@@ -48,14 +58,15 @@ def compute_ice_shelf_min_level_cell(
     logger=None,
 ):
     """
-    Compute the first level of each column under ice shelves and the ice
-    shelf each cell belongs to.
+    Compute the top depth of each column under ice shelves and the ice shelf
+    each cell belongs to.
 
     With ``[vertical_grid] ice_shelf_top_level = surface``, every column
-    starts at the top reference level.  With ``front_draft``, columns under
-    ice shelves drop reference levels at their top (see the module
-    docstring), with the percentile in ``ice_shelf_front_percentile`` and the
-    maximum rx1 in ``ice_shelf_max_rx1``.
+    starts at the surface.  With ``front_draft``, columns under ice shelves
+    start at top depths set by the drafts along calving fronts (see the
+    module docstring), with the percentile in ``ice_shelf_front_percentile``,
+    the maximum rx1 in ``ice_shelf_max_rx1`` and the smallest partial top
+    level in ``ice_shelf_min_top_fraction``.
 
     Parameters
     ----------
@@ -81,17 +92,19 @@ def compute_ice_shelf_min_level_cell(
         1 in cells under land ice that hold a thin film and 0 elsewhere
 
     thin_film_layer_thickness : float
-        The thickness (m) of each layer of the thin film.  A calving front
-        only counts where the open water's bed is below the ice draft by more
-        than ``min_vert_levels`` of these layers.
+        The thickness (m) of each layer of the thin film.  A film column is
+        ``min_vert_levels`` of these layers.  A calving front only counts
+        where the open water's bed is below the ice draft by more than a film
+        column, and its weight ramps up from there.
 
     logger : logging.Logger, optional
-        A logger for a summary of the drops
+        A logger for a summary of the top depths
 
     Returns
     -------
-    min_level_cell : xarray.DataArray
-        The zero-based index of the first level of each column
+    top_depth : xarray.DataArray
+        The positive-down depth (m) at which each column starts, 0 at the
+        surface
 
     ice_shelf_group : xarray.DataArray
         The ice shelf of each cell under land ice, numbered from 1, and 0
@@ -119,9 +132,9 @@ def compute_ice_shelf_min_level_cell(
     )
     ice_shelf_group = xr.DataArray(group.astype(np.int32), dims=('nCells',))
 
-    ndrop = np.zeros(ssh.sizes['nCells'], dtype=int)
+    depth = np.zeros(ssh.sizes['nCells'])
     if top_level == 'front_draft':
-        ndrop = _compute_drops(
+        depth = _compute_top_depths(
             config=config,
             ssh=ssh,
             bottom_depth=_squeeze_time(bottom_depth),
@@ -132,13 +145,12 @@ def compute_ice_shelf_min_level_cell(
             group=group,
             percentile=section.getfloat('ice_shelf_front_percentile'),
             max_rx1=section.getfloat('ice_shelf_max_rx1'),
-            front_margin=min_vert_levels * thin_film_layer_thickness,
-            min_vert_levels=min_vert_levels,
+            film_column=min_vert_levels * thin_film_layer_thickness,
             logger=logger,
         )
 
-    min_level_cell = xr.DataArray(ndrop, dims=('nCells',))
-    return min_level_cell, ice_shelf_group
+    top_depth = xr.DataArray(depth, dims=('nCells',))
+    return top_depth, ice_shelf_group
 
 
 def compute_ice_shelf_groups(cells_on_edge, floating, grounded):
@@ -221,58 +233,73 @@ def weighted_percentile(values, weights, percentile):
     return values[order][min(index, values.size - 1)]
 
 
-def cap_min_level_cell(min_level_cell, max_level_cell, min_vert_levels):
+def start_columns_at_top_depth(
+    thickness,
+    ref_interfaces,
+    top_depth,
+    max_level_cell,
+    column_thickness,
+    min_vert_levels,
+    min_top_fraction,
+):
     """
-    Limit the first level of each column so it keeps at least
-    ``min_vert_levels`` levels.
+    Start each column at its top depth, with a partial top level, and
+    stretch the thicknesses that remain to the column's thickness.
+
+    Reference levels lying entirely above the top depth are dropped.  The
+    level containing it keeps the part below the top depth, unless that is
+    less than ``min_top_fraction`` of its reference thickness, in which case
+    it merges into the level below.  Each top depth is capped at the top of
+    the level ``min_vert_levels - 1`` levels above the column's last level,
+    so the column keeps at least ``min_vert_levels`` levels.  Columns that
+    start at the surface are not changed.
 
     Parameters
     ----------
-    min_level_cell : xarray.DataArray
-        The requested zero-based first level of each column
+    thickness : xarray.DataArray
+        The thickness of each level of each column starting at the top
+        level, zero below the column, with dimensions ``nCells`` and
+        ``nVertLevels``
+
+    ref_interfaces : numpy.ndarray
+        The positive-down depths of the interfaces between reference levels
+
+    top_depth : xarray.DataArray
+        The positive-down depth at which each column starts
 
     max_level_cell : xarray.DataArray
         The zero-based last level of each column
 
+    column_thickness : xarray.DataArray
+        The thickness the levels of each column must sum to
+
     min_vert_levels : int
         The minimum number of levels in a column
+
+    min_top_fraction : float
+        The smallest fraction of its reference thickness that a partial top
+        level keeps before it merges into the level below
 
     Returns
     -------
     min_level_cell : xarray.DataArray
         The zero-based first level of each column
-    """
-    top = np.minimum(min_level_cell, max_level_cell - min_vert_levels + 1)
-    return np.maximum(top, 0).astype(int)
 
-
-def stretch_to_column(thickness, column_thickness, min_level_cell):
-    """
-    Stretch the thicknesses of the remaining levels of each column with
-    dropped levels so they sum to the column's thickness.
-
-    Parameters
-    ----------
     thickness : xarray.DataArray
-        The thickness of each level, zero outside the column
-
-    column_thickness : xarray.DataArray
-        The thickness the levels of each column must sum to
-
-    min_level_cell : xarray.DataArray
-        The zero-based first level of each column.  Columns starting at the
-        top level are not changed.
-
-    Returns
-    -------
-    thickness : xarray.DataArray
-        The stretched thicknesses
+        The thickness of each level of each column
     """
-    total = thickness.sum(dim='nVertLevels')
-    stretch = xr.where(
-        (min_level_cell > 0) & (total > 0.0), column_thickness / total, 1.0
+    thickness = thickness.transpose('nCells', 'nVertLevels')
+    min_level_cell, values = _start_at_top_depth(
+        thickness=thickness.values,
+        interfaces=np.asarray(ref_interfaces),
+        top_depth=_squeeze_time(top_depth).values,
+        max_level_cell=max_level_cell.values.astype(int),
+        column_thickness=column_thickness.values,
+        min_vert_levels=min_vert_levels,
+        min_top_fraction=min_top_fraction,
     )
-    return thickness * stretch
+    min_level_cell = xr.DataArray(min_level_cell, dims=('nCells',))
+    return min_level_cell, thickness.copy(data=values)
 
 
 class _ReferenceColumns:
@@ -288,12 +315,14 @@ class _ReferenceColumns:
         ref_top = xr.DataArray(interfaces[:-1], dims=['nVertLevels'])
         ref_bot = xr.DataArray(interfaces[1:], dims=['nVertLevels'])
         zero = xr.zeros_like(bottom_depth)
+        self.min_vert_levels = section.getint('min_vert_levels')
+        self.min_top_fraction = section.getfloat('ice_shelf_min_top_fraction')
         min_level_cell, max_level_cell, _ = compute_min_max_level_cell(
             ref_top,
             ref_bot,
             zero,
             bottom_depth,
-            min_vert_levels=section.getint('min_vert_levels'),
+            min_vert_levels=self.min_vert_levels,
             min_layer_thickness=section.getfloat('min_layer_thickness'),
         )
         bottom_depth, max_level_cell = alter_bottom_depth(
@@ -307,22 +336,34 @@ class _ReferenceColumns:
             min_level_cell,
             max_level_cell,
         )
-        self.ref_bottom = interfaces[1:]
+        self.ref_interfaces = np.asarray(interfaces)
         self.ssh = ssh.values
         self.bottom_depth = bottom_depth.values
         self.max_level_cell = max_level_cell.values.astype(int)
         self.resting = resting.transpose('nCells', 'nVertLevels').values
+        self.deepest = _deepest_top_depth(
+            self.ref_interfaces, self.max_level_cell, self.min_vert_levels
+        )
 
-    def interfaces(self, cells, ndrop):
+    def interfaces(self, cells, top_depth):
         """
         The thickness and top and bottom heights of each layer of the given
-        cells with the given drops, z-star over the remaining levels
+        cells starting at the given top depths, z-star below them
         """
-        levels = np.arange(self.resting.shape[1])[np.newaxis, :]
-        valid = (levels >= ndrop[:, np.newaxis]) & (
+        min_level_cell, resting = _start_at_top_depth(
+            thickness=self.resting[cells],
+            interfaces=self.ref_interfaces,
+            top_depth=top_depth,
+            max_level_cell=self.max_level_cell[cells],
+            column_thickness=self.bottom_depth[cells],
+            min_vert_levels=self.min_vert_levels,
+            min_top_fraction=self.min_top_fraction,
+        )
+        levels = np.arange(resting.shape[1])[np.newaxis, :]
+        valid = (levels >= min_level_cell[:, np.newaxis]) & (
             levels <= self.max_level_cell[cells, np.newaxis]
         )
-        resting = np.where(valid, self.resting[cells], 0.0)
+        resting = np.where(valid, resting, 0.0)
         total = resting.sum(axis=1)
         column = self.ssh[cells] + self.bottom_depth[cells]
         stretch = column / np.where(total > 0.0, total, 1.0)
@@ -334,13 +375,13 @@ class _ReferenceColumns:
         )
         return thickness, top, top - thickness, valid
 
-    def rx1(self, cell_a, cell_b, ndrop_a, ndrop_b):
+    def rx1(self, cell_a, cell_b, top_a, top_b):
         """
         The largest rx1 over the shared layers of each pair of cells
         """
         cells = np.concatenate([cell_a, cell_b])
-        ndrop = np.concatenate([ndrop_a, ndrop_b])
-        thickness, top, bottom, valid = self.interfaces(cells, ndrop)
+        top_depth = np.concatenate([top_a, top_b])
+        thickness, top, bottom, valid = self.interfaces(cells, top_depth)
         a = slice(0, cell_a.size)
         b = slice(cell_a.size, None)
         shared = valid[a] & valid[b]
@@ -351,8 +392,86 @@ class _ReferenceColumns:
         )
         return rx1.max(axis=1)
 
+    def edge_rx1(self, cell, other, top_depths, other_top_depth):
+        """
+        The rx1 of the edge between ``cell`` and ``other`` with ``cell`` at
+        each of the given top depths
+        """
+        count = top_depths.size
+        return self.rx1(
+            np.full(count, cell),
+            np.full(count, other),
+            top_depths,
+            np.full(count, other_top_depth),
+        )
 
-def _compute_drops(
+    def candidate_top_depths(self, start, stop):
+        """
+        Top depths deeper than ``start`` and down to ``stop``, sampled
+        between the reference interfaces and the depths where a partial top
+        level merges into the level below
+        """
+        interfaces = self.ref_interfaces
+        merge = interfaces[1:] - self.min_top_fraction * np.diff(interfaces)
+        knots = np.unique(np.concatenate([interfaces, merge, [start, stop]]))
+        knots = knots[(knots >= start) & (knots <= stop)]
+        fractions = np.arange(1, _RX1_SAMPLES + 1) / _RX1_SAMPLES
+        depths = knots[:-1, np.newaxis] + np.outer(np.diff(knots), fractions)
+        return depths.ravel()
+
+
+def _start_at_top_depth(
+    thickness,
+    interfaces,
+    top_depth,
+    max_level_cell,
+    column_thickness,
+    min_vert_levels,
+    min_top_fraction,
+):
+    """
+    The first level and thicknesses of each column starting at its top
+    depth, as numpy arrays (see :py:func:`start_columns_at_top_depth`)
+    """
+    ncells, nlevels = thickness.shape
+    rows = np.arange(ncells)
+    deepest = _deepest_top_depth(interfaces, max_level_cell, min_vert_levels)
+    top = np.clip(top_depth, 0.0, deepest)
+
+    # the levels lying entirely above the top depth are dropped, and the one
+    # containing it is the partial top level
+    level = np.searchsorted(interfaces[1:], top, side='right')
+    level = np.minimum(level, np.maximum(max_level_cell, 0))
+    fraction = (interfaces[level + 1] - top) / np.diff(interfaces)[level]
+    partial = thickness[rows, level] - (top - interfaces[level])
+    merge = (fraction < min_top_fraction) & (level < max_level_cell)
+
+    levels = np.arange(nlevels)[np.newaxis, :]
+    result = np.where(levels < level[:, np.newaxis], 0.0, thickness)
+    result[rows, level] = np.where(merge, 0.0, partial)
+    below = np.minimum(level + 1, nlevels - 1)
+    result[rows[merge], below[merge]] += partial[merge]
+    min_level_cell = level + merge.astype(int)
+
+    total = result.sum(axis=1)
+    stretch = np.where(
+        (top > 0.0) & (total > 0.0),
+        column_thickness / np.where(total > 0.0, total, 1.0),
+        1.0,
+    )
+    return min_level_cell, result * stretch[:, np.newaxis]
+
+
+def _deepest_top_depth(interfaces, max_level_cell, min_vert_levels):
+    """
+    The deepest top depth of each column: the top of the level
+    ``min_vert_levels - 1`` levels above its last level
+    """
+    first = np.clip(max_level_cell - min_vert_levels + 1, 0, None)
+    return interfaces[first]
+
+
+def _compute_top_depths(
     config,
     ssh,
     bottom_depth,
@@ -363,24 +482,23 @@ def _compute_drops(
     group,
     percentile,
     max_rx1,
-    front_margin,
-    min_vert_levels,
+    film_column,
     logger,
 ):
     """
-    The number of reference levels each column drops at its top
+    The depth at which each column starts
     """
     ncells = land_ice.size
     both = (cells_on_edge[:, 0] >= 0) & (cells_on_edge[:, 1] >= 0)
     first = np.where(both, cells_on_edge[:, 0], 0)
     second = np.where(both, cells_on_edge[:, 1], 0)
     edges = np.flatnonzero(both & (land_ice[first] | land_ice[second]))
-    ndrop_all = np.zeros(ncells, dtype=int)
+    top_all = np.zeros(ncells)
     if edges.size == 0:
-        return ndrop_all
+        return top_all
 
-    # only the cells on edges touching land ice can drop levels or affect
-    # those that do, so work on those alone
+    # only the cells on edges touching land ice can start below the surface
+    # or affect those that do, so work on those alone
     cells, local = np.unique(
         np.concatenate([first[edges], second[edges]]), return_inverse=True
     )
@@ -399,86 +517,131 @@ def _compute_drops(
     no_film = ~(film[cell_a] | film[cell_b])
 
     # fronts: ice next to open water whose bed is below the ice's draft by
-    # more than a film column
+    # more than a film column, each with a weight that ramps up from there
     ice_cell = np.where(land_ice[cell_a], cell_a, cell_b)
     open_cell = np.where(land_ice[cell_a], cell_b, cell_a)
-    front = (
-        (land_ice[cell_a] != land_ice[cell_b])
-        & no_film
-        & (column.bottom_depth[open_cell] > draft[ice_cell] + front_margin)
+    weight = np.where(
+        (land_ice[cell_a] != land_ice[cell_b]) & no_film,
+        _front_weights(
+            draft=draft[ice_cell],
+            ice_bed=column.bottom_depth[ice_cell],
+            open_bed=column.bottom_depth[open_cell],
+            interfaces=column.ref_interfaces,
+            film_column=film_column,
+        ),
+        0.0,
     )
-    front_length = np.zeros(cells.size)
-    np.add.at(front_length, ice_cell[front], dv_edge[edges[front]])
-    front_cell = front_length > 0.0
+    front = weight > 0.0
+    front_weight = np.zeros(cells.size)
+    np.maximum.at(front_weight, ice_cell[front], weight[front])
+    percentile_weight = np.zeros(cells.size)
+    np.add.at(
+        percentile_weight,
+        ice_cell[front],
+        weight[front] * dv_edge[edges[front]],
+    )
+    front_cell = front_weight > 0.0
 
-    # the number of reference levels entirely above each cell's draft
-    above_draft = np.searchsorted(column.ref_bottom, draft, side='right')
-
-    ndrop = np.zeros(cells.size, dtype=int)
+    shelf_top = np.zeros(cells.size)
     front_groups = np.unique(group[front_cell])
     for shelf in front_groups:
         in_shelf = group == shelf
         sel = front_cell & in_shelf
-        ndrop[floating & in_shelf] = weighted_percentile(
-            above_draft[sel], front_length[sel], percentile
+        shelf_top[in_shelf] = weighted_percentile(
+            draft[sel], percentile_weight[sel], percentile
         )
-    ndrop[front_cell] = above_draft[front_cell]
-    max_drop = np.maximum(column.max_level_cell + 1 - min_vert_levels, 0)
-    ndrop = np.where(floating, np.minimum(ndrop, max_drop), 0)
+    top = front_weight * draft + (1.0 - front_weight) * shelf_top
+    top = np.where(floating, np.clip(top, 0.0, column.deepest), 0.0)
 
-    base = ndrop.copy()
+    base = top.copy()
     rx1 = column.rx1(cell_a, cell_b, base[cell_a], base[cell_b])
     steep = np.flatnonzero((rx1 > max_rx1) & no_film)
     unmet = 0
     for edge in steep:
-        # the cell with the deeper draft drops more
+        # the cell with the deeper draft starts deeper
         cell, other = cell_a[edge], cell_b[edge]
         if not column.ssh[cell] < column.ssh[other]:
             cell, other = other, cell
         if not floating[cell]:
             continue
-        drop = _fewest_drops(column, cell, other, base, max_drop, max_rx1)
-        if drop is None:
+        depth = _shallowest_top_depth(column, cell, other, base, max_rx1)
+        if depth is None:
             unmet += 1
-            drop = max_drop[cell]
-        ndrop[cell] = max(ndrop[cell], drop)
+            depth = column.deepest[cell]
+        top[cell] = max(top[cell], depth)
 
     if logger is not None:
         inner = no_film & land_ice[cell_a] & land_ice[cell_b]
-        _log_drops(
+        _log_top_depths(
             logger=logger,
+            column=column,
             n_shelves=int(np.unique(group[group > 0]).size),
             n_front_shelves=front_groups.size,
             n_front_cells=int(front_cell.sum()),
             n_land_ice=int(land_ice.sum()),
-            ndrop=ndrop,
+            top=top,
             base=base,
             unmet=unmet,
             rx1=column.rx1(
                 cell_a[inner],
                 cell_b[inner],
-                ndrop[cell_a[inner]],
-                ndrop[cell_b[inner]],
+                top[cell_a[inner]],
+                top[cell_b[inner]],
             ),
         )
 
-    ndrop_all[cells] = ndrop
-    return ndrop_all
+    top_all[cells] = top
+    return top_all
 
 
-def _fewest_drops(column, cell, other, base, max_drop, max_rx1):
+def _front_weights(draft, ice_bed, open_bed, interfaces, film_column):
     """
-    The fewest drops of ``cell`` beyond its base that bring its edge with
-    ``other`` to ``max_rx1``, or None if no drop does
+    The weight of each edge between an ice cell and an open-water cell, the
+    product of two ramps from 0 to 1: one as the open cell's bed goes from a
+    film column below the draft to a film column plus the reference
+    thickness at the draft, and one as the ice cell's column goes from one
+    film column to two
     """
-    pair_a = np.array([cell])
-    pair_b = np.array([other])
-    other_drop = np.array([base[other]])
-    for drop in range(base[cell] + 1, max_drop[cell] + 1):
-        rx1 = column.rx1(pair_a, pair_b, np.array([drop]), other_drop)
-        if rx1[0] <= max_rx1:
-            return drop
-    return None
+    ref_thickness = np.diff(interfaces)
+    level = np.searchsorted(interfaces[1:], draft, side='right')
+    level = np.clip(level, 0, ref_thickness.size - 1)
+    open_ramp = np.clip(
+        (open_bed - draft - film_column) / ref_thickness[level], 0.0, 1.0
+    )
+    ice_column = ice_bed - draft
+    if film_column > 0.0:
+        column_ramp = np.clip((ice_column - film_column) / film_column, 0, 1)
+    else:
+        column_ramp = (ice_column > 0.0).astype(float)
+    return open_ramp * column_ramp
+
+
+def _shallowest_top_depth(column, cell, other, base, max_rx1):
+    """
+    The shallowest top depth of ``cell`` deeper than its base that brings
+    its edge with ``other`` to ``max_rx1``, with ``other`` at its base, or
+    None if none does
+    """
+    depths = column.candidate_top_depths(base[cell], column.deepest[cell])
+    if depths.size == 0:
+        return None
+    passing = column.edge_rx1(cell, other, depths, base[other]) <= max_rx1
+    if not passing.any():
+        return None
+    index = int(np.argmax(passing))
+    shallow = base[cell] if index == 0 else depths[index - 1]
+    deep = depths[index]
+    fractions = np.arange(1, _RX1_SAMPLES + 1) / _RX1_SAMPLES
+    for _ in range(_RX1_REFINEMENTS):
+        # the deepest sample is the one known to pass, exactly
+        depths = shallow + fractions * (deep - shallow)
+        depths[-1] = deep
+        passing = column.edge_rx1(cell, other, depths, base[other]) <= max_rx1
+        index = int(np.argmax(passing))
+        if index > 0:
+            shallow = depths[index - 1]
+        deep = depths[index]
+    return deep
 
 
 def _label_regions(cell_a, cell_b, mask, group, first):
@@ -497,31 +660,47 @@ def _label_regions(cell_a, cell_b, mask, group, first):
     group[mask] = label + first
 
 
-def _log_drops(
+def _log_top_depths(
     logger,
+    column,
     n_shelves,
     n_front_shelves,
     n_front_cells,
     n_land_ice,
-    ndrop,
+    top,
     base,
     unmet,
     rx1,
 ):
     """
-    Log a summary of the drops and the steepness that remains
+    Log a summary of the top depths and the steepness that remains
     """
     logger.info(
-        f'Ice-shelf top levels: {n_shelves} ice shelves, {n_front_shelves} '
+        f'Ice-shelf top depths: {n_shelves} ice shelves, {n_front_shelves} '
         f'with calving fronts facing open water, {n_front_cells} front cells'
     )
-    dropped = ndrop > 0
-    if dropped.any():
+    below = top > 0.0
+    if below.any():
+        cells = np.flatnonzero(below)
+        min_level_cell, _ = _start_at_top_depth(
+            thickness=column.resting[cells],
+            interfaces=column.ref_interfaces,
+            top_depth=top[cells],
+            max_level_cell=column.max_level_cell[cells],
+            column_thickness=column.bottom_depth[cells],
+            min_vert_levels=column.min_vert_levels,
+            min_top_fraction=column.min_top_fraction,
+        )
+        level = np.searchsorted(
+            column.ref_interfaces[1:], top[cells], side='right'
+        )
         logger.info(
-            f'  {int(dropped.sum())} of {n_land_ice} cells under land ice '
-            f'drop levels (median {np.median(ndrop[dropped]):.0f}, max '
-            f'{ndrop.max()}); {int((ndrop > base).sum())} drop more to limit '
-            f'rx1, which {unmet} edges cannot meet'
+            f'  {cells.size} of {n_land_ice} cells under land ice start '
+            f'below the surface (median {np.median(top[cells]):.0f} m, max '
+            f'{top.max():.0f} m); {int((min_level_cell > level).sum())} '
+            f'merge their partial top level into the level below; '
+            f'{int((top > base).sum())} start deeper to limit rx1, which '
+            f'{unmet} edges cannot meet'
         )
     if rx1.size > 0:
         logger.info(

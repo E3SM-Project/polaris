@@ -15,7 +15,7 @@ from polaris.ocean.ice_shelf import (
 )
 from polaris.ocean.vertical.bathymetry_holes import fill_max_level_holes
 from polaris.ocean.vertical.grid_1d import generate_1d_grid
-from polaris.ocean.vertical.ice_shelf import compute_ice_shelf_min_level_cell
+from polaris.ocean.vertical.ice_shelf import compute_ice_shelf_top_depth
 from polaris.ocean.vertical.pstar_init import PStarInitStep
 from polaris.ocean.vertical.ztilde import (
     Gravity,
@@ -296,9 +296,9 @@ class RealisticPStarInitStep(PStarInitStep):
 
         land_ice_mask : xarray.DataArray, optional
             1 in cells under land ice and 0 elsewhere.  With it, columns
-            under ice shelves start below the top reference level as
+            under ice shelves start below the surface as
             ``[vertical_grid] ice_shelf_top_level`` asks (see
-            :py:func:`polaris.ocean.vertical.ice_shelf.compute_ice_shelf_min_level_cell`).
+            :py:func:`polaris.ocean.vertical.ice_shelf.compute_ice_shelf_top_depth`).
 
         Returns
         -------
@@ -424,7 +424,7 @@ class RealisticPStarInitStep(PStarInitStep):
         """
         Run :py:meth:`run_pstar_init`, with the land-ice load MPAS-Ocean will
         apply when there are ice-shelf cavities and, with ``land_ice_mask``,
-        the first level of each column under ice shelves.
+        the top depth of each column under ice shelves.
         """
         if land_ice_pressure is None:
             return self.run_pstar_init(ds_mesh, geom_z_bot)
@@ -446,9 +446,9 @@ class RealisticPStarInitStep(PStarInitStep):
                 'landIcePressure': land_ice_pressure,
             }
         )
-        min_level_cell = None
+        top_depth = None
         if land_ice_mask is not None:
-            min_level_cell, ice_shelf_group = compute_ice_shelf_min_level_cell(
+            top_depth, ice_shelf_group = compute_ice_shelf_top_depth(
                 config=self.config,
                 ds_mesh=ds_mesh,
                 ssh=ssh,
@@ -464,7 +464,7 @@ class RealisticPStarInitStep(PStarInitStep):
             geom_z_bot,
             surface_pressure=surface_pressure,
             sea_surface_height=ssh,
-            min_level_cell=min_level_cell,
+            top_depth=top_depth,
         )
 
     def init_tracers(

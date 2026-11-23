@@ -2,10 +2,7 @@ import numpy
 import xarray
 
 from polaris.ocean.vertical.grid_1d import add_1d_grid
-from polaris.ocean.vertical.ice_shelf import (
-    cap_min_level_cell,
-    stretch_to_column,
-)
+from polaris.ocean.vertical.ice_shelf import start_columns_at_top_depth
 from polaris.ocean.vertical.partial_cells import alter_bottom_depth
 from polaris.ocean.vertical.zlevel import (
     compute_min_max_level_cell,
@@ -13,18 +10,21 @@ from polaris.ocean.vertical.zlevel import (
 )
 
 
-def init_z_star_vertical_coord(config, ds, min_level_cell=None):
+def init_z_star_vertical_coord(config, ds, top_depth=None):
     """
     Create a z-star vertical coordinate based on the config options in the
     ``vertical_grid`` section and the ``bottomDepth`` and ``ssh`` variables of
     the mesh data set.
 
-    With ``min_level_cell``, columns start at the given reference level
-    rather than the top one, for example under ice shelves (see
-    :py:func:`polaris.ocean.vertical.ice_shelf.compute_ice_shelf_min_level_cell`).
-    Each column keeps at least ``min_vert_levels`` levels, and the remaining
-    levels follow z-star: their resting thicknesses are stretched to sum to
-    ``bottomDepth``.
+    With ``top_depth``, columns start at the given depth rather than the
+    surface, for example under ice shelves (see
+    :py:func:`polaris.ocean.vertical.ice_shelf.compute_ice_shelf_top_depth`).
+    The reference level containing the top depth becomes a partial top level,
+    or merges into the level below if it keeps less than
+    ``[vertical_grid] ice_shelf_min_top_fraction`` of its reference
+    thickness.  Each column keeps at least ``min_vert_levels`` levels, and
+    the levels follow z-star: their resting thicknesses are stretched to sum
+    to ``bottomDepth``.
 
     The following new variables will be added to the data set:
 
@@ -71,8 +71,8 @@ def init_z_star_vertical_coord(config, ds, min_level_cell=None):
         A data set containing ``bottomDepth`` and ``ssh`` variables used to
         construct the vertical coordinate
 
-    min_level_cell : xarray.DataArray, optional
-        The zero-based index of the first reference level of each column
+    top_depth : xarray.DataArray, optional
+        The positive-down depth (m) at which each column starts
     """
     add_1d_grid(config, ds)
 
@@ -98,11 +98,6 @@ def init_z_star_vertical_coord(config, ds, min_level_cell=None):
         config, ds.bottomDepth, ds.refBottomDepth, ds.maxLevelCell
     )
 
-    if min_level_cell is not None:
-        ds['minLevelCell'] = cap_min_level_cell(
-            min_level_cell, ds.maxLevelCell, min_vert_levels
-        )
-
     ds['restingThickness'] = compute_z_level_layer_thickness(
         ds.refTopDepth,
         ds.refBottomDepth,
@@ -112,9 +107,19 @@ def init_z_star_vertical_coord(config, ds, min_level_cell=None):
         ds.maxLevelCell,
     )
 
-    if min_level_cell is not None:
-        ds['restingThickness'] = stretch_to_column(
-            ds.restingThickness, ds.bottomDepth, ds.minLevelCell
+    if top_depth is not None:
+        ds['minLevelCell'], ds['restingThickness'] = (
+            start_columns_at_top_depth(
+                thickness=ds.restingThickness,
+                ref_interfaces=ds.refInterfaces.values,
+                top_depth=top_depth,
+                max_level_cell=ds.maxLevelCell,
+                column_thickness=ds.bottomDepth,
+                min_vert_levels=min_vert_levels,
+                min_top_fraction=config.getfloat(
+                    'vertical_grid', 'ice_shelf_min_top_fraction'
+                ),
+            )
         )
 
     ds['layerThickness'] = _compute_z_star_layer_thickness(

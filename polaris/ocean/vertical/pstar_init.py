@@ -64,7 +64,7 @@ class PStarInitStep(Step, ABC):
         ds_mesh: xr.Dataset,
         bottom_pressure: xr.DataArray,
         surface_pressure: xr.DataArray | None = None,
-        min_level_cell: xr.DataArray | None = None,
+        top_depth: xr.DataArray | None = None,
     ) -> xr.Dataset:
         """
         Build the p-star vertical coordinate dataset for one outer iteration.
@@ -83,9 +83,9 @@ class PStarInitStep(Step, ABC):
         surface_pressure : xarray.DataArray, optional
             Sea-surface pressure with dimension ``nCells`` (Pa).  Defaults to
             zero for all cells.
-        min_level_cell : xarray.DataArray, optional
-            The zero-based index of the first reference level of each column,
-            the top one by default.
+        top_depth : xarray.DataArray, optional
+            The positive-down pseudo-depth (m) at which each column starts,
+            the surface by default.
 
         Returns
         -------
@@ -102,7 +102,7 @@ class PStarInitStep(Step, ABC):
         set_attrs(
             ds.SurfacePressure, long_name='sea surface pressure', units='Pa'
         )
-        init_pstar_vertical_coord(config, ds, min_level_cell=min_level_cell)
+        init_pstar_vertical_coord(config, ds, top_depth=top_depth)
         return ds
 
     def run_pstar_init(
@@ -111,7 +111,7 @@ class PStarInitStep(Step, ABC):
         geom_z_bot: xr.DataArray,
         surface_pressure: xr.DataArray | None = None,
         sea_surface_height: xr.DataArray | None = None,
-        min_level_cell: xr.DataArray | None = None,
+        top_depth: xr.DataArray | None = None,
     ) -> xr.Dataset:
         """
         Run the fixed-point iteration that determines BottomPressure (and
@@ -149,10 +149,10 @@ class PStarInitStep(Step, ABC):
             sea-surface depression that balances the surface pressure for a
             reference-density fluid.  (Being at rest does not imply
             ``ssh = 0``; surface loading depresses ``ssh`` even at rest.)
-        min_level_cell : xarray.DataArray, optional
-            The zero-based index of the first reference level of each column,
-            the top one by default.  Under ice shelves, see
-            :py:func:`polaris.ocean.vertical.ice_shelf.compute_ice_shelf_min_level_cell`.
+        top_depth : xarray.DataArray, optional
+            The positive-down pseudo-depth (m) at which each column starts,
+            the surface by default.  Under ice shelves, see
+            :py:func:`polaris.ocean.vertical.ice_shelf.compute_ice_shelf_top_depth`.
 
         Returns
         -------
@@ -229,7 +229,7 @@ class PStarInitStep(Step, ABC):
                 ds_mesh,
                 bottom_pressure,
                 surface_pressure,
-                min_level_cell=min_level_cell,
+                top_depth=top_depth,
             )
             # ds.BottomPressure is the post-partial-cell-snap value
             adjusted_bottom_pressure = ds.BottomPressure
