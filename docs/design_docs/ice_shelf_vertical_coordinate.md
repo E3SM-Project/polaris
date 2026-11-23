@@ -49,6 +49,52 @@ These concern the evolving-geometry stage only.
 - **Lagrangian vertical remapping in MPAS-Ocean.**  It exists but still
   needs debugging and testing before this stage can rely on it.
 
+## Example
+
+The figures compare z-star (top of each) with the coordinate (bottom) in the
+`realistic_global` so12to30km initial state with ice-shelf cavities under
+the `grounding_line` convention.  Both come from the same initialization and
+differ only in `ice_shelf_top_level`.  The fill is layer thickness.  Orange
+lines are the bottoms of every tenth layer, pale blue-gray is land ice and
+tan is the seafloor.
+
+```{figure} ice_shelf_vertical_coordinate/transects_map.jpg
+:alt: Ice draft around Antarctica, with four transects
+:width: 60%
+
+The ice draft and the transects.  Each starts at its dot, in open water.
+```
+
+```{figure} ice_shelf_vertical_coordinate/filchner_ronne_front.jpg
+:alt: z-star and the coordinate across the Filchner-Ronne calving front
+:width: 100%
+
+The Filchner-Ronne calving front.  z-star bends every level down from the
+surface, so its top layers are thin and slope steeply across the front.  The
+coordinate drops the reference levels above the draft, so the layers under
+the ice continue those of the open ocean.
+```
+
+```{figure} ice_shelf_vertical_coordinate/filchner_ronne_trough.jpg
+:alt: z-star and the coordinate in a deep trough near the Filchner-Ronne grounding line
+:width: 100%
+
+A deep trough near the Filchner-Ronne grounding line, where the draft
+deepens by about 800 m.  z-star's top layers are a few meters thick, while
+the coordinate's stay near their reference thicknesses.  Where neighboring
+columns start at different levels, their top layers end in short walls.
+```
+
+```{figure} ice_shelf_vertical_coordinate/totten_front.jpg
+:alt: z-star and the coordinate across the Totten calving front
+:width: 100%
+
+The Totten calving front, which ends on a cliff.  The cells at 139 to 150 km
+are a thin film under ice that nearly reaches the bed.  Beyond them, under a
+970 m draft, z-star squeezes all its levels into a 180 m column, while the
+coordinate keeps about ten near their reference thicknesses.
+```
+
 ## Requirements
 
 ### Requirement: Layers under ice shelves stay near their reference thicknesses
