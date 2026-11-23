@@ -1205,6 +1205,8 @@
    OceanModelFilesMixin
 
    get_layer_mass
+   layer_indices_to_omega
+   layer_indices_from_omega
    get_time_since_start
    get_simulation_years
    days_per_year

@@ -20,7 +20,11 @@ the model being run, use the methods
 {py:meth}`polaris.ocean.model.OceanIOStep.map_to_native_model_vars()` and
 {py:meth}`polaris.ocean.model.OceanIOStep.map_from_native_model_vars()`. These
 methods should be called in Polaris immediatly before writing out input files
-and immediately after opening in output files, respectively. To make opening
+and immediately after opening in output files, respectively. Besides renaming,
+they convert the layer indices of each cell between MPAS-Ocean's one-based
+`minLevelCell` and `maxLevelCell` (the convention Polaris works with) and
+Omega's zero-based `MinLayerCell` and `MaxLayerCell` (see
+`polaris/ocean/model/layer_indices.py`). To make opening
 and writing easier, we also provide
 {py:meth}`polaris.ocean.model.OceanIOStep.write_model_dataset()` and
 {py:meth}`polaris.ocean.model.OceanIOStep.open_model_dataset()`, which take

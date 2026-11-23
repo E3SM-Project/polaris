@@ -111,10 +111,10 @@ def _omega_geom_z_interface(ds):
     ``geom_height_from_pseudo_height``: re-anchoring the written column with
     the helper that built it is an identity and would pass unconditionally.
 
-    ``minLevelCell`` / ``maxLevelCell`` are 1-based in the dataset (Omega
-    converts to its 0-based ``MinLayerCell`` / ``MaxLayerCell`` on read), so
-    they are converted here.  Interfaces outside the valid range are left as
-    NaN, matching what Polaris masks out.
+    ``minLevelCell`` / ``maxLevelCell`` are 1-based in the dataset (Polaris
+    converts them to Omega's 0-based ``MinLayerCell`` / ``MaxLayerCell`` when
+    writing them for Omega), so they are converted here.  Interfaces outside
+    the valid range are left as NaN, matching what Polaris masks out.
 
     Returns
     -------

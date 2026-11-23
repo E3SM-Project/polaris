@@ -253,11 +253,13 @@ def _write_simulation(
         )
     ).to_netcdf(os.path.join(sim_path, 'mesh.nc'))
 
-    max_level = np.full(N_CELLS, N_LEVELS, dtype=np.int32)
-    max_level[LAND_CELL] = 0
+    # Omega's layer indices are zero-based, and a land cell has no active
+    # layer
+    max_level = np.full(N_CELLS, N_LEVELS - 1, dtype=np.int32)
+    max_level[LAND_CELL] = -1
     xr.Dataset(
         dict(
-            MinLayerCell=('NCells', np.ones(N_CELLS, dtype=np.int32)),
+            MinLayerCell=('NCells', np.zeros(N_CELLS, dtype=np.int32)),
             MaxLayerCell=('NCells', max_level),
         )
     ).to_netcdf(os.path.join(sim_path, 'vert_coord.nc'))

@@ -70,9 +70,11 @@ def get_valid_level_range(ds):
     Get the zero-based indices of the topmost and bottommost valid layer of
     each column
 
-    Both models write ``minLevelCell`` and ``maxLevelCell`` with the one-based
-    indexing of MPAS-Ocean's Fortran, so this is the one place that converts
-    them to the zero-based indices the reductions use.
+    With MPAS-Ocean names, ``minLevelCell`` and ``maxLevelCell`` have the
+    one-based indexing of MPAS-Ocean's Fortran (Polaris converts Omega's
+    zero-based ``MinLayerCell`` and ``MaxLayerCell`` when it maps the names),
+    so this is the one place that converts them to the zero-based indices the
+    reductions use.
 
     A data set with no ``minLevelCell`` has no ice-shelf cavities, so the
     topmost valid layer is the topmost layer of the grid.

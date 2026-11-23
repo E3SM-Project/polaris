@@ -20,7 +20,11 @@ existing NetCDF file on disk.
 
 The converter performs the following operations:
 
-1. It loads the MPAS-Ocean initial condition from `--input-file`.
+1. It loads the MPAS-Ocean initial condition from `--input-file` and fills in
+   vertical-coordinate variables that older initial conditions lack or leave
+   unset: `minLevelCell` is added (1 everywhere) if it is missing, and
+   `vertCoordMovementWeights` are set to 1 if they are all 0 (MPAS-Ocean's
+   default `uniform_stretching` overrides them, but Omega does not).
 2. It writes a zero-velocity MPAS-style companion file with the suffix
    `.mpas.nc`.
 3. On a spherical mesh (`on_a_sphere = 'YES'`), it rescales coordinates and
@@ -42,7 +46,10 @@ The converter performs the following operations:
    extinction coefficients onto the mesh and adds them to both the MPAS zero-velocity
    companion file and the converted Omega file.
 9. It renames dimensions and variables using
-   `polaris/ocean/model/mpaso_to_omega.yaml`.
+   `polaris/ocean/model/mpaso_to_omega.yaml`, converting the one-based
+   MPAS-Ocean layer indices `minLevelCell` and `maxLevelCell` to Omega's
+   zero-based `MinLayerCell` and `MaxLayerCell` (see
+   `polaris/ocean/model/layer_indices.py`).
 10. It writes the converted Omega file with
    {py:func}`mpas_tools.io.write_netcdf`.
 

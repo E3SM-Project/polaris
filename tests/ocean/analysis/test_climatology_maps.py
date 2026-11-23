@@ -273,8 +273,8 @@ def test_the_anomaly_is_the_change_in_the_mass_weighted_integral(ohc_step):
     ohc_step.run()
     rho_sw = get_constant('seawater_density_reference')
     specific_heat = get_constant('seawater_specific_heat_capacity_teos10')
-    # MinLayerCell is 1 and MaxLayerCell is N_LEVELS in the one-based
-    # indices both models write, so every layer of every column is valid
+    # MinLayerCell is 0 and MaxLayerCell is N_LEVELS - 1 in Omega's
+    # zero-based indices, so every layer of every column is valid
     column_mass = rho_sw * THICKNESS * N_LEVELS
     for index, season in enumerate(SEASONS):
         values = _read_map(
@@ -632,10 +632,11 @@ def _write_mesh_and_vert_coord(work_dir):
     ds_mesh.to_netcdf(f'{work_dir}/mesh.nc')
     ds_vert = xr.Dataset(
         dict(
-            MinLayerCell=('NCells', np.ones(N_CELLS, dtype=int)),
+            # Omega's layer indices are zero-based
+            MinLayerCell=('NCells', np.zeros(N_CELLS, dtype=int)),
             MaxLayerCell=(
                 'NCells',
-                np.full(N_CELLS, N_LEVELS, dtype=int),
+                np.full(N_CELLS, N_LEVELS - 1, dtype=int),
             ),
         )
     )

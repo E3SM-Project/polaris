@@ -30,6 +30,10 @@ from polaris.mesh.reconstruct import (
 )
 from polaris.ocean.eos import TRACER_ATTRS, convert_tracers
 from polaris.ocean.init_state import pressure_for_tracer_conversion
+from polaris.ocean.model.layer_indices import (
+    layer_indices_from_omega,
+    layer_indices_to_omega,
+)
 from polaris.ocean.surface_pressure import surface_pressure_from_config
 from polaris.ocean.vertical.diagnostics import (
     geom_thickness_from_ds,
@@ -254,10 +258,13 @@ class Ocean(Component):
         -------
         ds : xarray.Dataset
             The same dataset with variables renamed as appropriate for the
-            ocean model being run
+            ocean model being run.  For Omega, the one-based layer indices
+            ``minLevelCell`` and ``maxLevelCell`` also become the zero-based
+            ``MinLayerCell`` and ``MaxLayerCell``.
         """
         model = self.model
         if model == 'omega':
+            ds = layer_indices_to_omega(ds)
             assert self.mpaso_to_omega_dim_map is not None
             rename = {
                 k: v
@@ -702,10 +709,14 @@ class Ocean(Component):
         Returns
         -------
         ds : xarray.Dataset
-            The same dataset with variables named as expected in MPAS-Ocean
+            The same dataset with variables named as expected in MPAS-Ocean.
+            For Omega, the zero-based layer indices ``MinLayerCell`` and
+            ``MaxLayerCell`` also become the one-based ``minLevelCell`` and
+            ``maxLevelCell``.
         """
         model = self.model
         if model == 'omega':
+            ds = layer_indices_from_omega(ds)
             # switch keys and values in mpaso_to_omega maps to get
             # omega to mpaso maps
             assert self.mpaso_to_omega_dim_map is not None
