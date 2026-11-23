@@ -2,6 +2,7 @@ from typing import List
 
 from polaris import Step, Task
 from polaris.config import PolarisConfigParser
+from polaris.mpas.time import duration_to_seconds
 from polaris.tasks.ocean.realistic_global.forward import (
     TIME_INTEGRATORS,
     Forward,
@@ -26,8 +27,12 @@ from polaris.tasks.ocean.realistic_global.min_level_cell.compare import (
     Compare as Compare,
 )
 from polaris.tasks.ocean.realistic_global.min_level_cell.compare import (
+    compare_identical as compare_identical,
+)
+from polaris.tasks.ocean.realistic_global.min_level_cell.compare import (
     compare_shifted as compare_shifted,
 )
+from polaris.tasks.ocean.realistic_global.restart import RestartStep
 
 
 class MinLevelCell(Task):
@@ -45,6 +50,12 @@ class MinLevelCell(Task):
     ``minLevelCell`` shows up as a difference, which is what makes this a test
     of the code that handles columns under ice shelves, on a mesh without
     any.
+
+    For Omega, ``shifted`` also writes a restart partway through, and
+    ``shifted_restart`` continues from it to the end of the run.  ``compare``
+    then also checks that ``shifted_restart`` is identical to ``shifted``, so
+    that a restart that loses or misreads ``MinLayerCell`` shows up.  The
+    restart is Omega's only, as in the ``restart`` task.
 
     Attributes
     ----------
@@ -126,24 +137,15 @@ class MinLevelCell(Task):
         add_top_level = AddTopLevel(
             component=component, indir=subdir, init_condition=init_condition
         )
+        self.top_level_init = TopLevelInitialCondition(add_top_level)
 
         shifted = Forward(
             component=component,
             name='shifted',
             subdir=f'{subdir}/shifted',
-            init_condition=TopLevelInitialCondition(add_top_level),
+            init_condition=self.top_level_init,
             validate_class='state',
         )
-
-        steps: List[Step] = [reference, add_top_level, shifted]
-        for step in steps:
-            step.set_shared_config(config, link=config_filename)
-            self.add_step(step)
-
-        # compare reads the mixed-layer depths too, which the runs write but a
-        # Forward step does not declare
-        for forward in [reference, shifted]:
-            forward.add_output_file(filename=MLD_FILENAME)
 
         compare = Compare(
             component=component,
@@ -151,18 +153,79 @@ class MinLevelCell(Task):
             reference_subdir=reference.name,
             shifted_subdir=shifted.name,
         )
-        compare.set_shared_config(config, link=config_filename)
-        self.add_step(compare)
+
+        steps: List[Step] = [reference, add_top_level, shifted, compare]
+        for step in steps:
+            step.set_shared_config(config, link=config_filename)
+            self.add_step(step)
 
     def configure(self):
         """
-        Leave the task out for Omega, which reads its level indices from a
-        vertical-coordinate file that ``add_top_level`` does not yet write
+        Set up the runs and comparisons for the configured model: the
+        mixed-layer depths for MPAS-Ocean, and the restart for Omega
         """
         super().configure()
         model = self.config.get('ocean', 'model')
-        if model != 'mpas-ocean':
-            self.skip_reason = (
-                f'the min_level_cell task supports only MPAS-Ocean so far, '
-                f'not {model}'
-            )
+        compare = self.steps['compare']
+        assert isinstance(compare, Compare)
+        if model == 'mpas-ocean':
+            # compare reads the mixed-layer depths too, which the runs write
+            # but a Forward step does not declare
+            for name in ['reference', 'shifted']:
+                self.steps[name].add_output_file(filename=MLD_FILENAME)
+            compare.filenames = ['output.nc', MLD_FILENAME]
+        elif model == 'omega' and 'shifted_restart' not in self.steps:
+            self._add_omega_restart(compare)
+
+    def _add_omega_restart(self, compare: Compare) -> None:
+        """
+        Make ``shifted`` the full run of a restart, and add the run that
+        continues from it
+        """
+        config = self.config
+        run_duration = config.get('realistic_global_forward', 'run_duration')
+        output_interval = config.get(
+            'realistic_global_forward', 'output_interval'
+        )
+        restart_time = config.get('min_level_cell', 'restart_time')
+        restart_duration = _duration_string(
+            duration_to_seconds(run_duration)
+            - duration_to_seconds(restart_time)
+        )
+
+        self.remove_step(self.steps['shifted'])
+        self.remove_step(compare)
+
+        shifted = RestartStep(
+            component=self.component,
+            name='shifted',
+            subdir=f'{self.subdir}/shifted',
+            init_condition=self.top_level_init,
+            run_duration=run_duration,
+            output_interval=output_interval,
+            restart_time=restart_time,
+        )
+        shifted_restart = RestartStep(
+            component=self.component,
+            name='shifted_restart',
+            subdir=f'{self.subdir}/shifted_restart',
+            init_condition=self.top_level_init,
+            run_duration=restart_duration,
+            output_interval=output_interval,
+            restart_time=restart_time,
+            restart_from=shifted,
+        )
+        compare.restart_subdir = shifted_restart.name
+        steps: List[Step] = [shifted, shifted_restart, compare]
+        for step in steps:
+            step.set_shared_config(config, link='min_level_cell.cfg')
+            self.add_step(step)
+
+
+def _duration_string(seconds: float) -> str:
+    """An MPAS-style duration string (DDDD_HH:MM:SS) for ``seconds``"""
+    total = int(round(seconds))
+    days, rest = divmod(total, 86400)
+    hours, rest = divmod(rest, 3600)
+    minutes, secs = divmod(rest, 60)
+    return f'{days:04d}_{hours:02d}:{minutes:02d}:{secs:02d}'

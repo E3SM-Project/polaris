@@ -56,8 +56,10 @@ Omega writes its history time axis across a restart, and MPAS-Ocean stamps its
 output with `xtime` rather than an elapsed time measured from the start of the
 clock, so the failure it looks for cannot arise there.
 
-The `min_level_cell` tasks support only MPAS-Ocean so far.  Setup leaves them
-out for Omega.
+The `min_level_cell` tasks support both models.  With MPAS-Ocean, they fail
+until the E3SM submodule includes the fixes in
+[E3SM-Ocean-Discussion/E3SM#196](https://github.com/E3SM-Ocean-Discussion/E3SM/pull/196)
+and [E3SM-Project/E3SM#9191](https://github.com/E3SM-Project/E3SM/pull/9191).
 
 (ocean-realistic-global-model-directories)=
 
@@ -751,15 +753,22 @@ polaris setup -t ocean/spherical/realistic_global/e3sm-qu240/min_level_cell/rk4 
 
 ### description
 
-The task contains four steps:
+The task contains these steps:
 
 1. `reference` is a `cached_forward` run without the added level.
-2. `add_top_level` writes a copy of the same initial condition with an
-   inactive level above every column.
-3. `shifted` runs from that copy, with the same config as `reference`.
-4. `compare` checks that every field in the two runs' `output.nc` and
-   `mixed_layer_depths.nc` is identical once the inactive level is dropped.  A
-   NaN in one run and not the other counts as a difference.
+2. `add_top_level` writes a copy of the same initial condition (and, for
+   Omega, vertical coordinate) with an inactive level above every column.
+3. `shifted` runs from that copy, with the same config as `reference`.  For
+   Omega, it also writes a restart partway through the run.
+4. For Omega only, `shifted_restart` continues from that restart to the end
+   of the run, as the `restart_run` of the
+   {ref}`restart task <ocean-realistic-global-restart>` does.  This checks that
+   the inactive level survives a restart.
+5. `compare` checks that every field in the `shifted` run's `output.nc` (and
+   `mixed_layer_depths.nc` for MPAS-Ocean) is identical to the `reference`
+   run's once the inactive level is dropped.  For Omega, it also checks that
+   `shifted_restart` is identical to `shifted`.  A NaN in one run and not the
+   other counts as a difference.
 
 The added level holds zeros in every variable with a vertical dimension.  Its
 reference thickness is zero as well, so the active levels keep the reference
@@ -777,8 +786,9 @@ inactive level of zero thickness added at the top for the `shifted` run.
 
 ### initial conditions
 
-The cached MPAS-Ocean initial condition from the `realistic_global` section of
-the Polaris input database, as for the `cached_forward` tasks.
+The cached initial condition for the configured model from the
+`realistic_global` section of the Polaris input database, as for the
+`cached_forward` tasks.
 
 ### forcing
 
@@ -794,7 +804,8 @@ The time steps and other options are those of the `cached_forward` tasks on
 
 The task reads the `[realistic_global_forward]` options described under
 {ref}`ocean-realistic-global-forward`, including the per-mesh ones for
-`e3sm-qu240`.  Its own config file shortens the run:
+`e3sm-qu240`.  Its own config file shortens the run and sets when Omega's
+`shifted` run writes its restart:
 
 ```cfg
 # Options for the two forward runs of the min_level_cell task, on top of the
@@ -809,6 +820,15 @@ run_duration = 0001_00:00:00
 # Interval between writes to the output stream (DDDD_HH:MM:SS).  Frames within
 # the run show when the two runs first differ.
 output_interval = 0000_06:00:00
+
+# Options of the min_level_cell task itself
+[min_level_cell]
+
+# For Omega, when the run with the added level writes the restart that a
+# second run continues from, as an MPAS-style duration from the start
+# (DDDD_HH:MM:SS).  It has to fall on an output time, so that the two halves
+# of the history meet there.
+restart_time = 0000_12:00:00
 ```
 
 ### cores

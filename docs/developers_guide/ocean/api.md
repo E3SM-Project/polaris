@@ -787,7 +787,9 @@
    add_top_level.TopLevelInitialCondition.get_forcing_filename
 
    compare.compare_shifted
+   compare.compare_identical
    compare.Compare
+   compare.Compare.setup
    compare.Compare.run
 ```
 

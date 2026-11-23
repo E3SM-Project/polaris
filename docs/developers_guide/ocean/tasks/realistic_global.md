@@ -436,23 +436,38 @@ The {py:class}`polaris.tasks.ocean.realistic_global.min_level_cell.MinLevelCell`
 task runs the same realistic_global forward run twice, once from an initial
 condition and once from a copy with an inactive level added above every
 column, and checks that the two are bit-for-bit identical one level apart.
-Both runs are plain
+Both runs are
 {py:class}`~polaris.tasks.ocean.realistic_global.forward.forward.Forward`
 steps with the same config; they differ only in their
 {py:class}`~polaris.tasks.ocean.realistic_global.forward.initial_condition.InitialCondition`.
 
+The steps are built for MPAS-Ocean, and `configure()` adjusts them once the
+model is known.  For MPAS-Ocean, it declares `mixed_layer_depths.nc` as an
+output of both runs and has `compare` read it.  For Omega, it replaces
+`shifted` with the full run of a
+{py:class}`~polaris.tasks.ocean.realistic_global.restart.restart_step.RestartStep`
+pair, as in the `restart` task, and adds `shifted_restart`, which continues
+from it.  The restart is Omega's only, since `RestartStep` supports only
+Omega.
+
 ### add_top_level
 
 {py:func}`polaris.tasks.ocean.realistic_global.min_level_cell.add_top_level.add_top_level`
-prepends a level of zeros to every variable with an `nVertLevels` or
-`nVertLevelsP1` dimension and adds one to the level indices (`minLevelCell`,
-`maxLevelCell` and their edge and vertex counterparts, if present), leaving
-zero, which marks land, alone.  A dataset without `minLevelCell` gets 2
-everywhere.  Zero is the one value that keeps the reference coordinate exact:
+prepends a level of zeros to every variable with a vertical dimension, by
+either model's name (`nVertLevels` or `NVertLayers`, and their `P1`
+counterparts), and adds one to the level indices (`minLevelCell` and
+`maxLevelCell`, or Omega's `MinLayerCell` and `MaxLayerCell`, and the edge and
+vertex indices if present), leaving zero, which marks land, alone.  Both
+models store these indices 1-based in their input files.  A dataset without a
+top-level index gets 2 everywhere.  It works on the files as written, rather
+than through `open_model_dataset()` and `write_model_dataset()`, since those
+convert Omega's thickness variables on the way.  Zero is the one value that keeps the reference coordinate exact:
 a reference layer of zero thickness at the surface leaves every active level
 at the reference depth it had.  E3SM initial conditions also hold zeros in the
 inactive levels below the bottom, and MPAS-Ocean overwrites inactive tracers
-and velocities with fill values at startup.
+and velocities with fill values at startup.  For Omega, zero gives the added
+layer a reference pseudo-thickness and a vertical-coordinate movement weight
+of zero.
 
 The {py:class}`~polaris.tasks.ocean.realistic_global.min_level_cell.add_top_level.AddTopLevel`
 step gets its inputs by calling its source's `add_input_files()`, as a forward
@@ -461,7 +476,9 @@ the `mesh` stream in forward mode, so the mesh has to have the added level as
 well as the initial state.  A source that gives both in one file, as a cached
 initial condition does, is shifted once and the second output is a link to
 the first.  The graph file, and a separate forcing file if the source has one,
-have no vertical dimension and pass through as links.
+have no vertical dimension and pass through as links.  For Omega, the step
+also writes the vertical-coordinate file, which holds `MinLayerCell` and
+`MaxLayerCell`; for a cached initial condition, it is the same file again.
 {py:class}`~polaris.tasks.ocean.realistic_global.min_level_cell.add_top_level.TopLevelInitialCondition`
 then gives the `shifted` run those files in place of the source's.
 
@@ -473,16 +490,14 @@ It does not use {py:func}`polaris.validate.compare_variables`, which skips
 values that are not finite in either file and so would pass a NaN that only
 one run produced.  It also requires the shifted run to have exactly one more
 level, so that comparing a run with itself fails rather than passing without
-testing anything.  Besides `output.nc`, it compares MPAS-Ocean's
-`mixed_layer_depths.nc`, whose searches down each column also have to start at
-`minLevelCell`.  The forward steps do not declare that file as an output, so
-the task does.
-
-### Omega
-
-`configure()` sets a `skip_reason` for Omega.  Supporting it needs
-`add_top_level` to shift Omega's vertical-coordinate file and its level
-indices as well.
+testing anything.  Any level index in the output is moved back up by one
+before the comparison.  The files are read as written, with each model's own
+names.  For MPAS-Ocean, it compares `mixed_layer_depths.nc` as well as
+`output.nc`, since that file's searches down each column also have to start at
+`minLevelCell`.  For Omega, it also compares `shifted_restart` with `shifted`
+using {py:func}`polaris.tasks.ocean.realistic_global.min_level_cell.compare.compare_identical`.
+The step adds its input links in `setup()`, after `configure()` has set which
+runs and files to compare.
 
 (dev-ocean-realistic-global-dynamic-adjustment)=
 

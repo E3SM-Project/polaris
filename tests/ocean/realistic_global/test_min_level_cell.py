@@ -7,6 +7,7 @@ import numpy as np
 import pytest
 import xarray as xr
 
+from polaris.mpas.time import duration_to_seconds
 from polaris.tasks.ocean import Ocean
 from polaris.tasks.ocean.realistic_global import add_realistic_global_tasks
 from polaris.tasks.ocean.realistic_global.forward import (
@@ -16,12 +17,18 @@ from polaris.tasks.ocean.realistic_global.forward import (
 from polaris.tasks.ocean.realistic_global.min_level_cell import (
     TopLevelInitialCondition,
     add_top_level,
+    compare_identical,
     compare_shifted,
 )
 from polaris.tasks.ocean.realistic_global.min_level_cell.add_top_level import (
     INIT_FILENAME,
     MESH_FILENAME,
+    VERT_COORD_FILENAME,
 )
+from polaris.tasks.ocean.realistic_global.min_level_cell.compare import (
+    MLD_FILENAME,
+)
+from polaris.tasks.ocean.realistic_global.restart import RestartStep
 
 PACKAGE = 'polaris.tasks.ocean.realistic_global.min_level_cell'
 
@@ -66,6 +73,28 @@ def _column_dataset():
     ds['edgeMask'] = (
         ('nEdges', 'nVertLevels'),
         np.ones((n_edges, n_levels), dtype=np.int32),
+    )
+    return ds
+
+
+def _omega_dataset():
+    """
+    A small Omega initial condition, mesh and vertical coordinate in one
+    file, by Omega's names: three cells, the last of them land, on a
+    four-layer grid
+    """
+    rng = np.random.default_rng(2)
+    n_cells, n_layers = 3, 4
+    ds = xr.Dataset()
+    ds['MaxLayerCell'] = ('NCells', np.array([4, 2, 0], dtype=np.int32))
+    ds['RefPseudoThickness'] = (
+        ('NCells', 'NVertLayers'),
+        np.full((n_cells, n_layers), 100.0),
+    )
+    ds['VertCoordMovementWeights'] = ('NVertLayers', np.ones(n_layers))
+    ds['Temperature'] = (
+        ('time', 'NCells', 'NVertLayers'),
+        rng.random((1, n_cells, n_layers)),
     )
     return ds
 
@@ -157,13 +186,66 @@ def test_rk4_variant_runs_rk4():
         assert config.get(section, option) == rk4_cfg[section][option]
 
 
-@pytest.mark.parametrize(
-    'model, skipped', [('mpas-ocean', False), ('omega', True)]
-)
-def test_task_is_skipped_for_omega(model, skipped):
-    task = _task(model=model)
+def test_mpas_ocean_compares_the_mixed_layer_depths_too():
+    """
+    MPAS-Ocean's mixed-layer depths start their searches at the top active
+    level, so they are compared, and both runs have to declare them
+    """
+    task = _task(model='mpas-ocean')
     task.configure()
-    assert (task.skip_reason is not None) == skipped
+    assert task.skip_reason is None
+    assert 'shifted_restart' not in task.steps
+    assert MLD_FILENAME in task.steps['compare'].filenames
+    for name in ['reference', 'shifted']:
+        assert MLD_FILENAME in task.steps[name].outputs
+
+
+@pytest.mark.parametrize('time_integrator', TIME_INTEGRATORS)
+def test_omega_restarts_the_run_with_the_added_level(time_integrator):
+    """
+    For Omega, the run with the added level is continued from a restart
+    partway through, and the restart run has to cover the rest of the run so
+    that its history can be compared frame for frame
+    """
+    task = _task(time_integrator, model='omega')
+    task.configure()
+    assert task.skip_reason is None
+    assert list(task.steps) == [
+        'reference',
+        'add_top_level',
+        'shifted',
+        'shifted_restart',
+        'compare',
+    ]
+    shifted = task.steps['shifted']
+    restart = task.steps['shifted_restart']
+    compare = task.steps['compare']
+    assert isinstance(shifted, RestartStep)
+    assert isinstance(restart, RestartStep)
+    assert shifted.restart_from is None
+    assert restart.restart_from is shifted
+    assert shifted.init_condition is restart.init_condition
+    assert isinstance(shifted.init_condition, TopLevelInitialCondition)
+    assert compare.restart_subdir == restart.name
+    assert MLD_FILENAME not in compare.filenames
+
+    config = task.config
+    run_seconds = duration_to_seconds(
+        config.get('realistic_global_forward', 'run_duration')
+    )
+    restart_seconds = duration_to_seconds(
+        config.get('min_level_cell', 'restart_time')
+    )
+    assert 0 < restart_seconds < run_seconds
+    assert duration_to_seconds(shifted.run_duration) == run_seconds
+    assert (
+        duration_to_seconds(restart.run_duration)
+        == run_seconds - restart_seconds
+    )
+
+    # configuring again must not add the restart twice
+    task.configure()
+    assert list(task.steps).count('shifted_restart') == 1
 
 
 def test_shifted_run_reads_the_files_with_the_added_level():
@@ -183,6 +265,8 @@ def test_shifted_run_reads_the_files_with_the_added_level():
     # forcing file of its own to pass on
     assert '<<<forcing>>>' not in targets
     assert shifted.graph_target == f'{path}/graph.info'
+    # Omega's vertical coordinate, which is dropped for MPAS-Ocean
+    assert targets['<<<vert_coord>>>'] == f'{path}/{VERT_COORD_FILENAME}'
 
 
 def test_add_top_level_step_reads_the_cached_files_and_graph():
@@ -230,6 +314,28 @@ def test_add_top_level_moves_an_existing_min_level_cell_down():
     np.testing.assert_array_equal(shifted.minLevelCell.values, [2, 3, 2])
 
 
+def test_add_top_level_handles_omega_names():
+    ds = _omega_dataset()
+    shifted = add_top_level(ds)
+
+    assert shifted.sizes['NVertLayers'] == ds.sizes['NVertLayers'] + 1
+    for var in [
+        'RefPseudoThickness',
+        'VertCoordMovementWeights',
+        'Temperature',
+    ]:
+        da = shifted[var]
+        np.testing.assert_array_equal(
+            da.isel(NVertLayers=slice(1, None)).values, ds[var].values
+        )
+        # a layer of zero reference thickness that does not move
+        assert np.all(da.isel(NVertLayers=0).values == 0)
+
+    np.testing.assert_array_equal(shifted.MaxLayerCell.values, [5, 3, 0])
+    np.testing.assert_array_equal(shifted.MinLayerCell.values, [2, 2, 2])
+    assert 'minLevelCell' not in shifted
+
+
 def test_add_top_level_step_writes_one_file_for_a_shared_source(
     tmp_path, monkeypatch
 ):
@@ -250,6 +356,34 @@ def test_add_top_level_step_writes_one_file_for_a_shared_source(
     assert os.path.realpath(INIT_FILENAME) == os.path.realpath(MESH_FILENAME)
     with xr.open_dataset(INIT_FILENAME) as ds:
         np.testing.assert_array_equal(ds.minLevelCell.values, [2, 2, 2])
+
+
+def test_add_top_level_step_writes_omega_vertical_coordinate(
+    tmp_path, monkeypatch
+):
+    """
+    Omega reads its level indices from the vertical coordinate, which a
+    cached initial condition holds in the same file as everything else
+    """
+    task = _task(model='omega')
+    step = task.steps['add_top_level']
+    step.logger = logging.getLogger(__name__)
+    monkeypatch.chdir(tmp_path)
+    _omega_dataset().to_netcdf('source.nc')
+    for filename in [
+        step.get_horiz_mesh_filename(),
+        step.get_init_filename(),
+        step.get_vert_coord_filename(),
+    ]:
+        os.symlink('source.nc', filename)
+
+    step.run()
+
+    assert os.path.realpath(VERT_COORD_FILENAME) == os.path.realpath(
+        MESH_FILENAME
+    )
+    with xr.open_dataset(VERT_COORD_FILENAME) as ds:
+        np.testing.assert_array_equal(ds.MinLayerCell.values, [2, 2, 2])
 
 
 def test_compare_shifted_passes_identical_runs(caplog):
@@ -297,3 +431,28 @@ def test_compare_shifted_needs_the_added_level(caplog):
     logger = logging.getLogger(__name__)
     assert not compare_shifted(ds, ds, logger)
     assert 'one more than the reference run' in caplog.text
+
+
+def test_compare_shifted_moves_level_indices_back_up():
+    """
+    A history file with the level indices in it has them one higher in the
+    run with the added level, which is not a difference
+    """
+    ds = _output_dataset()
+    ds['maxLevelCell'] = ('nCells', np.array([5, 3, 0, 1], dtype=np.int32))
+    shifted = _shifted_output(ds)
+    logger = logging.getLogger(__name__)
+    assert compare_shifted(ds, shifted, logger)
+
+
+def test_compare_identical_reports_a_difference(caplog):
+    ds = _output_dataset()
+    other = ds.copy(deep=True)
+    logger = logging.getLogger(__name__)
+    assert compare_identical(ds, other, logger)
+    ssh = other.ssh.values.copy()
+    ssh[2, 0] += 1.0
+    other['ssh'] = (other.ssh.dims, ssh)
+    with caplog.at_level(logging.INFO):
+        assert not compare_identical(ds, other, logger)
+    assert 'first at time index 2' in caplog.text

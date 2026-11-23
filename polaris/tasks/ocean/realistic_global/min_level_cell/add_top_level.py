@@ -17,17 +17,36 @@ MESH_FILENAME = 'top_level_mesh.nc'
 #: The initial state with the added level
 INIT_FILENAME = 'top_level_init.nc'
 
+#: Omega's vertical coordinate with the added level
+VERT_COORD_FILENAME = 'top_level_vert_coord.nc'
+
 #: The graph file, linked from wherever the source's comes from
 GRAPH_FILENAME = 'graph.info'
 
-#: The vertical dimensions an added level is prepended to
-VERTICAL_DIMS = ['nVertLevels', 'nVertLevelsP1']
+#: The vertical dimensions an added level is prepended to, by their
+#: MPAS-Ocean and Omega names
+VERTICAL_DIMS = [
+    'nVertLevels',
+    'nVertLevelsP1',
+    'NVertLayers',
+    'NVertLayersP1',
+]
+
+#: The top and bottom active levels of each cell, by their MPAS-Ocean and
+#: Omega names
+CELL_LEVEL_VARS = [
+    ('minLevelCell', 'maxLevelCell'),
+    ('MinLayerCell', 'MaxLayerCell'),
+]
 
 #: The 1-based level indices of the top and bottom active levels, which the
-#: added level moves down by one.  Only the cell indices are in an MPAS-Ocean
-#: initial condition; the model computes the edge and vertex ones from them,
-#: but they are shifted too if a file has them.
+#: added level moves down by one.  Both models store them 1-based in their
+#: input files.  Only the cell indices are in an initial condition; the models
+#: compute the edge and vertex ones from them, but they are shifted too if a
+#: file has them.
 LEVEL_INDEX_VARS = [
+    'MinLayerCell',
+    'MaxLayerCell',
     'minLevelCell',
     'maxLevelCell',
     'minLevelEdgeTop',
@@ -43,25 +62,28 @@ LEVEL_INDEX_VARS = [
 
 def add_top_level(ds: xr.Dataset) -> xr.Dataset:
     """
-    Add an inactive level above every column of an MPAS-Ocean dataset.
+    Add an inactive level above every column of an MPAS-Ocean or Omega
+    dataset, with variables by the model's own names.
 
     Every variable with a vertical dimension gets a new first level holding
     zeros, and the level indices move down by one, so the active levels keep
     their values at an index one higher.  A dataset without ``minLevelCell``
-    has every column starting at the top level, which is what MPAS-Ocean
-    assumes, and gets ``minLevelCell = 2`` everywhere.
+    (``MinLayerCell`` for Omega) has every column starting at the top level,
+    which is what both models assume, and gets a top level of 2 everywhere.
 
     Zero is the right value for the reference coordinate: a reference layer of
     zero thickness at the surface leaves every active level at the reference
     depth it had before, so ``refBottomDepth`` and ``refZMid`` are unchanged
     for the active levels.  It is also what E3SM initial conditions hold in
     inactive levels below the bottom, and MPAS-Ocean overwrites the tracers
-    and velocity in inactive levels with fill values at startup anyway.
+    and velocity in inactive levels with fill values at startup anyway.  For
+    Omega, it gives the added layer a reference pseudo-thickness and a
+    vertical-coordinate movement weight of zero.
 
     Parameters
     ----------
     ds : xarray.Dataset
-        An MPAS-Ocean mesh or initial condition
+        An MPAS-Ocean or Omega mesh, vertical coordinate or initial condition
 
     Returns
     -------
@@ -78,8 +100,9 @@ def add_top_level(ds: xr.Dataset) -> xr.Dataset:
     # all at once, since a dataset cannot hold a dimension at two sizes
     ds = ds.drop_vars(vertical).assign(padded)[var_order]
 
-    if 'maxLevelCell' in ds and 'minLevelCell' not in ds:
-        ds['minLevelCell'] = xr.ones_like(ds.maxLevelCell)
+    for min_var, max_var in CELL_LEVEL_VARS:
+        if max_var in ds and min_var not in ds:
+            ds[min_var] = xr.ones_like(ds[max_var])
 
     for var in LEVEL_INDEX_VARS:
         if var in ds:
@@ -98,9 +121,10 @@ class AddTopLevel(OceanIOStep):
     ``maxLevelCell`` is one more than before.
 
     The step reads whatever files its source initial condition gives a forward
-    run, and writes the mesh and initial state again with the added level.  A
-    source that gives them in one file, as a cached initial condition does, is
-    read once and its copy written once.  The graph file, and the forcing file
+    run, and writes the mesh, initial state and, for Omega, vertical
+    coordinate again with the added level.  A source that gives them in one
+    file, as a cached initial condition does, is read once and its copy
+    written once.  The graph file, and the forcing file
     of a source with one of its own, have no vertical dimension and are passed
     on as they are, through this step's links to them.
 
@@ -135,9 +159,12 @@ class AddTopLevel(OceanIOStep):
     def setup(self):
         """
         Add the source's files as inputs, along with its graph file if it
-        names one rather than adding it itself
+        names one rather than adding it itself, and Omega's vertical
+        coordinate as an output
         """
         super().setup()
+        if self.config.get('ocean', 'model') == 'omega':
+            self.add_output_file(filename=VERT_COORD_FILENAME)
         self.init_condition.add_input_files(self)
         graph_target = self.init_condition.graph_target
         if graph_target is not None:
@@ -147,13 +174,17 @@ class AddTopLevel(OceanIOStep):
 
     def run(self):
         """
-        Write the mesh and initial state with the added level
+        Write the mesh, initial state and, for Omega, vertical coordinate
+        with the added level
         """
-        written: Dict[str, str] = dict()
-        for in_filename, out_filename in [
+        files = [
             (self.get_horiz_mesh_filename(), MESH_FILENAME),
             (self.get_init_filename(), INIT_FILENAME),
-        ]:
+        ]
+        if self.config.get('ocean', 'model') == 'omega':
+            files.append((self.get_vert_coord_filename(), VERT_COORD_FILENAME))
+        written: Dict[str, str] = dict()
+        for in_filename, out_filename in files:
             source = os.path.realpath(in_filename)
             if source in written:
                 symlink(written[source], out_filename)
@@ -199,12 +230,16 @@ class TopLevelInitialCondition(InitialCondition):
 
     def add_input_files(self, step: 'OceanModelFilesMixin') -> None:
         """
-        Link the mesh and initial state with the added level, and the forcing
-        file if the source has one of its own
+        Link the mesh, initial state and Omega vertical coordinate with the
+        added level, and the forcing file if the source has one of its own
         """
         path = self.add_top_level.path
         step.add_horiz_mesh_input_file(
             work_dir_target=f'{path}/{MESH_FILENAME}'
+        )
+        # dropped for MPAS-Ocean, which has no vertical-coordinate file
+        step.add_vert_coord_input_file(
+            work_dir_target=f'{path}/{VERT_COORD_FILENAME}'
         )
         step.add_init_input_file(work_dir_target=f'{path}/{INIT_FILENAME}')
         forcing_filename = self.get_forcing_filename(step)
