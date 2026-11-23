@@ -139,6 +139,9 @@ def make_step(tmp_path, start_year=1, end_year=1, **options):
     step.stream_problem = None
     step.input_filenames = []
     step.outputs = []
+    # the global streamfunction alone, unless a test gives the step what
+    # the basins are computed from
+    step.has_basins = False
     return step
 
 
@@ -395,7 +398,7 @@ def test_a_streamfunction_that_matches_neither_axis_is_an_error(tmp_path):
 
 def test_the_manifest_describes_the_plot(tmp_path):
     """The gallery is a group per product and a gallery per region, so that
-    regional overturning adds galleries here rather than a group."""
+    the basins add galleries here rather than a group."""
     step = run_on_months(tmp_path)
     products = _manifest_products(step)
     assert len(products) == 1

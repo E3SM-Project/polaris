@@ -1,23 +1,48 @@
 """
-The global meridional overturning streamfunction.
+The meridional overturning streamfunction, of the global ocean and of each
+requested basin.
 
-Polaris does not compute the MOC.  The streamfunction needs the full
-three-dimensional velocity at every time step to be right, which is why Omega
-computes it in situ, and it needs the elevation of the layer interfaces it
-lives on, which move.  Omega provides both as monthly means; this step
-computes their annual climatology over the requested years with ``ncclimo``,
-as the climatology maps are computed, and plots it.
+The global streamfunction is the one Omega computes in situ.  It needs the
+full three-dimensional velocity at every time step to be right, and the
+elevation of the layer interfaces it lives on, which move.  Omega provides
+both as monthly means; this step computes their annual climatology over the
+requested years with ``ncclimo``, as the climatology maps are computed, and
+plots it.
 
-Only the global streamfunction is plotted.  Omega's MOC group can compute the
-streamfunction for named regions, and regional overturning -- the Atlantic MOC
-in particular -- comes with the rest of the regional analysis later.
+Omega cannot yet compute the overturning of a basin, which needs basin masks
+it does not read.  This step computes each basin's streamfunction offline,
+once for each season the maps are plotted for, from the climatology of the
+transport and the layer interfaces in the shared climatology the maps are
+plotted from (see
+:py:mod:`polaris.tasks.ocean.analysis.moc_basins`), and plots each basin.
 """
+
+import os
 
 import numpy as np
 import xarray as xr
 from mpas_tools.io import write_netcdf
 
-from polaris.tasks.ocean.analysis.analysis_step import AnalysisStep
+from polaris.tasks.ocean.analysis.analysis_step import (
+    MESH_FILENAME,
+    VERT_COORD_FILENAME,
+    AnalysisStep,
+)
+from polaris.tasks.ocean.analysis.config_sections import camel_to_snake
+from polaris.tasks.ocean.analysis.moc_basin_masks import (
+    get_moc_masks_filename,
+)
+from polaris.tasks.ocean.analysis.moc_basins import (
+    BASIN_FIELDS,
+    MESH_FIELDS,
+    check_moc_basin_options,
+    compute_basin_streamfunctions,
+    get_basin_lines,
+    get_moc_basin_masks,
+    get_moc_elevations,
+    get_moc_latitudes,
+    get_moc_regions,
+)
 from polaris.tasks.ocean.analysis.ncclimo import (
     find_climatology_file,
     run_ncclimo,
@@ -46,6 +71,13 @@ MONTHLY_PERIOD = '1Month'
 PLOT_FILENAME = 'global.png'
 DATA_FILENAME = 'global.nc'
 
+# The local name the basin masks are linked into the step's work directory as
+MASKS_FILENAME = 'moc_basin_masks.nc'
+
+# The prefix of the config section with the plotting options of one basin,
+# which is followed by the basin's name in lower case with underscores
+BASIN_SECTION_PREFIX = 'ocean_analysis_moc'
+
 # Omega multiplies the streamfunction by 1e-6 before writing it, so the values
 # are already in Sverdrups whatever the Units attribute of the field says.
 # Omega forms the global streamfunction by accumulating upward-positive
@@ -58,9 +90,10 @@ STREAMFUNCTION_UNITS = 'Sv'
 
 class Moc(AnalysisStep):
     """
-    A step that computes the annual climatology of the meridional
-    overturning circulation Omega computes in situ and plots it against
-    latitude and elevation
+    A step that computes the annual climatology of the global meridional
+    overturning streamfunction Omega computes in situ, and each basin's
+    streamfunction offline from each season's climatology of the
+    transport, and plots each against latitude and elevation
 
     Attributes
     ----------
@@ -70,9 +103,21 @@ class Moc(AnalysisStep):
     stream_problem : str or None
         Why the MOC output the simulation wrote cannot be averaged, or
         ``None`` if it can
+
+    has_basins : bool
+        Whether any basins are computed offline, which is decided by the
+        climatology and mask steps the step was given
     """
 
-    def __init__(self, component, subdir, start_year, end_year):
+    def __init__(
+        self,
+        component,
+        subdir,
+        start_year,
+        end_year,
+        climatology=None,
+        masks_step=None,
+    ):
         """
         Create the MOC step
 
@@ -89,6 +134,16 @@ class Moc(AnalysisStep):
 
         end_year : int
             The last year to average over, inclusive
+
+        climatology : polaris.tasks.ocean.analysis.Climatology, optional
+            The shared climatology over the same years, which the basins are
+            computed from.  It is a dependency rather than an input file
+            because ``ncclimo`` names its output for the case and the dates.
+
+        masks_step : polaris.tasks.ocean.analysis.MocBasinMasks, optional
+            The step that computes the basin masks on the simulation's mesh.
+            The basins are computed only if this and ``climatology`` are
+            given.
         """
         super().__init__(
             component=component,
@@ -101,16 +156,25 @@ class Moc(AnalysisStep):
         )
         self.has_moc_output = False
         self.stream_problem = None
+        self.masks_step = masks_step
+        self.has_basins = climatology is not None and masks_step is not None
+        if self.has_basins:
+            self.add_dependency(climatology, name='climatology')
+            self.add_dependency(masks_step, name='moc_basin_masks')
 
     def setup(self):
         """
-        Link the simulation's MOC output, if it wrote any
+        Link the simulation's MOC output, if it wrote any, and what the
+        basins are computed with: the mesh, the vertical coordinate and the
+        basin masks
 
         Omega's MOC diagnostic is new, so users will analyze simulations that
         predate it.  That is reported rather than treated as a failure, and
-        the step goes on to produce nothing.
+        the step goes on to plot only the basins.
         """
         sim_files = self.get_sim_files()
+        if self.has_basins:
+            self._setup_basins(sim_files)
         stream = sim_files.moc_stream()
         if stream is not None:
             self.stream_problem = _stream_problem(stream)
@@ -125,23 +189,32 @@ class Moc(AnalysisStep):
 
     def run(self):
         """
-        Compute the annual climatology of the streamfunction and its axes
-        over the requested years, and plot it
+        Compute the annual climatology of the global streamfunction and the
+        streamfunction of each basin's climatology for each season in
+        ``plot_seasons`` over the requested years, and plot them
+        """
+        self.log_inputs()
+        self._run_global()
+        self._run_basins()
+
+    def _run_global(self):
+        """
+        Compute the annual climatology of the global streamfunction Omega
+        wrote, and plot it
         """
         if not self.has_moc_output:
             self.logger.info(
-                f'The simulation wrote no MOC output, so there is nothing '
-                f'to plot.  Polaris does not compute the overturning '
-                f'streamfunction: it needs the full three-dimensional '
-                f'velocity at every time step, which is why Omega computes '
-                f'it in situ.  Turn on the {MOC_GROUP_NAME} analysis group '
-                f'in the simulation and run it again to get this plot.'
+                f'The simulation wrote no MOC output, so there is no global '
+                f'streamfunction to plot.  Polaris does not compute it '
+                f'offline: it needs the full three-dimensional velocity at '
+                f'every time step, which is why Omega computes it in situ.  '
+                f'Turn on the {MOC_GROUP_NAME} analysis group in the '
+                f'simulation and run it again to get this plot.'
             )
             return
         if self.stream_problem is not None:
             self.logger.info(self.stream_problem)
             return
-        self.log_inputs()
 
         names = self._find_fields()
         if names is None:
@@ -157,6 +230,214 @@ class Moc(AnalysisStep):
         )
         self.logger.info(f'wrote {DATA_FILENAME}')
         self._plot(streamfunction, lat, z)
+
+    def _setup_basins(self, sim_files):
+        """
+        Link the mesh, the vertical coordinate and the basin masks
+
+        They are not simulation output the global climatology is computed
+        from, so they are not added to ``input_filenames``.
+        """
+        check_moc_basin_options(self.config)
+        self.add_input_file(
+            filename=MESH_FILENAME, target=sim_files.mesh_filename()
+        )
+        self.add_input_file(
+            filename=VERT_COORD_FILENAME,
+            target=sim_files.vert_coord_filename(),
+        )
+        self.add_input_file(
+            filename=MASKS_FILENAME,
+            work_dir_target=os.path.join(
+                self.masks_step.path, get_moc_masks_filename()
+            ),
+        )
+
+    def _run_basins(self):
+        """
+        Compute the streamfunction of each basin from the climatology of
+        each season the maps are plotted for, and plot each basin
+        """
+        if not self.has_basins:
+            return
+        config = self.config
+        seasons = config.getlist('ocean_analysis_climatology', 'plot_seasons')
+        climatology_dir = self.dependencies['climatology'].work_dir
+        filenames = {
+            season: find_climatology_file(climatology_dir, season)
+            for season in seasons
+        }
+        lines = None
+        for season, filename in filenames.items():
+            self.logger.info(f'{season}: {filename}')
+            ds = _drop_time(self.read_fields(filename, BASIN_FIELDS))
+            missing = [name for name in BASIN_FIELDS if name not in ds]
+            if missing:
+                self._report_missing_basin_fields(missing)
+                return
+            if lines is None:
+                lat = get_moc_latitudes(config)
+                z = get_moc_elevations(config, self._max_depth())
+                lines = self._basin_lines(lat)
+            streamfunctions = compute_basin_streamfunctions(ds, lines, lat, z)
+            for index, region in enumerate(lines):
+                self._plot_basin(
+                    region=region,
+                    season=season,
+                    streamfunction=streamfunctions.isel(nRegions=index),
+                    lat=lat,
+                    z=z,
+                )
+
+    def _basin_lines(self, lat):
+        """Find the edges each basin's lines cross, once for all seasons"""
+        regions = get_moc_regions(self.config)
+        ds_masks = self.read_fields(
+            MASKS_FILENAME, ['regionCellMasks', 'regionNames']
+        )
+        min_level_cell, max_level_cell = self.valid_level_range()
+        return get_basin_lines(
+            ds_mesh=self.read_fields(MESH_FILENAME, MESH_FIELDS),
+            masks=get_moc_basin_masks(ds_masks, regions),
+            lat=lat,
+            min_level_cell=min_level_cell,
+            max_level_cell=max_level_cell,
+            log=self.logger.info,
+        )
+
+    def _report_missing_basin_fields(self, missing):
+        """Say what the climatology lacks for the basins, and how to add it"""
+        native = self.component.map_var_list_to_native_model(missing)
+        self.logger.info(
+            f'The climatology has no {", ".join(native)}, so there are no '
+            f'basin plots.  Add {", ".join(native)} to the Fields of the '
+            f'MonthlyAverages analysis group and run the simulation again to '
+            f'get them.'
+        )
+
+    def _max_depth(self):
+        """The depth of the deepest sea floor, from the vertical coordinate"""
+        ds = self.read_fields(VERT_COORD_FILENAME, ['bottomDepth'])
+        if 'bottomDepth' not in ds:
+            raise ValueError(
+                'The vertical coordinate has no bottom depth, which sets how '
+                "deep the elevations of the basins' streamfunctions go."
+            )
+        return float(ds.bottomDepth.max())
+
+    def _plot_basin(self, region, season, streamfunction, lat, z):
+        """
+        Write one basin's streamfunction for one season over the latitudes
+        it is plotted at, and plot it
+        """
+        lat_range = self._basin_lat_range(region, streamfunction, lat)
+        if lat_range is None:
+            self.logger.info(
+                f'{region} has no ocean edges across any line of latitude, '
+                f'so it is not plotted.'
+            )
+            return
+        in_range = np.logical_and(lat >= lat_range[0], lat <= lat_range[1])
+        values = streamfunction.values[in_range, :]
+        lat = lat[in_range]
+        # the elevations go to the deepest sea floor of the whole ocean, so a
+        # basin is cropped to the deepest water it has
+        wet = np.flatnonzero(np.any(np.isfinite(values), axis=0))
+        if len(wet) == 0:
+            self.logger.info(
+                f'{region} has no ocean between {lat_range[0]:g} and '
+                f'{lat_range[1]:g} degrees, so it is not plotted.'
+            )
+            return
+        deepest = min(int(wet.max()) + 2, len(z))
+        values = values[:, :deepest]
+        z = z[:deepest]
+
+        name = camel_to_snake(region)
+        plot_filename = f'{name}_{season}.png'
+        data_filename = f'{name}_{season}.nc'
+        da = xr.DataArray(values.T, dims=('nElevations', 'nLatitudes'))
+        write_netcdf(
+            ds=self._basin_dataset(region, season, da, lat, z),
+            fileName=self.work_path(data_filename),
+        )
+        self.logger.info(f'wrote {data_filename}')
+        self._plot_streamfunction(
+            streamfunction=da,
+            lat=lat,
+            z=z,
+            plot_filename=plot_filename,
+            title_region=f'{region} overturning streamfunction, {season}',
+        )
+        for filename in (plot_filename, data_filename):
+            self.add_produced_file(filename)
+        self.add_product(
+            plot=plot_filename,
+            data=data_filename,
+            group='moc',
+            gallery=name,
+            title=f'{region} meridional overturning streamfunction, {season}',
+            region=region,
+            season=season,
+        )
+
+    def _basin_lat_range(self, region, streamfunction, lat):
+        """
+        Get the latitudes a basin is plotted over: the configured range if
+        there is one, and otherwise the lines it has ocean on
+        """
+        section = f'{BASIN_SECTION_PREFIX}_{camel_to_snake(region)}'
+        has_ocean = np.any(np.isfinite(streamfunction.values), axis=1)
+        if not np.any(has_ocean):
+            return None
+        if self.config.has_section(section):
+            options = self.config[section]
+            return (
+                options.getfloat('min_lat'),
+                options.getfloat('max_lat'),
+            )
+        wet = lat[has_ocean]
+        return float(wet.min()), float(wet.max())
+
+    def _basin_dataset(self, region, season, da, lat, z):
+        """Assemble exactly what is plotted for one basin"""
+        ds = xr.Dataset()
+        ds['mocStreamfunction'] = da.assign_attrs(
+            units=STREAMFUNCTION_UNITS,
+            long_name=(
+                f'{region} meridional overturning streamfunction of the '
+                f'{season} climatology'
+            ),
+        )
+        ds['lat'] = xr.DataArray(
+            lat,
+            dims=('nLatitudes',),
+            attrs=dict(
+                units='degrees_north',
+                long_name='latitude of each line the transport crosses',
+            ),
+        )
+        ds['z'] = xr.DataArray(
+            z,
+            dims=('nElevations',),
+            attrs=dict(units='m', long_name='elevation, positive up'),
+        )
+        ds.attrs = dict(
+            simulation_name=self.config.get(
+                'ocean_analysis', 'simulation_name'
+            ),
+            region=region,
+            start_year=self.start_year,
+            end_year=self.end_year,
+            year_range=year_range_key(self.start_year, self.end_year),
+            season=season,
+            method=(
+                'computed offline from the climatology of the normal '
+                'transport velocity, pseudo-thickness and layer interface '
+                'elevations'
+            ),
+        )
+        return ds
 
     def _find_fields(self):
         """
@@ -292,7 +573,36 @@ class Moc(AnalysisStep):
         return ds
 
     def _plot(self, streamfunction, lat, z):
-        """Plot the streamfunction and describe it in the manifest"""
+        """Plot the global streamfunction and describe it in the manifest"""
+        self._plot_streamfunction(
+            streamfunction=streamfunction,
+            lat=lat,
+            z=z,
+            plot_filename=PLOT_FILENAME,
+            title_region='global overturning streamfunction',
+        )
+
+        # The outputs are registered here rather than in setup() because a
+        # simulation that wrote no MOC output, or wrote it without its axes,
+        # makes neither, and a step that had declared them at setup would
+        # fail on the missing files instead of reporting what it found.
+        for filename in (PLOT_FILENAME, DATA_FILENAME):
+            self.add_produced_file(filename)
+        # one gallery per region, so that the basins add galleries to this
+        # group rather than a group of their own
+        self.add_product(
+            plot=PLOT_FILENAME,
+            data=DATA_FILENAME,
+            group='moc',
+            gallery='global',
+            title='Global meridional overturning streamfunction',
+            region='Global',
+        )
+
+    def _plot_streamfunction(
+        self, streamfunction, lat, z, plot_filename, title_region
+    ):
+        """Plot a streamfunction against latitude and elevation"""
         config = self.config
         section = config['ocean_analysis_moc']
         if section.has_option('max_streamfunction'):
@@ -309,16 +619,13 @@ class Moc(AnalysisStep):
             da=streamfunction,
             lat=lat,
             z=z,
-            out_filename=self.work_path(PLOT_FILENAME),
+            out_filename=self.work_path(plot_filename),
             config=config,
             colormap_section='ocean_analysis_moc',
             contour_interval=interval,
             vmin=-max_abs,
             vmax=max_abs,
-            title=(
-                f'{simulation_name}: global overturning streamfunction, '
-                f'years {key}'
-            ),
+            title=f'{simulation_name}: {title_region}, years {key}',
             colorbar_label=STREAMFUNCTION_UNITS,
         )
         if drawn is not None and drawn != interval:
@@ -328,24 +635,7 @@ class Moc(AnalysisStep):
                 f'would have drawn more than {MAX_CONTOUR_LINES} lines; they '
                 f'are drawn every {drawn:g} instead'
             )
-        self.logger.info(f'wrote {PLOT_FILENAME}')
-
-        # The outputs are registered here rather than in setup() because a
-        # simulation that wrote no MOC output, or wrote it without its axes,
-        # makes neither, and a step that had declared them at setup would
-        # fail on the missing files instead of reporting what it found.
-        for filename in (PLOT_FILENAME, DATA_FILENAME):
-            self.add_produced_file(filename)
-        # one gallery per region, so that regional overturning adds galleries
-        # to this group rather than a group of its own
-        self.add_product(
-            plot=PLOT_FILENAME,
-            data=DATA_FILENAME,
-            group='moc',
-            gallery='global',
-            title='Global meridional overturning streamfunction',
-            region='Global',
-        )
+        self.logger.info(f'wrote {plot_filename}')
 
 
 def _stream_problem(stream):
@@ -423,3 +713,11 @@ def _variable_list(ds):
     """The variables in a file, for an error message"""
     names = sorted(str(name) for name in ds.data_vars)
     return ', '.join(names) if names else 'nothing'
+
+
+def _drop_time(ds):
+    """Drop the time dimension of a climatology, which has one time"""
+    for dim in ('time', 'Time'):
+        if dim in ds.dims:
+            ds = ds.isel({dim: 0})
+    return ds

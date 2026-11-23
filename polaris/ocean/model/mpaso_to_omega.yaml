@@ -76,6 +76,7 @@ variables:
   #       from the coupler, so the two are deliberately not mapped
 
   # auxiliary state
+  normalTransportVelocity: NormalTransportVelocity
   ssh: SshCell
   relativeVorticity: RelVortVertex
   kineticEnergyCell: KineticEnergyCell

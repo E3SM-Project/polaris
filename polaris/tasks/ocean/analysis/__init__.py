@@ -12,6 +12,10 @@ from polaris.tasks.ocean.analysis.heat_content_series import (
     HeatContentSeries as HeatContentSeries,
 )
 from polaris.tasks.ocean.analysis.moc import Moc as Moc
+from polaris.tasks.ocean.analysis.moc_basin_masks import (
+    MocBasinMasks as MocBasinMasks,
+)
+from polaris.tasks.ocean.analysis.moc_basins import get_moc_regions
 from polaris.tasks.ocean.analysis.publish import Publish as Publish
 from polaris.tasks.ocean.analysis.sim_files import year_range_key
 
@@ -28,6 +32,10 @@ def add_analysis_tasks(component):
     filepath = f'{component.name}/analysis/analysis.cfg'
     config = PolarisConfigParser(filepath=filepath)
     config.add_from_package('polaris.tasks.ocean.analysis', 'analysis.cfg')
+    # the options of the step that computes the basin masks of the MOC
+    config.add_from_package(
+        'polaris.tasks.mesh.spherical.feature_masks', 'feature_masks.cfg'
+    )
 
     tasks = [
         task_cls(component=component, config=config)
@@ -288,7 +296,13 @@ class HeatContentSeriesTask(AnalysisTask):
 
 class MocTask(AnalysisTask):
     """
-    A task that plots the global meridional overturning circulation
+    A task that plots the meridional overturning circulation of the global
+    ocean and of each requested basin
+
+    The basins' masks are computed once on the simulation's mesh, whatever
+    range is analyzed.  The basins are computed from the climatology the maps
+    are plotted from, so the task shares that step rather than reading the
+    monthly means again.
     """
 
     def __init__(self, component, config):
@@ -314,11 +328,25 @@ class MocTask(AnalysisTask):
         start_year, end_year = self.year_range()
         key = year_range_key(start_year, end_year)
         self._remove_all_steps()
+        basin_steps = {}
+        if get_moc_regions(self.config):
+            basin_steps['masks_step'] = self._add_shared_step(
+                step_cls=MocBasinMasks,
+                subdir='analysis/moc_basin_masks',
+            )
+            basin_steps['climatology'] = self._add_shared_step(
+                step_cls=Climatology,
+                subdir=f'analysis/climatology/{key}',
+                symlink='climatology',
+                start_year=start_year,
+                end_year=end_year,
+            )
         self._add_shared_step(
             step_cls=Moc,
             subdir=f'analysis/moc/{key}',
             start_year=start_year,
             end_year=end_year,
+            **basin_steps,
         )
 
 

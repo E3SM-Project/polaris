@@ -94,6 +94,18 @@
    moc.Moc.setup
    moc.Moc.run
 
+   moc_basin_masks.MocBasinMasks
+   moc_basin_masks.MocBasinMasks.setup
+   moc_basin_masks.get_moc_masks_filename
+
+   moc_basins.get_moc_regions
+   moc_basins.get_moc_latitudes
+   moc_basins.get_moc_elevations
+   moc_basins.check_moc_basin_options
+   moc_basins.get_moc_basin_masks
+   moc_basins.get_basin_lines
+   moc_basins.compute_basin_streamfunctions
+
    ncclimo.run_ncclimo
    ncclimo.find_climatology_file
 
@@ -1280,9 +1292,13 @@
    :toctree: generated/
 
    get_line_edges
+   get_latitude_edges
    interp_cell_to_line_edges
+   get_line_edge_level_range
+   compute_line_edge_interfaces
    compute_line_transport
    compute_overturning
+   compute_overturning_from_edge_transport
    bin_line_transport
 ```
 

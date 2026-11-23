@@ -5,6 +5,10 @@ from mpas_tools.logging import check_call
 
 from polaris.ocean.model.layer_mass import MASS_THICKNESS_VARIABLES
 from polaris.tasks.ocean.analysis.analysis_step import AnalysisStep
+from polaris.tasks.ocean.analysis.moc_basins import (
+    TRANSPORT_VELOCITY,
+    get_moc_regions,
+)
 from polaris.tasks.ocean.analysis.ncclimo import NCCLIMO_PROCESSES, run_ncclimo
 from polaris.tasks.ocean.analysis.sim_files import (
     SimulationFiles,
@@ -45,11 +49,11 @@ def get_climatology_variables(config):
 
     The list is the union of the fields requested for maps, the fields ocean
     heat content is derived from, the edge-normal field any requested vector
-    components can be reconstructed from, and the vertical geometry.  It is
-    assembled
-    from config options rather than passed in by the steps that read the
-    climatology, so that the shared step stays neutral with respect to which
-    tasks pulled it in.
+    components can be reconstructed from, the transport velocity if any
+    basins' overturning is computed offline, and the vertical geometry.  It
+    is assembled from config options rather than passed in by the steps that
+    read the climatology, so that the shared step stays neutral with respect
+    to which tasks pulled it in.
 
     The model's mass-like thickness is not here, because it has no MPAS-Ocean
     name to translate from; it is added under its native name once the rest of
@@ -72,7 +76,11 @@ def get_climatology_variables(config):
         for source, components in VECTOR_RECONSTRUCTIONS.items()
         if any(component in variables for component in components)
     )
-    for variable in HEAT_CONTENT_VARIABLES + sources + GEOMETRY_VARIABLES:
+    # the basins' overturning also needs the mass-like thickness, which is
+    # always added, and the interfaces, which are geometry
+    basins = (TRANSPORT_VELOCITY,) if get_moc_regions(config) else ()
+    derived = HEAT_CONTENT_VARIABLES + sources + basins + GEOMETRY_VARIABLES
+    for variable in derived:
         if variable not in variables:
             variables.append(variable)
     return variables
