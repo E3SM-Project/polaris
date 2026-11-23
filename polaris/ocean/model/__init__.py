@@ -2,6 +2,12 @@ from polaris.mpas.time import duration_to_seconds as duration_to_seconds
 from polaris.mpas.time import (
     get_time_interval_string as get_time_interval_string,
 )
+from polaris.ocean.model.layer_indices import (
+    layer_indices_from_omega as layer_indices_from_omega,
+)
+from polaris.ocean.model.layer_indices import (
+    layer_indices_to_omega as layer_indices_to_omega,
+)
 from polaris.ocean.model.layer_mass import (
     get_layer_mass as get_layer_mass,
 )
