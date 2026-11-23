@@ -146,7 +146,9 @@ the `topo` database for either Antarctic dataset.
 - **Output**: Produces combined topography datasets with consistent variables
   and attributes.
 - **Visualization**: Generates rasterized images of various fields (e.g.,
-  base elevation, ice draft) using the `datashader` library.
+  base elevation, ice draft).  On cubed-sphere grids, it uses the
+  `datashader` library, which is not in the Polaris environment and has to be
+  installed by hand.
 
 ## Configuration Options
 

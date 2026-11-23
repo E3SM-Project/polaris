@@ -97,6 +97,13 @@ Common user-tunable options are:
 Visualization tasks also use `viz_combine_topo_*` sections for colormap and
 normalization settings.
 
+Each standalone combine task ends with a `viz` step.  On cubed-sphere grids,
+it plots with `datashader`, which is not part of the Polaris environment
+because the plots are rarely needed.  To make them, install `datashader` into
+your pixi environment by hand and rerun the step.  Otherwise, the step fails
+and its failure can be ignored: the combined topography is complete before it
+runs.
+
 ### Remap Tasks
 
 Remap tasks use the shared `[spherical_mesh]` section together with
