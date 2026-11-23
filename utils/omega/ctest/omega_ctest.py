@@ -30,9 +30,9 @@ CTEST_DASHBOARD_SCRIPT = os.path.join(THIS_DIR, 'ctest_dashboard.cmake')
 # (components/omega/doc/devGuide/QuickStart.md).
 CTEST_MESH_DATABASE = 'ocean/omega_ctest'
 CTEST_MESHES = {
-    'OmegaMesh.nc': 'ocean.QU.240km.omega_vars.260807.nc',
+    'OmegaMesh.nc': 'ocean.QU.240km.omega_vars.261123.nc',
     'OmegaPlanarMesh.nc': 'PlanarPeriodic48x48.omega_vars.260825.nc',
-    'OmegaSphereMesh.nc': 'cosine_bell_icos480.omega_vars.260911.nc',
+    'OmegaSphereMesh.nc': 'cosine_bell_icos480.omega_vars.261123.nc',
 }
 
 

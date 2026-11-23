@@ -72,14 +72,14 @@ CACHED_MESHES: Dict[str, Dict[str, Any]] = {
     'e3sm-qu240': dict(
         database_name='QU.240km',
         mpaso_id=151209,
-        omega_id=260807,
+        omega_id=261123,
         min_res=240.0,
         cell_count=7153,
     ),
     'e3sm-ec30to60e2r2': dict(
         database_name='EC30to60E2r2',
         mpaso_id=200908,
-        omega_id=260807,
+        omega_id=261123,
         min_res=22.5,
         cell_count=236853,
     ),

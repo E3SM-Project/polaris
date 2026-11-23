@@ -1156,7 +1156,7 @@ def _database_ic(**overrides) -> DatabaseInitialCondition:
     values: dict[str, Any] = dict(
         mesh_name='QU.240km',
         mpaso_id=151209,
-        omega_id=260807,
+        omega_id=261123,
         min_res=240.0,
         approx_cell_count=7153,
     )
@@ -1198,7 +1198,7 @@ def test_database_initial_condition_omega():
     by_kind = dict(step.calls)
     assert set(by_kind) == {'init', 'horiz_mesh', 'vert_coord'}
     # 'teos-10' from config is normalized to the 'teos10' in the filename
-    target = 'ocean.QU.240km.151209.teos10.260807.nc'
+    target = 'ocean.QU.240km.151209.teos10.261123.nc'
     for kind in ('init', 'horiz_mesh', 'vert_coord'):
         assert by_kind[kind]['target'] == target
         assert by_kind[kind]['database'] == 'realistic_global/omega/QU.240km'
