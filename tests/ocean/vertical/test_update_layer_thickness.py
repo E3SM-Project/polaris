@@ -84,3 +84,32 @@ def test_update_keeps_column_thickness():
     column = ds.layerThickness.isel(Time=0).sum(dim='nVertLevels')
     np.testing.assert_allclose(column.values, new_ssh + ds.bottomDepth.values)
     assert (ds.layerThickness.isel(Time=0, nVertLevels=0) > 0.0).all()
+
+
+def test_z_level_update_stretches_across_levels():
+    """
+    A z-level column whose SSH rises past the top of its top level must keep
+    its levels and fill the column, with layers stretched in proportion to
+    restingThickness as MPAS-Ocean moves them
+    """
+    config = _make_config('z-level')
+    old_ssh = np.linspace(-250.0, -100.0, 8)
+    ds = _make_ds(config, old_ssh)
+    old_min_level = ds.minLevelCell.copy()
+    old_max_level = ds.maxLevelCell.copy()
+
+    # more than a 72 m level, so every top level overflows
+    new_ssh = old_ssh + 80.0
+    ds['ssh'] = xr.DataArray(new_ssh, dims=['nCells'])
+    update_layer_thickness(config, ds)
+
+    np.testing.assert_array_equal(ds.minLevelCell, old_min_level)
+    np.testing.assert_array_equal(ds.maxLevelCell, old_max_level)
+    layer_thickness = ds.layerThickness.isel(Time=0).fillna(0.0)
+    column = layer_thickness.sum(dim='nVertLevels')
+    np.testing.assert_allclose(column.values, new_ssh + ds.bottomDepth.values)
+    resting = ds.restingThickness
+    ratio = (layer_thickness / resting).where(resting > 0.0)
+    np.testing.assert_allclose(
+        ratio.max(dim='nVertLevels'), ratio.min(dim='nVertLevels')
+    )
