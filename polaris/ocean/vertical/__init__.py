@@ -91,7 +91,8 @@ def init_vertical_coord(config, ds, top_depth=None):
 
     ds : xarray.Dataset
         A data set containing ``bottomDepth`` and ``ssh`` variables used to
-        construct the vertical coordinate
+        construct the vertical coordinate, and ``cellsOnEdge`` with
+        ``top_depth``
 
     top_depth : xarray.DataArray, optional
         The positive-down depth (m) at which each column starts

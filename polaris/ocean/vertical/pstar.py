@@ -54,10 +54,11 @@ def init_pstar_vertical_coord(config, ds, top_depth=None):
     density to the reference density).  The reference level containing the
     top depth becomes a partial top level, or merges into the level below if
     it keeps less than ``[vertical_grid] ice_shelf_min_top_fraction`` of its
-    reference thickness.  Each column keeps at least ``min_vert_levels``
-    levels, and the levels follow p-star: their reference
-    pseudo-thicknesses are stretched to sum to the pseudo-depth of the
-    seafloor.
+    reference thickness.  A top level that shares its level with fewer than
+    two neighbors, found from ``cellsOnEdge`` in ``ds``, also merges into the
+    level below.  Each column keeps at least ``min_vert_levels`` levels,
+    and the levels follow p-star: their reference pseudo-thicknesses are
+    stretched to sum to the pseudo-depth of the seafloor.
 
     The following new variables are added to ``ds``, each with its own
     ``long_name`` and (where meaningful) ``units``:
@@ -86,7 +87,7 @@ def init_pstar_vertical_coord(config, ds, top_depth=None):
         Dataset containing ``BottomPressure`` and ``SurfacePressure``
         variables (both in Pa with dimension ``nCells``) used to construct
         the vertical coordinate.  Also requires ``nVertLevels`` to be a
-        dimension of ``ds``.
+        dimension of ``ds``, and ``cellsOnEdge`` with ``top_depth``.
 
     top_depth : xarray.DataArray, optional
         The positive-down pseudo-depth (m) at which each column starts
@@ -149,12 +150,15 @@ def init_pstar_vertical_coord(config, ds, top_depth=None):
         max_level_cell,
     )
     if top_depth is not None:
+        if 'cellsOnEdge' not in ds:
+            raise ValueError('cellsOnEdge must be in ds to use top_depth.')
         min_level_cell, ref_pseudo_thickness = start_columns_at_top_depth(
             thickness=ref_pseudo_thickness,
             ref_interfaces=interfaces,
             top_depth=top_depth,
             max_level_cell=max_level_cell,
             column_thickness=pseudo_bottom_depth,
+            cells_on_edge=ds.cellsOnEdge,
             min_vert_levels=min_vert_levels,
             min_top_fraction=config.getfloat(
                 'vertical_grid', 'ice_shelf_min_top_fraction'

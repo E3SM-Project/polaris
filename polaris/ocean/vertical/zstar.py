@@ -22,7 +22,9 @@ def init_z_star_vertical_coord(config, ds, top_depth=None):
     The reference level containing the top depth becomes a partial top level,
     or merges into the level below if it keeps less than
     ``[vertical_grid] ice_shelf_min_top_fraction`` of its reference
-    thickness.  Each column keeps at least ``min_vert_levels`` levels, and
+    thickness.  A top level that shares its level with fewer than two
+    neighbors, found from ``cellsOnEdge`` in ``ds``, also merges into the
+    level below.  Each column keeps at least ``min_vert_levels`` levels, and
     the levels follow z-star: their resting thicknesses are stretched to sum
     to ``bottomDepth``.
 
@@ -69,7 +71,8 @@ def init_z_star_vertical_coord(config, ds, top_depth=None):
 
     ds : xarray.Dataset
         A data set containing ``bottomDepth`` and ``ssh`` variables used to
-        construct the vertical coordinate
+        construct the vertical coordinate, and ``cellsOnEdge`` with
+        ``top_depth``
 
     top_depth : xarray.DataArray, optional
         The positive-down depth (m) at which each column starts
@@ -108,6 +111,8 @@ def init_z_star_vertical_coord(config, ds, top_depth=None):
     )
 
     if top_depth is not None:
+        if 'cellsOnEdge' not in ds:
+            raise ValueError('cellsOnEdge must be in ds to use top_depth.')
         ds['minLevelCell'], ds['restingThickness'] = (
             start_columns_at_top_depth(
                 thickness=ds.restingThickness,
@@ -115,6 +120,7 @@ def init_z_star_vertical_coord(config, ds, top_depth=None):
                 top_depth=top_depth,
                 max_level_cell=ds.maxLevelCell,
                 column_thickness=ds.bottomDepth,
+                cells_on_edge=ds.cellsOnEdge,
                 min_vert_levels=min_vert_levels,
                 min_top_fraction=config.getfloat(
                     'vertical_grid', 'ice_shelf_min_top_fraction'

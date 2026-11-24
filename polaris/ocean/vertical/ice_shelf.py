@@ -19,7 +19,9 @@ top depth and follows z-star over the reference column below it:
 Reference levels lying entirely above a column's top depth are dropped, and
 the level containing it becomes a partial top level.  A partial top level
 that keeps less than ``ice_shelf_min_top_fraction`` of its reference
-thickness merges into the level below.  Film cells start at the surface, and
+thickness merges into the level below.  A top level that shares its level
+with fewer than two neighbors also merges into the level below, since its
+flow cannot reach geostrophic balance.  Film cells start at the surface, and
 every column keeps at least ``min_vert_levels`` levels.  The ice shelves are
 found once, by a flood fill of the floating cells and then of the grounded
 (film) cells.
@@ -239,6 +241,7 @@ def start_columns_at_top_depth(
     top_depth,
     max_level_cell,
     column_thickness,
+    cells_on_edge,
     min_vert_levels,
     min_top_fraction,
 ):
@@ -253,6 +256,16 @@ def start_columns_at_top_depth(
     the level ``min_vert_levels - 1`` levels above the column's last level,
     so the column keeps at least ``min_vert_levels`` levels.  Columns that
     start at the surface are not changed.
+
+    An edge is active at a level when both of its cells have that level.
+    The top level of a column that starts below the surface then merges into
+    the level below while it has fewer than two active edges, keeping at
+    least ``min_vert_levels`` levels.  Merging a level can take an active
+    edge from a neighbor's top level, so columns are revisited until none
+    changes.  A column with no level that has two active edges, given its
+    neighbors' levels before any merge, keeps its levels.  A merge never
+    adds an active edge, so the result does not depend on the order of the
+    cells.
 
     Parameters
     ----------
@@ -273,6 +286,10 @@ def start_columns_at_top_depth(
     column_thickness : xarray.DataArray
         The thickness the levels of each column must sum to
 
+    cells_on_edge : xarray.DataArray
+        The one-based indices of the two cells on each edge, as in the mesh,
+        with 0 where there is no cell
+
     min_vert_levels : int
         The minimum number of levels in a column
 
@@ -289,14 +306,24 @@ def start_columns_at_top_depth(
         The thickness of each level of each column
     """
     thickness = thickness.transpose('nCells', 'nVertLevels')
+    top_depth = _squeeze_time(top_depth).values
+    max_level_cell = max_level_cell.values.astype(int)
     min_level_cell, values = _start_at_top_depth(
         thickness=thickness.values,
         interfaces=np.asarray(ref_interfaces),
-        top_depth=_squeeze_time(top_depth).values,
-        max_level_cell=max_level_cell.values.astype(int),
+        top_depth=top_depth,
+        max_level_cell=max_level_cell,
         column_thickness=column_thickness.values,
         min_vert_levels=min_vert_levels,
         min_top_fraction=min_top_fraction,
+    )
+    min_level_cell, values = _merge_weakly_connected_top_levels(
+        thickness=values,
+        min_level_cell=min_level_cell,
+        max_level_cell=max_level_cell,
+        cells_on_edge=cells_on_edge.values - 1,
+        candidate=top_depth > 0.0,
+        min_vert_levels=min_vert_levels,
     )
     min_level_cell = xr.DataArray(min_level_cell, dims=('nCells',))
     return min_level_cell, thickness.copy(data=values)
@@ -460,6 +487,59 @@ def _start_at_top_depth(
         1.0,
     )
     return min_level_cell, result * stretch[:, np.newaxis]
+
+
+def _merge_weakly_connected_top_levels(
+    thickness,
+    min_level_cell,
+    max_level_cell,
+    cells_on_edge,
+    candidate,
+    min_vert_levels,
+):
+    """
+    Merge the top level of each candidate column into the level below while
+    it has fewer than two active edges, as numpy arrays (see
+    :py:func:`start_columns_at_top_depth`)
+    """
+    ncells, nlevels = thickness.shape
+    deepest = np.maximum(max_level_cell - min_vert_levels + 1, 0)
+    both = (cells_on_edge[:, 0] >= 0) & (cells_on_edge[:, 1] >= 0)
+    cell = np.concatenate([cells_on_edge[both, 0], cells_on_edge[both, 1]])
+    other = np.concatenate([cells_on_edge[both, 1], cells_on_edge[both, 0]])
+    keep = candidate[cell]
+    cell = cell[keep]
+    other = other[keep]
+
+    # a column that has no level with two active edges, even before any
+    # neighbor merges, keeps its levels
+    low = np.maximum(min_level_cell[cell], min_level_cell[other])
+    high = np.minimum(deepest[cell], max_level_cell[other])
+    reachable = np.zeros(ncells, dtype=bool)
+    for level in range(nlevels):
+        shared = (low <= level) & (level <= high)
+        reachable |= np.bincount(cell[shared], minlength=ncells) >= 2
+    movable = candidate & reachable
+
+    first = min_level_cell.copy()
+    while True:
+        level = first[cell]
+        active = (first[other] <= level) & (level <= max_level_cell[other])
+        count = np.bincount(cell[active], minlength=ncells)
+        merge = movable & (count < 2) & (first < deepest)
+        if not merge.any():
+            break
+        first = first + merge.astype(first.dtype)
+
+    # each merged column's top level gains the thickness of the levels
+    # above it
+    rows = np.flatnonzero(first > min_level_cell)
+    above = np.arange(nlevels)[np.newaxis, :] < first[rows, np.newaxis]
+    merged = np.where(above, thickness[rows], 0.0).sum(axis=1)
+    values = thickness.copy()
+    values[rows] = np.where(above, 0.0, thickness[rows])
+    values[rows, first[rows]] += merged
+    return first, values
 
 
 def _deepest_top_depth(interfaces, max_level_cell, min_vert_levels):

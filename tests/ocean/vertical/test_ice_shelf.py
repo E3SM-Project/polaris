@@ -200,7 +200,7 @@ def test_z_star_columns_start_at_their_top_depth():
     """
     _, ssh, bottom, _, _ = _strip([0, 250, 270, 650])
     config = _config()
-    ds = xr.Dataset({'ssh': ssh, 'bottomDepth': bottom})
+    ds = _z_star_ds(ssh, bottom)
     top_depth = xr.DataArray([0.0, 250.0, 270.0, 950.0], dims=('nCells',))
 
     init_vertical_coord(config, ds, top_depth=top_depth)
@@ -225,7 +225,7 @@ def test_z_star_columns_start_at_their_top_depth():
 def test_z_star_at_the_surface_is_unchanged():
     _, ssh, bottom, _, _ = _strip([0, 250, 650])
     config = _config()
-    ds_default = xr.Dataset({'ssh': ssh, 'bottomDepth': bottom})
+    ds_default = _z_star_ds(ssh, bottom)
     ds_zero = ds_default.copy()
 
     init_vertical_coord(config, ds_default)
@@ -248,6 +248,7 @@ def test_p_star_columns_start_at_their_top_depth():
             'SurfacePressure': xr.DataArray(
                 RHO_SW * GRAVITY * np.array([0.0, 625.0]), dims=('nCells',)
             ),
+            'cellsOnEdge': _no_edges(),
         }
     )
 
@@ -316,7 +317,7 @@ def _max_rx1(config, ssh, bottom, top_depth, edges):
     The largest rx1 over the given edges of the z-star columns starting at
     the given top depths
     """
-    ds = xr.Dataset({'ssh': ssh, 'bottomDepth': bottom})
+    ds = _z_star_ds(ssh, bottom)
     init_vertical_coord(
         config, ds, top_depth=xr.DataArray(top_depth, dims=('nCells',))
     )
@@ -330,3 +331,21 @@ def _max_rx1(config, ssh, bottom, top_depth, edges):
             num = abs(z[a, k] - z[b, k] + z[a, k + 1] - z[b, k + 1])
             rx1 = max(rx1, num / (h[a, k] + h[b, k]))
     return rx1
+
+
+def _z_star_ds(ssh, bottom, cells_on_edge=None):
+    """
+    A dataset for a z-star coordinate, with no edges between the cells
+    unless they are given (one-based)
+    """
+    if cells_on_edge is None:
+        edges = _no_edges()
+    else:
+        edges = xr.DataArray(np.array(cells_on_edge), dims=('nEdges', 'TWO'))
+    return xr.Dataset(
+        {'ssh': ssh, 'bottomDepth': bottom, 'cellsOnEdge': edges}
+    )
+
+
+def _no_edges():
+    return xr.DataArray(np.zeros((0, 2), dtype=int), dims=('nEdges', 'TWO'))
