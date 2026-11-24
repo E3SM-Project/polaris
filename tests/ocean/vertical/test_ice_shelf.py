@@ -265,6 +265,65 @@ def test_p_star_columns_start_at_their_top_depth():
     )
 
 
+# open-water cell 0 and ice cells 1-5 starting at these top depths, so at
+# levels 0, 2, 2, 3, 3 and 4.  Cell 5 is joined only to cell 0.
+TOP_DEPTHS = [0.0, 250.0, 250.0, 350.0, 350.0, 450.0]
+CELLS_ON_EDGE = [[1, 2], [2, 3], [3, 4], [3, 5], [4, 5], [1, 6]]
+
+
+@pytest.mark.parametrize('order', [[0, 1, 2, 3, 4, 5], [5, 3, 1, 4, 0, 2]])
+def test_z_star_top_levels_with_one_active_edge_merge(order):
+    """
+    Cell 2's top level is shared only with cell 1, so it merges into level 3.
+    Cell 1's top level then has one active edge, to cell 0, and merges too.
+    Cell 5 has one neighbor at every level and keeps its levels, and cell 0
+    starts at the surface, so neither changes.  Numbering the cells in
+    another order gives the same result.
+    """
+    order = np.array(order)
+    new = np.argsort(order)
+    top_depth = np.array(TOP_DEPTHS)[order]
+    cells_on_edge = new[np.array(CELLS_ON_EDGE) - 1] + 1
+    ssh = xr.DataArray(-top_depth, dims=('nCells',))
+    bottom = xr.full_like(ssh, 1000.0)
+    ds = _z_star_ds(ssh, bottom, cells_on_edge)
+
+    init_vertical_coord(
+        _config(), ds, top_depth=xr.DataArray(top_depth, dims=('nCells',))
+    )
+
+    min_level_cell = ds.minLevelCell.values[new]
+    assert min_level_cell.tolist() == [1, 4, 4, 4, 4, 5]
+    resting = ds.restingThickness.isel(Time=0).values[new]
+    np.testing.assert_allclose(np.nansum(resting, axis=1), bottom)
+    # the merged level holds the 50 m partial level and its own 100 m
+    np.testing.assert_allclose(resting[[1, 2], 3] / resting[[1, 2], 4], 1.5)
+
+
+def test_p_star_top_levels_with_one_active_edge_merge():
+    top_depth = np.array(TOP_DEPTHS)
+    pressure = RHO_SW * GRAVITY
+    ds = xr.Dataset(
+        {
+            'BottomPressure': xr.DataArray(
+                np.full(top_depth.size, 1000.0 * pressure), dims=('nCells',)
+            ),
+            'SurfacePressure': xr.DataArray(
+                top_depth * pressure, dims=('nCells',)
+            ),
+            'cellsOnEdge': xr.DataArray(
+                np.array(CELLS_ON_EDGE), dims=('nEdges', 'TWO')
+            ),
+        }
+    )
+
+    init_pstar_vertical_coord(
+        _config(), ds, top_depth=xr.DataArray(top_depth, dims=('nCells',))
+    )
+
+    assert ds.minLevelCell.values.tolist() == [1, 4, 4, 4, 4, 5]
+
+
 def _config(top_level='front_draft', percentile=20.0, max_rx1=30.0):
     config = PolarisConfigParser()
     config.add_section('vertical_grid')
