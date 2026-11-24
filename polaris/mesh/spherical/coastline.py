@@ -12,8 +12,27 @@ from polaris.mesh.spherical.critical_transects import CriticalTransects
 CONVENTIONS = ('calving_front', 'grounding_line', 'bedrock_zero')
 EARTH_RADIUS = get_constant('mean_radius')
 
+#: The section and option holding the Antarctic boundary convention
+CONVENTION_SECTION = 'spherical_mesh'
+CONVENTION_OPTION = 'antarctic_boundary_convention'
+
 #: variables in a coastline file to compare against a baseline
 COASTLINE_VALIDATE_VARS = ['ocean_mask', 'signed_distance']
+
+
+def add_convention_setup_only_option(step):
+    """
+    Declare the Antarctic boundary convention a setup-only option of a step
+    that reads it.  The convention is not part of any step's path, so
+    changing it in a work directory after setup would leave steps that have
+    already run, and values copied into other configs, with the old one.
+
+    Parameters
+    ----------
+    step : polaris.Step
+        A step that reads the convention from its config
+    """
+    step.add_setup_only_option(CONVENTION_SECTION, CONVENTION_OPTION)
 
 
 def build_coastline_datasets(

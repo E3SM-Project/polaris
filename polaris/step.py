@@ -256,6 +256,12 @@ class Step:
         ``subdir`` to ``self.free_running_steps`` in their ``__init__``
         rather than modifying this flag.
 
+    setup_only_options : dict
+        Config options, keyed by ``(section, option)``, that can only be set
+        in a user config file passed to ``polaris setup``, with the values
+        they had when the step was set up.  Add them with
+        :py:meth:`polaris.Step.add_setup_only_option`.
+
     run_as_subprocess : bool
         Whether to run this step as a subprocess, rather than just running
         it directly from the task.  It is useful to run a step as a
@@ -454,6 +460,9 @@ class Step:
         self.cached = cached
         self.default_cached = False
 
+        # options that can only be set at setup, with their values at setup
+        self.setup_only_options = dict()
+
     def __getstate__(self):
         """
         Get the state to pickle, leaving out ``tasks``
@@ -488,6 +497,9 @@ class Step:
         self.__dict__.update(state)
         if 'tasks' not in state:
             self.tasks = dict()
+        # steps set up before setup-only options existed have none
+        if 'setup_only_options' not in state:
+            self.setup_only_options = dict()
 
     @property
     def cores(self):
@@ -891,6 +903,50 @@ class Step:
         and outputs.
         """
         pass
+
+    def add_setup_only_option(self, section, option):
+        """
+        Declare a config option that can only be set in a user config file
+        passed to ``polaris setup``, typically because it decides which steps
+        a task has or which files a step links to.  Its value is recorded
+        once the step has been set up, and the step refuses to run if the
+        option has been changed in the work directory since.
+
+        Parameters
+        ----------
+        section : str
+            The config section
+
+        option : str
+            The config option
+        """
+        self.setup_only_options[(section, option)] = None
+
+    def record_setup_only_options(self):
+        """
+        Record the values of the setup-only config options.  Polaris calls
+        this after the step's ``setup()``.
+        """
+        for section, option in self.setup_only_options:
+            self.setup_only_options[(section, option)] = self.config.get(
+                section, option, fallback=None
+            )
+
+    def check_setup_only_options(self):
+        """
+        Raise an error if a setup-only config option differs from its value
+        when the step was set up.  Polaris calls this before running the step.
+        """
+        for (section, option), value in self.setup_only_options.items():
+            current = self.config.get(section, option, fallback=None)
+            if current != value:
+                raise ValueError(
+                    f'[{section}] {option} is {current!r} in the config for '
+                    f'step {self.path}, but it was {value!r} when the step '
+                    f'was set up.  This option can only be set in a user '
+                    f'config file passed to "polaris setup", so to change '
+                    f'it, set up again in a new work directory.'
+                )
 
     def runtime_setup(self):
         """

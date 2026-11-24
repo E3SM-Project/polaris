@@ -101,6 +101,22 @@ The `forward` and `analysis_output` tasks use the model-dependent `init` steps
 but keep their own steps in one directory, so set them up for one model per
 work directory.
 
+(ocean-realistic-global-antarctic-topography)=
+
+## Antarctic topography
+
+The Antarctic topography comes from Bedmap3 by default.  BedMachine Antarctica
+v4, the dataset MALI's Antarctic meshes start from, can be selected in a user
+config file passed to `polaris setup`.  It can only be set at setup:
+
+```cfg
+[remap_topography]
+antarctic_dataset = bedmachinev4
+```
+
+The WOA23 initial condition is then extrapolated using BedMachine's ocean
+mask, too.
+
 (ocean-realistic-global-woa23)=
 
 ## woa23
@@ -980,8 +996,10 @@ Blank `pressure_gradient_type` leaves the MPAS-Ocean Registry default of
 
 `config_Redi_min_layers_diag_terms` is pinned to 0 in `forward.yaml` rather
 than being an option — the Registry default of 6 skips the Redi diagnostic
-terms in the top six layers, and Compass computes them everywhere.  It has an
-effect only where Redi is on.
+terms in the top six layers, and Compass computes them everywhere.
+`config_Redi_maximum_slope` is pinned to E3SM's 0.01; with the Registry
+default of 0.3, Redi alone pushes some temperatures more than 10 °C outside
+their initial range within weeks.  Both have an effect only where Redi is on.
 
 ### time integrator
 

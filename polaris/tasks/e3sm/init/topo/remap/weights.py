@@ -1,6 +1,10 @@
 import os
 
 from polaris import Step
+from polaris.tasks.e3sm.init.topo.antarctic_dataset import (
+    add_antarctic_dataset_option,
+    check_combine_topo_dataset,
+)
 from polaris.tasks.e3sm.init.topo.remap.prepare import TARGET_SCRIP_FILENAME
 
 #: the weights for remapping from the cubed-sphere grid to the MPAS mesh
@@ -52,6 +56,7 @@ class RemapTopoWeightsStep(Step):
         )
         self.prepare_step = prepare_step
         self.combine_topo_step = combine_topo_step
+        add_antarctic_dataset_option(self)
         # the prepare step makes the SCRIP file only if there is remapping
         # to do, so it is found through the dependency rather than as an
         # input file
@@ -63,6 +68,7 @@ class RemapTopoWeightsStep(Step):
         and making the command
         """
         super().setup()
+        check_combine_topo_dataset(self)
         config = self.config
         section = config['remap_topography']
 

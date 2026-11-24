@@ -95,6 +95,7 @@ def get_realistic_init_steps(
         Per-mesh shared config for the model-neutral init steps.
     """
     cull_steps, _ = get_cull_topo_steps(mesh_name=mesh_name, include_viz=False)
+    cull_mask_step = cull_steps['cull_mask']
     cull_mesh_step = cull_steps['cull_mesh']
     remap_topo_step = cull_steps['remap_smoothed_topo']
 
@@ -120,6 +121,7 @@ def get_realistic_init_steps(
         config=config,
         config_filename=config_filename,
         remap_topo_step=remap_topo_step,
+        cull_mask_step=cull_mask_step,
         cull_mesh_step=cull_mesh_step,
     )
 

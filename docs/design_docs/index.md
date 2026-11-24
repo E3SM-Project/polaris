@@ -11,6 +11,7 @@ global_ocean_forward
 global_ocean_init
 horiz_press_grad_hydrostatic_consistency
 horiz_press_grad_reference
+ice_shelf_ssh_adjustment
 ice_shelf_vertical_coordinate
 land_locked_cells
 landice_component

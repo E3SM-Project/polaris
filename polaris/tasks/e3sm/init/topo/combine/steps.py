@@ -3,6 +3,10 @@ import os
 from polaris.config import PolarisConfigParser
 from polaris.e3sm.init.topo import format_lat_lon_resolution_name
 from polaris.step import Step
+from polaris.tasks.e3sm.init.topo.combine.files import (
+    ANTARCTIC,
+    ANTARCTIC_DATASETS,
+)
 from polaris.tasks.e3sm.init.topo.combine.prepare import PrepareCombineStep
 from polaris.tasks.e3sm.init.topo.combine.step import CombineStep
 from polaris.tasks.e3sm.init.topo.combine.viz import VizCombinedStep
@@ -12,7 +16,9 @@ _MIN_CUBED_SPHERE_RESOLUTION = 120
 _MAX_LAT_LON_RESOLUTION = 1.0
 
 
-def get_cubed_sphere_topo_steps(component, resolution, include_viz=False):
+def get_cubed_sphere_topo_steps(
+    component, resolution, include_viz=False, antarctic_dataset=ANTARCTIC
+):
     """
     Get shared combined-topography steps for a cubed-sphere target grid.
 
@@ -35,6 +41,11 @@ def get_cubed_sphere_topo_steps(component, resolution, include_viz=False):
     include_viz : bool, optional
         Whether to include the visualization step or not.
 
+    antarctic_dataset : str, optional
+        The Antarctic dataset, one of
+        ``polaris.tasks.e3sm.init.topo.combine.files.ANTARCTIC_DATASETS``.
+        By default, the one downstream tasks use.
+
     Returns
     -------
     steps : dict of str to polaris.Step
@@ -50,10 +61,13 @@ def get_cubed_sphere_topo_steps(component, resolution, include_viz=False):
         target_grid='cubed_sphere',
         resolution=resolution,
         include_viz=include_viz,
+        antarctic_dataset=antarctic_dataset,
     )
 
 
-def get_lat_lon_topo_steps(component, resolution, include_viz=False):
+def get_lat_lon_topo_steps(
+    component, resolution, include_viz=False, antarctic_dataset=ANTARCTIC
+):
     """
     Get shared combined-topography steps for a latitude-longitude target grid.
 
@@ -76,6 +90,11 @@ def get_lat_lon_topo_steps(component, resolution, include_viz=False):
     include_viz : bool, optional
         Whether to include the visualization step or not.
 
+    antarctic_dataset : str, optional
+        The Antarctic dataset, one of
+        ``polaris.tasks.e3sm.init.topo.combine.files.ANTARCTIC_DATASETS``.
+        By default, the one downstream tasks use.
+
     Returns
     -------
     steps : dict of str to polaris.Step
@@ -91,6 +110,7 @@ def get_lat_lon_topo_steps(component, resolution, include_viz=False):
         target_grid='lat_lon',
         resolution=resolution,
         include_viz=include_viz,
+        antarctic_dataset=antarctic_dataset,
     )
 
 
@@ -122,7 +142,9 @@ def get_combine_topo_symlinks(combine_step, key):
     }
 
 
-def _get_target_topo_steps(component, target_grid, resolution, include_viz):
+def _get_target_topo_steps(
+    component, target_grid, resolution, include_viz, antarctic_dataset
+):
     """
     Get shared combined-topography steps for a target grid and resolution.
 
@@ -139,6 +161,9 @@ def _get_target_topo_steps(component, target_grid, resolution, include_viz):
 
     include_viz : bool
         Whether to include the visualization step or not.
+
+    antarctic_dataset : str
+        The Antarctic dataset
 
     Returns
     -------
@@ -159,8 +184,14 @@ def _get_target_topo_steps(component, target_grid, resolution, include_viz):
     else:
         raise ValueError(f'Unexpected target grid: {target_grid}')
 
+    if antarctic_dataset not in ANTARCTIC_DATASETS:
+        raise ValueError(
+            f'Unexpected Antarctic dataset: {antarctic_dataset}. Expected '
+            f'one of {ANTARCTIC_DATASETS}.'
+        )
+
     subdir = os.path.join(
-        CombineStep.get_subdir(), target_grid, resolution_name
+        CombineStep.get_subdir(antarctic_dataset), target_grid, resolution_name
     )
 
     config_filename = 'combine_topo.cfg'
@@ -171,6 +202,7 @@ def _get_target_topo_steps(component, target_grid, resolution, include_viz):
         config.add_from_package(
             'polaris.tasks.e3sm.init.topo.combine', 'combine.cfg'
         )
+        config.set('combine_topo', 'antarctic_dataset', antarctic_dataset)
         config.set('combine_topo', 'target_grid', target_grid)
         if target_grid == 'cubed_sphere':
             config.set(
@@ -184,7 +216,9 @@ def _get_target_topo_steps(component, target_grid, resolution, include_viz):
         filepath=filepath, create=create
     )
 
-    combine_name = CombineStep.get_name(target_grid, resolution_name)
+    combine_name = CombineStep.get_name(
+        target_grid, resolution_name, antarctic_dataset
+    )
     prepare_step = component.get_or_create_shared_step(
         step_cls=PrepareCombineStep,
         subdir=os.path.join(subdir, 'prepare'),
@@ -208,11 +242,14 @@ def _get_target_topo_steps(component, target_grid, resolution, include_viz):
         resolution_name=resolution_name,
         prepare_step=prepare_step,
         weights_step=weights_step,
+        antarctic_dataset=antarctic_dataset,
     )
     combine_step._set_res_and_outputs()
 
     steps: dict[str, Step] = {}
     for step in [prepare_step, weights_step, combine_step]:
+        # the dataset is part of the steps' paths
+        step.add_setup_only_option('combine_topo', 'antarctic_dataset')
         steps[step.name] = step
 
     if include_viz:
