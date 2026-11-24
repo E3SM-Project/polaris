@@ -40,12 +40,18 @@ def test_rescales_from_coordinates_when_sphere_radius_is_wrong(tmp_path):
         assert 'fVertex' not in ds_out
 
 
-def test_keeps_an_unlimited_dimension_no_variable_uses(tmp_path):
+@pytest.mark.parametrize(
+    'xarray_format, file_format',
+    [('NETCDF4', 'NETCDF4'), ('NETCDF3_64BIT', 'NETCDF3_64BIT_OFFSET')],
+)
+def test_keeps_an_unlimited_dimension_no_variable_uses(
+    tmp_path, xarray_format, file_format
+):
     utility = _load_utility()
     input_file = tmp_path / 'seaice.mesh.180705.nc'
     output_file = tmp_path / 'seaice.mesh.20261124.nc'
     _make_mesh(sphere_radius=COORD_RADIUS).to_netcdf(
-        input_file, format='NETCDF4'
+        input_file, format=xarray_format
     )
     with netCDF4.Dataset(input_file, 'a') as nc:
         nc.createDimension('Time', None)
@@ -53,6 +59,7 @@ def test_keeps_an_unlimited_dimension_no_variable_uses(tmp_path):
     utility.convert_ic(str(input_file), str(output_file))
 
     with netCDF4.Dataset(output_file) as nc:
+        assert nc.data_model == file_format
         assert nc.dimensions['Time'].isunlimited()
 
 
