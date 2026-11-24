@@ -1,6 +1,5 @@
 import numpy as np
 
-from polaris.constants import get_constant
 from polaris.ocean.model import OceanModelStep, get_time_interval_string
 
 
@@ -444,13 +443,6 @@ class Forward(OceanModelStep):
         replacements = dict(
             output_interval=output_interval_str,
             output_freq=f'{int(output_interval_seconds)}',
-            RhoSw=get_constant('seawater_density_reference'),
-            sea_ice_reference_salinity=get_constant(
-                'sea_ice_reference_salinity'
-            ),
-            latent_heat_of_fusion=get_constant(
-                'latent_heat_of_fusion_reference'
-            ),
         )
         if self.task_name in ('frazil', 'frazil_melting_short'):
             replacements['frazil_maximum_depth'] = self.config.getfloat(
