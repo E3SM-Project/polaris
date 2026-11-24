@@ -818,6 +818,17 @@ change in SSH on the cells in `mask_variable`.  The solve uses only the
 horizontal mesh and the run's output, so it does not depend on the ocean
 model.
 
+The module also provides helpers for computing the land-ice pressure from ice
+thickness ({py:func}`polaris.ocean.ice_shelf.compute_land_ice_pressure_from_thickness()`)
+or ice draft ({py:func}`polaris.ocean.ice_shelf.compute_land_ice_pressure_from_draft()`),
+the draft of floating ice from its pressure
+({py:func}`polaris.ocean.ice_shelf.compute_land_ice_draft_from_pressure()`),
+and the freezing temperature in an ice-shelf cavity
+({py:func}`polaris.ocean.ice_shelf.compute_freezing_temperature()`), which
+uses the formulation of the ocean model.  For MPAS-Ocean, the coefficients are
+in the `ice_shelf_freeze` config section and match the MPAS-Ocean defaults.
+Omega uses TEOS-10 for its freezing temperature, which is not yet supported.
+
 (dev-ocean-framework-vertical)=
 
 ## Vertical coordinate
