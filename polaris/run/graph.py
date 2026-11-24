@@ -315,19 +315,33 @@ def _requirements_of(
 
     A dependency the step named that was not selected is left alone: it may
     have run in an earlier invocation, and whether its outputs are there is
-    the input check's question rather than this one's.
+    the input check's question rather than this one's.  That includes the
+    inputs the step reads from the dependency's work directory, such as the
+    pickle a dependency leaves when it finishes.
     """
     required = set()
+    unselected = set()
 
     for dependency in step.dependencies.values():
-        if dependency.path in selected and dependency.path != step.path:
-            required.add(dependency.path)
+        if dependency.path in selected:
+            if dependency.path != step.path:
+                required.add(dependency.path)
+        else:
+            work_dir = dependency.work_dir or os.path.join(
+                step.base_work_dir, dependency.path
+            )
+            unselected.add(os.path.realpath(work_dir))
 
     for input_file in step.inputs:
         producer, filename = _find_input_producer(input_file, producers)
         if producer is not None:
             if producer != step.path:
                 required.add(producer)
+            continue
+        if os.path.dirname(filename) in unselected:
+            # what a dependency that is not being run writes, such as the
+            # pickle it leaves when it finishes, is left to the input check
+            # too, like the dependency itself
             continue
         if not os.path.exists(filename):
             raise ValueError(

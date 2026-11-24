@@ -59,6 +59,32 @@ def test_a_declared_dependency_becomes_an_edge(tmp_path):
     assert graph.nodes['ocean/first'].requires == frozenset()
 
 
+def test_what_an_unselected_dependency_writes_is_not_required(tmp_path):
+    """A job sized for one task cannot wait for a step of another task, so
+    the pickle such a dependency leaves when it finishes is the input
+    check's question when the step runs, as the dependency itself is."""
+    first = _make_step(tmp_path, 'first')
+    second = _make_step(tmp_path, 'second')
+    second.add_dependency(first, name='first')
+    second.inputs = [os.path.join(first.work_dir, 'step_after_run.pickle')]
+
+    graph = build_step_graph([second])
+
+    assert graph.nodes['ocean/second'].requires == frozenset()
+
+
+def test_other_missing_inputs_are_still_rejected_beside_a_dependency(
+    tmp_path,
+):
+    first = _make_step(tmp_path, 'first')
+    second = _make_step(tmp_path, 'second')
+    second.add_dependency(first, name='first')
+    second.inputs = [tmp_path / 'missing.nc']
+
+    with pytest.raises(ValueError, match='does not exist'):
+        build_step_graph([second])
+
+
 def test_a_produced_file_becomes_an_edge(tmp_path):
     """Neither step names the other; the file is the whole declaration."""
     shared = tmp_path / 'mesh.nc'
