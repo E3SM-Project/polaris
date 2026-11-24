@@ -3,7 +3,7 @@
 # realistic_global
 
 The `realistic_global` task group contains tasks that use realistic global
-ocean meshes, bathymetry and forcing. It currently contains seven kinds of
+ocean meshes, bathymetry and forcing. It currently contains eight kinds of
 tasks:
 
 - {ref}`ocean-realistic-global-woa23`, a mesh-independent preprocessing task
@@ -24,6 +24,8 @@ tasks:
   tasks read.
 - {ref}`ocean-realistic-global-restart`, a short run continued from a restart,
   checking that it matches the uninterrupted run, history output included.
+- {ref}`ocean-realistic-global-min-level-cell`, a short run with an inactive
+  level above every column, checking that it matches the same run without it.
 
 The arrows show where each kind of task gets its inputs:
 
@@ -37,6 +39,7 @@ flowchart LR
     database[("Polaris input database")] --> cached_forward
     database --> analysis_output
     database --> restart
+    database --> min_level_cell
 ```
 
 ## supported models
@@ -52,6 +55,13 @@ The `restart` task supports Omega only.  It is a regression test for the way
 Omega writes its history time axis across a restart, and MPAS-Ocean stamps its
 output with `xtime` rather than an elapsed time measured from the start of the
 clock, so the failure it looks for cannot arise there.
+
+The `min_level_cell` tasks support both models.  With Omega, they fail until
+the Omega submodule includes the fixes in
+[E3SM-Project/Omega#716](https://github.com/E3SM-Project/Omega/pull/716).
+With MPAS-Ocean, they fail until the E3SM submodule includes the fixes in
+[E3SM-Ocean-Discussion/E3SM#196](https://github.com/E3SM-Ocean-Discussion/E3SM/pull/196)
+and [E3SM-Project/E3SM#9191](https://github.com/E3SM-Project/E3SM/pull/9191).
 
 (ocean-realistic-global-model-directories)=
 
@@ -721,6 +731,113 @@ eos_type = teos-10
 
 The number of cores used by each forward step is determined algorithmically
 from the number of cells in the mesh.  The `validate` step runs serially.
+
+(ocean-realistic-global-min-level-cell)=
+
+## min_level_cell
+
+This task checks that an inactive level above every column changes nothing.
+A run with `minLevelCell = 2` everywhere and `maxLevelCell` one higher than
+usual has to be bit-for-bit identical to the same run without the added level,
+once every vertical index is moved up by one.  Any code that starts a column
+at level 1 rather than at `minLevelCell` shows up as a difference.  This tests
+the code that handles columns under ice shelves, whose top levels are
+inactive, on a mesh without any ice shelves.
+
+It comes in the same two variants as the
+{ref}`forward tasks <ocean-realistic-global-forward>`, which differ only in the
+time integrator:
+
+```bash
+polaris setup -t ocean/spherical/realistic_global/e3sm-qu240/min_level_cell/split_explicit ...
+polaris setup -t ocean/spherical/realistic_global/e3sm-qu240/min_level_cell/rk4 ...
+```
+
+### description
+
+The task contains these steps:
+
+1. `reference` is a `cached_forward` run without the added level.
+2. `add_top_level` writes a copy of the same initial condition (and, for
+   Omega, vertical coordinate) with an inactive level above every column.
+3. `shifted` runs from that copy, with the same config as `reference`.  For
+   Omega, it also writes a restart partway through the run.
+4. For Omega only, `shifted_restart` continues from that restart to the end
+   of the run, as the `restart_run` of the
+   {ref}`restart task <ocean-realistic-global-restart>` does.  This checks that
+   the inactive level survives a restart.
+5. `compare` checks that every field in the `shifted` run's `output.nc` (and
+   `mixed_layer_depths.nc` for MPAS-Ocean) is identical to the `reference`
+   run's once the inactive level is dropped.  For Omega, it also checks that
+   `shifted_restart` is identical to `shifted`.  A NaN in one run and not the
+   other counts as a difference.
+
+The added level holds zeros in every variable with a vertical dimension.  Its
+reference thickness is zero as well, so the active levels keep the reference
+depths they had before.
+
+### mesh
+
+E3SM's quasi-uniform 240-km mesh, `e3sm-qu240`, as for the `cached_forward`
+tasks.
+
+### vertical grid
+
+The vertical grid supplied with the cached initial condition, with one
+inactive level of zero thickness added at the top for the `shifted` run.
+
+### initial conditions
+
+The cached initial condition for the configured model from the
+`realistic_global` section of the Polaris input database, as for the
+`cached_forward` tasks.
+
+### forcing
+
+As for the `cached_forward` tasks: zonal and meridional wind stress from the
+initial-condition file, applied through bulk wind stress.
+
+### time step and run duration
+
+The time steps and other options are those of the `cached_forward` tasks on
+`e3sm-qu240`, with the task's own run duration and output interval.
+
+### config options
+
+The task reads the `[realistic_global_forward]` options described under
+{ref}`ocean-realistic-global-forward`, including the per-mesh ones for
+`e3sm-qu240`.  Its own config file shortens the run and sets when Omega's
+`shifted` run writes its restart:
+
+```cfg
+# Options for the two forward runs of the min_level_cell task, on top of the
+# forward and per-mesh options
+[realistic_global_forward]
+
+# Run duration as an MPAS-style duration string (DDDD_HH:MM:SS).  Code that
+# mishandles an inactive top level changes the answers in the first time step,
+# so a short run is enough.
+run_duration = 0001_00:00:00
+
+# Interval between writes to the output stream (DDDD_HH:MM:SS).  Frames within
+# the run show when the two runs first differ.
+output_interval = 0000_06:00:00
+
+# Options of the min_level_cell task itself
+[min_level_cell]
+
+# For Omega, when the run with the added level writes the restart that a
+# second run continues from, as an MPAS-style duration from the start
+# (DDDD_HH:MM:SS).  It has to fall on an output time, so that the two halves
+# of the history meet there.
+restart_time = 0000_12:00:00
+```
+
+### cores
+
+The number of cores used by each forward step is determined algorithmically
+from the number of cells in the mesh.  The `add_top_level` and `compare` steps
+run serially.
 
 (ocean-realistic-global-forward)=
 

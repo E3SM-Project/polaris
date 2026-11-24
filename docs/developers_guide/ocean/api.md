@@ -767,6 +767,32 @@
    validate.Validate.run
 ```
 
+### realistic_global.min_level_cell
+
+```{eval-rst}
+.. currentmodule:: polaris.tasks.ocean.realistic_global.min_level_cell
+
+.. autosummary::
+   :toctree: generated/
+
+   MinLevelCell
+   MinLevelCell.configure
+
+   add_top_level.add_top_level
+   add_top_level.AddTopLevel
+   add_top_level.AddTopLevel.setup
+   add_top_level.AddTopLevel.run
+   add_top_level.TopLevelInitialCondition
+   add_top_level.TopLevelInitialCondition.add_input_files
+   add_top_level.TopLevelInitialCondition.get_forcing_filename
+
+   compare.compare_shifted
+   compare.compare_identical
+   compare.Compare
+   compare.Compare.setup
+   compare.Compare.run
+```
+
 ### realistic_global.forward
 
 ```{eval-rst}
