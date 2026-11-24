@@ -21,12 +21,13 @@ take their own draft, so their layers line up with the open ocean.  Cells
 whose neighbors would still be too steep take deeper top depths.  Reference
 levels entirely above a column's top depth are dropped, raising
 `minLevelCell`, and the level containing it becomes a partial top level,
-like a partial bottom cell upside down.  The coordinate is a function of the
-current geometry and the ice shelves of the initial state.  It changes
-continuously with the geometry, except where an interface near the top of a
-column appears or disappears.  The coordinate belongs to the ocean
-framework, so idealized tasks such as ISOMIP+ and MISOMIP can use it as well
-as `realistic_global`.
+like a partial bottom cell upside down.  A top level that shares its level
+with fewer than two neighbors merges into the level below.  The coordinate
+is a function of the current geometry and the ice shelves of the initial
+state.  It changes continuously with the geometry, except where an
+interface near the top of a column appears or disappears.  The coordinate
+belongs to the ocean framework, so idealized tasks such as ISOMIP+ and
+MISOMIP can use it as well as `realistic_global`.
 
 The design has two stages:
 
@@ -56,6 +57,17 @@ as such.  Everything else applies to both stages.
   The shallowest top depth that meets the rx1 maximum can jump where
   $r_{x1}$ does not fall steadily as the top depth deepens, or where a
   partial top level merges.
+- **Cascades of merged top levels.**  Evolving-geometry stage.  Merging a
+  top level can take an active edge from a neighbor, which then merges its
+  own, and so on.  Each pass needs a halo exchange of `minLevelCell`, or a
+  halo as wide as the number of passes.  Knowing that no column changed
+  needs a global reduction on every pass.  Stopping after a fixed number of
+  passes instead leaves top levels with one active edge, which can carry
+  jets.  On so12to30km the cascade took 5 passes, with each column moving
+  straight to its first level with two active edges.  That is more than
+  MPAS-Ocean's 3-cell halo, and geometry evolving under MALI may need more.
+  A small change in the draft can also merge or split off top levels in
+  several neighboring columns at once.
 
 ## Example
 
@@ -124,6 +136,11 @@ shall not wall off open water below its draft.
 The slope of layer interfaces between neighboring columns under ice shelves,
 measured by the hydrostatic consistency number rx1, shall not exceed a
 configured maximum where the column has the levels to meet it.
+
+### Requirement: Top layers under ice shelves connect to at least two neighbors
+
+The top layer of a column under an ice shelf shall share its level with at
+least two neighboring columns, where the column has such a level.
 
 ### Requirement: Each ice shelf is known at init for every possible ocean cell
 
@@ -250,6 +267,40 @@ top depth over its edges.  Where both cells of an edge go deeper, $r_{x1}$
 can stay above the maximum, but rarely: with whole levels on so12to30km and
 the 20th percentile, the 99th percentile of $r_{x1}$ under the ice is 26.
 
+### Algorithm Design: Top layers under ice shelves connect to at least two neighbors
+
+An edge is active at a level when both of its cells have that level.  After
+the partial top levels are set, each column that starts below the surface
+and whose top level has fewer than two active edges merges that level into
+the level below.  The level below gains its thickness, as when a partial
+top level merges.  A column keeps at least `min_vert_levels` levels.
+Merging a level can take an active edge from a neighbor's top level, so the
+columns are revisited until none changes.  A column with no level that has
+two active edges, given its neighbors' levels before any merge, keeps its
+levels.
+
+A merge never adds an active edge.  The columns therefore settle on the
+shallowest top levels that meet the rule, in whatever order they are
+visited.
+
+> **Rationale.**  At a minimum fraction of 0.5, the so12to30km dynamic
+> adjustment grew jets of 3.4 m/s at a Weddell Sea front and 5.8 m/s at the
+> Cook Ice Shelf front.  The Cook jet then broke into spikes of 20–34 m/s.
+> At both, the ice cell's top level had a single active edge, to open
+> water.  A momentum budget showed the same cross-front force at that level
+> and the one below.  Below, the Coriolis term opposes the flow.  At the top
+> level, only the open cell's half of the TRiSK stencil contributes, so the
+> flow cannot reach geostrophic balance.  On so12to30km at a minimum fraction
+> of 0.1, the rule merges levels in 179 columns:
+>
+> - 100 merge one level and the most merge 14;
+> - the merged layer is twice its level's thickness at the median and 9
+>   times at most;
+> - changes spread at most 3 cells from a column that broke the rule at the
+>   start;
+> - 17 columns have no level with two active edges, and their flow stayed
+>   below 0.17 m/s.
+
 ### Algorithm Design: Each ice shelf is known at init for every possible ocean cell
 
 Floating cells are under land ice and not a film, and grounded cells are
@@ -283,6 +334,8 @@ the current draft (the SSH under land ice), bed depth and masks:
    gives each shelf's top depth.
 3. Compute the front and rx1 top depths, which need only each cell's
    neighbors.
+4. Merge top levels with fewer than two active edges, in passes with a halo
+   exchange of `minLevelCell` between them (see the open questions).
 
 Over the coupling interval that follows, each column's top depth moves
 linearly in time from its old value to its new one, and its resting
@@ -308,11 +361,13 @@ exceptions:
 - the interface between a partial top level and the level below appears or
   disappears where the partial fraction crosses its minimum, which mixes
   those two layers;
+- a top level that loses or regains its second active edge merges or splits
+  off, and neighboring top levels can follow;
 - a cell that becomes or stops being a film changes its top depth at once,
   but its column is then only a film thick.
 
-A geometry that wavers near either threshold can still cause these changes,
-at most once per coupling interval, but each one is small.  The shelf top
+A geometry that wavers near any of these thresholds can still cause these
+changes, at most once per coupling interval, but each one is small.  The shelf top
 depths and the rx1 search are not yet continuous everywhere; see the open
 questions.
 
@@ -372,6 +427,13 @@ The deeper top depths use the layers of the z-star column at the initial
 `ssh`.  Only edges above the maximum are visited, each with a search over
 the top depths of its deeper cell, between its shelf or front top depth and
 the deepest one that leaves it `min_vert_levels` levels.
+
+### Implementation: Top layers under ice shelves connect to at least two neighbors
+
+`start_columns_at_top_depth()` merges the top levels after the partial top
+levels, given `cellsOnEdge`, which z-star and p-star take from their
+dataset.  It applies to columns whose top depth is below the surface, so
+film cells and open water are unchanged.
 
 ### Implementation: Each ice shelf is known at init for every possible ocean cell
 
@@ -448,6 +510,15 @@ between them.
 
 A unit test that a steep edge gets the shallowest deeper top depth that
 meets the maximum.
+
+### Testing and Validation: Top layers under ice shelves connect to at least two neighbors
+
+Unit tests that a top level with one active edge merges into the level
+below, that a merge can make a neighbor merge, that a column with no level
+with two active edges keeps its levels, and that columns starting at the
+surface are unchanged.  In the so12to30km and qu30km initial states, the
+only top levels left with fewer than two active edges are in columns that
+have no level with two.
 
 ### Testing and Validation: Each ice shelf is known at init for every possible ocean cell
 
@@ -531,6 +602,17 @@ depths move and partial top levels merge and split.
   minimum makes thick layers.  On so12to30km, minimums of 0.1, 0.25 and
   0.75 all ran the dynamic adjustment to the end, with flow under the ice
   no faster than 0.52 m/s.
+- **Merge top levels with one active edge, not tune the minimum fraction.**
+  Minimums of 0.25 and 0.75 moved the two cells that jetted out of that
+  geometry, but left 15 and 26 other top levels whose one active edge faces
+  open water.
+- **A merged top level joins the level below, not the whole column.**  The
+  interfaces below stay level with the neighbors', as when a partial top
+  level merges.  Stretching the whole column instead would make the
+  so12to30km columns 1.08 times thicker at the median and 8 times at most,
+  but move every interface in them.
+- **Columns with no level that has two active edges keep their levels.**
+  No merge would give them a second active edge.
 - **Partial top levels in both stages.**  An evolving run starts from a
   Polaris initial state, which must match what the ocean model computes for
   the same geometry.  The example and the whole-level results above come
