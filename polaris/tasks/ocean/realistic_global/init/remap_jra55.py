@@ -275,7 +275,7 @@ def check_no_missing_cells(ds, var_names, frac_b, tolerance=1.0e-6):
         How far below one the coverage of a cell may be before the cell
         counts as missing
     """
-    missing = frac_b < 1.0 - tolerance
+    missing = ~np.isfinite(frac_b) | (frac_b < 1.0 - tolerance)
     for var in var_names:
         missing |= ~np.isfinite(ds[var].values)
 
