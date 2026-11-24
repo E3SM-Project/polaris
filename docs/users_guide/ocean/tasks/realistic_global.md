@@ -980,8 +980,10 @@ Blank `pressure_gradient_type` leaves the MPAS-Ocean Registry default of
 
 `config_Redi_min_layers_diag_terms` is pinned to 0 in `forward.yaml` rather
 than being an option — the Registry default of 6 skips the Redi diagnostic
-terms in the top six layers, and Compass computes them everywhere.  It has an
-effect only where Redi is on.
+terms in the top six layers, and Compass computes them everywhere.
+`config_Redi_maximum_slope` is pinned to E3SM's 0.01; with the Registry
+default of 0.3, Redi alone pushes some temperatures more than 10 °C outside
+their initial range within weeks.  Both have an effect only where Redi is on.
 
 ### time integrator
 
