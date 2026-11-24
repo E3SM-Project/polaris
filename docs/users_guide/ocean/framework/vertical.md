@@ -317,11 +317,13 @@ to the reference column below it:
 Reference levels entirely above the top depth are dropped, and the level
 containing it becomes a partial top level, like a partial bottom cell upside
 down.  A partial top level thinner than `ice_shelf_min_top_fraction` of its
-reference thickness merges into the level below.  Every column keeps at least
-`min_vert_levels` levels, and thin-film cells under grounded ice start at the
-surface.  The ice shelves are numbered once, at init,
-by a flood fill of the floating and then the grounded cells, and the
-initial state records them in `iceShelfGroup`.  With the default, `surface`,
+reference thickness merges into the level below.  So does a top level that
+shares its level with fewer than two neighboring columns, since its flow
+cannot reach geostrophic balance, unless no level of the column has two such
+neighbors.  Every column keeps at least `min_vert_levels` levels, and
+thin-film cells under grounded ice start at the surface.  The ice shelves are
+numbered once, at init, by a flood fill of the floating and then the grounded
+cells, and the initial state records them in `iceShelfGroup`.  With the default, `surface`,
 every column starts at the top reference level.  The same options apply to
 the {ref}`ocean-p-star` initialization.
 

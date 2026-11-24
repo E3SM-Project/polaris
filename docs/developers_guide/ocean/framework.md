@@ -877,8 +877,10 @@ computes the top depth of each column, and the ice shelf of each cell, from
 for p-star.  Either calls
 {py:func}`polaris.ocean.vertical.ice_shelf.start_columns_at_top_depth()`,
 which keeps at least `min_vert_levels` levels in each column, cuts or merges
-the partial top level and stretches the resting (or reference pseudo-)
-thicknesses to the bed.
+the partial top level, merges top levels shared with fewer than two
+neighbors and stretches the resting (or reference pseudo-) thicknesses to the
+bed.  It finds the neighbors from `cellsOnEdge`, which must be in the
+dataset given to `init_vertical_coord()` or `run_pstar_init()`.
 
 For workflows that need pseudo-height/pressure conversion, the
 `polaris.ocean.vertical.ztilde` module provides utilities:
