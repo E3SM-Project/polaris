@@ -86,3 +86,11 @@ def test_wind_stress_colormaps_come_from_the_viz_defaults(var_name):
     viz_dict = get_viz_defaults()
     assert var_name in viz_dict
     assert 'colormap' in viz_dict[var_name]
+
+
+@pytest.mark.parametrize(
+    'var_name', ['ExtinctionCoeffRedCell', 'ExtinctionCoeffBlueCell']
+)
+def test_extinction_colormaps_come_from_the_viz_defaults(var_name):
+    viz_dict = get_viz_defaults()
+    assert viz_dict[var_name]['colormap'] == 'cmo.algae'

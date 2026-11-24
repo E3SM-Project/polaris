@@ -348,7 +348,9 @@ Both steps run serially.
 The `init` task creates a mesh-specific ocean initial condition (and, for
 Omega, a vertical-coordinate file) from the WOA23 hydrography and the culled
 mesh from `e3sm/init`, together with a surface forcing file from the JRA55-do
-wind stress.  There is one task for each base and unified mesh:
+wind stress.  For Omega, it also writes satellite-derived shortwave extinction
+coefficients to a file of their own.  There is one task for each base and
+unified mesh:
 
 ```bash
 polaris setup -t ocean/spherical/realistic_global/<mesh_name>/init ...
@@ -371,14 +373,20 @@ steps of its own:
    absolute salinity to the culled mesh.
 3. `jra55_map` and `remap_jra55` remap the JRA55-do wind stress to the culled
    mesh.  The step fails if the mapping leaves any cell uncovered.
-4. `pstar_init` builds the p-star vertical coordinate together with the
+4. For Omega, `extinction_product` builds the 1/12-degree shortwave extinction
+   product from the GMIS chlorophyll climatology.  `shortwave_extinction_map`
+   and `remap_shortwave_extinction` remap it to the culled mesh,
+   bilinearly by default, and write `shortwave_extinction_coeffs.nc`.
+   Coefficients are normalized by the mapped coverage.  The step fails
+   if any cell has poor coverage or a nonpositive coefficient.
+5. `pstar_init` builds the p-star vertical coordinate together with the
    temperature and salinity on it, since each depends on the other through
    the equation of state.  It also fits the bathymetry to the depths the
    vertical grid can represent and fills isolated bathymetry holes.
-5. `initial_state` writes `mesh.nc`, `init.nc` and, for Omega,
+6. `initial_state` writes `mesh.nc`, `init.nc` and, for Omega,
    `vert_coord.nc`.
-6. `forcing` writes `forcing.nc` with the wind stress on the mesh.
-7. `viz` writes sanity-check plots and ParaView exports for the initial
+7. `forcing` writes `forcing.nc` with the wind stress on the mesh.
+8. `viz` writes sanity-check plots and ParaView exports for the initial
    condition and vertical coordinate: an `initial_state_summary.png` figure of
    histograms, a `vertical_coordinate.png` structure figure, global maps of
    temperature and salinity at several depths (plus surface and seafloor) and
@@ -386,10 +394,11 @@ steps of its own:
    ocean basins, and `xdmf/` subdirectories for ParaView.  For Omega, native
    surface/bottom pressure maps and a TEOS-10 in-situ density
    (stratification) check are also produced.  Global maps of the on-mesh wind
-   stress components and magnitude are also written, which is where remapping
-   artifacts would show up.
+   stress components and magnitude (and, for Omega, the extinction
+   coefficients) are also written, which is where remapping artifacts would
+   show up.
 
-Steps 5 to 7 write files for one model and live in `init/<model>/`; see
+Steps 6 to 8 write files for one model and live in `init/<model>/`; see
 {ref}`ocean-realistic-global-model-directories`.
 
 On large meshes, `viz` is the most expensive step: it took 33 minutes of a
@@ -456,6 +465,22 @@ for MPAS-Ocean.  Both models take zonal and meridional components at cell
 centers and project onto edges themselves.  Surface restoring and the thermal
 and freshwater fluxes are future work.  The settings that switch the forcing on
 in the model are described under [forward](#ocean-realistic-global-forward).
+
+### shortwave extinction
+
+For Omega, `shortwave_extinction_coeffs.nc` holds the red- and blue-band
+shortwave extinction coefficients `ExtinctionCoeffRedCell` and
+`ExtinctionCoeffBlueCell` (m^-1) used by Omega's shortwave penetration.  They
+are an insolation-weighted annual mean computed from the GMIS MODIS-Aqua
+monthly chlorophyll-a climatology with the Manizza et al. (2005) relations,
+with a constant chlorophyll of 0.1 mg m^-3 where there are no observations
+(perennial sea ice and the Antarctic coast).  The `extinction_product` step
+downloads the GMIS files and builds the product.
+
+The file is not part of the initial state.  It is the default file of Omega's
+`ShortwaveExtinctionIn` stream, which reads it on every startup, including
+restarts.  MPAS-Ocean uses a different shortwave scheme and does not have
+these fields.
 
 ### time step and run duration
 
@@ -535,6 +560,24 @@ indian_meridional = 80.0, -60.0, 80.0, 25.0
 # Southern Ocean zonal section near 60 S (waypoints around the globe)
 southern_ocean_zonal = -180.0, -60.0, -90.0, -60.0, 0.0, -60.0, 90.0, -60.0,
     180.0, -60.0
+
+
+# Options for remapping the shortwave extinction coefficients to the MPAS mesh
+[shortwave_extinction]
+
+# Remapping method, bilinear or conserve.  Conservative remapping averages
+# the 1/12-degree source over each cell, but its weights cover a few cells by
+# a fraction of a percent more or less than their area.
+method = bilinear
+
+# Floors on the number of MPI tasks for building the mapping file.  The
+# 1/12-degree source has 9.3 million cells, so it, not the target mesh, sets
+# the cost.  On a Perlmutter CPU node, bilinear weights took 180 s to a 240 km
+# mesh and 137 s to a 10 km mesh with 128 tasks.  Conservative weights to
+# icos240km took 85 s with 128 tasks and 182 s with 32; a single task did not
+# finish in 26 minutes.
+ntasks = 128
+min_tasks = 32
 ```
 
 The mapping steps use the `map_tool` option in the `[mapping]` section,

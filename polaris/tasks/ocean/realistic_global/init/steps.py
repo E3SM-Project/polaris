@@ -6,6 +6,9 @@ from polaris.tasks.e3sm.init.topo.cull.steps import get_cull_topo_steps
 from polaris.tasks.ocean.realistic_global.forcing.jra55.steps import (
     get_jra55_steps,
 )
+from polaris.tasks.ocean.realistic_global.forcing.shortwave_extinction.steps import (  # noqa: E501
+    get_shortwave_extinction_steps,
+)
 from polaris.tasks.ocean.realistic_global.hydrography.woa23.steps import (
     get_woa23_steps,
 )
@@ -23,7 +26,9 @@ from .initial_state import InitialStateStep
 from .jra55_map import Jra55MapStep
 from .pstar_init import RealisticPStarInitStep
 from .remap_jra55 import RemapJra55Step
+from .remap_shortwave_extinction import RemapShortwaveExtinctionStep
 from .remap_woa23 import RemapWoa23Step
+from .shortwave_extinction_map import ShortwaveExtinctionMapStep
 from .viz import VizInitStep
 from .woa23_map import Woa23MapStep
 
@@ -50,6 +55,8 @@ def get_realistic_init_steps(
     * :py:class:`.RemapWoa23Step`
     * :py:class:`.Jra55MapStep`
     * :py:class:`.RemapJra55Step`
+    * :py:class:`.ShortwaveExtinctionMapStep`
+    * :py:class:`.RemapShortwaveExtinctionStep`
     * :py:class:`.RealisticPStarInitStep`
     * :py:class:`.InitialStateStep`
     * :py:class:`.ForcingStep`
@@ -61,6 +68,9 @@ def get_realistic_init_steps(
     ``init.cfg`` of their own, and their ``[ocean] model`` must be ``model``.
     The other steps are model-neutral and are shared by both models' chains.
     See :py:mod:`polaris.tasks.ocean.realistic_global.models`.
+
+    The Omega-only shortwave extinction steps are added only when ``model``
+    is ``'omega'``.
 
     All new steps are created via
     :py:meth:`polaris.Component.get_or_create_shared_step` so that they are
@@ -162,6 +172,38 @@ def get_realistic_init_steps(
         cull_mesh_step=cull_mesh_step,
     )
 
+    extinction_steps: dict[str, Step] = {}
+    remap_extinction_step = None
+    if model == 'omega':
+        extinction_product_steps, _ = get_shortwave_extinction_steps(
+            component=component
+        )
+        extinction_product_step = extinction_product_steps[
+            'extinction_product'
+        ]
+        extinction_map_step = component.get_or_create_shared_step(
+            step_cls=ShortwaveExtinctionMapStep,
+            subdir=os.path.join(base_subdir, 'shortwave_extinction_map'),
+            config=config,
+            config_filename=config_filename,
+            extinction_step=extinction_product_step,
+            cull_mesh_step=cull_mesh_step,
+            mesh_name=mesh_name,
+        )
+
+        remap_extinction_step = component.get_or_create_shared_step(
+            step_cls=RemapShortwaveExtinctionStep,
+            subdir=os.path.join(base_subdir, 'remap_shortwave_extinction'),
+            config=config,
+            config_filename=config_filename,
+            extinction_map_step=extinction_map_step,
+        )
+        extinction_steps = {
+            **extinction_product_steps,
+            extinction_map_step.name: extinction_map_step,
+            remap_extinction_step.name: remap_extinction_step,
+        }
+
     pstar_init_step = component.get_or_create_shared_step(
         step_cls=RealisticPStarInitStep,
         subdir=os.path.join(base_subdir, 'pstar_init'),
@@ -197,6 +239,7 @@ def get_realistic_init_steps(
         init_step=init_step,
         cull_mesh_step=cull_mesh_step,
         remap_jra55_step=remap_jra55_step,
+        remap_extinction_step=remap_extinction_step,
     )
 
     steps: dict[str, Step] = dict(cull_steps)
@@ -207,6 +250,7 @@ def get_realistic_init_steps(
     steps[remap_step.name] = remap_step
     steps[jra55_map_step.name] = jra55_map_step
     steps[remap_jra55_step.name] = remap_jra55_step
+    steps.update(extinction_steps)
     steps[pstar_init_step.name] = pstar_init_step
     steps[init_step.name] = init_step
     steps[forcing_step.name] = forcing_step

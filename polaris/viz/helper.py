@@ -47,6 +47,12 @@ viz_dict['windStressMagnitude'] = {
     'colormap': 'cmo.speed',
     'units': r'N/m$^2$',
 }
+# Omega-only shortwave extinction coefficients, which have no MPAS-Ocean name
+viz_dict['ExtinctionCoeffRedCell'] = {
+    'colormap': 'cmo.algae',
+    'units': r'm$^{-1}$',
+}
+viz_dict['ExtinctionCoeffBlueCell'] = viz_dict['ExtinctionCoeffRedCell']
 viz_dict['temperatureInteriorRestoringValue'] = viz_dict['temperature']
 viz_dict['salinityInteriorRestoringValue'] = viz_dict['salinity']
 viz_dict['vertVelocityTop'] = viz_dict['velocity']

@@ -46,6 +46,13 @@ MESH_NAME = 'u-oi240-lr240'
 #: The init steps whose outputs are written for one ocean model
 MODEL_INIT_STEPS = {'initial_state', 'forcing', 'viz'}
 
+#: The init steps only Omega has
+OMEGA_ONLY_INIT_STEPS = {
+    'extinction_product',
+    'shortwave_extinction_map',
+    'remap_shortwave_extinction',
+}
+
 
 def test_model_subdir_rejects_an_unknown_model():
     with pytest.raises(ValueError, match='mpas-ocean, omega'):
@@ -82,14 +89,15 @@ def test_init_steps_for_each_model_share_the_model_neutral_ones():
         include_viz=True,
         model='omega',
     )
-    assert mpaso.keys() == omega.keys()
+    assert set(omega) - set(mpaso) == OMEGA_ONLY_INIT_STEPS
+    assert set(mpaso) <= set(omega)
     base = init_subdir(MESH_NAME)
     for name, step in omega.items():
         if name in MODEL_INIT_STEPS:
             assert step.subdir == f'{base}/omega/{name}'
             assert mpaso[name].subdir == f'{base}/mpas-ocean/{name}'
             assert step.config.filepath == f'ocean/{base}/omega/init.cfg'
-        else:
+        elif name not in OMEGA_ONLY_INIT_STEPS:
             assert step is mpaso[name], name
     # the neutral config is the one the init task uses, for both models
     assert omega_config is mpaso_config
@@ -139,7 +147,7 @@ def test_init_task_swaps_its_model_dependent_steps():
     for name, step in task.steps.items():
         if name in MODEL_INIT_STEPS:
             assert '/init/omega/' in step.subdir, name
-        else:
+        elif name not in OMEGA_ONLY_INIT_STEPS:
             assert step is before[name], name
 
 
