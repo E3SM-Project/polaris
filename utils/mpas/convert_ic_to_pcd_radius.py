@@ -254,17 +254,24 @@ def _write_like_input(ds, output_file, file_format, unlimited_dims):
         if '_FillValue' not in var.attrs:
             var.encoding['_FillValue'] = None
 
+    # xarray drops dimensions no variable uses, and some files have an
+    # unlimited Time dimension with no variables on it
+    unused_dims = [dim for dim in unlimited_dims if dim not in ds.dims]
     kwargs = dict(
-        format='NETCDF4', engine='netcdf4', unlimited_dims=unlimited_dims
+        format='NETCDF4',
+        engine='netcdf4',
+        unlimited_dims=[dim for dim in unlimited_dims if dim in ds.dims],
     )
     if file_format == 'NETCDF4':
         ds.to_netcdf(output_file, **kwargs)
+        _add_unlimited_dims(output_file, unused_dims)
         return
 
     directory, name = os.path.split(os.path.abspath(output_file))
     tmp_file = os.path.join(directory, f'_tmp_{name}')
     try:
         ds.to_netcdf(tmp_file, **kwargs)
+        _add_unlimited_dims(tmp_file, unused_dims)
         subprocess.run(
             [
                 'ncks',
@@ -279,6 +286,17 @@ def _write_like_input(ds, output_file, file_format, unlimited_dims):
     finally:
         if os.path.exists(tmp_file):
             os.remove(tmp_file)
+
+
+def _add_unlimited_dims(filename, dims):
+    """
+    Add unlimited dimensions that no variable uses to a NETCDF4 file
+    """
+    if not dims:
+        return
+    with netCDF4.Dataset(filename, 'a') as nc:
+        for dim in dims:
+            nc.createDimension(dim, None)
 
 
 if __name__ == '__main__':

@@ -6,6 +6,7 @@ mean Earth radius.
 import importlib.util
 from pathlib import Path
 
+import netCDF4
 import numpy as np
 import pytest
 import xarray as xr
@@ -37,6 +38,22 @@ def test_rescales_from_coordinates_when_sphere_radius_is_wrong(tmp_path):
             ds_out['areaCell'], ratio**2 * ds_in['areaCell'], rtol=1e-14
         )
         assert 'fVertex' not in ds_out
+
+
+def test_keeps_an_unlimited_dimension_no_variable_uses(tmp_path):
+    utility = _load_utility()
+    input_file = tmp_path / 'seaice.mesh.180705.nc'
+    output_file = tmp_path / 'seaice.mesh.20261124.nc'
+    _make_mesh(sphere_radius=COORD_RADIUS).to_netcdf(
+        input_file, format='NETCDF4'
+    )
+    with netCDF4.Dataset(input_file, 'a') as nc:
+        nc.createDimension('Time', None)
+
+    utility.convert_ic(str(input_file), str(output_file))
+
+    with netCDF4.Dataset(output_file) as nc:
+        assert nc.dimensions['Time'].isunlimited()
 
 
 def test_get_coordinate_radius_rejects_points_off_one_sphere():
