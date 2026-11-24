@@ -12,6 +12,7 @@ import subprocess
 from datetime import datetime
 
 import netCDF4
+import numpy as np
 import xarray as xr
 from mpas_tools.io import update_history
 
@@ -33,6 +34,10 @@ NCKS_FORMAT_FLAGS = {
 }
 
 DATE_STAMP = re.compile(r'^(\d{6}|\d{8})$')
+
+# the relative tolerance for the mesh's coordinates to lie on one sphere and
+# for sphere_radius to match it
+RADIUS_RTOL = 1e-10
 
 
 def main():
@@ -153,7 +158,13 @@ def convert_ic(input_file, output_file):
         ds = ds_in.load()
     unlimited_dims = ds.encoding.get('unlimited_dims', set())
 
-    old_radius = float(ds.attrs.get('sphere_radius', 0.0))
+    # some files have a sphere_radius that differs from the radius of their
+    # coordinates, so rescale from the radius of the coordinates
+    attr_radius = float(ds.attrs.get('sphere_radius', 0.0))
+    old_radius = get_coordinate_radius(ds)
+    corrected = abs(old_radius - attr_radius) > RADIUS_RTOL * old_radius
+    if corrected:
+        ds.attrs['sphere_radius'] = old_radius
     new_radius = float(get_constant('mean_radius'))
     rescaled = rescale_sphere_radius(ds, new_radius)
 
@@ -166,6 +177,11 @@ def convert_ic(input_file, output_file):
         f'sphere_radius from {old_radius!r} to the PCD {pcd_version} '
         f'mean_radius {new_radius!r}'
     )
+    if corrected:
+        note = (
+            f'{note} (the radius of the coordinates; sphere_radius was '
+            f'{attr_radius!r})'
+        )
     if dropped:
         note = f'{note}; removed {", ".join(dropped)}'
     if 'history' in ds.attrs:
@@ -176,6 +192,11 @@ def convert_ic(input_file, output_file):
     _write_like_input(ds, output_file, file_format, unlimited_dims)
 
     print(f'Wrote {output_file} ({file_format})')
+    if corrected:
+        print(
+            f'sphere_radius was {attr_radius!r}, but the coordinates are at '
+            f'{old_radius!r}; rescaled from the coordinates'
+        )
     print(
         f'Rescaled sphere_radius {old_radius!r} -> {new_radius!r} '
         f'(PCD {pcd_version}), a factor of {new_radius / old_radius!r}'
@@ -185,6 +206,40 @@ def convert_ic(input_file, output_file):
         print(f'Removed: {", ".join(dropped)}')
     else:
         print('No Coriolis variables to remove')
+
+
+def get_coordinate_radius(ds):
+    """
+    Get the radius of the sphere that a mesh's cell, edge and vertex
+    coordinates lie on
+
+    Parameters
+    ----------
+    ds : xarray.Dataset
+        A dataset on a spherical MPAS mesh
+
+    Returns
+    -------
+    radius : float
+        The mean distance of the cell centers from the origin
+
+    Raises
+    ------
+    ValueError
+        If the coordinates do not all lie on one sphere
+    """
+    distances = []
+    for loc in ['Cell', 'Edge', 'Vertex']:
+        x, y, z = (ds[f'{coord}{loc}'].values for coord in 'xyz')
+        distances.append(np.sqrt(x**2 + y**2 + z**2))
+    radius = float(np.mean(distances[0]))
+    spread = max(float(np.max(np.abs(dist - radius))) for dist in distances)
+    if spread > RADIUS_RTOL * radius:
+        raise ValueError(
+            f'The mesh coordinates are not on one sphere: they differ from '
+            f'a radius of {radius!r} by up to {spread!r}.'
+        )
+    return radius
 
 
 def _write_like_input(ds, output_file, file_format, unlimited_dims):
