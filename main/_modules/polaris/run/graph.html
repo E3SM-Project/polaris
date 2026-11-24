@@ -806,19 +806,33 @@ window.runMermaid = runMermaid;</script>
 
 <span class="sd">    A dependency the step named that was not selected is left alone: it may</span>
 <span class="sd">    have run in an earlier invocation, and whether its outputs are there is</span>
-<span class="sd">    the input check's question rather than this one's.</span>
+<span class="sd">    the input check's question rather than this one's.  That includes the</span>
+<span class="sd">    inputs the step reads from the dependency's work directory, such as the</span>
+<span class="sd">    pickle a dependency leaves when it finishes.</span>
 <span class="sd">    """</span>
     <span class="n">required</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+    <span class="n">unselected</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
 
     <span class="k">for</span> <span class="n">dependency</span> <span class="ow">in</span> <span class="n">step</span><span class="o">.</span><span class="n">dependencies</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
-        <span class="k">if</span> <span class="n">dependency</span><span class="o">.</span><span class="n">path</span> <span class="ow">in</span> <span class="n">selected</span> <span class="ow">and</span> <span class="n">dependency</span><span class="o">.</span><span class="n">path</span> <span class="o">!=</span> <span class="n">step</span><span class="o">.</span><span class="n">path</span><span class="p">:</span>
-            <span class="n">required</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">dependency</span><span class="o">.</span><span class="n">path</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">dependency</span><span class="o">.</span><span class="n">path</span> <span class="ow">in</span> <span class="n">selected</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">dependency</span><span class="o">.</span><span class="n">path</span> <span class="o">!=</span> <span class="n">step</span><span class="o">.</span><span class="n">path</span><span class="p">:</span>
+                <span class="n">required</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">dependency</span><span class="o">.</span><span class="n">path</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">work_dir</span> <span class="o">=</span> <span class="n">dependency</span><span class="o">.</span><span class="n">work_dir</span> <span class="ow">or</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                <span class="n">step</span><span class="o">.</span><span class="n">base_work_dir</span><span class="p">,</span> <span class="n">dependency</span><span class="o">.</span><span class="n">path</span>
+            <span class="p">)</span>
+            <span class="n">unselected</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">realpath</span><span class="p">(</span><span class="n">work_dir</span><span class="p">))</span>
 
     <span class="k">for</span> <span class="n">input_file</span> <span class="ow">in</span> <span class="n">step</span><span class="o">.</span><span class="n">inputs</span><span class="p">:</span>
         <span class="n">producer</span><span class="p">,</span> <span class="n">filename</span> <span class="o">=</span> <span class="n">_find_input_producer</span><span class="p">(</span><span class="n">input_file</span><span class="p">,</span> <span class="n">producers</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">producer</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">producer</span> <span class="o">!=</span> <span class="n">step</span><span class="o">.</span><span class="n">path</span><span class="p">:</span>
                 <span class="n">required</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">producer</span><span class="p">)</span>
+            <span class="k">continue</span>
+        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span> <span class="ow">in</span> <span class="n">unselected</span><span class="p">:</span>
+            <span class="c1"># what a dependency that is not being run writes, such as the</span>
+            <span class="c1"># pickle it leaves when it finishes, is left to the input check</span>
+            <span class="c1"># too, like the dependency itself</span>
             <span class="k">continue</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
