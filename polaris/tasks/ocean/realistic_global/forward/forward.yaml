@@ -92,6 +92,10 @@ mpas-ocean:
         # 6 layers; Compass computes them everywhere, and matching it keeps the
         # two frameworks comparable.  Only has an effect where use_Redi is on.
         config_Redi_min_layers_diag_terms: 0
+        # E3SM's value.  With the Registry default of 0.3, Redi alone pushes
+        # some temperatures more than 10 degrees C outside their initial range
+        # within weeks.
+        config_Redi_maximum_slope: 0.01
     # Global statistics are the cheapest way to see a run going wrong before
     # it NaNs, which matters most for the long spin-ups this task feeds into.
     # Omega's equivalent is the GlobalStats analysis group below.
