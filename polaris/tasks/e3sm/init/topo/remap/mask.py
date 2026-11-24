@@ -6,10 +6,6 @@ from polaris import Step
 from polaris.attrs import set_attrs
 from polaris.cf import add_cf_conventions, drop_dangling_references
 from polaris.mesh.spherical.coastline import CONVENTIONS
-from polaris.tasks.e3sm.init.topo.antarctic_dataset import (
-    add_antarctic_dataset_option,
-    check_combine_topo_dataset,
-)
 from polaris.tasks.e3sm.init.topo.combine.step import (
     COMBINE_TOPO_VALIDATE_VARS,
 )
@@ -66,12 +62,6 @@ class MaskTopoStep(Step):
         """
         super().__init__(component, name=name, subdir=subdir)
         self.combine_topo_step = combine_topo_step
-        add_antarctic_dataset_option(self)
-        # the masks depend on the convention, and nothing in the step's path
-        # does
-        self.add_setup_only_option(
-            'spherical_mesh', 'antarctic_boundary_convention'
-        )
         self.add_output_file(
             filename='topography_masked.nc',
             validate_vars=get_masked_topo_validate_vars(),
@@ -83,7 +73,6 @@ class MaskTopoStep(Step):
         Set up the step in the work directory and set input files.
         """
         super().setup()
-        check_combine_topo_dataset(self)
 
         combine_topo_step = self.combine_topo_step
         topo_filename = combine_topo_step.combined_filename

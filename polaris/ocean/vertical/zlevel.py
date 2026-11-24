@@ -97,12 +97,6 @@ def update_z_level_layer_thickness(config, ds):
     Update the z-level vertical coordinate layer thicknesses based on the
     ``bottomDepth`` and ``ssh`` variables of the mesh data set.
 
-    The layers stretch in proportion to ``restingThickness``, as MPAS-Ocean
-    moves them with ``config_vert_coord_movement = 'uniform_stretching'``.
-    ``minLevelCell`` and ``maxLevelCell`` stay the same, so the column keeps
-    its layers even where the new SSH is above the top of the level at
-    ``minLevelCell`` or below its bottom.
-
     Parameters
     ----------
     config : polaris.config.PolarisConfigParser
@@ -110,15 +104,16 @@ def update_z_level_layer_thickness(config, ds):
         grid
 
     ds : xarray.Dataset
-        A data set containing ``bottomDepth``, ``ssh`` and
-        ``restingThickness`` variables
+        A data set containing ``bottomDepth`` and ``ssh`` variables used to
+        construct the vertical coordinate
     """
-    resting_thickness = ds.restingThickness
-    layer_stretch = (ds.ssh + ds.bottomDepth) / resting_thickness.sum(
-        dim='nVertLevels'
-    )
-    ds['layerThickness'] = (layer_stretch * resting_thickness).transpose(
-        'nCells', 'nVertLevels'
+    ds['layerThickness'] = compute_z_level_layer_thickness(
+        ds.refTopDepth,
+        ds.refBottomDepth,
+        ds.ssh,
+        ds.bottomDepth,
+        ds.minLevelCell,
+        ds.maxLevelCell,
     )
 
 

@@ -5,9 +5,6 @@ import pyproj
 import xarray as xr
 
 from polaris import Step
-from polaris.tasks.e3sm.init.topo.antarctic_dataset import (
-    check_combine_topo_dataset,
-)
 from polaris.viz import mplstyle_context, plot_global_lat_lon_field
 from polaris.viz.spherical import setup_colormap
 
@@ -51,7 +48,6 @@ class Woa23VizStep(Step):
         Set up input and output files for the step.
         """
         super().setup()
-        check_combine_topo_dataset(self)
         self.add_input_file(
             filename='woa.nc',
             work_dir_target=(

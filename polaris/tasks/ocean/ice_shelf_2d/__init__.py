@@ -94,8 +94,6 @@ def add_ice_shelf_2d_tasks(component):
             config.set('vertical_grid', 'coord_type', 'z-level')
             config.set('vertical_grid', 'vert_levels', '1')
             config.set('vertical_grid', 'partial_cell_type', 'None')
-            # adjust SSH with the time integrator of the tidal forward run
-            config.set('ssh_adjustment', 'time_integrator', 'RK4')
 
             init = Init(
                 component=component, resolution=resolution, indir=basedir

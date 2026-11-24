@@ -810,14 +810,6 @@ steps, as described in {ref}`ocean-ssh-adjustment`. It returns the last
 `ssh_adjustment` step, which is typically used as the
 initial state for subsequent forward steps.
 
-With `method = solve`, the `ssh_adjust` step calls
-{py:func}`polaris.ocean.ice_shelf.ssh_solve.compute_depth_mean_acceleration()`
-on the output of the single step from rest, then
-{py:func}`polaris.ocean.ice_shelf.ssh_solve.solve_for_ssh_change()` for the
-change in SSH on the cells in `mask_variable`.  The solve uses only the
-horizontal mesh and the run's output, so it does not depend on the ocean
-model.
-
 (dev-ocean-framework-vertical)=
 
 ## Vertical coordinate

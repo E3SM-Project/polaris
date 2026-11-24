@@ -36,9 +36,6 @@ def run_step(task, step, new_log_file, available_resources, step_log_filename):
     logger = task.logger
     cwd = os.getcwd()
 
-    # before anything else, since a changed option is what is wrong
-    step.check_setup_only_options()
-
     # before checking the inputs, which include the dependencies' pickles,
     # so a missing pickle is explained
     dependency_pickles = load_dependencies(step)

@@ -10,41 +10,12 @@ from pyremap import ProjectionGridDescriptor, get_lat_lon_descriptor
 from polaris.archive import extract_zip_member
 from polaris.step import Step
 from polaris.tasks.e3sm.init.topo.combine.files import (
+    ANTARCTIC,
     DATASETS,
     GLOBAL,
     get_combine_files,
     write_netcdf_with_fill_values,
 )
-
-
-def interp_firn_air_content(filename, x, y):
-    """
-    Interpolate the firn air content of a BedMachine Antarctica dataset
-    bilinearly to another grid in the same projection
-
-    Parameters
-    ----------
-    filename : str
-        The BedMachine Antarctica file, with ``firn`` on its ``x`` and ``y``
-        coordinates
-
-    x : xarray.DataArray
-        The x coordinate (m) of the grid to interpolate to
-
-    y : xarray.DataArray
-        The y coordinate (m) of the grid to interpolate to
-
-    Returns
-    -------
-    firn : xarray.DataArray
-        The firn air content (m) on the grid, zero where it is missing and
-        outside the BedMachine grid
-    """
-    ds = xr.open_dataset(filename)
-    firn = ds.firn.fillna(0.0)
-    # the coordinates are 1D, so xarray interpolates along x, then along y
-    firn = firn.interp(x=x, y=y, method='linear')
-    return firn.fillna(0.0)
 
 
 class PrepareCombineStep(Step):
@@ -84,13 +55,8 @@ class PrepareCombineStep(Step):
         datasets
         """
         super().setup()
-        files = get_combine_files(self.config)
 
-        datasets = [files.antarctic, GLOBAL]
-        firn_dataset = DATASETS[files.antarctic].get('firn_dataset')
-        if firn_dataset is not None:
-            datasets.append(firn_dataset)
-        for dataset in datasets:
+        for dataset in [ANTARCTIC, GLOBAL]:
             info = DATASETS[dataset]
             source = info.get('source_filename', info['filename'])
             self.add_input_file(
@@ -100,6 +66,7 @@ class PrepareCombineStep(Step):
                 url=info.get('url'),
             )
 
+        files = get_combine_files(self.config)
         self.add_output_file(filename=files.target_scrip)
         if files.exodus is not None:
             self.add_output_file(filename=files.exodus)
@@ -130,27 +97,24 @@ class PrepareCombineStep(Step):
                 out_filename=files.global_modified,
             )
 
-        antarctic_info = DATASETS[files.antarctic]
+        antarctic_info = DATASETS[ANTARCTIC]
         antarctic_source = antarctic_info.get(
             'source_filename', antarctic_info['filename']
         )
-        if files.antarctic in ['bedmachinev3', 'bedmachinev4']:
+        if ANTARCTIC in ['bedmachinev3']:
             self._modify_bedmachine(
                 in_filename=antarctic_source,
                 out_filename=files.antarctic_modified,
             )
-        elif files.antarctic in ['bedmap3']:
-            firn_info = DATASETS[antarctic_info['firn_dataset']]
+        elif ANTARCTIC in ['bedmap3']:
             self._modify_bedmap3(
                 in_filename=antarctic_source,
-                firn_filename=firn_info['filename'],
                 out_filename=files.antarctic_modified,
             )
 
         self._create_target_scrip_file(files)
         self._create_global_tiles(files)
         self._create_antarctic_scrip_file(
-            antarctic=files.antarctic,
             in_filename=files.antarctic_modified,
             scrip_filename=files.antarctic_scrip,
         )
@@ -222,15 +186,9 @@ class PrepareCombineStep(Step):
         write_netcdf_with_fill_values(bedmachine, out_filename)
         logger.info('  Done.')
 
-    def _modify_bedmap3(self, in_filename, firn_filename, out_filename):
+    def _modify_bedmap3(self, in_filename, out_filename):
         """
-        Modify Bedmap3 to compute the fields needed by MPAS-Ocean.
-
-        Bedmap3's thickness is the total thickness of the ice column,
-        including the air in the firn.  The firn air content from
-        ``firn_filename``, interpolated bilinearly to the Bedmap3 grid, is
-        subtracted from it to give an ice-equivalent thickness like
-        BedMachine's.  The ice draft comes from the total thickness.
+        Modify Bedmap3 to compute the fields needed by MPAS-Ocean
         """
         logger = self.logger
         logger.info('Modifying Bedmap3 with MPAS-Ocean names')
@@ -251,18 +209,11 @@ class PrepareCombineStep(Step):
 
         # Add new variables and apply ocean mask
         bedmap3['base_elevation'] = bedmap3.bed_topography
+        bedmap3['ice_thickness'] = bedmap3.ice_thickness
         bedmap3['ice_draft'] = (
             bedmap3.surface_topography - bedmap3.ice_thickness
         )
         bedmap3.ice_draft.attrs['units'] = 'm'
-
-        logger.info(f'  Subtracting firn air content from {firn_filename}')
-        firn = interp_firn_air_content(firn_filename, x=bedmap3.x, y=bedmap3.y)
-        thickness = bedmap3.ice_thickness
-        bedmap3['ice_thickness'] = np.maximum(thickness - firn, 0.0).where(
-            thickness.notnull()
-        )
-        bedmap3.ice_thickness.attrs = thickness.attrs
         bedmap3['ice_mask'] = ice_mask
         bedmap3['grounded_mask'] = grounded_mask
         bedmap3['ocean_mask'] = ocean_mask
@@ -434,9 +385,7 @@ class PrepareCombineStep(Step):
         # Write tile to netCDF
         write_netcdf_with_fill_values(tile, out_filename)
 
-    def _create_antarctic_scrip_file(
-        self, antarctic, in_filename, scrip_filename
-    ):
+    def _create_antarctic_scrip_file(self, in_filename, scrip_filename):
         """
         Create SCRIP file for an antarctic dataset on a projection grid using
         pyremap
@@ -444,8 +393,8 @@ class PrepareCombineStep(Step):
         logger = self.logger
         logger.info('Creating Antarctic SCRIP file')
 
-        proj4_string = DATASETS[antarctic]['proj4']
-        mesh_name = DATASETS[antarctic]['mesh_name']
+        proj4_string = DATASETS[ANTARCTIC]['proj4']
+        mesh_name = DATASETS[ANTARCTIC]['mesh_name']
         netcdf4_filename = scrip_filename.replace('.nc', '.netcdf4.nc')
 
         # Define projection

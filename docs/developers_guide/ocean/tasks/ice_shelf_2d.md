@@ -80,10 +80,10 @@ visualization capabilities provided by
 The {py:class}`polaris.tasks.ocean.ice_shelf_2d.default.Default` test case
 config options are described in {ref}`ocean-ice-shelf-2d-default`.
 
-The test creates the mesh and initial condition, then solves twice for the
-SSH that is in dynamic balance with the land-ice pressure, measuring it with
-the split-explicit time integrator that the forward run uses.  Then, it performs
-a 10-minute forward simulation. If a baseline is provided, a large number of variables
+The test creates and mesh and initial condition, performs 15 iterations of
+SSH adjustment to make sure the SSH is as close as possible to being in
+dynamic balance with the land-ice pressure.  Then, it performs a 10-minute
+ forward simulation. If a baseline is provided, a large number of variables
 (both prognostic and related to land-ice fluxes) are checked to make sure
 they match the baseline.
 

@@ -1,9 +1,6 @@
 from polaris.tasks.e3sm.init.topo.combine.prepare import (
     PrepareCombineStep as PrepareCombineStep,
 )
-from polaris.tasks.e3sm.init.topo.combine.prepare import (
-    interp_firn_air_content as interp_firn_air_content,
-)
 from polaris.tasks.e3sm.init.topo.combine.step import (
     CombineStep as CombineStep,
 )

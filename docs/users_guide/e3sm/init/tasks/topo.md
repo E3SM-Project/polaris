@@ -31,27 +31,18 @@ combine step (such as remap or ocean hydrography tasks) will automatically
 use cached outputs when they are available, without needing to opt in
 explicitly.
 
-Standalone tasks are available to create each combined topography product,
-with Antarctic topography from either Bedmap3 (`bedmap3`) or BedMachine
-Antarctica v4 (`bedmachinev4`):
+Standalone tasks are available to create each combined topography product:
 
-- `e3sm/init/topo/combine_<antarctic>_gebco2023/cubed_sphere/ne3000/task`
-- `e3sm/init/topo/combine_<antarctic>_gebco2023/cubed_sphere/ne120/task`
-- `e3sm/init/topo/combine_<antarctic>_gebco2023/lat_lon/1.00000_degree/task`
-- `e3sm/init/topo/combine_<antarctic>_gebco2023/lat_lon/0.25000_degree/task`
-- `e3sm/init/topo/combine_<antarctic>_gebco2023/lat_lon/0.12500_degree/task`
-- `e3sm/init/topo/combine_<antarctic>_gebco2023/lat_lon/0.06250_degree/task`
-- `e3sm/init/topo/combine_<antarctic>_gebco2023/lat_lon/0.03125_degree/task`
+- `e3sm/init/topo/combine_bedmap3_gebco2023/cubed_sphere/ne3000/task`
+- `e3sm/init/topo/combine_bedmap3_gebco2023/cubed_sphere/ne120/task`
+- `e3sm/init/topo/combine_bedmap3_gebco2023/lat_lon/1.00000_degree/task`
+- `e3sm/init/topo/combine_bedmap3_gebco2023/lat_lon/0.25000_degree/task`
+- `e3sm/init/topo/combine_bedmap3_gebco2023/lat_lon/0.12500_degree/task`
+- `e3sm/init/topo/combine_bedmap3_gebco2023/lat_lon/0.06250_degree/task`
+- `e3sm/init/topo/combine_bedmap3_gebco2023/lat_lon/0.03125_degree/task`
 
-The remap and cull tasks reuse these products when generating inputs for
-MPAS base meshes, by default the `bedmap3` ones (see `antarctic_dataset`
-below).
-
-The combined ice thickness is ice-equivalent: it leaves out the air in the
-firn.  BedMachine provides it that way, and BedMachine Antarctica v4's firn
-air content is subtracted from Bedmap3's thickness.  Both datasets therefore
-need BedMachine Antarctica v4, which needs an Earthdata login to download and
-must already be in the `topo` database.
+The remap and cull tasks reuse these shared products when generating inputs
+for MPAS base meshes.
 
 Remap and cull tasks are available for both simple (quasi-uniform and
 icosahedral) base meshes and for named unified meshes (see
@@ -79,7 +70,6 @@ Combine tasks use the `[combine_topo]` section.
 The following options are set automatically from the task path and normally
 should not be changed by hand:
 
-- `antarctic_dataset`
 - `target_grid`
 - `resolution_latlon`
 - `resolution_cubedsphere`
@@ -97,32 +87,15 @@ Common user-tunable options are:
 Visualization tasks also use `viz_combine_topo_*` sections for colormap and
 normalization settings.
 
-Each standalone combine task ends with a `viz` step.  On cubed-sphere grids,
-it plots with `datashader`, which is not part of the Polaris environment
-because the plots are rarely needed.  To make them, install `datashader` into
-your pixi environment by hand and rerun the step.  Otherwise, the step fails
-and its failure can be ignored: the combined topography is complete before it
-runs.
-
 ### Remap Tasks
 
 Remap tasks use the shared `[spherical_mesh]` section together with
 `[remap_topography]`.
 
-The following options can only be set in a user config file passed to
-`polaris setup`.  A step refuses to run if one has been changed in the work
-directory since setup; set up again in a new work directory instead.
-
-- `antarctic_dataset` (in `[remap_topography]`): The Antarctic topography
-	dataset, `bedmap3` (the default) or `bedmachinev4`, for remapping to the
-	mesh and for the WOA23 extrapolation in `realistic_global`.  Each has its
-	own combined topography and WOA23 extrapolation, which must be in the
-	cache or set up free-running with `--free_running`.
-- `antarctic_boundary_convention` (in `[spherical_mesh]`): Antarctic
-	coastline convention used to mask topography before remapping.
-
 Common user-tunable options are:
 
+- `antarctic_boundary_convention`: Antarctic coastline convention used to
+	mask topography before remapping.
 - `description`: Metadata description written to the remapped product.
 - `ntasks` and `min_tasks`: Target and minimum MPI task counts for remapping.
 - `renorm_threshold`: Minimum land or ocean area fraction required before

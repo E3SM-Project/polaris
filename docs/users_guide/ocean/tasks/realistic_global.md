@@ -101,22 +101,6 @@ The `forward` and `analysis_output` tasks use the model-dependent `init` steps
 but keep their own steps in one directory, so set them up for one model per
 work directory.
 
-(ocean-realistic-global-antarctic-topography)=
-
-## Antarctic topography
-
-The Antarctic topography comes from Bedmap3 by default.  BedMachine Antarctica
-v4, the dataset MALI's Antarctic meshes start from, can be selected in a user
-config file passed to `polaris setup`.  It can only be set at setup:
-
-```cfg
-[remap_topography]
-antarctic_dataset = bedmachinev4
-```
-
-The WOA23 initial condition is then extrapolated using BedMachine's ocean
-mask, too.
-
 (ocean-realistic-global-woa23)=
 
 ## woa23
