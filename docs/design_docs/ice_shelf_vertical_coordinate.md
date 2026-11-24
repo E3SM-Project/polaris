@@ -47,10 +47,6 @@ as such.  Everything else applies to both stages.
 
 ## Open questions
 
-- **The minimum fraction of a partial top level.**  Below it, the partial
-  level merges into the level below.  A smaller fraction allows thinner top
-  layers, and a larger one changes the column more when a level merges or
-  splits off.  Half a level is a starting point.
 - **A shelf top depth that changes continuously.**  Evolving-geometry stage.
   A percentile jumps when it crosses a gap between front drafts, which moves
   the layers of the whole shelf at once.  A percentile of a smoothed
@@ -356,7 +352,7 @@ ice_shelf_front_percentile = 20.0
 
 # the smallest fraction of its reference thickness that a partial top level
 # keeps before it merges into the level below
-ice_shelf_min_top_fraction = 0.5
+ice_shelf_min_top_fraction = 0.1
 
 # the largest rx1 allowed between columns under ice shelves
 ice_shelf_max_rx1 = 30.0
@@ -530,6 +526,11 @@ depths move and partial top levels merge and split.
   jump.  A z-level coordinate with partial top cells at each column's own
   draft was tried before, and its stair-steps at the ice–ocean interface
   made flow and melt rates very noisy.
+- **A minimum fraction of 0.1, as for partial bottom cells.**  A merged
+  layer is at most $1 + f$ times its reference thickness, so a large
+  minimum makes thick layers.  On so12to30km, minimums of 0.1, 0.25 and
+  0.75 all ran the dynamic adjustment to the end, with flow under the ice
+  no faster than 0.52 m/s.
 - **Partial top levels in both stages.**  An evolving run starts from a
   Polaris initial state, which must match what the ocean model computes for
   the same geometry.  The example and the whole-level results above come
