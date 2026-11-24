@@ -1,0 +1,137 @@
+// How the upstream E3SM PRs, the E3SM-Ocean-Discussion PRs, the
+// fanssie-ocn-glc-coupling branch and the Polaris PRs fit together.
+//
+// Regenerate with Graphviz 14 (Chrysalis's /usr/bin/dot 2.40 lays it out
+// wider), with the text drawn as paths so it looks the same everywhere:
+//
+//     pixi exec -s graphviz dot -Tsvg:cairo code_flow.dot -o code_flow.svg
+//
+// Fill by state: merged #e3fcef, open #deebff, draft #e8e8e4, no PR yet
+// #ffffff. Dashed edges into the FAnSSIE branch mark PRs not merged into it
+// yet. The Polaris side is one HTML-table node, in merge order, because
+// Graphviz would not keep separate boxes in that order. Update the date in
+// the legend.
+digraph fanssie {
+  rankdir=LR;
+  bgcolor="#fcfcfb";
+  pad=0.3;
+  nodesep=0.18;
+  ranksep=0.7;
+  fontname="DejaVu Sans";
+  node [shape=box, style="rounded,filled", fontname="DejaVu Sans",
+        fontsize=11, color="#c3c2b7", fontcolor="#0b0b0b", penwidth=1,
+        margin="0.12,0.06"];
+  edge [color="#898781", arrowsize=0.7, fontname="DejaVu Sans",
+        fontsize=10, fontcolor="#52514e"];
+
+  subgraph cluster_upstream {
+    label="E3SM-Project/E3SM (upstream)";
+    labeljust=l; fontsize=12; color="#c3c2b7"; style="rounded";
+    e8047 [label=<<b>E3SM#8047</b>  new land-ice melt equations<br/><font color="#52514e">Carolyn · draft, approved by Xylar</font>>, fillcolor="#e8e8e4"];
+    e8661 [label=<<b>E3SM#8661</b>  two-way land-ice coupling, MOAB<br/><font color="#52514e">Rob Jacob · merged into master Nov 3</font>>, fillcolor="#e3fcef"];
+    e8887 [label=<<b>E3SM#8887</b>  ocean–MALI melt coupling (MCT)<br/><font color="#52514e">Xylar · draft · rebased onto master Nov 6;<br/>land-ice mask kept fixed during a run (Nov 20);<br/>MOAB port to build on it: E3SM#9103</font>>, fillcolor="#e8e8e4"];
+  }
+
+  subgraph cluster_malidev {
+    label="MALI-Dev/E3SM";
+    labeljust=l; fontsize=12; color="#c3c2b7"; style="rounded";
+    malidev [label=<<b>develop</b><br/><font color="#52514e">123 MALI commits ahead of E3SM</font>>, fillcolor="#ffffff"];
+    m213 [label=<<b>#213, #214, #216, #218</b>  MALI's E3SM namelist without the lapse rate;<br/>MALI's inputs named by case variables;<br/>MALI's data-mode export follows its thickness file;<br/>MALI's logical flags reach the velocity solver as integers<br/><font color="#52514e">merged into develop · the first three already in FAnSSIE, #218 via #183</font>>, fillcolor="#e3fcef"];
+    m211 [label=<<b>#211</b>  rebuild Albany's grid only when masks change<br/><font color="#52514e">merged into develop Nov 7 · cherry-picked into FAnSSIE (#182)</font>>, fillcolor="#e3fcef"];
+    m219 [label=<<b>#219</b>  MALI's data-mode reference time from a case variable;<br/>MALI skips inactive thermal-forcing fields<br/><font color="#52514e">merged into develop Nov 7 · already in FAnSSIE</font>>, fillcolor="#e3fcef"];
+  }
+
+  subgraph cluster_eod {
+    label="E3SM-Ocean-Discussion/E3SM";
+    labeljust=l; fontsize=12; color="#c3c2b7"; style="rounded";
+    d119 [label=<<b>#119</b>  thin film under grounded ice, RK4<br/><font color="#52514e">Carolyn · draft · already in FAnSSIE</font>>, fillcolor="#e8e8e4"];
+    d141 [label=<<b>#141, #142</b>  land-ice fluxes only under floating ice<br/><font color="#52514e">open · already in FAnSSIE</font>>, fillcolor="#deebff"];
+    d143 [label=<<b>#143, #145–#150</b>  forcing clock; fixes and options<br/>for E3SM's physics with a thin film<br/><font color="#52514e">merged into FAnSSIE</font>>, fillcolor="#e3fcef"];
+    d175 [label=<<b>#175</b>  split-explicit wetting and drying<br/>(Carolyn's series + restart, halo and Registry fixes)<br/><font color="#52514e">draft · waits for Carolyn's review</font>>, fillcolor="#e8e8e4"];
+    d194 [label=<<b>#194</b>  split-explicit thin film under ice shelves;<br/>dry layers reopen under inflow<br/><font color="#52514e">draft · stacked on #175 · in stage E's runs</font>>, fillcolor="#e8e8e4"];
+    d186 [label=<<b>#186–#190, #193</b>  CVMix's boundary-layer index without KPP;<br/>split-explicit tracer limiter on the updated state;<br/>PCD 0.3.0; capped inflow into thin films;<br/>surface fluxes renormalized over each column;<br/>grounded ice left out of glc's shelf geometry<br/><font color="#52514e">merged into FAnSSIE</font>>, fillcolor="#e3fcef"];
+    d195 [label=<<b>#195</b>  the ocean melts at most the floating ice MALI has<br/>(option, default off)<br/><font color="#52514e">merged into FAnSSIE Nov 21</font>>, fillcolor="#e3fcef"];
+    dmask [label=<<b>#197</b>  land-ice mask fixed during a run<br/>(E3SM#8887's change; undoes #166's update)<br/><font color="#52514e">merged into FAnSSIE Nov 21</font>>, fillcolor="#e3fcef"];
+    d198 [label=<<b>#198</b>  GM bolus velocity limited with wetting and drying,<br/>as #145 limits the submesoscale velocity<br/><font color="#52514e">merged into FAnSSIE Nov 22</font>>, fillcolor="#e3fcef"];
+    d176 [label=<<b>#176, #180</b>  split-explicit Coriolis in RK4's PV-flux form<br/>(option, default off, settable in E3SM's namelists;<br/>also proposed against master as #177)<br/><font color="#52514e">merged into FAnSSIE</font>>, fillcolor="#e3fcef"];
+    d178 [label=<<b>#178, #179, #181, #182</b>  MALI skips inactive thermal-forcing fields;<br/>glc's ice-shelf geometry on its own (smoothed) map;<br/>the ocean ramps glc's land-ice pressure;<br/>MALI-Dev #211, cherry-picked<br/><font color="#52514e">merged into FAnSSIE</font>>, fillcolor="#e3fcef"];
+    d184 [label=<<b>#184</b>  the thickness flux the integrator applies,<br/>for exact mean transports (option, default off)<br/><font color="#52514e">merged into FAnSSIE</font>>, fillcolor="#e3fcef"];
+    dvadv [label=<<b>#185</b>  edge-mean thickness in momentum's<br/>vertical advection at film edges<br/><font color="#52514e">merged into FAnSSIE</font>>, fillcolor="#e3fcef"];
+    d151 [label=<<b>#151, #183</b>  merge MALI-Dev's develop (Oct 9, Nov 7)<br/><font color="#52514e">merged into FAnSSIE</font>>, fillcolor="#e3fcef"];
+    d158 [label=<<b>#158–#163</b>  ocean without an atmosphere; wetting and drying<br/>and tidal forcing in E3SM; kept floating fraction;<br/>MPAS-Ocean inputs named by case variables;<br/>an option that keeps glc runoff out of the ocean;<br/>conserved fluxes under ice shelves<br/><font color="#52514e">merged into FAnSSIE</font>>, fillcolor="#e3fcef"];
+    d164 [label=<<b>#164–#167</b>  grounded-ice pressure cap in one threaded loop;<br/>one ocean density from pressure to depth;<br/>land-ice mask follows the ice fraction (undone by #197);<br/>land-ice geometry in monthly means<br/><font color="#52514e">merged into FAnSSIE</font>>, fillcolor="#e3fcef"];
+    d168 [label=<<b>#168</b>  MALI's data-mode export follows its thickness file<br/><font color="#52514e">merged into FAnSSIE</font>>, fillcolor="#e3fcef"];
+    d169 [label=<<b>#169, #170</b>  no frazil or melt where glc has too little floating ice;<br/>slivers of imported land ice are open ocean<br/><font color="#52514e">merged into FAnSSIE</font>>, fillcolor="#e3fcef"];
+    d171 [label=<<b>#171, #172</b>  land ice's heat capacity from E3SM's constants;<br/>ice enthalpy in glc's heat budget<br/><font color="#52514e">merged into FAnSSIE</font>>, fillcolor="#e3fcef"];
+    d173 [label=<<b>#173, #174</b>  melt in thin-film cells under glc's floating ice;<br/>MALI's data-mode reference time from a case variable<br/><font color="#52514e">merged into FAnSSIE</font>>, fillcolor="#e3fcef"];
+    d156 [label=<<b>#156, #157</b>  MALI's E3SM namelist without the lapse rate;<br/>MALI's inputs named by case variables<br/><font color="#52514e">merged into FAnSSIE</font>>, fillcolor="#e3fcef"];
+    fanssie [label=<<b>fanssie-ocn-glc-coupling</b><br/>shared FAnSSIE branch (since Oct 16)<br/><font color="#52514e">only gains commits · ledger in FANSSIE.md</font>>,
+             fillcolor="#fff0b3", penwidth=2, color="#c98500", fontsize=12];
+  }
+
+  polaris [shape=plaintext, style="", label=<
+    <table border="1" color="#c3c2b7" style="rounded" cellborder="1" cellspacing="6" cellpadding="4" bgcolor="#fcfcfb">
+      <tr><td border="0" colspan="2" align="left"><font point-size="12">E3SM-Project/polaris, in merge order</font></td></tr>
+      <tr><td port="p842" bgcolor="#e3fcef" colspan="2" style="rounded" cellpadding="6"><b>#842</b>  FAnSSIE submodule + fanssie_pr suite<br/><font color="#52514e">merged</font></td></tr>
+      <tr><td border="0" colspan="2"><font color="#898781">↓ then</font></td></tr>
+      <tr><td port="p958" bgcolor="#e3fcef" colspan="2" style="rounded" cellpadding="6"><b>#958, #959, #965</b>  FAnSSIE submodule updates;<br/>ice-shelf tasks refused without land-ice pressure<br/><font color="#52514e">merged</font></td></tr>
+      <tr><td border="0" colspan="2"><font color="#898781">↓ then</font></td></tr>
+      <tr><td port="p826" bgcolor="#deebff" colspan="2" style="rounded" cellpadding="6"><b>#826</b>  ISOMIP+ Ocean0–2, partial bottom cells<br/><font color="#52514e">open</font></td></tr>
+      <tr><td border="0" colspan="2"><font color="#898781">↓ then</font></td></tr>
+      <tr><td port="p844" bgcolor="#deebff" colspan="2" style="rounded" cellpadding="6"><b>#844</b>  thin-film tasks: inception, wetting, drying<br/><font color="#52514e">open</font></td></tr>
+      <tr><td border="0" colspan="2"><font color="#898781">↓ then</font></td></tr>
+      <tr><td port="p861" bgcolor="#e8e8e4" colspan="1" style="rounded" cellpadding="6"><b>#861</b>  split-explicit ISOMIP+ variants<br/><font color="#52514e">draft · waits for #175</font></td><td port="p862" bgcolor="#e8e8e4" colspan="1" style="rounded" cellpadding="6"><b>#862</b>  E3SM's physics in ISOMIP+<br/><font color="#52514e">draft</font></td></tr>
+      <tr><td border="0" colspan="2"><font color="#898781">also after #842:</font></td></tr>
+      <tr><td port="p871" bgcolor="#e3fcef" colspan="1" style="rounded" cellpadding="6"><b>#871</b>  landice component:<br/>MALI + Albany<br/><font color="#52514e">merged Nov 20</font></td><td port="p858" bgcolor="#deebff" colspan="1" style="rounded" cellpadding="6"><b>#858</b>  MISOMIP in E3SM:<br/>the design (12 work packages)<br/><font color="#52514e">open</font></td></tr>
+      <tr><td border="0" colspan="1"><font color="#898781">↓ then</font></td><td border="0" colspan="1"></td></tr>
+      <tr><td port="p922" bgcolor="#e8e8e4" colspan="1" style="rounded" cellpadding="6"><b>#922</b>  MISMIP+ with MALI<br/><font color="#52514e">draft</font></td><td port="p942" bgcolor="#e8e8e4" colspan="1" style="rounded" cellpadding="6"><b>#942</b>  Albany with every compiler<br/><font color="#52514e">draft · waits for new tags</font></td></tr>
+      <tr><td border="0" colspan="2"><font color="#898781">from main, the realistic-mesh stack:</font></td></tr>
+      <tr><td port="p644" bgcolor="#e3fcef" colspan="2" style="rounded" cellpadding="6"><b>#644</b>  realistic global ocean: dynamic adjustment<br/><font color="#52514e">merged</font></td></tr>
+      <tr><td border="0" colspan="2"><font color="#898781">↓ then</font></td></tr>
+      <tr><td port="p921" bgcolor="#e3fcef" colspan="2" style="rounded" cellpadding="6"><b>#921</b>  component inputs in e3sm/init<br/><font color="#52514e">merged</font></td></tr>
+      <tr><td border="0" colspan="2"><font color="#898781">↓ then, even while it is a draft (and after #862, #922)</font></td></tr>
+      <tr><td port="pwp56" bgcolor="#e8e8e4" colspan="2" style="rounded" cellpadding="6"><b>#931</b>  MISOMIP's maps and E3SM inputs<br/><font color="#52514e">draft · tested with E3SM cases</font></td></tr>
+      <tr><td border="0" colspan="2"><font color="#898781">↓ then</font></td></tr>
+      <tr><td port="pwp7" bgcolor="#e8e8e4" colspan="1" style="rounded" cellpadding="6"><b>#937</b>  design of the E3SM changes<br/>for idealized ice-shelf cases<br/><font color="#52514e">draft · its E3SM changes are<br/>merged into FAnSSIE</font></td><td port="pwp9" bgcolor="#e8e8e4" colspan="1" style="rounded" cellpadding="6"><b>#939</b>  analysis of the MISOMIP runs<br/><font color="#52514e">draft</font></td></tr>
+      <tr><td border="0" colspan="2"><font color="#898781">from main, after #929 (copying analysis products):</font></td></tr>
+      <tr><td port="p940" bgcolor="#e3fcef" colspan="2" style="rounded" cellpadding="6"><b>#940</b>  analysis publishing usable from any component<br/><font color="#52514e">merged</font></td></tr>
+    </table>>];
+
+  e8047 -> fanssie;
+  e8661 -> fanssie;
+  e8887 -> fanssie [label="merged in as they are"];
+  d119 -> fanssie;
+  d141 -> fanssie;
+  d143 -> fanssie;
+  d175 -> fanssie [style=dashed];
+  d194 -> fanssie [style=dashed];
+  d186 -> fanssie;
+  d195 -> fanssie;
+  dmask -> fanssie;
+  d198 -> fanssie;
+  m211 -> malidev;
+  m213 -> malidev;
+  m219 -> malidev;
+  d156 -> fanssie;
+  d158 -> fanssie;
+  d164 -> fanssie;
+  d168 -> fanssie;
+  d169 -> fanssie;
+  d171 -> fanssie;
+  d173 -> fanssie;
+  d176 -> fanssie;
+  d178 -> fanssie;
+  d184 -> fanssie;
+  dvadv -> fanssie;
+  malidev -> d151 [constraint=false];
+  d151 -> fanssie;
+
+  fanssie -> polaris:p842 [label="pinned as
+e3sm_submodules/FAnSSIE", penwidth=1.5];
+
+  legend [shape=plaintext, style="", label=<
+    <table border="0" cellborder="1" cellspacing="4" cellpadding="4" color="#c3c2b7">
+      <tr><td bgcolor="#e3fcef">merged</td><td bgcolor="#deebff">open</td><td bgcolor="#e8e8e4">draft</td><td bgcolor="#ffffff">no PR yet</td></tr>
+      <tr><td colspan="4" border="0"><font point-size="10" color="#52514e">dashed: not merged yet · as of 2026-11-22</font></td></tr>
+    </table>>];
+}
