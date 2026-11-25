@@ -33,6 +33,7 @@ from polaris.run.confinement import (
     _ranges,
     check_confinement,
 )
+from tests.affinity import needs_affinity
 from tests.test_topology import fake_topology
 
 # stands in for mpirun: drops the `-n N -c M` mache renders and runs the
@@ -202,6 +203,7 @@ def test_a_placement_spanning_nodes_is_not_bound():
     assert _bound_cores(placement) is None
 
 
+@needs_affinity
 def test_a_process_that_has_its_cores_is_not_reported(tmp_path):
     mine = sorted(os.sched_getaffinity(0))
     placement = ResourcePlacement(nodes=(), cores=(tuple(mine),))
@@ -212,6 +214,7 @@ def test_a_process_that_has_its_cores_is_not_reported(tmp_path):
     assert not os.path.exists(_mismatch_file(step))
 
 
+@needs_affinity
 def test_a_process_without_the_cores_it_was_given_is_reported(tmp_path):
     """The executor's binding silently failing is what this catches."""
     mine = sorted(os.sched_getaffinity(0))
@@ -241,6 +244,7 @@ def test_a_step_with_no_placement_is_not_checked(tmp_path):
     assert not os.path.exists(_mismatch_file(step))
 
 
+@needs_affinity
 def test_a_marker_from_an_earlier_run_does_not_describe_this_one(tmp_path):
     """A rerun that is fine must not be reported with the last run's fault."""
     mine = sorted(os.sched_getaffinity(0))
@@ -254,6 +258,7 @@ def test_a_marker_from_an_earlier_run_does_not_describe_this_one(tmp_path):
     assert not os.path.exists(_mismatch_file(step))
 
 
+@needs_affinity
 def test_a_launch_that_stayed_in_its_placement_is_confirmed(tmp_path):
     """The whole path: render through mache, launch, read the ranks back."""
     mine = sorted(os.sched_getaffinity(0))
@@ -272,6 +277,7 @@ def test_a_launch_that_stayed_in_its_placement_is_confirmed(tmp_path):
     assert any('within its placement' in line for line in logger.messages)
 
 
+@needs_affinity
 def test_a_launch_that_escaped_its_placement_is_reported(tmp_path):
     """A machine that has stopped honoring the arguments it is given."""
     mine = sorted(os.sched_getaffinity(0))
@@ -298,6 +304,8 @@ def test_a_probe_that_could_not_run_is_not_a_mismatch(tmp_path):
     """A launcher hiccup must not be recorded as a placement failure."""
     launcher = _script(tmp_path, 'broken.sh', FAILING_LAUNCHER)
     system = _system(launcher, 4)
+    if system.placement_support is PlacementSupport.NONE:
+        pytest.skip('no placement mechanism here (taskset is missing)')
     placement = ResourcePlacement(nodes=(), cores=((0, 1),))
     step = _step(tmp_path, placement, ntasks=2, system=system)
     logger = _logger()

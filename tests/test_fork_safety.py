@@ -14,6 +14,8 @@ at import, and by the time a test runs the imports have already happened.
 import importlib
 import os
 
+import pytest
+
 import polaris
 
 
@@ -26,6 +28,8 @@ def test_importing_polaris_leaves_almost_no_threads(fresh_interpreter):
     """
     assert fresh_interpreter['polaris_error'] is None
     threads = fresh_interpreter['polaris_threads']
+    if threads is None:
+        pytest.skip('only Linux reports the OS threads of a process')
 
     assert threads <= 4, (
         f'importing polaris left {threads} OS threads, which is not safe to '
@@ -44,6 +48,8 @@ def test_the_pools_are_pinned_before_numpy_is_imported(fresh_interpreter):
     """
     assert fresh_interpreter['cli_error'] is None
     threads = fresh_interpreter['cli_threads']
+    if threads is None:
+        pytest.skip('only Linux reports the OS threads of a process')
 
     assert threads <= 4, (
         f'the polaris CLI left {threads} OS threads; the pools are being '

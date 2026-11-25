@@ -51,8 +51,8 @@ jobs:
           extra_args: --files ${{ steps.file_changes.outputs.files}}
 
   build:
-    name: test polaris - py ${{ matrix.python-version }}
-    runs-on: ubuntu-latest
+    name: test polaris - ${{ matrix.os }} py ${{ matrix.python-version }}
+    runs-on: ${{ matrix.os }}
     timeout-minutes: 20
     env:
       # mache's bootstrap.py defaults this to a /tmp path that can't be cached
@@ -63,7 +63,12 @@ jobs:
         shell: bash -l {0}
     strategy:
       matrix:
+        os: ["ubuntu-latest"]
         python-version: ["3.11", "3.12", "3.13", "3.14"]
+        # macOS for one Python, to catch what assumes Linux
+        include:
+          - os: "macos-latest"
+            python-version: "3.14"
       fail-fast: false
     steps:
       - id: skip_check
@@ -133,7 +138,7 @@ jobs:
           source "$load_script"
           pytest --durations=20 tests/
 
-      - if: ${{ steps.skip_check.outputs.should_skip != 'true' }}
+      - if: ${{ steps.skip_check.outputs.should_skip != 'true' && matrix.os == 'ubuntu-latest' }}
         name: Build Sphinx Docs
         run: |
           load_script=$(find . -maxdepth 1 -type f -name 'load_polaris*.sh' | sort | tail -n 1)

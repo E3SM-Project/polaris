@@ -37,6 +37,7 @@ from polaris.run.parallel import (
 )
 from polaris.run.pool import ResourcePool
 from polaris.run.results import write_suite_results
+from tests.affinity import needs_affinity
 
 # what each synthetic step's process runs, in its own work directory
 STEP_SCRIPT = 'run.sh'
@@ -285,6 +286,7 @@ def test_a_step_is_told_where_it_was_placed(tmp_path):
     assert 'node0' in carried
 
 
+@needs_affinity
 def test_a_step_is_confined_to_the_cores_it_was_given(tmp_path):
     """
     The standing check that a placed step got what it was promised.

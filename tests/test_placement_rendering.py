@@ -22,6 +22,7 @@ from mache.parallel import PlacementSupport, ResourcePlacement
 from mache.parallel.single_node import SingleNodeSystem
 
 from polaris.config import PolarisConfigParser
+from tests.affinity import needs_affinity
 
 # each launch gets this many cores, and sleeps this long so that genuine
 # overlap between them is unambiguous
@@ -47,6 +48,7 @@ printf 'cpus=%s\\nstart=%s\\nend=%s\\n' "$cpus" "$start" "$end" > "$1"
 """
 
 
+@needs_affinity
 def test_placed_launches_run_at_once_on_the_cores_they_were_given(tmp_path):
     """The whole path: build, render, launch together, read back."""
     usable = sorted(os.sched_getaffinity(0))
