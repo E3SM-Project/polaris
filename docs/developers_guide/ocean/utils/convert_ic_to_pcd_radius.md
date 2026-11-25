@@ -8,8 +8,11 @@ Dictionary (PCD) mean Earth radius, so that the mesh matches the radius the
 models use. It:
 
 1. rescales the horizontal coordinates, lengths and areas, and the
-   `sphere_radius` attribute, from the file's `sphere_radius` to the PCD
-   `mean_radius` with {py:func}`polaris.mesh.radius.rescale_sphere_radius`;
+   `sphere_radius` attribute, from the radius of the mesh's coordinates to
+   the PCD `mean_radius` with
+   {py:func}`polaris.mesh.radius.rescale_sphere_radius`.  Some older files
+   have a `sphere_radius` that differs from the radius of their coordinates
+   (6371230 m rather than 6371229 m); the coordinates take precedence;
 2. removes `fCell`, `fEdge` and `fVertex`, which the models compute at init
    on spherical meshes;
 3. leaves every other field and global attribute unchanged, and records the
