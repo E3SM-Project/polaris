@@ -17,6 +17,15 @@ from polaris.ocean.vertical.diagnostics import (
 from polaris.viz import get_viz_defaults, plot_global_mpas_field
 
 from .remap_jra55 import JRA55_ON_MESH_FILENAME
+from .remap_shortwave_extinction import (
+    SHORTWAVE_EXTINCTION_COEFFS_FILENAME,
+)
+
+# the plotted band for each of Omega's extinction coefficient names
+EXTINCTION_PLOTS = {
+    'ExtinctionCoeffRedCell': 'red',
+    'ExtinctionCoeffBlueCell': 'blue',
+}
 
 
 class VizInitStep(OceanIOStep):
@@ -45,6 +54,8 @@ class VizInitStep(OceanIOStep):
     * global native-mesh maps of temperature and salinity at several depths
       plus surface and bottom, and topography/column diagnostics,
     * global native-mesh maps of the wind stress components and magnitude,
+    * (Omega only) global native-mesh maps of the red- and blue-band
+      shortwave extinction coefficients,
     * multi-basin vertical transects of temperature and salinity,
     * (Omega only) a stratification check using the TEOS-10 in-situ density,
       and
@@ -61,10 +72,20 @@ class VizInitStep(OceanIOStep):
 
     remap_jra55_step : polaris.Step
         The step that produces the remapped wind stress on the mesh.
+
+    remap_extinction_step : polaris.Step
+        The step that produces the remapped shortwave extinction coefficients
+        on the mesh.
     """
 
     def __init__(
-        self, component, subdir, init_step, cull_mesh_step, remap_jra55_step
+        self,
+        component,
+        subdir,
+        init_step,
+        cull_mesh_step,
+        remap_jra55_step,
+        remap_extinction_step,
     ):
         """
         Create the step.
@@ -86,6 +107,9 @@ class VizInitStep(OceanIOStep):
 
         remap_jra55_step : polaris.Step
             The step that produces ``jra55_on_mesh.nc``.
+
+        remap_extinction_step : polaris.Step
+            The step that produces ``shortwave_extinction_coeffs.nc``.
         """
         super().__init__(
             component=component,
@@ -95,6 +119,7 @@ class VizInitStep(OceanIOStep):
         self.init_step = init_step
         self.cull_mesh_step = cull_mesh_step
         self.remap_jra55_step = remap_jra55_step
+        self.remap_extinction_step = remap_extinction_step
 
     def setup(self):
         """
@@ -137,6 +162,16 @@ class VizInitStep(OceanIOStep):
             'windStressMagnitude',
         ]:
             self.add_output_file(f'{name}.png')
+        if model == 'omega':
+            self.add_input_file(
+                filename=SHORTWAVE_EXTINCTION_COEFFS_FILENAME,
+                work_dir_target=os.path.join(
+                    self.remap_extinction_step.path,
+                    SHORTWAVE_EXTINCTION_COEFFS_FILENAME,
+                ),
+            )
+            for name in EXTINCTION_PLOTS:
+                self.add_output_file(f'{name}.png')
 
     def run(self):
         """
@@ -162,6 +197,8 @@ class VizInitStep(OceanIOStep):
         _plot_vertical_coord(ds_init, ds_vert_coord)
         self._plot_global_maps(model, ds_mesh, ds_init, ds_vert_coord)
         self._plot_forcing(ds_mesh)
+        if model == 'omega':
+            self._plot_extinction()
         self._plot_transects(model, ds_mesh, ds_init, ds_vert_coord)
         self._export_xdmf(model, ds_mesh)
 
@@ -354,6 +391,40 @@ class VizInitStep(OceanIOStep):
                     colormap_section=section_name,
                     colorbar_label='N m$^{-2}$',
                     title=label,
+                    plot_land=True,
+                    projection_name=projection_name,
+                    central_longitude=central_longitude,
+                )
+                plt.close('all')
+
+    def _plot_extinction(self):
+        """
+        Plot global native-mesh maps of the remapped red- and blue-band
+        shortwave extinction coefficients (Omega only).
+        """
+        config = self.config
+        section_name = 'realistic_global_init_viz'
+        section = config[section_name]
+        projection_name = section.get('projection')
+        central_longitude = section.getfloat('central_longitude')
+
+        viz_dict = get_viz_defaults()
+        with xr.open_dataset(SHORTWAVE_EXTINCTION_COEFFS_FILENAME) as ds_ext:
+            ds_ext = self.map_from_native_model_vars(ds_ext)
+            for out_name, band in EXTINCTION_PLOTS.items():
+                da = ds_ext[out_name]
+                _set_colormap(
+                    config, section_name, _cmap_for(viz_dict, out_name), da
+                )
+                plot_global_mpas_field(
+                    mesh_filename='mesh.nc',
+                    da=da,
+                    out_filename=f'{out_name}.png',
+                    config=config,
+                    colormap_section=section_name,
+                    colorbar_label='m$^{-1}$',
+                    title=f'{out_name} ({band}-band shortwave extinction '
+                    'coefficient) [m$^{-1}$]',
                     plot_land=True,
                     projection_name=projection_name,
                     central_longitude=central_longitude,

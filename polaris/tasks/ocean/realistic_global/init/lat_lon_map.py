@@ -8,8 +8,8 @@ from polaris.tasks.ocean.realistic_global.mesh_info import (
 
 class LatLonMapStep(MappingFileStep):
     """
-    A step for building the bilinear mapping file from a global
-    latitude-longitude source grid to the culled MPAS ocean mesh.
+    A step for building the mapping file from a global latitude-longitude
+    source grid to the culled MPAS ocean mesh.
 
     This is the MPI (``mbtempest`` or ESMF) half of a remapping workflow; a
     serial step applies the resulting weights with ``ncremap``.  The task
@@ -51,6 +51,7 @@ class LatLonMapStep(MappingFileStep):
         source_mesh_name,
         cull_mesh_step,
         mesh_name,
+        method='bilinear',
     ):
         """
         Create the step.
@@ -85,6 +86,9 @@ class LatLonMapStep(MappingFileStep):
         mesh_name : str
             Name label for the MPAS mesh (used in the remapping weight
             filename).
+
+        method : {'bilinear', 'conserve'}, optional
+            The remapping method.
         """
         super().__init__(
             component=component,
@@ -92,7 +96,7 @@ class LatLonMapStep(MappingFileStep):
             subdir=subdir,
             ntasks=1,
             min_tasks=1,
-            method='bilinear',
+            method=method,
         )
         self.source_step = source_step
         self.source_target = source_target
