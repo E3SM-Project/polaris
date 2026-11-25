@@ -141,8 +141,11 @@ Dictionary (PCD) mean Earth radius, so that the mesh matches the radius the
 models use. It:</p>
 <ol class="arabic simple">
 <li><p>rescales the horizontal coordinates, lengths and areas, and the
-<code class="docutils literal notranslate"><span class="pre">sphere_radius</span></code> attribute, from the file’s <code class="docutils literal notranslate"><span class="pre">sphere_radius</span></code> to the PCD
-<code class="docutils literal notranslate"><span class="pre">mean_radius</span></code> with <a class="reference internal" href="../../generated/polaris.mesh.radius.rescale_sphere_radius.html#polaris.mesh.radius.rescale_sphere_radius" title="polaris.mesh.radius.rescale_sphere_radius"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.mesh.radius.rescale_sphere_radius()</span></code></a>;</p></li>
+<code class="docutils literal notranslate"><span class="pre">sphere_radius</span></code> attribute, from the radius of the mesh’s coordinates to
+the PCD <code class="docutils literal notranslate"><span class="pre">mean_radius</span></code> with
+<a class="reference internal" href="../../generated/polaris.mesh.radius.rescale_sphere_radius.html#polaris.mesh.radius.rescale_sphere_radius" title="polaris.mesh.radius.rescale_sphere_radius"><code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.mesh.radius.rescale_sphere_radius()</span></code></a>.  Some older files
+have a <code class="docutils literal notranslate"><span class="pre">sphere_radius</span></code> that differs from the radius of their coordinates
+(6371230 m rather than 6371229 m); the coordinates take precedence;</p></li>
 <li><p>removes <code class="docutils literal notranslate"><span class="pre">fCell</span></code>, <code class="docutils literal notranslate"><span class="pre">fEdge</span></code> and <code class="docutils literal notranslate"><span class="pre">fVertex</span></code>, which the models compute at init
 on spherical meshes;</p></li>
 <li><p>leaves every other field and global attribute unchanged, and records the
