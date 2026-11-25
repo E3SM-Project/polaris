@@ -22,9 +22,13 @@ import sys
 def _threads():
     # the count the kernel keeps, which is the only one that sees threads a
     # C library started.  threading.enumerate() sees Python threads only and
-    # reported 1 where this reported 129.
-    with open('/proc/self/status') as handle:
-        return int(handle.read().split('Threads:')[1].split()[0])
+    # reported 1 where this reported 129.  Only Linux has /proc; elsewhere,
+    # such as on macOS, the count is None.
+    try:
+        with open('/proc/self/status') as handle:
+            return int(handle.read().split('Threads:')[1].split()[0])
+    except OSError:
+        return None
 
 
 def _import(name):
@@ -58,7 +62,7 @@ def fresh_interpreter():
     ``polaris``, then ``polaris.ocean.conservation``, then the CLI, with the
     pool variables unset, and returns a dict with the error from each import
     (or ``None``) and the number of OS threads after ``polaris`` and after
-    the CLI.
+    the CLI (``None`` where the OS does not report it, as on macOS).
     """
     environ = {
         name: value

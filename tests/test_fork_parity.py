@@ -27,6 +27,7 @@ from polaris.run.executor import reap_one, start_step
 from polaris.run.parallel import _abandon, _torn_down_by_sigterm
 from polaris.run.pool import ResourcePool
 from polaris.run.serial import run_step_in_process
+from tests.affinity import needs_affinity
 
 # the two lines the wrapper adds around a step's own work, and the ones a
 # first attempt at forking lost
@@ -159,6 +160,7 @@ def test_a_child_that_fails_says_so_rather_than_hanging(tmp_path):
     assert 'this step does not work' in open(log_filename).read()
 
 
+@needs_affinity
 @pytest.mark.parametrize('cores', [1, 2, 4])
 def test_a_child_is_confined_to_the_cores_it_was_given(tmp_path, cores):
     """The affinity the child sets for itself, since nothing else can."""
