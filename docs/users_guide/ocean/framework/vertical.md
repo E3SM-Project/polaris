@@ -259,8 +259,12 @@ support 3 options for
 sea-surface height) are expanded so that all layers have their full thickness;
 `partial` meaning that cells adjacent to the topography are allowed to be a
 small fraction of a full layer thickness; or `None` to indicate that no
-alteration is needed for full or partial cells (typically only in cases where
-the topography is already flat).
+alteration is needed for full or partial cells.
+
+Tasks with topography should use `partial`, usually with
+`min_pc_fraction = 0.1`. `None` is for flat beds, or for tests that need the
+bed left exactly where it is configured, such as the
+{ref}`horizontal pressure gradient tests <ocean-horiz-press-grad>`.
 
 If `partial_cell_type = partial`, the option `min_pc_fraction` indicates
 the smallest fraction of a layer that a partial cell is allowed to have before
