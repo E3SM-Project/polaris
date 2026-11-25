@@ -106,6 +106,14 @@
    health_page.RunHealthPage
    health_page.RunHealthPage.run
    health_page.add_health_sections
+   wet_dry.WetDryStates
+   wet_dry.WetDryStates.state_at
+   wet_dry.WetDryStates.has_year_start
+   wet_dry.WetDryStates.has_monthly
+   wet_dry.classify_cells
+   wet_dry.get_wet_dry_caption
+   wet_dry.find_wet_dry_inputs
+   wet_dry.read_wet_dry_states
 ```
 
 ## Framework

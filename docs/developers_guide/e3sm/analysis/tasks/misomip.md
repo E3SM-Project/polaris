@@ -21,6 +21,13 @@ Each run gets two shared steps, named for the months it has:
 - {py:class}`polaris.tasks.e3sm.analysis.misomip.plots.RunPlots` plots them
   and describes each plot as a product.
 
+`RunPlots` also links the run's year-start restarts, monthly means and
+month-start snapshots where the run wets and dries, and reads which cells
+are grounded, dry, in between or wet from them with
+{py:func}`polaris.tasks.e3sm.analysis.misomip.wet_dry.read_wet_dry_states`,
+for the panel below the melt movie.  These are read at plot time, not in
+the diagnostics, so they are not cached and do not change the cache's key.
+
 The diagnostics read each of the run's files once, keeping only the fields
 they use (`MONTHLY_MEAN_FIELDS`, `DAILY_MEAN_FIELDS`, `DAILY_FIELDS` and
 `LANDICE_FIELDS`), with {py:func}`polaris.mpas.read_time_series()`.  A field

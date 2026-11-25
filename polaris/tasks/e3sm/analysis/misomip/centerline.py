@@ -14,11 +14,13 @@ import numpy as np
 import xarray as xr
 from matplotlib import animation
 from matplotlib.collections import QuadMesh
-from matplotlib.colors import Normalize
+from matplotlib.colors import BoundaryNorm, ListedColormap, Normalize
 from matplotlib.figure import Figure
+from matplotlib.patches import Patch
 from mpas_tools.ocean.viz.transect import plot_transect
 
 from polaris.constants import get_constant
+from polaris.e3sm.analysis.calendar import days_to_date
 from polaris.landice.diagnostics import (
     grounding_line_on_row,
     thickness_above_flotation,
@@ -32,6 +34,10 @@ from polaris.tasks.e3sm.analysis.misomip.diagnostics import (
     get_centerline_transect,
     get_landice_row_from_mesh,
     isomip_mesh,
+)
+from polaris.tasks.e3sm.analysis.misomip.wet_dry import (
+    WET_DRY_COLORS,
+    WET_DRY_LABELS,
 )
 from polaris.viz.animation import SharedPaletteGifWriter
 from polaris.viz.style import mplstyle_context
@@ -580,6 +586,140 @@ class _CenterlineMovie:
             f'{self.title} on y = {1e-3 * self.y:g} km: month ending '
             f'{_date_text(day)}'
         )
+
+
+class _MeltMovieLayout:
+    """
+    Where the melt movie's maps, colorbar and legend go: both maps the
+    same size, one above the other, so their cells line up, with the
+    colorbar and legend below them, outside the maps
+
+    Each rectangle is (left, bottom, width, height), in fractions of the
+    figure
+    """
+
+    # inches
+    LEFT = 0.8
+    RIGHT = 0.3
+    TITLE = 0.45
+    AXIS_LABELS = 0.65
+    COLORBAR = 0.15
+    COLORBAR_LABELS = 0.6
+    LEGEND = 0.55
+    BOTTOM = 0.1
+
+    def __init__(self, aspect, has_wet_dry):
+        """
+        Lay the movie out
+
+        Parameters
+        ----------
+        aspect : float
+            The maps' height over their width
+        has_wet_dry : bool
+            Whether there is a map of wet and dry cells below the melt
+        """
+        width = FIG_WIDTH - self.LEFT - self.RIGHT
+        map_height = width * aspect
+        # from the top down
+        tops = []
+        top = 0.0
+        for size in [
+            self.TITLE,
+            map_height,
+            self.AXIS_LABELS,
+            self.COLORBAR,
+            self.COLORBAR_LABELS,
+        ]:
+            tops.append(top)
+            top += size
+        if has_wet_dry:
+            for size in [self.TITLE, map_height, self.AXIS_LABELS]:
+                tops.append(top)
+                top += size
+            legend_top = top
+            top += self.LEGEND
+        self.height = top + self.BOTTOM
+
+        def rect(top, height, left=self.LEFT, rect_width=width):
+            return (
+                left / FIG_WIDTH,
+                1.0 - (top + height) / self.height,
+                rect_width / FIG_WIDTH,
+                height / self.height,
+            )
+
+        self.melt_map = rect(tops[1], map_height)
+        # the colorbar half as wide as the maps, centered below them
+        self.colorbar = rect(
+            tops[3], self.COLORBAR, self.LEFT + 0.25 * width, 0.5 * width
+        )
+        self.wet_dry_map = None
+        self.legend_anchor = None
+        if has_wet_dry:
+            self.wet_dry_map = rect(tops[6], map_height)
+            self.legend_anchor = (
+                (self.LEFT + 0.5 * width) / FIG_WIDTH,
+                1.0 - legend_top / self.height,
+            )
+
+
+class _WetDryPanel:
+    """A map, below the melt's, of the cells the ocean treats as wet or
+    dry, with MALI's grounding line on top"""
+
+    def __init__(self, fig, layout, descriptor, wet_dry, title, xlim, ylim):
+        self.wet_dry = wet_dry
+        self.title = title
+        self.ax = fig.add_axes(layout.wet_dry_map)
+        n_cells = wet_dry.classes.shape[1]
+        cmap = ListedColormap(WET_DRY_COLORS)
+        cmap.set_bad('white')
+        norm = BoundaryNorm(np.arange(len(WET_DRY_COLORS) + 1) - 0.5, cmap.N)
+        self.collection = mosaic.polypcolor(
+            self.ax,
+            descriptor,
+            np.full(n_cells, np.nan),
+            cmap=cmap,
+            norm=norm,
+            edgecolor='face',
+        )
+        handles = [
+            Patch(facecolor=color, label=label)
+            for color, label in zip(
+                WET_DRY_COLORS, WET_DRY_LABELS, strict=True
+            )
+        ]
+        fig.legend(
+            handles=handles,
+            loc='upper center',
+            bbox_to_anchor=layout.legend_anchor,
+            ncols=2,
+            fontsize='small',
+            frameon=False,
+        )
+        self.ax.set_xlim(*xlim)
+        self.ax.set_ylim(*ylim)
+        self.ax.set_aspect('equal')
+        self.ax.set_xlabel('x (km)')
+        self.ax.set_ylabel('y (km)')
+        (self.gl_line,) = self.ax.plot([], [], 'k.', markersize=1.0)
+
+    def update(self, day, gl_line):
+        """Show the state holding on a day and the melt panel's grounding
+        line"""
+        index = self.wet_dry.state_at(day)
+        if index is None:
+            values = np.full(self.wet_dry.classes.shape[1], np.nan)
+            first = days_to_date(self.wet_dry.start_days[0])
+            label = f'no snapshot until {first}'
+        else:
+            values = self.wet_dry.classes[index].astype(float)
+            label = self.wet_dry.labels[index]
+        self.collection.set_array(values)
+        self.gl_line.set_data(*gl_line.get_data())
+        self.ax.set_title(f'{self.title}: wet or dry, {label}')
+        return [self.collection, self.gl_line]
 
 
 def _date_text(day):
@@ -1137,10 +1277,13 @@ class _Snapshots:
         )
 
 
-def plot_melt_movie(ds_init, ds_melt, title, gif_filename, max_frames=180):
+def plot_melt_movie(
+    ds_init, ds_melt, title, gif_filename, max_frames=180, wet_dry=None
+):
     """
     Animate the ocean's daily-mean melt rate under the ice, the thin film
-    included, with MALI's grounding line where it ran
+    included, with MALI's grounding line where it ran, and, below it, the
+    cells the ocean treats as wet or dry
 
     Parameters
     ----------
@@ -1159,6 +1302,10 @@ def plot_melt_movie(ds_init, ds_melt, title, gif_filename, max_frames=180):
 
     max_frames : int, optional
         The most frames, spread evenly over the days, the last included
+
+    wet_dry : WetDryStates, optional
+        Which cells are grounded, dry, in between or wet over time, for a
+        panel below the melt, each state shown until the next
     """
     water_density = get_constant('pure_water_density_reference')
     n_cells = ds_init.sizes['nCells']
@@ -1196,12 +1343,12 @@ def plot_melt_movie(ds_init, ds_melt, title, gif_filename, max_frames=180):
         float(x_cell[floating].max()) + MAP_MARGIN_DOWNSTREAM,
     )
     ylim = (float(y_cell.min()), float(y_cell.max()))
-    # the figure has the map's aspect, so the map fills its width
-    map_width = 0.92 * FIG_WIDTH
-    height = map_width * (ylim[1] - ylim[0]) / (xlim[1] - xlim[0]) + 2.0
+    layout = _MeltMovieLayout(
+        (ylim[1] - ylim[0]) / (xlim[1] - xlim[0]), wet_dry is not None
+    )
     with mplstyle_context(dpi=PNG_DPI):
-        fig = Figure(figsize=(FIG_WIDTH, height), constrained_layout=True)
-        ax = fig.add_subplot(111)
+        fig = Figure(figsize=(FIG_WIDTH, layout.height))
+        ax = fig.add_axes(layout.melt_map)
         collection = mosaic.polypcolor(
             ax,
             descriptor,
@@ -1212,27 +1359,22 @@ def plot_melt_movie(ds_init, ds_melt, title, gif_filename, max_frames=180):
         )
         fig.colorbar(
             collection,
-            ax=ax,
+            cax=fig.add_axes(layout.colorbar),
             label='m yr$^{-1}$, negative for freezing',
             ticks=ticks,
             extend='both',
             orientation='horizontal',
-            shrink=0.5,
-            pad=0.25,
         )
         ax.set_xlim(*xlim)
         ax.set_ylim(*ylim)
         ax.set_aspect('equal')
         ax.set_xlabel('x (km)')
         ax.set_ylabel('y (km)')
-        # lay the figure out once, with the longest title, and keep that
-        # layout, so the map and colorbar do not move from frame to frame
-        ax.set_title(
-            f'{title}: daily-mean melt rate, water equivalent, Year 10000, '
-            f'Mmm 30'
-        )
-        fig.canvas.draw()
-        fig.set_layout_engine('none')
+        wet_dry_panel = None
+        if wet_dry is not None:
+            wet_dry_panel = _WetDryPanel(
+                fig, layout, descriptor, wet_dry, title, xlim, ylim
+            )
         (gl_line,) = ax.plot([], [], 'k.', markersize=1.0)
 
         def frame(index):
@@ -1251,7 +1393,12 @@ def plot_melt_movie(ds_init, ds_melt, title, gif_filename, max_frames=180):
                 f'{title}: daily-mean melt rate, water equivalent, '
                 f'{_date_text(day_end[index] - 1.0)}'
             )
-            return [collection, gl_line]
+            artists = [collection, gl_line]
+            if wet_dry_panel is not None:
+                artists.extend(
+                    wet_dry_panel.update(day_end[index] - 1.0, gl_line)
+                )
+            return artists
 
         anim = animation.FuncAnimation(fig, frame, frames=frames)
         anim.save(

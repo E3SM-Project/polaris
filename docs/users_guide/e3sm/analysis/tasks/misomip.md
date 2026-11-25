@@ -94,6 +94,18 @@ For each run, from its monthly means:
   at $y = 40$ km and $x = 520$ km against $x$ and $y$, the overturning
   streamfunction, and the melt rate in bins of draft.
 
+A run with daily means also gets an animation of the daily-mean melt
+rate under the ice, the thin film included, with MALI's grounding line.
+In a run with wetting and drying, a map below it shows where the ocean's
+barotropic flow is closed.  A cell is dry where every edge is closed
+(`wettingVelocityBarotropicSubcycle` is 0), and grounded where the ocean's
+floating mask is 0 under land ice.  The map comes from the restart at the
+start of each year, held until the next.  Where the run writes the
+monthly mean of `wettingVelocityBarotropicSubcycle`, and its month-start
+snapshots hold `landIceMask` and `landIceFloatingMask`, the map updates
+each month instead: a cell is dry or wet when its edges were closed or
+open the whole month, and grounded as at the start of the month.
+
 The overturning streamfunction is minus the transport across each line
 of constant $x$ below each elevation, integrated up from the seafloor, so
 that the transport per unit height is $-\partial \psi / \partial z$, as

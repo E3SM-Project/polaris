@@ -1,3 +1,4 @@
+import os
 import re
 
 import matplotlib
@@ -45,6 +46,11 @@ from polaris.tasks.e3sm.analysis.misomip.grounding_line import (
     plot_bottom_hovmoller,
     plot_gl_plan_view,
     plot_gl_zoom,
+)
+from polaris.tasks.e3sm.analysis.misomip.wet_dry import (
+    find_wet_dry_inputs,
+    get_wet_dry_caption,
+    read_wet_dry_states,
 )
 from polaris.viz import mplstyle_context, plot_horiz_field
 from polaris.viz.planar import plot_mask_boundary
@@ -416,7 +422,9 @@ class RunPlots(ProductStep):
         Whether the run has MALI output to plot
     """
 
-    def __init__(self, component, subdir, diagnostics, kind, label):
+    def __init__(
+        self, component, subdir, diagnostics, kind, label, configured_run
+    ):
         """
         Create the step
 
@@ -436,6 +444,9 @@ class RunPlots(ProductStep):
 
         label : str
             A short description of the run for plot titles
+
+        configured_run : polaris.tasks.e3sm.analysis.misomip.runs.ConfiguredRun
+            The run, for the files of its wet and dry cells
         """
         super().__init__(
             component=component,
@@ -477,7 +488,28 @@ class RunPlots(ProductStep):
                     filename=filename,
                     work_dir_target=f'{diagnostics.path}/{filename}',
                 )
+        self.wet_dry_filenames = self._add_wet_dry_inputs(configured_run)
         self.add_dependency(diagnostics)
+
+    def _add_wet_dry_inputs(self, configured_run):
+        """Link the files the run's wet and dry cells are read from"""
+        monthly = configured_run.monthly
+        inputs = find_wet_dry_inputs(
+            configured_run.run,
+            monthly,
+            start_year=monthly[0].year,
+            end_year=monthly[-1].year,
+        )
+        filenames: dict = dict()
+        for kind, paths in inputs.items():
+            filenames[kind] = []
+            for path in paths:
+                filename = os.path.join(
+                    'wet_dry', kind, os.path.basename(path)
+                )
+                self.add_input_file(filename=filename, target=path)
+                filenames[kind].append(filename)
+        return filenames
 
     def run(self):
         """
@@ -535,12 +567,27 @@ class RunPlots(ProductStep):
                 DAILY_MELT_FILENAME, decode_times=False, decode_timedelta=False
             )
             if 'meltFlux' in ds_melt:
-                plot_melt_movie(ds_init, ds_melt, self.label, 'melt_movie.gif')
+                wet_dry = read_wet_dry_states(
+                    ds_init,
+                    self.wet_dry_filenames['restarts'],
+                    self.wet_dry_filenames['monthly'],
+                    self.wet_dry_filenames['snapshots'],
+                )
+                plot_melt_movie(
+                    ds_init,
+                    ds_melt,
+                    self.label,
+                    'melt_movie.gif',
+                    wet_dry=wet_dry,
+                )
+                title = 'Daily-mean melt rate'
+                if wet_dry is not None:
+                    title = f'{title}. {get_wet_dry_caption(wet_dry)}'
                 self.add_product(
                     plot='melt_movie.gif',
                     group=self.kind,
                     gallery='melt',
-                    title='Daily-mean melt rate',
+                    title=title,
                 )
         if self.has_landice:
             # the times are days, not dates to decode

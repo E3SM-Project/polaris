@@ -114,6 +114,7 @@ class MisomipAnalysisTask(Task):
                     diagnostics=diagnostics[kind],
                     kind=kind,
                     label=label,
+                    configured_run=run,
                 )
             )
             products.append(
