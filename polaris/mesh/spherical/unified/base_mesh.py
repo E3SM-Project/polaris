@@ -2,15 +2,17 @@ import json
 import os
 from typing import Any
 
-import jigsawpy
 import numpy as np
 import xarray as xr
-from jigsawpy.savejig import savejig
 from mpas_tools.logging import check_call
 from scipy.spatial import cKDTree
 
 from polaris.constants import get_constant
 from polaris.mesh import QuasiUniformSphericalMeshStep
+from polaris.mesh.spherical.jigsaw import (
+    import_jigsawpy,
+    write_jigsaw_config,
+)
 
 
 def get_unified_background_cell_width(config):
@@ -165,6 +167,7 @@ class UnifiedBaseMeshStep(QuasiUniformSphericalMeshStep):
         behavior is to add retained river geometry as explicit JIGSAW line
         constraints before the standard JIGSAW-to-MPAS path runs.
         """
+        jigsawpy = import_jigsawpy()
         logger = self.logger
         earth_radius = get_constant('mean_radius')
         opts = self.opts
@@ -187,7 +190,7 @@ class UnifiedBaseMeshStep(QuasiUniformSphericalMeshStep):
         )
         jigsawpy.savemsh(opts.geom_file, geom)
 
-        savejig(opts.jcfg_file, opts)
+        write_jigsaw_config(opts)
         check_call(['jigsaw', opts.jcfg_file], logger=logger)
 
 
@@ -199,6 +202,7 @@ def _build_unified_jigsaw_geometry(
     """
     Build ellipsoid geometry with retained river polylines as constraints.
     """
+    jigsawpy = import_jigsawpy()
     geom = jigsawpy.jigsaw_msh_t()
     geom.mshID = 'ELLIPSOID-MESH'
     geom.radii = earth_radius * 1e-3 * np.ones(3, float)
@@ -302,7 +306,7 @@ def _read_geojson_line_mesh(
     if len(lines) == 0:
         return None, None
 
-    temp = jigsawpy.jigsaw_msh_t()
+    temp = import_jigsawpy().jigsaw_msh_t()
 
     raw_coords = np.vstack([coords[:, :2] for coords in lines])
 

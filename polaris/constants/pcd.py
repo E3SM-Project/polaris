@@ -1,6 +1,6 @@
 import os
 import warnings
-from importlib.resources import open_text
+from importlib.resources import files
 
 from ruamel.yaml import YAML
 
@@ -100,7 +100,8 @@ def check_pcd_version_matches_branch(branch, model):
 def _parse_pcd():
     """Parse constants from the Physical Constants Dictonary (PCD) yaml file"""
 
-    with open_text('polaris.constants', 'pcd.yaml') as f:
+    pcd_file = files('polaris.constants').joinpath('pcd.yaml')
+    with pcd_file.open('r', encoding='utf-8') as f:
         yaml_data = YAML(typ='rt')
         pcd_full = yaml_data.load(f.read())
 

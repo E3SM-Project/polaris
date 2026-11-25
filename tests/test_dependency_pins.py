@@ -4,11 +4,14 @@ import re
 import tomllib
 
 import pytest
+from packaging.specifiers import SpecifierSet
+from packaging.version import Version
 from ruamel.yaml import YAML
 
 #: Packages whose conda name in ``deploy/pixi.toml.j2`` differs from the
 #: name pip knows them by in ``pyproject.toml``
 CONDA_NAMES = {
+    'e3sm-mache': 'mache',
     'matplotlib': 'matplotlib-base',
 }
 
@@ -42,6 +45,22 @@ def _polaris_dependencies():
     return dict(
         _split(entry) for entry in pyproject['project']['dependencies']
     )
+
+
+def _deploy_pins():
+    """
+    The versions ``deploy/pins.cfg`` pins exactly, by conda name
+
+    A deployed environment pins these for reproducibility, while
+    ``pyproject.toml`` gives the range of versions polaris works with, which
+    must include the pinned one.
+    """
+    pinned = {}
+    for name, constraint in _deploy_dependencies().items():
+        match = re.fullmatch(r'([0-9][0-9A-Za-z.]*)\.\*', constraint)
+        if match is not None:
+            pinned[name] = match.group(1)
+    return pinned
 
 
 def _deploy_dependencies():
@@ -135,6 +154,15 @@ def test_pyproject_agrees_with_the_deployed_environment(package):
     conda_name = CONDA_NAMES.get(package, package)
     if conda_name not in deploy:
         pytest.skip(f'{package} is not in the deployed environment')
+    pins = _deploy_pins()
+    if conda_name in pins:
+        constraint = _polaris_dependencies()[package]
+        assert Version(pins[conda_name]) in SpecifierSet(constraint), (
+            f'deploy/pins.cfg pins {conda_name} {pins[conda_name]} but '
+            f'pyproject.toml asks for {package}{constraint or " (any)"}, '
+            f'which does not include it.'
+        )
+        return
     assert _normalize(_polaris_dependencies()[package]) == _normalize(
         deploy[conda_name]
     ), (
