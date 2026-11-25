@@ -1,5 +1,5 @@
 [project]
-name = "polaris"
+name = "e3sm-polaris"
 dynamic = ["version"]
 authors = [
     { name="Xylar Asay-Davis", email="xylar@lanl.gov" },
@@ -13,7 +13,8 @@ authors = [
     { name="Joseph H Kennedy" },
 ]
 description = "Testing and analysis for Omega, MPAS-Ocean, MALI and MPAS-Seaice"
-license = {file = "LICENSE"}
+license = "BSD-3-Clause"
+license-files = ["LICENSE", "licenses/*"]
 readme = "README.md"
 requires-python = ">=3.11"
 classifiers = [
@@ -23,30 +24,33 @@ classifiers = [
     "Programming Language :: Python :: 3.13",
     "Programming Language :: Python :: 3.14",
 
-    "License :: OSI Approved :: BSD License",
-    "Operating System :: OS Independent",
+    "Operating System :: MacOS",
+    "Operating System :: POSIX :: Linux",
 ]
 
 dependencies = [
     "cartopy>=0.26.0",
     "cfchecker",
+    "cftime",
     "cmocean",
+    "e3sm-mache>=5.1.0,<6.0.0",
+    "geometric_features>=1.6.3,<2.0.0",
     "gsw",
-    "importlib_resources",
-    "ipython",
-    "jigsawpy",
     "jinja2",
-    "jupyter",
     "lxml",
     "matplotlib>=3.9.0",
+    "mosaic>=1.3.0,<2.0.0",
+    "mpas_tools>=2.2.1,<3.0.0",
     "netcdf4",
     "numpy>=2.0,<3.0",
+    "pandas",
     "pillow",
     "progressbar2",
-    "pyamg>=4.2.2",
     "pyproj",
-    "ruamel.yaml",
+    "pyremap>=2.5.0,<3.0.0",
+    "pyshp",
     "requests",
+    "ruamel.yaml",
     "scipy>=1.8.0",
     "shapely>=2.0.4,<3.0",
     "termcolor",
@@ -55,6 +59,13 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
+# JIGSAW and JIGSAW-Python are not taken from conda-forge (its versions are
+# too old) but built from source with `mache jigsaw install`.  Only the steps
+# that build a JIGSAW mesh need them.
+jigsaw = [
+    "jigsawpy",
+]
+
 docs = [
     # building documentation
     "sphinx >=7.0.0",
@@ -115,11 +126,30 @@ max-complexity = 18
 convention = "numpy"
 
 [build-system]
-requires = ["setuptools>=60"]
+requires = ["setuptools>=77"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools.packages.find]
-exclude = ["deploy*", "docs*", "e3sm_submodules*", "licenses*", "utils*"]
+include = ["polaris", "polaris.*"]
+
+# The data files installed with polaris.  A file of any other kind is left
+# out of the package (``tests/test_package_data.py`` checks for this).
+[tool.setuptools.package-data]
+polaris = [
+    "**/namelist.*",
+    "**/streams.*",
+    "**/README*",
+    "**/*.cfg",
+    "**/*.csv",
+    "**/*.geojson",
+    "**/*.json",
+    "**/*.mplstyle",
+    "**/*.rgb",
+    "**/*.sh",
+    "**/*.template",
+    "**/*.txt",
+    "**/*.yaml",
+]
 
 [tool.setuptools.dynamic]
 version = { attr = "polaris.version.__version__" }
