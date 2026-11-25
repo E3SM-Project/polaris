@@ -1,0 +1,6 @@
+﻿polaris.ocean.vertical.diagnostics.vertical\_coord\_from\_location
+==================================================================
+
+.. currentmodule:: polaris.ocean.vertical.diagnostics
+
+.. autofunction:: vertical_coord_from_location

@@ -1,0 +1,6 @@
+﻿polaris.ocean.vertical.sigma.update\_sigma\_layer\_thickness
+============================================================
+
+.. currentmodule:: polaris.ocean.vertical.sigma
+
+.. autofunction:: update_sigma_layer_thickness

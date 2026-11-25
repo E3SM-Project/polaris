@@ -1,0 +1,6 @@
+﻿polaris.tasks.ocean.realistic\_global.dynamic\_adjustment.schedule.excluded\_days\_in\_stage
+============================================================================================
+
+.. currentmodule:: polaris.tasks.ocean.realistic_global.dynamic_adjustment.schedule
+
+.. autofunction:: excluded_days_in_stage

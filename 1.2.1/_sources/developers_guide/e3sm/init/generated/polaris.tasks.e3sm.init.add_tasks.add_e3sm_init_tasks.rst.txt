@@ -1,0 +1,6 @@
+﻿polaris.tasks.e3sm.init.add\_tasks.add\_e3sm\_init\_tasks
+=========================================================
+
+.. currentmodule:: polaris.tasks.e3sm.init.add_tasks
+
+.. autofunction:: add_e3sm_init_tasks

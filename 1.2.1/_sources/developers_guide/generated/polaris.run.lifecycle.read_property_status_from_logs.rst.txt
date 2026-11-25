@@ -1,0 +1,6 @@
+﻿polaris.run.lifecycle.read\_property\_status\_from\_logs
+========================================================
+
+.. currentmodule:: polaris.run.lifecycle
+
+.. autofunction:: read_property_status_from_logs

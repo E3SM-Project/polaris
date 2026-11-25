@@ -1,0 +1,6 @@
+﻿polaris.job.is\_job\_active
+===========================
+
+.. currentmodule:: polaris.job
+
+.. autofunction:: is_job_active

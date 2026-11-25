@@ -1,0 +1,6 @@
+﻿polaris.ocean.model.OceanIOStep.add\_horiz\_mesh\_input\_file
+=============================================================
+
+.. currentmodule:: polaris.ocean.model
+
+.. automethod:: OceanIOStep.add_horiz_mesh_input_file

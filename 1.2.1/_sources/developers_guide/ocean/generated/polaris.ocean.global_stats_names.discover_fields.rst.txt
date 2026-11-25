@@ -1,0 +1,6 @@
+﻿polaris.ocean.global\_stats\_names.discover\_fields
+===================================================
+
+.. currentmodule:: polaris.ocean.global_stats_names
+
+.. autofunction:: discover_fields

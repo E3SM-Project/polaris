@@ -1,0 +1,6 @@
+﻿polaris.tasks.ocean.feature\_masks.ComputeOceanFeatureMasksStep.\_open\_mesh\_dataset
+=====================================================================================
+
+.. currentmodule:: polaris.tasks.ocean.feature_masks
+
+.. automethod:: ComputeOceanFeatureMasksStep._open_mesh_dataset

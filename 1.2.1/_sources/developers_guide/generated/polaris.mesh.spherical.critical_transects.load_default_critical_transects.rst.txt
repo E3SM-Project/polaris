@@ -1,0 +1,6 @@
+﻿polaris.mesh.spherical.critical\_transects.load\_default\_critical\_transects
+=============================================================================
+
+.. currentmodule:: polaris.mesh.spherical.critical_transects
+
+.. autofunction:: load_default_critical_transects

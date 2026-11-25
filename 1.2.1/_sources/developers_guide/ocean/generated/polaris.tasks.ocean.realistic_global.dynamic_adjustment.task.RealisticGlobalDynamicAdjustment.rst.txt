@@ -1,0 +1,26 @@
+﻿polaris.tasks.ocean.realistic\_global.dynamic\_adjustment.task.RealisticGlobalDynamicAdjustment
+===============================================================================================
+
+.. currentmodule:: polaris.tasks.ocean.realistic_global.dynamic_adjustment.task
+
+.. autoclass:: RealisticGlobalDynamicAdjustment
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~RealisticGlobalDynamicAdjustment.__init__
+      ~RealisticGlobalDynamicAdjustment.add_step
+      ~RealisticGlobalDynamicAdjustment.configure
+      ~RealisticGlobalDynamicAdjustment.remove_step
+      ~RealisticGlobalDynamicAdjustment.set_shared_config
+   
+   
+
+   
+   
+   

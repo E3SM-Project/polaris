@@ -1,0 +1,6 @@
+﻿polaris.tasks.ocean.manufactured\_solution.viz.Viz.run
+======================================================
+
+.. currentmodule:: polaris.tasks.ocean.manufactured_solution.viz
+
+.. automethod:: Viz.run

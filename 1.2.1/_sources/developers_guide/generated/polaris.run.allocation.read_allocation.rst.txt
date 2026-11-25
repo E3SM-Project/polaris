@@ -1,0 +1,6 @@
+﻿polaris.run.allocation.read\_allocation
+=======================================
+
+.. currentmodule:: polaris.run.allocation
+
+.. autofunction:: read_allocation

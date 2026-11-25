@@ -1,0 +1,6 @@
+﻿polaris.run.serial.run\_step\_in\_process
+=========================================
+
+.. currentmodule:: polaris.run.serial
+
+.. autofunction:: run_step_in_process

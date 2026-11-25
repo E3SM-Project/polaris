@@ -1,0 +1,26 @@
+﻿polaris.tasks.ocean.single\_column.ekman.Ekman
+==============================================
+
+.. currentmodule:: polaris.tasks.ocean.single_column.ekman
+
+.. autoclass:: Ekman
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~Ekman.__init__
+      ~Ekman.add_step
+      ~Ekman.configure
+      ~Ekman.remove_step
+      ~Ekman.set_shared_config
+   
+   
+
+   
+   
+   

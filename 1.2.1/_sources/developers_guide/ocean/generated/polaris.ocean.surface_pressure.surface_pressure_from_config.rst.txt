@@ -1,0 +1,6 @@
+﻿polaris.ocean.surface\_pressure.surface\_pressure\_from\_config
+===============================================================
+
+.. currentmodule:: polaris.ocean.surface_pressure
+
+.. autofunction:: surface_pressure_from_config

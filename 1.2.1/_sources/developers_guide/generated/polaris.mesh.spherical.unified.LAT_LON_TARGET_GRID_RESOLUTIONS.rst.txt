@@ -1,0 +1,6 @@
+﻿polaris.mesh.spherical.unified.LAT\_LON\_TARGET\_GRID\_RESOLUTIONS
+==================================================================
+
+.. currentmodule:: polaris.mesh.spherical.unified
+
+.. autodata:: LAT_LON_TARGET_GRID_RESOLUTIONS

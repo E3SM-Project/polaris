@@ -1,0 +1,6 @@
+﻿polaris.tasks.ocean.realistic\_global.init.lat\_lon\_map.LatLonMapStep.setup
+============================================================================
+
+.. currentmodule:: polaris.tasks.ocean.realistic_global.init.lat_lon_map
+
+.. automethod:: LatLonMapStep.setup

@@ -1,0 +1,6 @@
+﻿polaris.ocean.vertical.ztilde.geom\_height\_from\_pseudo\_height
+================================================================
+
+.. currentmodule:: polaris.ocean.vertical.ztilde
+
+.. autofunction:: geom_height_from_pseudo_height

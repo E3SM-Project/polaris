@@ -1,0 +1,6 @@
+﻿polaris.provenance.get\_summary
+===============================
+
+.. currentmodule:: polaris.provenance
+
+.. autofunction:: get_summary

@@ -1,0 +1,26 @@
+﻿polaris.tasks.e3sm.init.topo.combine.CubedSphereCombineTask
+===========================================================
+
+.. currentmodule:: polaris.tasks.e3sm.init.topo.combine
+
+.. autoclass:: CubedSphereCombineTask
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~CubedSphereCombineTask.__init__
+      ~CubedSphereCombineTask.add_step
+      ~CubedSphereCombineTask.configure
+      ~CubedSphereCombineTask.remove_step
+      ~CubedSphereCombineTask.set_shared_config
+   
+   
+
+   
+   
+   

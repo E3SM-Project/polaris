@@ -1,0 +1,6 @@
+﻿polaris.Step.work\_path
+=======================
+
+.. currentmodule:: polaris
+
+.. automethod:: Step.work_path

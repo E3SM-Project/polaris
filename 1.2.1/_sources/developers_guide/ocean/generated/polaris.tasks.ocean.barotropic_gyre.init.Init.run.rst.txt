@@ -1,0 +1,6 @@
+﻿polaris.tasks.ocean.barotropic\_gyre.init.Init.run
+==================================================
+
+.. currentmodule:: polaris.tasks.ocean.barotropic_gyre.init
+
+.. automethod:: Init.run

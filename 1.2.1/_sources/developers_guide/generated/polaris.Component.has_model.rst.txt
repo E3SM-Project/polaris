@@ -1,0 +1,6 @@
+﻿polaris.Component.has\_model
+============================
+
+.. currentmodule:: polaris
+
+.. automethod:: Component.has_model

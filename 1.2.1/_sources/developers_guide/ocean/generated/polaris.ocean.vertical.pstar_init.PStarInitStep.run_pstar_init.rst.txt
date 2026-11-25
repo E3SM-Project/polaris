@@ -1,0 +1,6 @@
+﻿polaris.ocean.vertical.pstar\_init.PStarInitStep.run\_pstar\_init
+=================================================================
+
+.. currentmodule:: polaris.ocean.vertical.pstar_init
+
+.. automethod:: PStarInitStep.run_pstar_init

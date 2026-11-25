@@ -1,0 +1,6 @@
+﻿polaris.tasks.mesh.spherical.feature\_masks.add\_feature\_mask\_tasks
+=====================================================================
+
+.. currentmodule:: polaris.tasks.mesh.spherical.feature_masks
+
+.. autofunction:: add_feature_mask_tasks

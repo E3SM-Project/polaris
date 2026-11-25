@@ -1,0 +1,26 @@
+﻿polaris.tasks.mesh.base.BaseMeshTask
+====================================
+
+.. currentmodule:: polaris.tasks.mesh.base
+
+.. autoclass:: BaseMeshTask
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~BaseMeshTask.__init__
+      ~BaseMeshTask.add_step
+      ~BaseMeshTask.configure
+      ~BaseMeshTask.remove_step
+      ~BaseMeshTask.set_shared_config
+   
+   
+
+   
+   
+   

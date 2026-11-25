@@ -1,0 +1,6 @@
+﻿polaris.job.SubmissionError
+===========================
+
+.. currentmodule:: polaris.job
+
+.. autoexception:: SubmissionError

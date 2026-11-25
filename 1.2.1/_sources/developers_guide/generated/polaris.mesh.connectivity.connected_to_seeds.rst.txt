@@ -1,0 +1,6 @@
+﻿polaris.mesh.connectivity.connected\_to\_seeds
+==============================================
+
+.. currentmodule:: polaris.mesh.connectivity
+
+.. autofunction:: connected_to_seeds

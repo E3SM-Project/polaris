@@ -1,0 +1,6 @@
+﻿polaris.ocean.convergence.forward.ConvergenceForward.dynamic\_model\_config
+===========================================================================
+
+.. currentmodule:: polaris.ocean.convergence.forward
+
+.. automethod:: ConvergenceForward.dynamic_model_config

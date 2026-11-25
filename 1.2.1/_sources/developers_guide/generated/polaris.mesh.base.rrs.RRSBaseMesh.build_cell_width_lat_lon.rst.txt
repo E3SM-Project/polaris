@@ -1,0 +1,6 @@
+﻿polaris.mesh.base.rrs.RRSBaseMesh.build\_cell\_width\_lat\_lon
+==============================================================
+
+.. currentmodule:: polaris.mesh.base.rrs
+
+.. automethod:: RRSBaseMesh.build_cell_width_lat_lon

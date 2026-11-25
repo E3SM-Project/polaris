@@ -1,0 +1,26 @@
+﻿polaris.tasks.mesh.spherical.unified.river.UnifiedRiverNetworkTask
+==================================================================
+
+.. currentmodule:: polaris.tasks.mesh.spherical.unified.river
+
+.. autoclass:: UnifiedRiverNetworkTask
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~UnifiedRiverNetworkTask.__init__
+      ~UnifiedRiverNetworkTask.add_step
+      ~UnifiedRiverNetworkTask.configure
+      ~UnifiedRiverNetworkTask.remove_step
+      ~UnifiedRiverNetworkTask.set_shared_config
+   
+   
+
+   
+   
+   

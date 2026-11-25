@@ -1,0 +1,6 @@
+﻿polaris.mesh.validate.MPAS\_MESH\_VALIDATE\_VARS
+================================================
+
+.. currentmodule:: polaris.mesh.validate
+
+.. autodata:: MPAS_MESH_VALIDATE_VARS

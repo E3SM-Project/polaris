@@ -1,0 +1,6 @@
+﻿polaris.mesh.spherical.unified.effective\_ocean.widen\_passages
+===============================================================
+
+.. currentmodule:: polaris.mesh.spherical.unified.effective_ocean
+
+.. autofunction:: widen_passages

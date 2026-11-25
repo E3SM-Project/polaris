@@ -1,0 +1,6 @@
+﻿polaris.ocean.vertical.zlevel.update\_z\_level\_layer\_thickness
+================================================================
+
+.. currentmodule:: polaris.ocean.vertical.zlevel
+
+.. autofunction:: update_z_level_layer_thickness

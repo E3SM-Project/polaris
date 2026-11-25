@@ -1,0 +1,6 @@
+﻿polaris.build.omega.get\_omega\_cime\_target
+============================================
+
+.. currentmodule:: polaris.build.omega
+
+.. autofunction:: get_omega_cime_target

@@ -1,0 +1,6 @@
+﻿polaris.mesh.connectivity.label\_regions
+========================================
+
+.. currentmodule:: polaris.mesh.connectivity
+
+.. autofunction:: label_regions

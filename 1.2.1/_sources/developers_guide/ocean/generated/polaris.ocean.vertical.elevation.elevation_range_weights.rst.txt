@@ -1,0 +1,6 @@
+﻿polaris.ocean.vertical.elevation.elevation\_range\_weights
+==========================================================
+
+.. currentmodule:: polaris.ocean.vertical.elevation
+
+.. autofunction:: elevation_range_weights

@@ -1,0 +1,6 @@
+﻿polaris.coriolis.add\_beta\_plane\_coriolis
+===========================================
+
+.. currentmodule:: polaris.coriolis
+
+.. autofunction:: add_beta_plane_coriolis

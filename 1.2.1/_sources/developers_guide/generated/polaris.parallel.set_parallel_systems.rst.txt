@@ -1,0 +1,6 @@
+﻿polaris.parallel.set\_parallel\_systems
+=======================================
+
+.. currentmodule:: polaris.parallel
+
+.. autofunction:: set_parallel_systems

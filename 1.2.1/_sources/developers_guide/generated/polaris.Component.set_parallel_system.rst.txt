@@ -1,0 +1,6 @@
+﻿polaris.Component.set\_parallel\_system
+=======================================
+
+.. currentmodule:: polaris
+
+.. automethod:: Component.set_parallel_system

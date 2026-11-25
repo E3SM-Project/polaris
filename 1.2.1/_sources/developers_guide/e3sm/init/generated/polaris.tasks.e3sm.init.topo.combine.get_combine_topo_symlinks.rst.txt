@@ -1,0 +1,6 @@
+﻿polaris.tasks.e3sm.init.topo.combine.get\_combine\_topo\_symlinks
+=================================================================
+
+.. currentmodule:: polaris.tasks.e3sm.init.topo.combine
+
+.. autofunction:: get_combine_topo_symlinks

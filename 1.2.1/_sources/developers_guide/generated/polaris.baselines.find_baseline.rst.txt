@@ -1,0 +1,6 @@
+﻿polaris.baselines.find\_baseline
+================================
+
+.. currentmodule:: polaris.baselines
+
+.. autofunction:: find_baseline

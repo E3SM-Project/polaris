@@ -1,0 +1,6 @@
+﻿polaris.ocean.vertical.zstar.update\_z\_star\_layer\_thickness
+==============================================================
+
+.. currentmodule:: polaris.ocean.vertical.zstar
+
+.. autofunction:: update_z_star_layer_thickness

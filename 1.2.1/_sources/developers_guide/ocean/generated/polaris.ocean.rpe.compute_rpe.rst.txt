@@ -1,0 +1,6 @@
+﻿polaris.ocean.rpe.compute\_rpe
+==============================
+
+.. currentmodule:: polaris.ocean.rpe
+
+.. autofunction:: compute_rpe

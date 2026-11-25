@@ -1,0 +1,35 @@
+﻿polaris.run.allocation.NodeResources
+====================================
+
+.. currentmodule:: polaris.run.allocation
+
+.. autoclass:: NodeResources
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~NodeResources.__init__
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~NodeResources.core_ids
+      ~NodeResources.name
+      ~NodeResources.cores
+      ~NodeResources.gpus
+      ~NodeResources.memory
+      ~NodeResources.memory_source
+      ~NodeResources.memory_total
+      ~NodeResources.memory_configured
+   
+   

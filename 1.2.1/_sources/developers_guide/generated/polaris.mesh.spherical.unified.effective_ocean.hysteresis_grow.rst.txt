@@ -1,0 +1,6 @@
+﻿polaris.mesh.spherical.unified.effective\_ocean.hysteresis\_grow
+================================================================
+
+.. currentmodule:: polaris.mesh.spherical.unified.effective_ocean
+
+.. autofunction:: hysteresis_grow

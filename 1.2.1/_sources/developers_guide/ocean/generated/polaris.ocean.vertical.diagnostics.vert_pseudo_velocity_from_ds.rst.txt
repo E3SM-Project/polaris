@@ -1,0 +1,6 @@
+﻿polaris.ocean.vertical.diagnostics.vert\_pseudo\_velocity\_from\_ds
+===================================================================
+
+.. currentmodule:: polaris.ocean.vertical.diagnostics
+
+.. autofunction:: vert_pseudo_velocity_from_ds

@@ -1,0 +1,6 @@
+﻿polaris.ocean.conservation.compute\_total\_energy
+=================================================
+
+.. currentmodule:: polaris.ocean.conservation
+
+.. autofunction:: compute_total_energy

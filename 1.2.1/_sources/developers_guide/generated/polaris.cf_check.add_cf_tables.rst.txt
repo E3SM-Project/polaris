@@ -1,0 +1,6 @@
+﻿polaris.cf\_check.add\_cf\_tables
+=================================
+
+.. currentmodule:: polaris.cf_check
+
+.. autofunction:: add_cf_tables

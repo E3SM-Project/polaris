@@ -1,0 +1,6 @@
+﻿polaris.mesh.spherical.unified.effective\_ocean.block\_average
+==============================================================
+
+.. currentmodule:: polaris.mesh.spherical.unified.effective_ocean
+
+.. autofunction:: block_average

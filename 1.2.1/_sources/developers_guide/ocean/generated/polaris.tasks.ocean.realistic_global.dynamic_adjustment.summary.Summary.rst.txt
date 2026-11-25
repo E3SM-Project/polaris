@@ -1,0 +1,48 @@
+﻿polaris.tasks.ocean.realistic\_global.dynamic\_adjustment.summary.Summary
+=========================================================================
+
+.. currentmodule:: polaris.tasks.ocean.realistic_global.dynamic_adjustment.summary
+
+.. autoclass:: Summary
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~Summary.__init__
+      ~Summary.add_cf_check
+      ~Summary.add_dependency
+      ~Summary.add_input_file
+      ~Summary.add_output_file
+      ~Summary.add_property_check
+      ~Summary.check_cf
+      ~Summary.check_properties
+      ~Summary.constrain_resources
+      ~Summary.process_inputs_and_outputs
+      ~Summary.run
+      ~Summary.runtime_setup
+      ~Summary.set_resources
+      ~Summary.set_shared_config
+      ~Summary.setup
+      ~Summary.validate_baselines
+      ~Summary.work_path
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~Summary.cores
+      ~Summary.gpus
+      ~Summary.may_span_nodes
+      ~Summary.min_cores
+      ~Summary.min_gpus
+   
+   

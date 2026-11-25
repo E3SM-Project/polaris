@@ -1,0 +1,6 @@
+﻿polaris.cf.add\_var\_attrs
+==========================
+
+.. currentmodule:: polaris.cf
+
+.. autofunction:: add_var_attrs

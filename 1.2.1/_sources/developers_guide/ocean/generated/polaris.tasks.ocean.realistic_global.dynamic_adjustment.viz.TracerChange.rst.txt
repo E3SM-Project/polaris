@@ -1,0 +1,33 @@
+﻿polaris.tasks.ocean.realistic\_global.dynamic\_adjustment.viz.TracerChange
+==========================================================================
+
+.. currentmodule:: polaris.tasks.ocean.realistic_global.dynamic_adjustment.viz
+
+.. autoclass:: TracerChange
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~TracerChange.__init__
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~TracerChange.density
+      ~TracerChange.edges
+      ~TracerChange.mean
+      ~TracerChange.rms
+      ~TracerChange.p99
+      ~TracerChange.max_abs
+   
+   

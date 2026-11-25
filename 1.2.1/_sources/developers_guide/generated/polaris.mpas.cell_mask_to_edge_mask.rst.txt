@@ -1,0 +1,6 @@
+﻿polaris.mpas.cell\_mask\_to\_edge\_mask
+=======================================
+
+.. currentmodule:: polaris.mpas
+
+.. autofunction:: cell_mask_to_edge_mask

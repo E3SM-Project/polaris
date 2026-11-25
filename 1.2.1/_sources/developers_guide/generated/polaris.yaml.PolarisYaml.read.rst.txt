@@ -1,0 +1,6 @@
+﻿polaris.yaml.PolarisYaml.read
+=============================
+
+.. currentmodule:: polaris.yaml
+
+.. automethod:: PolarisYaml.read

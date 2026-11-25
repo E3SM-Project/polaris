@@ -1,0 +1,6 @@
+﻿polaris.mesh.connectivity.transport\_link\_mask
+===============================================
+
+.. currentmodule:: polaris.mesh.connectivity
+
+.. autofunction:: transport_link_mask

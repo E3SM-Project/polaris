@@ -1,0 +1,6 @@
+﻿polaris.mesh.spherical.jigsaw.import\_jigsawpy
+==============================================
+
+.. currentmodule:: polaris.mesh.spherical.jigsaw
+
+.. autofunction:: import_jigsawpy

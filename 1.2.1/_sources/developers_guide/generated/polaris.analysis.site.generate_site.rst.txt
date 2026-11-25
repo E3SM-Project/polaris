@@ -1,0 +1,6 @@
+﻿polaris.analysis.site.generate\_site
+====================================
+
+.. currentmodule:: polaris.analysis.site
+
+.. autofunction:: generate_site

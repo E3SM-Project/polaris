@@ -1,0 +1,6 @@
+﻿polaris.ocean.eos.convert\_tracer\_pair
+=======================================
+
+.. currentmodule:: polaris.ocean.eos
+
+.. autofunction:: convert_tracer_pair

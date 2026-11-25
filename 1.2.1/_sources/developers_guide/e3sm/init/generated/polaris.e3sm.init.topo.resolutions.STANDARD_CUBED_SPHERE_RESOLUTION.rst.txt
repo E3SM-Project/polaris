@@ -1,0 +1,6 @@
+﻿polaris.e3sm.init.topo.resolutions.STANDARD\_CUBED\_SPHERE\_RESOLUTION
+======================================================================
+
+.. currentmodule:: polaris.e3sm.init.topo.resolutions
+
+.. autodata:: STANDARD_CUBED_SPHERE_RESOLUTION

@@ -1,0 +1,6 @@
+﻿polaris.tasks.e3sm.init.topo.combine.CombineWeightsStep.constrain\_resources
+============================================================================
+
+.. currentmodule:: polaris.tasks.e3sm.init.topo.combine
+
+.. automethod:: CombineWeightsStep.constrain_resources

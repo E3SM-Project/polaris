@@ -1,0 +1,6 @@
+﻿polaris.mesh.spherical.unified.UnifiedBaseMeshStep.build\_cell\_width\_lat\_lon
+===============================================================================
+
+.. currentmodule:: polaris.mesh.spherical.unified
+
+.. automethod:: UnifiedBaseMeshStep.build_cell_width_lat_lon

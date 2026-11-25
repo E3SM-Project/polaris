@@ -1,0 +1,6 @@
+﻿polaris.ocean.model.get\_layer\_mass
+====================================
+
+.. currentmodule:: polaris.ocean.model
+
+.. autofunction:: get_layer_mass

@@ -1,0 +1,30 @@
+﻿polaris.run.memory.ProcessMemory
+================================
+
+.. currentmodule:: polaris.run.memory
+
+.. autoclass:: ProcessMemory
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~ProcessMemory.__init__
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~ProcessMemory.resident
+      ~ProcessMemory.peak
+      ~ProcessMemory.largest_subprocess
+   
+   

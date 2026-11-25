@@ -1,0 +1,6 @@
+﻿polaris.mesh.spherical.coastline.COASTLINE\_VALIDATE\_VARS
+==========================================================
+
+.. currentmodule:: polaris.mesh.spherical.coastline
+
+.. autodata:: COASTLINE_VALIDATE_VARS

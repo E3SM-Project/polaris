@@ -1,0 +1,6 @@
+﻿polaris.ocean.overturning.interp\_cell\_to\_line\_edges
+=======================================================
+
+.. currentmodule:: polaris.ocean.overturning
+
+.. autofunction:: interp_cell_to_line_edges

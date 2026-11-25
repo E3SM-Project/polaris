@@ -1,0 +1,6 @@
+﻿polaris.mesh.spherical.unified.families.default.build\_ocean\_background\_from\_mode
+====================================================================================
+
+.. currentmodule:: polaris.mesh.spherical.unified.families.default
+
+.. autofunction:: build_ocean_background_from_mode

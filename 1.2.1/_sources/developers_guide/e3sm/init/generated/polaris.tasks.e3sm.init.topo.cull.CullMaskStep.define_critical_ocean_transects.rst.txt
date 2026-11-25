@@ -1,0 +1,6 @@
+﻿polaris.tasks.e3sm.init.topo.cull.CullMaskStep.define\_critical\_ocean\_transects
+=================================================================================
+
+.. currentmodule:: polaris.tasks.e3sm.init.topo.cull
+
+.. automethod:: CullMaskStep.define_critical_ocean_transects

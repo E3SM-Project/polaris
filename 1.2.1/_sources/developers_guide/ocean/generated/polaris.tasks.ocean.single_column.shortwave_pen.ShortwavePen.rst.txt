@@ -1,0 +1,26 @@
+﻿polaris.tasks.ocean.single\_column.shortwave\_pen.ShortwavePen
+==============================================================
+
+.. currentmodule:: polaris.tasks.ocean.single_column.shortwave_pen
+
+.. autoclass:: ShortwavePen
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~ShortwavePen.__init__
+      ~ShortwavePen.add_step
+      ~ShortwavePen.configure
+      ~ShortwavePen.remove_step
+      ~ShortwavePen.set_shared_config
+   
+   
+
+   
+   
+   

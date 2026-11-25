@@ -1,0 +1,26 @@
+﻿polaris.run.pool.ResourcePool
+=============================
+
+.. currentmodule:: polaris.run.pool
+
+.. autoclass:: ResourcePool
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~ResourcePool.__init__
+      ~ResourcePool.release
+      ~ResourcePool.reserve
+      ~ResourcePool.resident
+      ~ResourcePool.why_impossible
+   
+   
+
+   
+   
+   

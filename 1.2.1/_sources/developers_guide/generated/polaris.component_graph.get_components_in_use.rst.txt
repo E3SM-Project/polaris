@@ -1,0 +1,6 @@
+﻿polaris.component\_graph.get\_components\_in\_use
+=================================================
+
+.. currentmodule:: polaris.component_graph
+
+.. autofunction:: get_components_in_use

@@ -1,0 +1,6 @@
+﻿polaris.e3sm.init.topo.format\_lat\_lon\_resolution\_name
+=========================================================
+
+.. currentmodule:: polaris.e3sm.init.topo
+
+.. autofunction:: format_lat_lon_resolution_name

@@ -1,0 +1,6 @@
+﻿polaris.tasks.ocean.internal\_wave.viz.Viz.run
+==============================================
+
+.. currentmodule:: polaris.tasks.ocean.internal_wave.viz
+
+.. automethod:: Viz.run

@@ -1,0 +1,6 @@
+﻿polaris.mesh.spherical.unified.get\_unified\_finest\_cell\_width
+================================================================
+
+.. currentmodule:: polaris.mesh.spherical.unified
+
+.. autofunction:: get_unified_finest_cell_width

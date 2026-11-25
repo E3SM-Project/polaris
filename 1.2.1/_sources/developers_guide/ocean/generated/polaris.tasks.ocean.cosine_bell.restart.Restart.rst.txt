@@ -1,0 +1,26 @@
+﻿polaris.tasks.ocean.cosine\_bell.restart.Restart
+================================================
+
+.. currentmodule:: polaris.tasks.ocean.cosine_bell.restart
+
+.. autoclass:: Restart
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~Restart.__init__
+      ~Restart.add_step
+      ~Restart.configure
+      ~Restart.remove_step
+      ~Restart.set_shared_config
+   
+   
+
+   
+   
+   

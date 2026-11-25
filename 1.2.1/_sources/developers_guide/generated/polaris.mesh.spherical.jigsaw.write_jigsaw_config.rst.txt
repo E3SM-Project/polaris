@@ -1,0 +1,6 @@
+﻿polaris.mesh.spherical.jigsaw.write\_jigsaw\_config
+===================================================
+
+.. currentmodule:: polaris.mesh.spherical.jigsaw
+
+.. autofunction:: write_jigsaw_config

@@ -1,0 +1,6 @@
+﻿polaris.tasks.ocean.realistic\_global.add\_realistic\_global\_tasks
+===================================================================
+
+.. currentmodule:: polaris.tasks.ocean.realistic_global
+
+.. autofunction:: add_realistic_global_tasks

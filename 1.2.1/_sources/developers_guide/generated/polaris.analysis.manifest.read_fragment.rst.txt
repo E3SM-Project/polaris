@@ -1,0 +1,6 @@
+﻿polaris.analysis.manifest.read\_fragment
+========================================
+
+.. currentmodule:: polaris.analysis.manifest
+
+.. autofunction:: read_fragment

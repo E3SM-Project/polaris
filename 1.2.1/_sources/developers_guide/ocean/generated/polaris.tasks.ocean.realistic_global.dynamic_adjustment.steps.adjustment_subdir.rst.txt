@@ -1,0 +1,6 @@
+﻿polaris.tasks.ocean.realistic\_global.dynamic\_adjustment.steps.adjustment\_subdir
+==================================================================================
+
+.. currentmodule:: polaris.tasks.ocean.realistic_global.dynamic_adjustment.steps
+
+.. autofunction:: adjustment_subdir

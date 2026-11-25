@@ -1,0 +1,6 @@
+﻿polaris.analysis.publish.publish
+================================
+
+.. currentmodule:: polaris.analysis.publish
+
+.. autofunction:: publish

@@ -1,0 +1,6 @@
+﻿polaris.ModelStep.setup
+=======================
+
+.. currentmodule:: polaris
+
+.. automethod:: ModelStep.setup

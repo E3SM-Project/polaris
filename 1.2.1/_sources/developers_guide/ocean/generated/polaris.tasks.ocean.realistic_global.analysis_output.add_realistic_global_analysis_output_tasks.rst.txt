@@ -1,0 +1,6 @@
+﻿polaris.tasks.ocean.realistic\_global.analysis\_output.add\_realistic\_global\_analysis\_output\_tasks
+======================================================================================================
+
+.. currentmodule:: polaris.tasks.ocean.realistic_global.analysis_output
+
+.. autofunction:: add_realistic_global_analysis_output_tasks

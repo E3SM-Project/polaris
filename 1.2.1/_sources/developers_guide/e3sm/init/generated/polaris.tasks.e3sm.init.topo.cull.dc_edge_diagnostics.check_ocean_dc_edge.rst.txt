@@ -1,0 +1,6 @@
+﻿polaris.tasks.e3sm.init.topo.cull.dc\_edge\_diagnostics.check\_ocean\_dc\_edge
+==============================================================================
+
+.. currentmodule:: polaris.tasks.e3sm.init.topo.cull.dc_edge_diagnostics
+
+.. autofunction:: check_ocean_dc_edge

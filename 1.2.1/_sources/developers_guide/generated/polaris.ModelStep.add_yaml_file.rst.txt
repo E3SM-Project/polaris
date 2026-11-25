@@ -1,0 +1,6 @@
+﻿polaris.ModelStep.add\_yaml\_file
+=================================
+
+.. currentmodule:: polaris
+
+.. automethod:: ModelStep.add_yaml_file

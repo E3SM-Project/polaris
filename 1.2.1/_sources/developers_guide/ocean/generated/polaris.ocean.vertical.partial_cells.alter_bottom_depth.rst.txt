@@ -1,0 +1,6 @@
+﻿polaris.ocean.vertical.partial\_cells.alter\_bottom\_depth
+==========================================================
+
+.. currentmodule:: polaris.ocean.vertical.partial_cells
+
+.. autofunction:: alter_bottom_depth

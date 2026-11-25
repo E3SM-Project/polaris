@@ -1,0 +1,6 @@
+﻿polaris.tasks.mesh.spherical.unified.sizing\_field.get\_unified\_mesh\_sizing\_field\_steps
+===========================================================================================
+
+.. currentmodule:: polaris.tasks.mesh.spherical.unified.sizing_field
+
+.. autofunction:: get_unified_mesh_sizing_field_steps

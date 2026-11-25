@@ -1,0 +1,6 @@
+﻿polaris.component\_graph.get\_steps\_by\_component
+==================================================
+
+.. currentmodule:: polaris.component_graph
+
+.. autofunction:: get_steps_by_component

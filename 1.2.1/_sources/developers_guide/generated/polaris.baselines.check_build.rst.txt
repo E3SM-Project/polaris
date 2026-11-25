@@ -1,0 +1,6 @@
+﻿polaris.baselines.check\_build
+==============================
+
+.. currentmodule:: polaris.baselines
+
+.. autofunction:: check_build

@@ -1,0 +1,6 @@
+﻿polaris.tasks.ocean.realistic\_global.forward.initial\_condition.DatabaseInitialCondition.add\_input\_files
+===========================================================================================================
+
+.. currentmodule:: polaris.tasks.ocean.realistic_global.forward.initial_condition
+
+.. automethod:: DatabaseInitialCondition.add_input_files

@@ -1,0 +1,6 @@
+﻿polaris.tasks.ocean.inertial\_gravity\_wave.add\_inertial\_gravity\_wave\_tasks
+===============================================================================
+
+.. currentmodule:: polaris.tasks.ocean.inertial_gravity_wave
+
+.. autofunction:: add_inertial_gravity_wave_tasks

@@ -1,0 +1,6 @@
+﻿polaris.ocean.overturning.compute\_overturning
+==============================================
+
+.. currentmodule:: polaris.ocean.overturning
+
+.. autofunction:: compute_overturning

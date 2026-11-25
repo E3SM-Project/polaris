@@ -1,0 +1,6 @@
+﻿polaris.build.mpas\_ocean.make\_build\_script
+=============================================
+
+.. currentmodule:: polaris.build.mpas_ocean
+
+.. autofunction:: make_build_script

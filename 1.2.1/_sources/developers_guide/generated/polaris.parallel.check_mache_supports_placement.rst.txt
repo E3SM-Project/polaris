@@ -1,0 +1,6 @@
+﻿polaris.parallel.check\_mache\_supports\_placement
+==================================================
+
+.. currentmodule:: polaris.parallel
+
+.. autofunction:: check_mache_supports_placement

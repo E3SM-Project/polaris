@@ -1,0 +1,6 @@
+﻿polaris.tasks.ocean.horiz\_press\_grad.column.get\_array\_from\_mid\_grad
+=========================================================================
+
+.. currentmodule:: polaris.tasks.ocean.horiz_press_grad.column
+
+.. autofunction:: get_array_from_mid_grad

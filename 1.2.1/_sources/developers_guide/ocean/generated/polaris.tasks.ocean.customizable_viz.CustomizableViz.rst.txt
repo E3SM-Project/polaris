@@ -1,0 +1,26 @@
+﻿polaris.tasks.ocean.customizable\_viz.CustomizableViz
+=====================================================
+
+.. currentmodule:: polaris.tasks.ocean.customizable_viz
+
+.. autoclass:: CustomizableViz
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~CustomizableViz.__init__
+      ~CustomizableViz.add_step
+      ~CustomizableViz.configure
+      ~CustomizableViz.remove_step
+      ~CustomizableViz.set_shared_config
+   
+   
+
+   
+   
+   

@@ -1,0 +1,6 @@
+﻿polaris.tasks.ocean.realistic\_global.dynamic\_adjustment.steps.get\_realistic\_dynamic\_adjustment\_steps
+==========================================================================================================
+
+.. currentmodule:: polaris.tasks.ocean.realistic_global.dynamic_adjustment.steps
+
+.. autofunction:: get_realistic_dynamic_adjustment_steps

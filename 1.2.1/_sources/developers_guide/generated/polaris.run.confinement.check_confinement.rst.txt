@@ -1,0 +1,6 @@
+﻿polaris.run.confinement.check\_confinement
+==========================================
+
+.. currentmodule:: polaris.run.confinement
+
+.. autofunction:: check_confinement

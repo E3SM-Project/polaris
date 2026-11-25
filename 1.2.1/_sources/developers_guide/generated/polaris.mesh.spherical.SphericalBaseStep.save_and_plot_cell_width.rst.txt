@@ -1,0 +1,6 @@
+﻿polaris.mesh.spherical.SphericalBaseStep.save\_and\_plot\_cell\_width
+=====================================================================
+
+.. currentmodule:: polaris.mesh.spherical
+
+.. automethod:: SphericalBaseStep.save_and_plot_cell_width

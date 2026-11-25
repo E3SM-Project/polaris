@@ -1,0 +1,6 @@
+﻿polaris.ocean.vertical.elevation.parse\_vertical\_reduction
+===========================================================
+
+.. currentmodule:: polaris.ocean.vertical.elevation
+
+.. autofunction:: parse_vertical_reduction

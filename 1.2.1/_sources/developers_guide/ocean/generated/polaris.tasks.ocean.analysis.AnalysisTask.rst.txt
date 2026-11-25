@@ -1,0 +1,27 @@
+﻿polaris.tasks.ocean.analysis.AnalysisTask
+=========================================
+
+.. currentmodule:: polaris.tasks.ocean.analysis
+
+.. autoclass:: AnalysisTask
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~AnalysisTask.__init__
+      ~AnalysisTask.add_step
+      ~AnalysisTask.configure
+      ~AnalysisTask.remove_step
+      ~AnalysisTask.set_shared_config
+      ~AnalysisTask.year_range
+   
+   
+
+   
+   
+   

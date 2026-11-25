@@ -1,0 +1,32 @@
+﻿polaris.mesh.base.BaseMeshDefinition
+====================================
+
+.. currentmodule:: polaris.mesh.base
+
+.. autoclass:: BaseMeshDefinition
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~BaseMeshDefinition.__init__
+      ~BaseMeshDefinition.count
+      ~BaseMeshDefinition.index
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~BaseMeshDefinition.max_res
+      ~BaseMeshDefinition.min_res
+      ~BaseMeshDefinition.prefix
+   
+   

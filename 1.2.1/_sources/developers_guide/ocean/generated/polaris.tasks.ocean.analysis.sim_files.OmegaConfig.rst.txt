@@ -1,0 +1,26 @@
+﻿polaris.tasks.ocean.analysis.sim\_files.OmegaConfig
+===================================================
+
+.. currentmodule:: polaris.tasks.ocean.analysis.sim_files
+
+.. autoclass:: OmegaConfig
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~OmegaConfig.__init__
+      ~OmegaConfig.analysis_group_status
+      ~OmegaConfig.analysis_streams
+      ~OmegaConfig.stream_filename
+      ~OmegaConfig.stream_status
+   
+   
+
+   
+   
+   

@@ -1,0 +1,325 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Quick Start for Users</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=ca842793"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Tasks" href="tasks.html" />
+    <link rel="prev" title="Polaris" href="../index.html" />
+    <link href="../_static/style.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Polaris
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User's guide</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Quick Start for Users</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#conda-env">Installing from conda-forge</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#install-jigsaw">JIGSAW, for tasks that build meshes</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#setup-overview">Setting up tasks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#run-overview">Running tasks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#suite-overview">Suites</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tasks.html">Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="config_files.html">Config Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="suites.html">Suites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="e3sm/init/index.html">E3SM Initial Condition Component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="machines/index.html">Machines</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developer's guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/quick_start.html">Quick Start for Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/command_line.html">Command-line interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/organization/index.html">Organization of Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/e3sm/init/index.html">E3SM initial condition (e3sm/init) component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/mesh/index.html">Mesh component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/ocean/index.html">Ocean component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/seaice/index.html">Sea ice component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/framework/index.html">Framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/machines/index.html">Machines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/benchmarking.html">Benchmarking a branch against a baseline</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/omega_pr_testing.html">Testing an Omega pull request</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/docs.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/building_docs.html">Building the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/building_docs.html#previewing-the-documentation">Previewing the Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/conda_vs_spack.html">How Conda and Spack Work Together in Polaris</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/updating_conda.html">Updating Deployment Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/updating_spack/index.html">Updating Shared Spack Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide/api.html">API reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../design_docs/index.html">Design Documents</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/dev_add_category_of_tasks/index.html">Developer Tutorial: Adding a New Category of Tasks</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Glossary</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../glossary.html">Glossary</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Polaris</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Quick Start for Users</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/users_guide/quick_start.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section class="tex2jax_ignore mathjax_ignore" id="quick-start">
+<span id="quick-start-for-users"></span><h1>Quick Start for Users<a class="headerlink" href="#quick-start" title="Link to this heading"></a></h1>
+<p>There are two ways to get Polaris:</p>
+<ul class="simple">
+<li><p><strong>Install it from conda-forge</strong> to set up and run tasks with a model you
+have already built, and to run tasks that need no model, such as building
+meshes and analyzing output.  This is described below.</p></li>
+<li><p><strong>Deploy it from a clone of the repository</strong> with <code class="docutils literal notranslate"><span class="pre">./deploy.py</span></code> when you
+need to build MPAS-Ocean, Omega, MALI or MPAS-Seaice, or to change Polaris
+itself.  See <a class="reference internal" href="../developers_guide/quick_start.html#dev-quick-start"><span class="std std-ref">Quick Start for Developers</span></a>.</p></li>
+</ul>
+<p>Polaris runs on Linux and macOS.</p>
+<section id="conda-env">
+<span id="installing-from-conda-forge"></span><h2>Installing from conda-forge<a class="headerlink" href="#conda-env" title="Link to this heading"></a></h2>
+<p>The conda package is called <code class="docutils literal notranslate"><span class="pre">e3sm-polaris</span></code>.  The Python package and the
+command it installs are both called <code class="docutils literal notranslate"><span class="pre">polaris</span></code>:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>conda<span class="w"> </span>create<span class="w"> </span>-n<span class="w"> </span>polaris<span class="w"> </span>-c<span class="w"> </span>conda-forge<span class="w"> </span>e3sm-polaris
+conda<span class="w"> </span>activate<span class="w"> </span>polaris
+polaris<span class="w"> </span>--help
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The conda-forge package named <code class="docutils literal notranslate"><span class="pre">polaris</span></code> is a different project, the client
+for the Polaris Hub.  Both install a Python package called <code class="docutils literal notranslate"><span class="pre">polaris</span></code>, so they
+cannot be installed in the same environment.</p>
+</div>
+<section id="install-jigsaw">
+<span id="jigsaw-for-tasks-that-build-meshes"></span><h3>JIGSAW, for tasks that build meshes<a class="headerlink" href="#install-jigsaw" title="Link to this heading"></a></h3>
+<p>Tasks that build a mesh with <a class="reference external" href="https://github.com/dengwirda/jigsaw">JIGSAW</a>
+need JIGSAW and JIGSAW-Python.  They are not dependencies of <code class="docutils literal notranslate"><span class="pre">e3sm-polaris</span></code>,
+because Polaris needs newer versions than conda-forge provides.  Instead,
+<a class="reference external" href="https://docs.e3sm.org/mache/">mache</a> builds them from source and installs
+them into the active environment.</p>
+<p>With your Polaris environment active, clone JIGSAW-Python at the version this
+release of Polaris uses, then run <code class="docutils literal notranslate"><span class="pre">mache</span> <span class="pre">jigsaw</span> <span class="pre">install</span></code> from the directory
+that contains the clone:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/dengwirda/jigsaw-python.git
+git<span class="w"> </span>-C<span class="w"> </span>jigsaw-python<span class="w"> </span>checkout<span class="w"> </span>46a26d38b27fcdd28be723c923ce677159d2b766
+mache<span class="w"> </span>jigsaw<span class="w"> </span>install
+</pre></div>
+</div>
+<p>Without JIGSAW, every other task still works.  A task that builds a JIGSAW
+mesh fails when it runs, saying that JIGSAW needs to be installed.</p>
+</section>
+</section>
+<section id="setup-overview">
+<span id="setting-up-tasks"></span><h2>Setting up tasks<a class="headerlink" href="#setup-overview" title="Link to this heading"></a></h2>
+<p>To see the tasks you can set up, run:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>polaris<span class="w"> </span>list
+</pre></div>
+</div>
+<p>The list is long, so you will likely want to <code class="docutils literal notranslate"><span class="pre">grep</span></code> it:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>polaris<span class="w"> </span>list<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>baroclinic_channel/10km
+</pre></div>
+</div>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>  85: ocean/planar/baroclinic_channel/10km/default
+  86: ocean/planar/baroclinic_channel/10km/decomp
+  87: ocean/planar/baroclinic_channel/10km/restart
+  88: ocean/planar/baroclinic_channel/10km/threads
+  89: ocean/planar/baroclinic_channel/10km/rpe
+</pre></div>
+</div>
+<p>See <a class="reference internal" href="../developers_guide/command_line.html#dev-polaris-list"><span class="std std-ref">polaris list</span></a> for more.  To set up a task, give its path (or
+its number with <code class="docutils literal notranslate"><span class="pre">-n</span></code>), a work directory, and the directory where the model was
+built:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>polaris<span class="w"> </span>setup<span class="w"> </span>-t<span class="w"> </span>ocean/planar/baroclinic_channel/10km/default<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>-w<span class="w"> </span>&lt;workdir&gt;<span class="w"> </span>-p<span class="w"> </span>&lt;component_path&gt;<span class="w"> </span>--model<span class="w"> </span>mpas-ocean
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">&lt;workdir&gt;</span></code> is usually in your scratch space.  <code class="docutils literal notranslate"><span class="pre">&lt;component_path&gt;</span></code> is the
+directory where the model was built, not the executable itself.  For ocean
+tasks, <code class="docutils literal notranslate"><span class="pre">--model</span></code> chooses between <code class="docutils literal notranslate"><span class="pre">mpas-ocean</span></code> and <code class="docutils literal notranslate"><span class="pre">omega</span></code>.  An environment
+installed from conda-forge cannot build a model, so if Polaris finds no model
+in <code class="docutils literal notranslate"><span class="pre">&lt;component_path&gt;</span></code>, setup stops and says so.  See <a class="reference internal" href="../developers_guide/command_line.html#dev-polaris-setup"><span class="std std-ref">polaris setup</span></a>
+for all the options.</p>
+<p>On a supported machine (see <a class="reference internal" href="machines/index.html#machines"><span class="std std-ref">Machines</span></a>), Polaris recognizes the machine
+by itself, or you can name it with <code class="docutils literal notranslate"><span class="pre">-m</span> <span class="pre">&lt;machine&gt;</span></code>.  Elsewhere, give Polaris
+a config file with <code class="docutils literal notranslate"><span class="pre">-f</span></code>:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>polaris<span class="w"> </span>setup<span class="w"> </span>-t<span class="w"> </span>ocean/planar/baroclinic_channel/10km/default<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>-w<span class="w"> </span>&lt;workdir&gt;<span class="w"> </span>-p<span class="w"> </span>&lt;component_path&gt;<span class="w"> </span>--model<span class="w"> </span>mpas-ocean<span class="w"> </span>-f<span class="w"> </span>my_config.cfg
+</pre></div>
+</div>
+<p>where <code class="docutils literal notranslate"><span class="pre">my_config.cfg</span></code> has at least:</p>
+<div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="c1"># The paths section describes paths where files are automatically downloaded</span>
+<span class="k">[paths]</span>
+
+<span class="c1"># A root directory where data for polaris tasks can be downloaded. This</span>
+<span class="c1"># data will be cached for future reuse.</span>
+<span class="na">database_root</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&lt;/path/to/root&gt;/polaris/data</span>
+
+<span class="c1"># The parallel section describes options related to running tasks in parallel</span>
+<span class="k">[parallel]</span>
+
+<span class="c1"># parallel system of execution: slurm, pbs or single_node</span>
+<span class="na">system</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">single_node</span>
+
+<span class="c1"># whether to use mpirun or srun to run the model</span>
+<span class="na">parallel_executable</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">mpirun -host localhost</span>
+
+<span class="c1"># total cores on the machine (or cores on one node if it is a multinode</span>
+<span class="c1"># machine), detected automatically by default</span>
+<span class="c1"># cores_per_node = 4</span>
+</pre></div>
+</div>
+<p>A config file can also override any config option of Polaris, a task or a
+machine; see <a class="reference internal" href="config_files.html#config-files"><span class="std std-ref">Config Files</span></a>.  To compare results with an earlier run,
+give its work directory as a baseline with <code class="docutils literal notranslate"><span class="pre">-b</span> <span class="pre">&lt;baseline_workdir&gt;</span></code>.</p>
+</section>
+<section id="run-overview">
+<span id="running-tasks"></span><h2>Running tasks<a class="headerlink" href="#run-overview" title="Link to this heading"></a></h2>
+<p>With your Polaris environment active, go to the task’s work directory and
+run it:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>&lt;workdir&gt;/&lt;task_subdir&gt;
+polaris<span class="w"> </span>serial
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">serial</span></code> runs the steps one after another.  <code class="docutils literal notranslate"><span class="pre">polaris</span> <span class="pre">parallel</span></code> runs
+the steps that do not depend on each other at the same time, within the
+cores and nodes you have; see <a class="reference internal" href="../developers_guide/command_line.html#dev-polaris-serial"><span class="std std-ref">polaris serial</span></a> and
+<a class="reference internal" href="../developers_guide/command_line.html#dev-polaris-parallel"><span class="std std-ref">polaris parallel</span></a>.</p>
+<p>On machines with Slurm or PBS, setup also writes <code class="docutils literal notranslate"><span class="pre">job_script.sh</span></code>, which you
+can submit (for example with <code class="docutils literal notranslate"><span class="pre">sbatch</span> <span class="pre">job_script.sh</span></code>) instead.  Options for the
+job script, such as the account and wall-clock time, go in the <code class="docutils literal notranslate"><span class="pre">[parallel]</span></code>
+and <code class="docutils literal notranslate"><span class="pre">[job]</span></code> sections of your config file.</p>
+</section>
+<section id="suite-overview">
+<span id="suites"></span><h2>Suites<a class="headerlink" href="#suite-overview" title="Link to this heading"></a></h2>
+<p>Polaris has suites of tasks for regression and bit-for-bit testing.  To list
+them:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>polaris<span class="w"> </span>list<span class="w"> </span>--suites
+</pre></div>
+</div>
+<p>To set up a suite, give its component (<code class="docutils literal notranslate"><span class="pre">-c</span></code>) and name (<code class="docutils literal notranslate"><span class="pre">-t</span></code>), with the same
+other flags as for a task:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>polaris<span class="w"> </span>suite<span class="w"> </span>-c<span class="w"> </span>ocean<span class="w"> </span>-t<span class="w"> </span>omega_pr<span class="w"> </span>-w<span class="w"> </span>&lt;workdir&gt;<span class="w"> </span>-p<span class="w"> </span>&lt;component_path&gt;<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--model<span class="w"> </span>omega
+</pre></div>
+</div>
+<p>Then run it from the work directory, naming the suite if there is more than
+one there:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>&lt;workdir&gt;
+polaris<span class="w"> </span>serial<span class="w"> </span>omega_pr
+</pre></div>
+</div>
+<p>See <a class="reference internal" href="../developers_guide/command_line.html#dev-polaris-suite"><span class="std std-ref">polaris suite</span></a> for more.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../index.html" class="btn btn-neutral float-left" title="Polaris" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="tasks.html" class="btn btn-neutral float-right" title="Tasks" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Energy Exascale Earth System Model Project.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+   
+
+  <!-- Meta tags for JS to use -->
+  <meta name="doc-version" content="1.2.1">
+  <meta name="doc-site-root" content="../">
+
+  <!-- Create version switcher container -->
+  <script>
+    const sidebar = document.querySelector('.wy-side-nav-search');
+    if (sidebar) {
+      const versionDiv = document.createElement('div');
+      versionDiv.id = 'version-switcher';
+      versionDiv.style.marginTop = '1em';
+      sidebar.appendChild(versionDiv);
+    }
+  </script>
+
+  <!-- Load version-switcher.js using the correct relative path -->
+  <script src="../../shared/version-switcher.js"></script>
+
+
+</body>
+</html>

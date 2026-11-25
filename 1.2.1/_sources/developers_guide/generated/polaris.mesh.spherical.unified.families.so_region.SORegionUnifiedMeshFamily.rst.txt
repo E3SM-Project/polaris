@@ -1,0 +1,30 @@
+﻿polaris.mesh.spherical.unified.families.so\_region.SORegionUnifiedMeshFamily
+============================================================================
+
+.. currentmodule:: polaris.mesh.spherical.unified.families.so_region
+
+.. autoclass:: SORegionUnifiedMeshFamily
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~SORegionUnifiedMeshFamily.__init__
+      ~SORegionUnifiedMeshFamily.build_ocean_background
+      ~SORegionUnifiedMeshFamily.setup_sizing_field_step
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~SORegionUnifiedMeshFamily.name
+   
+   
