@@ -1,9 +1,7 @@
 import cartopy
 import cartopy.crs as ccrs
-import jigsawpy
 import numpy as np
 import xarray as xr
-from jigsawpy.savejig import savejig
 from matplotlib.figure import Figure
 from mpas_tools.io import open_dataset, write_netcdf
 from mpas_tools.logging import check_call
@@ -18,6 +16,11 @@ from polaris.constants import get_constant
 from polaris.mesh.reconstruct import (
     compute_reconstruction_weights,
     get_reconstruction_validate_vars,
+)
+from polaris.mesh.spherical.jigsaw import (
+    JigsawOptions,
+    import_jigsawpy,
+    write_jigsaw_config,
 )
 from polaris.mesh.spherical.quality import (
     check_cell_polygon_quality,
@@ -36,7 +39,7 @@ class SphericalBaseStep(Step):
 
     Attributes
     ----------
-    opts : jigsawpy.jigsaw_jig_t
+    opts : polaris.mesh.spherical.jigsaw.JigsawOptions
         JIGSAW options for creating the mesh
 
     mesh_name : str
@@ -93,7 +96,7 @@ class SphericalBaseStep(Step):
         )
 
         # setup files for JIGSAW
-        self.opts = jigsawpy.jigsaw_jig_t()
+        self.opts = JigsawOptions()
         self.mesh_name = mesh_name
 
     def save_and_plot_cell_width(self, lon, lat, cell_width):
@@ -512,6 +515,7 @@ class QuasiUniformSphericalMeshStep(SphericalBaseStep):
         cell_width : numpy.ndarray
             m x n array of cell width in km
         """
+        jigsawpy = import_jigsawpy()
         logger = self.logger
         earth_radius = get_constant('mean_radius')
         opts = self.opts
@@ -530,7 +534,7 @@ class QuasiUniformSphericalMeshStep(SphericalBaseStep):
         geom.radii = earth_radius * 1e-3 * np.ones(3, float)
         jigsawpy.savemsh(opts.geom_file, geom)
 
-        savejig(opts.jcfg_file, opts)
+        write_jigsaw_config(opts)
         check_call(['jigsaw', opts.jcfg_file], logger=logger)
 
 
@@ -632,6 +636,7 @@ class IcosahedralMeshStep(SphericalBaseStep):
         subdivisions : int
             The number of subdivisions of the icosahedron
         """
+        jigsawpy = import_jigsawpy()
         earth_radius = get_constant('mean_radius')
         opts = self.opts
 
@@ -641,7 +646,7 @@ class IcosahedralMeshStep(SphericalBaseStep):
         jigsawpy.savemsh(opts.geom_file, geom)
 
         icos = jigsawpy.jigsaw_msh_t()
-        jigsawpy.cmd.icosahedron(opts, subdivisions, icos)
+        jigsawpy.cmd.icosahedron(opts.to_jig(), subdivisions, icos)
 
     def build_subdivisions_cell_width_lat_lon(self):
         """
@@ -776,6 +781,7 @@ def _write_mpas_triangles(
     either.  The triangulation's points become MPAS cell centers and its
     triangles MPAS vertices, at the triangles' circumcenters.
     """
+    jigsawpy = import_jigsawpy()
     mesh = jigsawpy.jigsaw_msh_t()
     jigsawpy.loadmsh(jigsaw_mesh_filename, mesh)
     if mesh.vert3 is None or mesh.vert3.size == 0:

@@ -76,8 +76,6 @@ exclude_patterns = [
     "_build",
     "Thumbs.db",
     ".DS_Store",
-    # Convenience docs not intended for rendering
-    "users_guide/invalid_quick_start.md",
     # Authoring templates kept in repo but not included in the built docs
     "users_guide/ocean/tasks/template.md",
     "users_guide/seaice/tasks/template.md",

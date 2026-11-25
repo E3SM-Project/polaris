@@ -554,6 +554,10 @@ seaice/api
 
    spherical.quality.check_cell_polygon_quality
    spherical.quality.check_finite_mesh_values
+   spherical.jigsaw.JigsawOptions
+   spherical.jigsaw.JigsawOptions.to_jig
+   spherical.jigsaw.import_jigsawpy
+   spherical.jigsaw.write_jigsaw_config
 ```
 
 ### Spherical Base Meshes

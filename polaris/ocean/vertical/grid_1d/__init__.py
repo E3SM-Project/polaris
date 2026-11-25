@@ -170,9 +170,10 @@ def _read_json(grid_type):
     """Read the grid interfaces from a json file"""
 
     filename = f'{grid_type}.json'
-    with resources.open_text(
-        'polaris.ocean.vertical.grid_1d', filename
-    ) as data_file:
+    grid_file = resources.files('polaris.ocean.vertical.grid_1d').joinpath(
+        filename
+    )
+    with grid_file.open('r', encoding='utf-8') as data_file:
         data = json.load(data_file)
         interfaces = np.array(data)
 
