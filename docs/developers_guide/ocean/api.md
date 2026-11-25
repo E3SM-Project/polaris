@@ -7,6 +7,7 @@
    :toctree: generated/
 
    Ocean
+   Ocean.configure
    Ocean.map_to_native_model_vars
    Ocean.map_var_list_to_native_model
    Ocean.write_model_dataset
@@ -415,6 +416,59 @@
    viz.Viz.run
 ```
 
+### isomip_plus
+
+```{eval-rst}
+.. currentmodule:: polaris.tasks.ocean.isomip_plus
+
+.. autosummary::
+   :toctree: generated/
+
+   add_isomip_plus_tasks
+
+   IsomipPlusTest
+
+   cell_count.estimate_cell_count
+
+   forward.Forward
+   forward.Forward.compute_cell_count
+   forward.Forward.dynamic_model_config
+
+   init.Init
+   init.Init.setup
+   init.Init.run
+
+   mesh.CullMesh
+   mesh.CullMesh.run
+   mesh.PlanarMesh
+   mesh.PlanarMesh.run
+   mesh.xy.add_isomip_plus_xy
+
+   projection.get_projection_string
+   projection.get_projections
+
+   ssh_forward.SshForward
+   ssh_forward.SshForward.compute_cell_count
+   ssh_forward.ThinFilmSshForward
+   ssh_forward.ThinFilmSshForward.dynamic_model_config
+
+   topo.TopoMap
+   topo.TopoMap.run
+   topo.TopoRemap
+   topo.TopoRemap.run
+   topo.TopoScale
+   topo.TopoScale.run
+   topo.calving.calve_thin_ice
+
+   validate.Validate
+   validate.Validate.run
+
+   viz.Viz
+   viz.Viz.run
+
+   xtime.get_record_times
+```
+
 ### frazil
 
 ```{eval-rst}
@@ -692,6 +746,20 @@
    models.replace_steps
 ```
 
+### realistic_global.cavities
+
+```{eval-rst}
+.. currentmodule:: polaris.tasks.ocean.realistic_global.cavities
+
+.. autosummary::
+   :toctree: generated/
+
+   check_cavities_supported
+   copy_antarctic_boundary_convention
+   get_antarctic_boundary_convention
+   has_ice_shelf_cavities
+```
+
 ### realistic_global.mesh_configs
 
 ```{eval-rst}
@@ -703,6 +771,7 @@
    add_realistic_global_mesh_config
    get_realistic_global_mesh_config
    get_mesh_config_names
+   get_unified_twin
 ```
 
 ### realistic_global.forcing.jra55
@@ -790,6 +859,7 @@
    forward.Forward.get_stats_filename
    forward.Forward.compute_cell_count
    forward.Forward.dynamic_model_config
+   forward.add_land_ice_yaml_files
 
    stage.ForwardStage
    stage.ForwardStage.from_config
@@ -839,6 +909,7 @@
 
    Woa23
    get_woa23_steps
+   select_woa23_antarctic_dataset
 
    month.get_woa23_month
    month.get_month_abbreviation
@@ -875,6 +946,7 @@
    cull_topo.CullTopoStep
    cull_topo.CullTopoStep.setup
    cull_topo.CullTopoStep.run
+   cull_topo.cull_topography
 
    lat_lon_map.LatLonMapStep
    lat_lon_map.LatLonMapStep.setup
@@ -900,6 +972,11 @@
    pstar_init.RealisticPStarInitStep.setup
    pstar_init.RealisticPStarInitStep.run
    pstar_init.RealisticPStarInitStep.init_tracers
+   pstar_init.estimate_level_count
+   pstar_init.shorten_loaded_columns
+   pstar_init.compute_land_ice_load
+   pstar_init.fill_thin_film_tracers
+   pstar_init.add_land_ice_fields
 
    initial_state.InitialStateStep
    initial_state.InitialStateStep.setup
@@ -908,6 +985,7 @@
    forcing.ForcingStep
    forcing.ForcingStep.setup
    forcing.ForcingStep.run
+   forcing.mask_wind_stress_under_land_ice
 
    viz.VizInitStep
    viz.VizInitStep.setup
@@ -950,6 +1028,32 @@
    viz.TracerChange
    viz.tracer_changes
    viz.plot_tracer_changes
+```
+
+### realistic_global.ssh_adjustment
+
+```{eval-rst}
+.. currentmodule:: polaris.tasks.ocean.realistic_global.ssh_adjustment
+
+.. autosummary::
+   :toctree: generated/
+
+   tasks.add_realistic_global_ssh_adjustment_tasks
+
+   task.RealisticGlobalSshAdjustment
+   task.RealisticGlobalSshAdjustment.configure
+
+   steps.get_realistic_ssh_adjustment_steps
+   steps.add_ssh_adjustment_steps
+   steps.get_ssh_adjustment_config
+   steps.ssh_adjustment_subdir
+
+   forward.SshForward
+   forward.SshForward.get_stage
+   forward.SshForward.dynamic_model_config
+
+   adjust.RealisticSshAdjustment
+   adjust.RealisticSshAdjustment.update_layer_thickness
 ```
 
 ### seamount
@@ -1156,10 +1260,19 @@
 
    SshAdjustment
    SshAdjustment.run
+   SshAdjustment.update_layer_thickness
 
    SshForward
    SshForward.compute_cell_count
    SshForward.dynamic_model_config
+
+   add_wetting_drying_yaml_files
+   compute_freezing_temperature
+   compute_land_ice_draft_from_pressure
+   compute_land_ice_pressure_from_draft
+   compute_land_ice_pressure_from_thickness
+   ssh_solve.compute_depth_mean_acceleration
+   ssh_solve.solve_for_ssh_change
 ```
 
 ### Ocean Model
@@ -1253,6 +1366,7 @@
    :toctree: generated/
 
    layer_thickness_from_geom_interfaces
+   apply_min_max_layer_thickness
    add_quiescent_normal_velocity
    add_density_from_specvol
    pressure_for_tracer_conversion
@@ -1329,6 +1443,10 @@
    vertical.elevation.elevation_range_weights
    vertical.grid_1d.generate_1d_grid
    vertical.grid_1d.write_1d_grid
+   vertical.ice_shelf.compute_ice_shelf_top_depth
+   vertical.ice_shelf.compute_ice_shelf_groups
+   vertical.ice_shelf.weighted_percentile
+   vertical.ice_shelf.start_columns_at_top_depth
    vertical.partial_cells.alter_bottom_depth
    vertical.partial_cells.alter_ssh
    vertical.sigma.init_sigma_vertical_coord

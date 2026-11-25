@@ -4,6 +4,7 @@ import numpy as np
 import xarray as xr
 
 from polaris.cf import add_cf_conventions, add_lat_lon_attrs
+from polaris.mesh.spherical.coastline import add_convention_setup_only_option
 from polaris.mesh.spherical.unified.river.distance import (
     haversine_distance,
 )
@@ -48,6 +49,7 @@ class RasterizeRiverLatLonStep(Step):
             name='river_rasterize',
             subdir=subdir,
         )
+        add_convention_setup_only_option(self)
         self.simplify_step = simplify_step
         self.coastline_step = coastline_step
         self.masks_filename = 'river_network.nc'

@@ -85,6 +85,10 @@ class StepInitialCondition(InitialCondition):
 
     forcing_step : polaris.Step
         The ``forcing`` step whose model-specific forcing file is consumed.
+
+    init_target : str
+        The initial-state file the forward step reads: ``init.nc`` from
+        ``init_step``, or another step's adjusted initial state.
     """
 
     def __init__(
@@ -93,6 +97,7 @@ class StepInitialCondition(InitialCondition):
         min_res: float,
         approx_cell_count: Optional[int],
         forcing_step: 'Step',
+        init_target: Optional[str] = None,
     ) -> None:
         """
         Create the source.
@@ -118,8 +123,16 @@ class StepInitialCondition(InitialCondition):
             call) that writes the model-specific surface forcing file.
             Required, because every realistic_global forward run is
             wind-forced.
+
+        init_target : str, optional
+            The initial-state file to read in place of ``init.nc`` from
+            ``init_step``, such as the output of SSH adjustment.  The mesh,
+            vertical coordinate and graph still come from ``init_step``.
         """
         self.init_step = init_step
+        if init_target is None:
+            init_target = f'{init_step.path}/init.nc'
+        self.init_target = init_target
         self.min_res = min_res
         self.approx_cell_count = approx_cell_count
         self.graph_target = f'{init_step.path}/culled_graph.info'
@@ -174,7 +187,7 @@ class StepInitialCondition(InitialCondition):
         step.add_horiz_mesh_input_file(work_dir_target=f'{path}/mesh.nc')
         step.add_vert_coord_input_file(work_dir_target=f'{path}/vert_coord.nc')
         if _reads_initial_state(step):
-            step.add_init_input_file(work_dir_target=f'{path}/init.nc')
+            step.add_init_input_file(work_dir_target=self.init_target)
         forcing_filename = step.get_forcing_filename()
         step.add_forcing_input_file(
             work_dir_target=f'{self.forcing_step.path}/{forcing_filename}'

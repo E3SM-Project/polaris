@@ -33,6 +33,10 @@ TRACER_ATTRS = {
 }
 
 
+#: The southernmost latitude (degrees) of GSW's absolute salinity anomaly atlas
+GSW_MIN_LATITUDE = -86.0
+
+
 def compute_specvol(
     sa: xr.DataArray | float,
     ct: xr.DataArray | float,
@@ -372,7 +376,9 @@ def convert_tracer_pair(
     # Pa -> dbar  (1 dbar = 1e4 Pa)
     p_dbar = pressure_b.to_numpy() / 1.0e4
     lon_np = lon_b.to_numpy()
-    lat_np = lat_b.to_numpy()
+    # GSW's atlas of the absolute salinity anomaly ends at 86 S, so a location
+    # farther south, under the Antarctic ice sheet, takes the anomaly there
+    lat_np = np.maximum(lat_b.to_numpy(), GSW_MIN_LATITUDE)
 
     valid = np.isfinite(temp_in) & np.isfinite(salin_in)
     temp_out = np.full(temp_in.shape, np.nan)

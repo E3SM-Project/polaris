@@ -4,12 +4,18 @@ import numpy as np
 import xarray as xr
 
 from polaris.coriolis import add_coriolis_to_dataset
+from polaris.mesh.spherical.coastline import add_convention_setup_only_option
 from polaris.ocean.init_state import (
     add_density_from_specvol,
     add_quiescent_normal_velocity,
+    apply_min_max_layer_thickness,
     layer_thickness_from_geom_interfaces,
 )
 from polaris.ocean.model import OceanIOStep
+from polaris.tasks.ocean.realistic_global.cavities import (
+    check_cavities_supported,
+    has_ice_shelf_cavities,
+)
 
 
 class InitialStateStep(OceanIOStep):
@@ -80,6 +86,7 @@ class InitialStateStep(OceanIOStep):
             ntasks=1,
             min_tasks=1,
         )
+        add_convention_setup_only_option(self)
         self.pstar_init_step = pstar_init_step
         self.cull_mesh_step = cull_mesh_step
 
@@ -87,6 +94,7 @@ class InitialStateStep(OceanIOStep):
         """
         Declare input and output files based on the configured ocean model.
         """
+        check_cavities_supported(self.config)
         super().setup()
         self.add_input_file(
             filename='pstar_init.nc',
@@ -142,6 +150,8 @@ class InitialStateStep(OceanIOStep):
         self.write_horiz_mesh_dataset(ds_mesh, 'mesh.nc', config)
 
         ds = layer_thickness_from_geom_interfaces(ds)
+        if has_ice_shelf_cavities(config):
+            ds = _add_cavity_fields(ds, config)
         ds = add_quiescent_normal_velocity(ds, ds_mesh)
         ds = add_density_from_specvol(ds)
 
@@ -154,3 +164,23 @@ class InitialStateStep(OceanIOStep):
         self.write_initial_state_dataset(
             ds, 'init.nc', config, lon=lon, lat=lat
         )
+
+
+def _add_cavity_fields(ds, config):
+    """
+    Give thin columns under land ice the layer thicknesses MPAS-Ocean's
+    z-star coordinate targets with its minimum layer thickness, and mark the
+    cells under land ice for SSH adjustment
+    """
+    section = config['realistic_global_cavities']
+    ds = apply_min_max_layer_thickness(
+        ds,
+        min_thickness=section.getfloat('thin_film_layer_thickness'),
+        max_thickness_factor=section.getfloat('max_layer_thickness_factor'),
+    )
+    ds['sshAdjustmentMask'] = ds.landIceMask.copy()
+    ds.sshAdjustmentMask.attrs = {
+        'long_name': 'cells where SSH is adjusted to the land-ice pressure '
+        '(1) or not (0)',
+    }
+    return ds

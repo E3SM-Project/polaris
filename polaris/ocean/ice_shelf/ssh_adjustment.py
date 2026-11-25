@@ -1,16 +1,26 @@
 import numpy as np
+import xarray as xr
 from mpas_tools.io import open_dataset, write_netcdf
 
 from polaris import Step
 from polaris.constants import get_constant
 from polaris.mesh.info import is_spherical
+from polaris.ocean.ice_shelf.ssh_solve import (
+    compute_depth_mean_acceleration,
+    solve_for_ssh_change,
+)
 from polaris.ocean.vertical import update_layer_thickness
 
 
 class SshAdjustment(Step):
     """
-    A step for iteratively adjusting the pressure from the weight of the ice
-    shelf to match the sea-surface height as part of ice-shelf 2D test cases
+    A step for adjusting either the pressure from the weight of the ice shelf
+    or the sea-surface height so the two are consistent with one another.
+
+    With the ``iterate`` method, the SSH at the end of the previous forward
+    run replaces the initial SSH (or the land-ice pressure changes to
+    match it).  With the ``solve`` method, SSH changes by the amount that
+    cancels the depth-mean acceleration of a short run from rest.
     """
 
     def __init__(
@@ -61,8 +71,10 @@ class SshAdjustment(Step):
         """
         logger = self.logger
         config = self.config
-        adjust_variable = config.get('ssh_adjustment', 'adjust_variable')
-        mask_variable = config.get('ssh_adjustment', 'mask_variable')
+        section = config['ssh_adjustment']
+        method = section.get('method')
+        adjust_variable = section.get('adjust_variable')
+        mask_variable = section.get('mask_variable')
         mesh_filename = 'mesh.nc'
         init_filename = 'init.nc'
         final_filename = 'final.nc'
@@ -72,8 +84,15 @@ class SshAdjustment(Step):
         ds_final = open_dataset(final_filename)
         ds_out = ds_init.copy()
 
+        if method not in ['iterate', 'solve']:
+            raise ValueError(f'Unknown SSH adjustment method: {method}')
         if adjust_variable not in ['ssh', 'landIcePressure']:
             raise ValueError(f'Unknown variable to modify: {adjust_variable}')
+        if method == 'solve' and adjust_variable != 'ssh':
+            raise ValueError(
+                'The solve method of SSH adjustment can only adjust SSH, not '
+                f'{adjust_variable}.'
+            )
         if mask_variable not in ds_init.keys():
             raise ValueError(
                 f'Mask variable {mask_variable} is not contained '
@@ -84,35 +103,51 @@ class SshAdjustment(Step):
 
         # keep the data set with Time for output
         # and generate these time slices
+        ds_output = ds_final
         ds_init = ds_init.isel(Time=0)
         ds_final = ds_final.isel(Time=-1)
 
-        on_a_sphere = is_spherical(ds_out)
+        on_a_sphere = is_spherical(ds_mesh)
 
+        # the vertical coordinate may be in the output, the mesh or, for a
+        # task that keeps the horizontal mesh separate, the initial state
         if 'minLevelCell' in ds_final:
             min_level_cell = ds_final.minLevelCell - 1
-        else:
+        elif 'minLevelCell' in ds_mesh:
             min_level_cell = ds_mesh.minLevelCell - 1
+        else:
+            min_level_cell = ds_init.minLevelCell - 1
 
         init_ssh = ds_init.ssh
-        final_ssh = ds_final.ssh
         top_density = ds_final.density.isel(nVertLevels=min_level_cell)
 
         mask = ds_init[mask_variable]
-        delta_ssh = mask * (final_ssh - init_ssh)
+        if method == 'solve':
+            delta_ssh, rms_before, rms_after = _solve_for_ssh_change(
+                ds_mesh, ds_init, ds_output, mask
+            )
+            final_ssh = init_ssh + delta_ssh
+            accel_string = (
+                f'rms depth-mean acceleration: {rms_before:g} m/s^2, '
+                f'{rms_after:g} m/s^2 predicted after the SSH change'
+            )
+            logger.info(f'     {accel_string}')
+        else:
+            final_ssh = ds_final.ssh
+            delta_ssh = mask * (final_ssh - init_ssh)
+            accel_string = None
 
         # then, modify the SSH or land-ice pressure
         if adjust_variable == 'ssh':
-            final_ssh = final_ssh.expand_dims(dim='Time', axis=0)
-            ds_out['ssh'] = final_ssh
+            ds_out['ssh'] = final_ssh.expand_dims(dim='Time', axis=0)
             # also update the landIceDraft variable, which will be used to
             # compensate for the SSH due to land-ice pressure when
             # computing sea-surface tilt
-            ds_out['landIceDraft'] = final_ssh
+            ds_out['landIceDraft'] = ds_out.ssh
             # we also need to stretch layerThickness to be compatible with
             # the new SSH
-            update_layer_thickness(config, ds_out)
-            land_ice_pressure = ds_out.landIcePressure.values
+            self.update_layer_thickness(ds_out)
+            land_ice_pressure = ds_init.landIcePressure
         else:
             # Moving the SSH up or down by deltaSSH would change the
             # land-ice pressure by density(SSH)*g*deltaSSH. If deltaSSH is
@@ -138,17 +173,24 @@ class SshAdjustment(Step):
         # Write the largest change in SSH and its lon/lat to a file
         with open('maxDeltaSSH.log', 'w') as log_file:
             mask = land_ice_pressure > 0.0
-            i_cell = np.abs(delta_ssh.where(mask)).argmax().values
+            if mask.any():
+                delta_ssh_logged = delta_ssh.where(mask)
+            else:
+                # with no land ice (e.g. before an ice shelf grows), log the
+                # largest change anywhere
+                delta_ssh_logged = delta_ssh
+            i_cell = np.abs(delta_ssh_logged).argmax().values
 
-            ds_cell = ds_final.isel(nCells=i_cell)
+            # the mesh has the cell coordinates, which the forward output
+            # need not
             ds_mesh = ds_mesh.isel(nCells=i_cell)
             delta_ssh_max = delta_ssh.isel(nCells=i_cell).values
 
             if on_a_sphere:
                 coords = (
                     f'lon/lat: '
-                    f'{np.rad2deg(ds_cell.lonCell.values):f} '
-                    f'{np.rad2deg(ds_cell.latCell.values):f}'
+                    f'{np.rad2deg(ds_mesh.lonCell.values):f} '
+                    f'{np.rad2deg(ds_mesh.latCell.values):f}'
                 )
             else:
                 coords = (
@@ -165,5 +207,49 @@ class SshAdjustment(Step):
             )
             logger.info(f'     {string}')
             log_file.write(f'{string}\n')
+            if accel_string is not None:
+                log_file.write(f'{accel_string}\n')
 
         logger.info('   - Complete\n')
+
+    def update_layer_thickness(self, ds):
+        """
+        Update the layer thicknesses in ``ds`` to match its adjusted SSH.
+
+        By default, this uses
+        :py:func:`polaris.ocean.vertical.update_layer_thickness` with the
+        step's config.  A task whose vertical coordinate that function does
+        not support can override it.
+
+        Parameters
+        ----------
+        ds : xarray.Dataset
+            The adjusted initial state, with the new ``ssh``, modified in
+            place
+        """
+        update_layer_thickness(self.config, ds)
+
+
+def _solve_for_ssh_change(ds_mesh, ds_init, ds_output, mask):
+    """
+    Solve for the change in SSH that cancels the depth-mean acceleration of
+    a short run from rest, and check that no water column empties
+    """
+    accel, edge_thickness = compute_depth_mean_acceleration(
+        ds_mesh, ds_init, ds_output
+    )
+    delta_ssh, rms_before, rms_after = solve_for_ssh_change(
+        ds_mesh, accel, edge_thickness, unknown=mask.values > 0
+    )
+    delta_ssh = xr.DataArray(delta_ssh, dims=['nCells'])
+
+    column_thickness = ds_init.ssh + delta_ssh + ds_init.bottomDepth
+    emptied = (mask > 0) & (column_thickness <= 0.0)
+    if emptied.any():
+        raise ValueError(
+            f'The solve for SSH would empty {int(emptied.sum())} water '
+            f'columns (the thinnest would be '
+            f'{float(column_thickness.where(mask > 0).min()):g} m).  Make '
+            f'the water column thicker under the ice.'
+        )
+    return delta_ssh, rms_before, rms_after

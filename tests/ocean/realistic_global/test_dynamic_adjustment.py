@@ -72,6 +72,7 @@ from polaris.tasks.ocean.realistic_global.forward.initial_condition import (
     InitialCondition,
 )
 from polaris.tasks.ocean.realistic_global.mesh_configs import (
+    UNIFIED_TWINS,
     add_realistic_global_mesh_config,
     get_realistic_global_mesh_config,
 )
@@ -152,11 +153,19 @@ def test_task_config_without_a_mesh_file_keeps_the_forward_defaults():
 
 
 def test_default_schedule_used_when_no_mesh_file():
-    # qu240km has no per-mesh file, so it falls back to default.yaml
-    stages = load_schedule_stages('qu240km', _config('qu240km'))
+    # icos120km has no per-mesh file and no unified twin, so it falls back to
+    # default.yaml
+    stages = load_schedule_stages('icos120km', _config('icos120km'))
     text = imp_res.files(PACKAGE).joinpath(DEFAULT_SCHEDULE).read_text()
     default = YAML(typ='safe').load(text)['dynamic_adjustment']
     assert [s.name for s in stages] == list(default['stages'])
+
+
+@pytest.mark.parametrize('mesh_name', sorted(UNIFIED_TWINS))
+def test_base_mesh_uses_its_twins_schedule(mesh_name):
+    twin = UNIFIED_TWINS[mesh_name]
+    stages = load_schedule_stages(mesh_name, _config(mesh_name))
+    assert stages == load_schedule_stages(twin, _config(twin))
 
 
 def test_shared_defaults_merged_and_damping_optional(tmp_path):

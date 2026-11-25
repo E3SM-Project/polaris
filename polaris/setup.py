@@ -800,6 +800,7 @@ def _call_step_setup(tasks, work_dir):
             step.work_dir = os.path.join(work_dir, step.path)
             step.base_work_dir = work_dir
             step.setup()
+            step.record_setup_only_options()
 
 
 def _skip_steps_feeding_only_cached(tasks):

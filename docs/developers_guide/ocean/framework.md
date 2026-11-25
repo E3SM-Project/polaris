@@ -810,6 +810,35 @@ steps, as described in {ref}`ocean-ssh-adjustment`. It returns the last
 `ssh_adjustment` step, which is typically used as the
 initial state for subsequent forward steps.
 
+With `method = solve`, the `ssh_adjust` step calls
+{py:func}`polaris.ocean.ice_shelf.ssh_solve.compute_depth_mean_acceleration()`
+on the output of the single step from rest, then
+{py:func}`polaris.ocean.ice_shelf.ssh_solve.solve_for_ssh_change()` for the
+change in SSH on the cells in `mask_variable`.  The solve uses only the
+horizontal mesh and the run's output, so it does not depend on the ocean
+model.
+
+The module also provides helpers for computing the land-ice pressure from ice
+thickness ({py:func}`polaris.ocean.ice_shelf.compute_land_ice_pressure_from_thickness()`)
+or ice draft ({py:func}`polaris.ocean.ice_shelf.compute_land_ice_pressure_from_draft()`),
+the draft of floating ice from its pressure
+({py:func}`polaris.ocean.ice_shelf.compute_land_ice_draft_from_pressure()`),
+and the freezing temperature in an ice-shelf cavity
+({py:func}`polaris.ocean.ice_shelf.compute_freezing_temperature()`), which
+uses the formulation of the ocean model.  For MPAS-Ocean, the coefficients are
+in the `ice_shelf_freeze` config section and match the MPAS-Ocean defaults.
+Omega uses TEOS-10 for its freezing temperature, which is not yet supported.
+
+{py:func}`polaris.ocean.ice_shelf.add_wetting_drying_yaml_files()` adds the
+MPAS-Ocean wetting and drying options that every ice-shelf task with wetting
+and drying shares, so that their SSH adjustment and forward runs treat thin
+columns the same way. `wetting_drying.yaml` turns on wetting and drying with a
+5 cm minimum layer thickness. With a thin film under grounded ice,
+`thin_film_wetting_drying.yaml` also ramps velocities down in thin columns.
+With the `split_explicit` time integrator, `split_explicit.yaml` splits the
+potential-vorticity form of the Coriolis term between the barotropic and
+baroclinic modes.
+
 (dev-ocean-framework-vertical)=
 
 ## Vertical coordinate
@@ -836,6 +865,22 @@ as config options from `vertical_grid`. The function
 changed.  After thicknesses are updated, tasks can call
 {py:func}`polaris.ocean.vertical.diagnostics.compute_zint_zmid_from_layer_thickness()`
 to recover `GeomZInterface` and `zMid` from the resulting layer thickness.
+
+Under ice shelves, columns can start below the surface (see
+{ref}`ocean-z-star-ice-shelves`).
+{py:func}`polaris.ocean.vertical.ice_shelf.compute_ice_shelf_top_depth()`
+computes the top depth of each column, and the ice shelf of each cell, from
+`ssh`, `bottomDepth`, the land-ice and thin-film masks, the mesh and the
+`ice_shelf_*` options in `vertical_grid`.  Tasks pass the result as
+`top_depth` to `init_vertical_coord()` for z-star, or to
+{py:meth}`polaris.ocean.vertical.pstar_init.PStarInitStep.run_pstar_init()`
+for p-star.  Either calls
+{py:func}`polaris.ocean.vertical.ice_shelf.start_columns_at_top_depth()`,
+which keeps at least `min_vert_levels` levels in each column, cuts or merges
+the partial top level, merges top levels shared with fewer than two
+neighbors and stretches the resting (or reference pseudo-) thicknesses to the
+bed.  It finds the neighbors from `cellsOnEdge`, which must be in the
+dataset given to `init_vertical_coord()` or `run_pstar_init()`.
 
 For workflows that need pseudo-height/pressure conversion, the
 `polaris.ocean.vertical.ztilde` module provides utilities:

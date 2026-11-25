@@ -1069,6 +1069,25 @@ runs, the variables `temperature`, `salinity`, `layerThickness`, and
 `normalVelocity` in the file `output.nc` will be checked against the same
 variables in the same file in the baseline run to make sure they are identical.
 
+(dev-step-setup-only-options)=
+
+### Setup-only config options
+
+Most config options can be changed in a work directory after setup, and the
+steps that read them when they run pick up the change.  Some cannot: an option
+that decides which steps a task has, or which files a step links to, only
+takes effect at setup.  A step declares such an option with
+{py:meth}`polaris.Step.add_setup_only_option()`, usually in its constructor:
+
+```python
+self.add_setup_only_option('remap_topography', 'antarctic_dataset')
+```
+
+Polaris records the option's value once the step is set up, and refuses to run
+the step if the option has been changed in the work directory since, telling
+the user to set up again in a new work directory.  Users set such options in a
+user config file passed to `polaris setup`.
+
 (dev-step-cached-output)=
 
 ### Cached output files

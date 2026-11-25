@@ -481,8 +481,10 @@ that model's.
 ### schedule parsing
 
 {py:func}`polaris.tasks.ocean.realistic_global.dynamic_adjustment.schedule.load_schedule_stages`
-reads a schedule YAML (the per-mesh `<mesh_name>.yaml` or `default.yaml`, or a
-file named by the `schedule` config option) and returns a list of
+reads a schedule YAML (the per-mesh `<mesh_name>.yaml`, that of the mesh's
+unified twin from
+{py:func}`polaris.tasks.ocean.realistic_global.mesh_configs.get_unified_twin`,
+or `default.yaml`, or a file named by the `schedule` config option) and returns a list of
 {py:class}`polaris.tasks.ocean.realistic_global.forward.stage.ForwardStage`
 objects.
 
@@ -534,6 +536,38 @@ the user config is merged, following the
 {py:class}`polaris.tasks.ocean.cosine_bell.CosineBell` pattern.  This lets a
 user's setup-time `schedule` override or edited stage options take effect.  The
 step graph is therefore fixed at setup, not run time.
+
+### ice-shelf cavities
+
+{py:mod}`polaris.tasks.ocean.realistic_global.cavities` reports whether the
+`[spherical_mesh] antarctic_boundary_convention` gives the ocean ice-shelf
+cavities.  The design is in the `global_ocean_ice_shelf_cavities` design
+document.  With cavities, the init chain carries the land-ice mask onto the
+culled mesh, loads the p-star columns with the land-ice pressure MPAS-Ocean
+applies
+({py:func}`polaris.tasks.ocean.realistic_global.init.pstar_init.compute_land_ice_load`),
+and writes the land-ice fields and the thin-film mask.  `layerThickness` is set
+by {py:func}`polaris.ocean.init_state.apply_min_max_layer_thickness`, the
+z-star target with MPAS-Ocean's minimum layer thickness, while
+`restingThickness` is the thickness at zero SSH, as MPAS-Ocean's z-star
+coordinate requires.
+
+Cavities also add SSH adjustment, whose steps
+{py:func}`polaris.tasks.ocean.realistic_global.ssh_adjustment.steps.get_realistic_ssh_adjustment_steps`
+builds as shared steps under `ssh_adjustment/<model>`: pairs of an
+{py:class}`polaris.tasks.ocean.realistic_global.ssh_adjustment.forward.SshForward`,
+a `Forward` whose stage is a single step from rest, and a
+{py:class}`polaris.tasks.ocean.realistic_global.ssh_adjustment.adjust.RealisticSshAdjustment`,
+the framework's `SshAdjustment` with its layer update overridden.  Each step
+from rest starts from the previous adjustment through
+`StepInitialCondition`'s `init_target`.  Since cavities are only known once a
+user's config is merged, the `dynamic_adjustment` task rebuilds its steps in
+`configure()` when they are on, with its first stage starting from the last
+adjustment.  The `forward` task's `configure()` calls
+{py:func}`polaris.tasks.ocean.realistic_global.ssh_adjustment.steps.add_ssh_adjustment_steps`
+to do the same for its forward step.  The forward runs add `land_ice.yaml` and the
+shared wetting and drying options with
+{py:func}`polaris.tasks.ocean.realistic_global.forward.forward.add_land_ice_yaml_files`.
 
 ### diagnostics and validation
 

@@ -5,6 +5,7 @@ from numpy.testing import assert_allclose
 from polaris.ocean.init_state import (
     add_density_from_specvol,
     add_quiescent_normal_velocity,
+    apply_min_max_layer_thickness,
     layer_thickness_from_geom_interfaces,
 )
 
@@ -57,6 +58,35 @@ def test_layer_thickness_from_geom_interfaces():
     assert ds.layerThickness.attrs['long_name'] == 'layer thickness'
 
 
+def test_resting_thickness_is_at_zero_ssh():
+    """
+    Under a depressed sea surface, the resting thicknesses sum to the bottom
+    depth, as MPAS-Ocean's z-star coordinate requires.
+    """
+    ds = _make_geom_ds()
+    # the first column is depressed by 10 m, as under land ice
+    ds['GeomZInterface'] = ds.GeomZInterface.copy(
+        data=np.array(
+            [[[-10.0, -20.0, -30.0, -40.0], [0.0, -10.0, -25.0, -25.0]]]
+        )
+    )
+    ds['ssh'] = (('Time', 'nCells'), np.array([[-10.0, 0.0]]))
+    ds['bottomDepth'] = ('nCells', np.array([40.0, 25.0]))
+    ds = layer_thickness_from_geom_interfaces(ds)
+
+    assert_allclose(
+        ds.layerThickness.values,
+        np.array([[[10.0, 10.0, 10.0], [10.0, 15.0, 0.0]]]),
+    )
+    assert_allclose(
+        ds.restingThickness.values,
+        np.array([[[40.0 / 3.0, 40.0 / 3.0, 40.0 / 3.0], [10.0, 15.0, 0.0]]]),
+    )
+    assert_allclose(ds.restingThickness.sum('nVertLevels'), [[40.0, 25.0]])
+    # the column at zero ssh is unchanged, to the bit
+    assert (ds.restingThickness[:, 1] == ds.layerThickness[:, 1]).all()
+
+
 def test_layer_thickness_does_not_inherit_geom_attrs():
     """The thicknesses say only what they mean.
 
@@ -106,3 +136,50 @@ def test_add_density_from_specvol():
     assert_allclose(ds.Density.values, 1.0 / spec_vol)
     assert ds.Density.attrs['long_name'] == 'in-situ density'
     assert ds.Density.attrs['units'] == 'kg m-3'
+
+
+def _column_ds(resting, ssh, max_level):
+    resting = np.atleast_2d(np.asarray(resting, dtype=float))
+    ncells = resting.shape[0]
+    return xr.Dataset(
+        data_vars=dict(
+            restingThickness=(('Time', 'nCells', 'nVertLevels'), [resting]),
+            layerThickness=(('Time', 'nCells', 'nVertLevels'), [resting]),
+            ssh=(('Time', 'nCells'), [np.asarray(ssh, dtype=float)]),
+            minLevelCell=('nCells', np.ones(ncells, dtype=int)),
+            maxLevelCell=('nCells', np.asarray(max_level)),
+        )
+    )
+
+
+def test_min_max_thickness_leaves_ordinary_columns_as_z_star():
+    ds = _column_ds([[1.0, 2.0, 3.0, 4.0]], [0.0], [4])
+    ds = apply_min_max_layer_thickness(ds, 0.05, 6.0)
+    assert ds.layerThickness.values[0, 0].tolist() == [1.0, 2.0, 3.0, 4.0]
+
+    # a depressed column is stretched in proportion to its resting thickness
+    ds = _column_ds([[1.0, 2.0, 3.0, 4.0]], [-5.0], [4])
+    ds = apply_min_max_layer_thickness(ds, 0.05, 6.0)
+    assert_allclose(ds.layerThickness.values[0, 0], [0.5, 1.0, 1.5, 2.0])
+
+
+def test_min_max_thickness_makes_a_thin_film_uniform():
+    # a film exactly 4 layers of 5 cm thick, under non-uniform resting layers
+    ds = _column_ds([[1.0, 2.0, 3.0, 4.0]], [-10.0 + 0.2], [4])
+    ds = apply_min_max_layer_thickness(ds, 0.05, 6.0)
+    assert_allclose(ds.layerThickness.values[0, 0], [0.05] * 4)
+
+
+def test_min_max_thickness_takes_from_the_layers_below():
+    # z-star gives 0.1 and 0.9; the top layer is raised to the 0.2 minimum
+    # and the layer below gives up the difference
+    ds = _column_ds([[1.0, 9.0]], [-9.0], [2])
+    ds = apply_min_max_layer_thickness(ds, 0.2, 6.0)
+    assert_allclose(ds.layerThickness.values[0, 0], [0.2, 0.8])
+    assert_allclose(ds.layerThickness.sum('nVertLevels'), [[1.0]])
+
+
+def test_min_max_thickness_ignores_layers_below_the_seafloor():
+    ds = _column_ds([[1.0, 9.0, 0.0]], [-9.0], [2])
+    ds = apply_min_max_layer_thickness(ds, 0.2, 6.0)
+    assert_allclose(ds.layerThickness.values[0, 0], [0.2, 0.8, 0.0])

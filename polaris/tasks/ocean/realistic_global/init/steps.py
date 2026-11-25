@@ -3,6 +3,9 @@ import os
 from polaris.config import PolarisConfigParser
 from polaris.step import Step
 from polaris.tasks.e3sm.init.topo.cull.steps import get_cull_topo_steps
+from polaris.tasks.ocean.realistic_global.cavities import (
+    copy_antarctic_boundary_convention,
+)
 from polaris.tasks.ocean.realistic_global.forcing.jra55.steps import (
     get_jra55_steps,
 )
@@ -94,7 +97,10 @@ def get_realistic_init_steps(
     config : polaris.config.PolarisConfigParser
         Per-mesh shared config for the model-neutral init steps.
     """
-    cull_steps, _ = get_cull_topo_steps(mesh_name=mesh_name, include_viz=False)
+    cull_steps, cull_config = get_cull_topo_steps(
+        mesh_name=mesh_name, include_viz=False
+    )
+    cull_mask_step = cull_steps['cull_mask']
     cull_mesh_step = cull_steps['cull_mesh']
     remap_topo_step = cull_steps['remap_smoothed_topo']
 
@@ -107,11 +113,11 @@ def get_realistic_init_steps(
     base_subdir = init_subdir(mesh_name)
     config_filename = CONFIG_FILENAME
     config = _get_init_config(
-        component, base_subdir, config_filename, mesh_name
+        component, base_subdir, config_filename, mesh_name, cull_config
     )
     model_dir = model_subdir(base_subdir, model)
     model_config = _get_init_config(
-        component, model_dir, config_filename, mesh_name
+        component, model_dir, config_filename, mesh_name, cull_config
     )
 
     cull_topo_step = component.get_or_create_shared_step(
@@ -120,6 +126,7 @@ def get_realistic_init_steps(
         config=config,
         config_filename=config_filename,
         remap_topo_step=remap_topo_step,
+        cull_mask_step=cull_mask_step,
         cull_mesh_step=cull_mesh_step,
     )
 
@@ -187,6 +194,7 @@ def get_realistic_init_steps(
         config=model_config,
         config_filename=config_filename,
         remap_jra55_step=remap_jra55_step,
+        cull_topo_step=cull_topo_step,
     )
 
     viz_step = component.get_or_create_shared_step(
@@ -232,14 +240,17 @@ def init_subdir(mesh_name):
     return f'spherical/realistic_global/{mesh_name}/init'
 
 
-def _get_init_config(component, subdir, config_filename, mesh_name):
+def _get_init_config(
+    component, subdir, config_filename, mesh_name, cull_config
+):
     """
     Get or create the shared per-mesh config for the realistic init steps.
 
     Per-mesh overrides from
     :py:mod:`polaris.tasks.ocean.realistic_global.mesh_configs` are added last
     so that they take precedence over the defaults in
-    ``init.cfg``.
+    ``init.cfg``.  The Antarctic boundary convention is copied from the cull
+    step's config, which determines whether the ocean has ice-shelf cavities.
 
     Parameters
     ----------
@@ -255,6 +266,9 @@ def _get_init_config(component, subdir, config_filename, mesh_name):
     mesh_name : str
         The name of the MPAS mesh, used to find per-mesh overrides.
 
+    cull_config : polaris.config.PolarisConfigParser
+        The shared config of the cull step for this mesh
+
     Returns
     -------
     polaris.config.PolarisConfigParser
@@ -265,11 +279,17 @@ def _get_init_config(component, subdir, config_filename, mesh_name):
         config = PolarisConfigParser(filepath=filepath)
         # provides [mapping] map_tool, used by MappingFileStep
         config.add_from_package('polaris.remap', 'mapping.cfg')
+        # the freezing point of thin-film water under land ice
+        config.add_from_package('polaris.ocean.ice_shelf', 'freeze.cfg')
+        config.add_from_package(
+            'polaris.tasks.ocean.realistic_global', 'cavities.cfg'
+        )
         config.add_from_package(
             'polaris.tasks.ocean.realistic_global.init',
             config_filename,
         )
         add_realistic_global_mesh_config(config=config, mesh_name=mesh_name)
+        copy_antarctic_boundary_convention(config, cull_config)
         return config
 
     return component.get_or_create_shared_config(

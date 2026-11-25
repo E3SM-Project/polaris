@@ -623,10 +623,11 @@ def test_snap_stagnation_message_and_early_exit(caplog):
             ds_mesh: xr.Dataset,
             bottom_pressure: xr.DataArray,
             surface_pressure: xr.DataArray | None = None,
+            top_depth: xr.DataArray | None = None,
         ) -> xr.Dataset:
             # Call the real coord builder once to get a properly structured ds
             ds = super()._build_pstar_coord_ds(
-                ds_mesh, bottom_pressure, surface_pressure
+                ds_mesh, bottom_pressure, surface_pressure, top_depth
             )
             # Then hard-code BottomPressure to a fixed value regardless of
             # the incoming bottom_pressure (full-cell snapping simulation)

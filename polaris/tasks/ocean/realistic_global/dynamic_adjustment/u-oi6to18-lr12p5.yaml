@@ -1,3 +1,4 @@
+# Shared with the rrs6to18km base mesh, which has the same ocean resolution
 # Dynamic-adjustment schedule for the u-oi6to18-lr12p5 unified mesh
 # (6-18 km).  Ported from Compass' rrs6to18 schedule.  The restart interval
 # varies by stage, so it is set per stage rather than shared.

@@ -8,9 +8,13 @@
 e3sm_init_component_inputs
 global_ocean_dynamic_adjustment
 global_ocean_forward
+global_ocean_ice_shelf_cavities
 global_ocean_init
 horiz_press_grad_hydrostatic_consistency
 horiz_press_grad_reference
+ice_shelf_ssh_adjustment
+ice_shelf_vertical_coordinate
+isomip_plus
 land_locked_cells
 landice_component
 mixed_layer_eddies
@@ -21,6 +25,7 @@ overflow_nonlinear_eos
 polaris_update_testing
 pstar_init
 shared_steps
+split_explicit_wetting_drying
 suite_results_file
 task_parallel_analysis_steps
 task_parallelism

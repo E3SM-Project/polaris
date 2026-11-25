@@ -101,6 +101,75 @@ The `forward` and `analysis_output` tasks use the model-dependent `init` steps
 but keep their own steps in one directory, so set them up for one model per
 work directory.
 
+(ocean-realistic-global-antarctic-topography)=
+
+## Antarctic topography
+
+The Antarctic topography comes from Bedmap3 by default.  BedMachine Antarctica
+v4, the dataset MALI's Antarctic meshes start from, can be selected in a user
+config file passed to `polaris setup`.  It can only be set at setup:
+
+```cfg
+[remap_topography]
+antarctic_dataset = bedmachinev4
+```
+
+The WOA23 initial condition is then extrapolated using BedMachine's ocean
+mask, too.
+
+(ocean-realistic-global-cavities)=
+
+## ice-shelf cavities
+
+By default, the ocean ends at the Antarctic calving front.  A user config file
+can extend it under Antarctic land ice:
+
+```cfg
+[spherical_mesh]
+# the ocean under floating ice
+antarctic_boundary_convention = grounding_line
+# or under all ice whose bed is below sea level, with a thin film under
+# grounded ice
+# antarctic_boundary_convention = bedrock_zero
+```
+
+This applies to the `init` and `dynamic_adjustment` tasks on any base or
+unified mesh, and their work directories are the same as without cavities, so
+use a separate work directory for each convention.  The convention can only be
+set in a user config file passed to `polaris setup`: a step refuses to run if
+it has been changed in the work directory since setup.  Ice-shelf cavities are
+supported for MPAS-Ocean only.
+
+With either Antarctic dataset, the land-ice pressure comes from an
+ice-equivalent thickness at MALI's ice density (see
+{ref}`e3sm-init-topo-tasks`).
+
+Under the ice, the treatment follows the ISOMIP+ tasks.  The land-ice pressure
+comes from the ice thickness and does not change.  Where ice covers only part
+of a cell's ocean, as at a calving front, the pressure is that of the ice
+itself, not diluted by the open water, so the load ends at the front.  The
+sea-surface height
+starts at the draft of ice floating with that pressure.  A column the ice would
+leave too thin, under grounded or floating ice, is a thin film of fresh water
+at its freezing point, 5 cm in each layer.  Columns under ice shelves start
+at a top depth set by the drafts along each shelf's calving front, with a
+partial top level (see {ref}`ocean-z-star-ice-shelves`).  The wind stress is
+zero under land
+ice.  MPAS-Ocean evaluates its equation of state at each layer's own depth
+(`config_eos_jm_pressure_from_zMid`), not at the layer's reference depth, from
+which z-star moves layers far under deep ice.  The `forward` and
+`dynamic_adjustment` tasks start from SSH adjusted to the land-ice pressure
+(see {ref}`ocean-realistic-global-ssh-adjustment`).
+
+The forward runs need wetting and drying, so MPAS-Ocean runs its
+`split_explicit` integrator in place of `split_explicit_ab2`
+(`mpaso_cavity_time_integrator`), and must be built from FAnSSIE with
+split-explicit wetting and drying, or set `mpaso_time_integrator = RK4`.  The
+land-ice flux mode is `off` throughout the adjustment.  To try melting, set
+`land_ice_flux_mode = active` in a continuation of the `simulation` stage.  The
+options for cavities themselves are in the `[realistic_global_cavities]`
+section.
+
 (ocean-realistic-global-woa23)=
 
 ## woa23
@@ -554,6 +623,18 @@ the task's own config file, so they override the defaults.  Most meshes have
 no file there at all and simply use the defaults; you can still override any
 option for a single mesh in your own user config file.
 
+A base mesh with the same ocean resolution as a unified mesh shares that
+unified mesh's file and its dynamic-adjustment schedule:
+
+| base mesh                 | unified twin         |
+|---------------------------|----------------------|
+| `qu240km`, `icos240km`    | `u-oi240-lr240`      |
+| `qu30km`                  | `u-oi30-lr10`        |
+| `so12to30km`              | `u-oi-so12to30-lr10` |
+| `rrs6to18km`              | `u-oi6to18-lr12p5`   |
+
+A base mesh's own file, if it had one, would be added after its twin's.
+
 These are separate from the per-mesh files in `polaris/mesh/spherical/unified`.
 The two are joined by the mesh name but have different owners: the mesh
 component describes the mesh itself (resolutions, river networks, sizing
@@ -563,8 +644,8 @@ does on that mesh.  An option specific to the ocean belongs in
 
 Currently:
 
-- `qu240km`, `icos240km` and `u-oi240-lr240` replace the default 80-layer
-  vertical grid with a cheap 16-level `tanh_dz` grid with a 3000 m bottom
+- `u-oi240-lr240`, and so `qu240km` and `icos240km`, replace the default
+  80-layer vertical grid with a cheap 16-level `tanh_dz` grid with a 3000 m bottom
   depth.  The shallow ocean is deliberate: these coarse meshes exist for fast
   smoke-testing of E3SM, Omega and MPAS-Ocean rather than for physically
   realistic simulations.
@@ -572,17 +653,18 @@ Currently:
   of the ocean + sea-ice culled mesh that the ocean model actually runs.  It is
   used to size MPI task counts and is smaller than the full mesh, which
   includes land and river-channel refinement that is culled away first.
-- All five unified meshes, plus `qu240km` and `icos240km`, set the
+- All five unified meshes, and so their base-mesh twins, set the
   resolution-dependent forward-run options described under
   [forward](#ocean-realistic-global-forward): the horizontal mixing
   coefficients, how mixing is scaled across the mesh, which eddy
   parameterizations are active and, where the default scaling is not
-  appropriate, the time step.  The three 240 km meshes are qualitatively the
-  same mesh and share the same values.
+  appropriate, the time step.
 
 For example, `u-oi240-lr240.cfg` contains:
 
 ```cfg
+# Shared with the qu240km and icos240km base meshes, which have the same
+# ocean resolution
 # Ocean-specific properties of this mesh
 [realistic_global_mesh]
 
@@ -621,6 +703,56 @@ cell count: one task per `remap_cells_per_task` cells, and no fewer than one
 per `remap_min_cells_per_task` cells.  Both are rounded to the nearest whole
 task, so they are rules of thumb rather than hard limits.  The other steps of
 this task run serially.
+
+(ocean-realistic-global-ssh-adjustment)=
+
+## ssh_adjustment
+
+With ice-shelf cavities, the `forward` and `dynamic_adjustment` tasks start
+from SSH that is consistent with the land-ice pressure.  The `ssh_adjustment`
+task makes that initial state on its own:
+
+```bash
+polaris setup -t ocean/spherical/realistic_global/so12to30km/ssh_adjustment \
+    -f cavities.cfg ...
+```
+
+The user config must set `[spherical_mesh] antarctic_boundary_convention` to
+`grounding_line` or `bedrock_zero`, and the task can't be set up without
+cavities.  It runs the `init` steps, then pairs of steps:
+
+1. `ssh_forward_<n>` runs MPAS-Ocean for a single step from rest, with the
+   land-ice pressure and no land-ice fluxes.  It uses the
+   `[realistic_global_forward]` options, including the forward runs' time
+   integrator.
+2. `ssh_adjust_<n>` solves for the change in SSH under land ice that cancels
+   the step's depth-mean acceleration, as the `solve` method in
+   {ref}`ocean-ssh-adjustment` does.  The land-ice pressure doesn't change,
+   and the layers follow the new SSH as in the `init` step.
+
+Each `ssh_adjust_<n>/maxDeltaSSH.log` gives the largest change in SSH and the
+root-mean-square acceleration before and after the change.  The options are:
+
+```cfg
+[ssh_adjustment]
+
+# How to make SSH consistent with the land-ice pressure.  Only "solve" is
+# supported for realistic global runs.
+method = solve
+
+# The number of iterations of SSH adjustment
+iterations = 2
+
+# The time step in seconds, as a function of the mesh's minimum resolution
+# in km, of the single step from rest
+solve_dt_per_km = 1.0
+
+# Adjust the SSH rather than the land-ice pressure
+adjust_variable = ssh
+
+# The variable in the initial state that marks where to adjust SSH
+mask_variable = sshAdjustmentMask
+```
 
 (ocean-realistic-global-restart)=
 
@@ -1046,6 +1178,11 @@ eos_type = teos-10
 mpaso_time_integrator = split_explicit_ab2
 omega_time_integrator = split_explicit
 
+# The MPAS-Ocean time integrator that replaces split_explicit_ab2 when the
+# ocean has ice-shelf cavities.  Cavities need wetting and drying, which
+# MPAS-Ocean supports in split_explicit and RK4 but not in split_explicit_ab2.
+mpaso_cavity_time_integrator = split_explicit
+
 # Run duration as an MPAS-style duration string (DDDD_HH:MM:SS)
 run_duration = 0001_00:00:00
 
@@ -1173,6 +1310,12 @@ pressure_gradient_type = Jacobian_from_TS
 # standalone runs have no sea ice or ice-shelf cavities for the frazil to go
 # to.
 use_frazil_ice_formation = False
+
+# MPAS-Ocean's land-ice flux mode when the ocean has ice-shelf cavities:
+# 'off' applies the land-ice pressure without melting, and 'active' also
+# computes the melt fluxes.  A dynamic-adjustment schedule may set it per
+# stage.  Ignored without cavities.
+land_ice_flux_mode = off
 
 # Whether to write density to the 3-D output stream.  MPAS-Ocean only; Omega
 # writes specific volume through its Eos group instead.  On by default, since
@@ -1388,12 +1531,14 @@ polaris setup -t ocean/spherical/realistic_global/<mesh>/dynamic_adjustment ...
 Each stage is a forward run that restarts from the previous stage, with its own
 run duration, time step, output/restart cadence, and (typically decreasing)
 Rayleigh damping.  The stages are read from a schedule YAML: a mesh-specific
-`<mesh_name>.yaml` when the mesh has one, and otherwise `default.yaml`.  Polaris
+`<mesh_name>.yaml` when the mesh has one, then the schedule of its unified twin
+(see {ref}`ocean-realistic-global-mesh-configs`), and otherwise
+`default.yaml`.  Polaris
 ships schedules for all five unified meshes — `u-oi240-lr240`, `u-oi30-lr10`,
 `u-oi6to18-lr12p5`, `u-oi6to18-lr25` and `u-oi-so12to30-lr10` (the last four
 ported from Compass' `ec30to60`, `rrs6to18` (twice) and `so12to30`).
 `default.yaml` is what the
-base meshes such as `icos240km` and `qu240km` fall back to; it is only two
+base meshes without a twin, such as `icos120km`, fall back to; it is only two
 stages, which is a quick check that a mesh runs rather than an adjustment worth
 keeping.  The final stage, `simulation`, writes the relaxed restart, and its
 `output.nc` is compared against a baseline when one is provided.
@@ -1709,9 +1854,15 @@ temperature_max = 35.0
 # condition can only come from the numerics, as in a tracer update that is not
 # monotone in a thin partial bottom cell.  The coldest water in the WOA23
 # initial conditions is about -2.12 deg C on every unified mesh, and healthy
-# MPAS-Ocean adjustments stay above it.  None of these meshes has ice-shelf
-# cavities, where water below this bound is real; revisit it if one gains them.
+# MPAS-Ocean adjustments stay above it.  With ice-shelf cavities,
+# cavity_temperature_min applies instead.
 temperature_min = -2.5
+
+# The minimum allowed temperature (deg C) when the ocean has ice-shelf
+# cavities, in place of temperature_min.  A thin film of fresh water starts at
+# its freezing point, which falls with the land-ice pressure to about -3.1 deg C
+# under the thickest Antarctic ice.
+cavity_temperature_min = -3.5
 
 # Maximum allowed salinity reached during any stage, on the same terms: practical
 # salinity (PSU) for MPAS-Ocean and absolute salinity (g/kg) for Omega, about

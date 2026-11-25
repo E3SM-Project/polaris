@@ -1,4 +1,7 @@
 from polaris import Task
+from polaris.tasks.ocean.realistic_global.cavities import (
+    has_ice_shelf_cavities,
+)
 from polaris.tasks.ocean.realistic_global.models import (
     DEFAULT_MODEL,
     get_configured_model,
@@ -30,8 +33,9 @@ class RealisticGlobalDynamicAdjustment(Task):
     :py:data:`~polaris.tasks.ocean.realistic_global.models.DEFAULT_MODEL`, so
     ``polaris list`` shows a representative set.  ``configure`` rebuilds them
     if the configured model is another, or if a user's setup-time config
-    changed the schedule.  The number of stages is therefore fixed at setup
-    time, not run time.
+    changed the schedule or turned on ice-shelf cavities, which add SSH
+    adjustment before the first stage.  The number of stages is therefore
+    fixed at setup time, not run time.
 
     Attributes
     ----------
@@ -43,6 +47,9 @@ class RealisticGlobalDynamicAdjustment(Task):
 
     stages : list of ForwardStage
         The stages of the adjustment, in schedule order.
+
+    cavities : bool
+        Whether the steps were built for an ocean with ice-shelf cavities
     """
 
     def __init__(self, component, mesh_name):
@@ -74,15 +81,17 @@ class RealisticGlobalDynamicAdjustment(Task):
         self.set_shared_config(config, link=CONFIG_FILENAME)
         self.stages = stages
         self._adjustment_steps = steps
+        self.cavities = has_ice_shelf_cavities(config)
         for symlink, step in steps.items():
             self.add_step(step, symlink=symlink)
 
     def configure(self):
         """
-        Rebuild the steps for the configured model, or for a changed schedule.
+        Rebuild the steps for the configured model, for a changed schedule,
+        or for ice-shelf cavities that a user's config turned on.
 
-        Nothing is rebuilt when neither has changed, which is the usual case
-        for MPAS-Ocean.
+        Nothing is rebuilt when none of these has changed, which is the
+        usual case for MPAS-Ocean.
 
         For another model, the task swaps every model-dependent step,
         including the init chain's, for that model's.  Its config is new and
@@ -101,9 +110,10 @@ class RealisticGlobalDynamicAdjustment(Task):
         """
         super().configure()
         model = get_configured_model(self.config, self.model)
+        cavities = has_ice_shelf_cavities(self.config)
         if model == self.model:
             stages = load_schedule_stages(self.mesh_name, self.config)
-            if stages == self.stages:
+            if stages == self.stages and cavities == self.cavities:
                 return
             base = model_subdir(adjustment_subdir(self.mesh_name), model)
             for step in list(self.steps.values()):
@@ -114,6 +124,7 @@ class RealisticGlobalDynamicAdjustment(Task):
                 self.component, self.mesh_name, model
             )
             config.prepend(self.config)
+        self.cavities = cavities
 
         steps, config, self.stages = get_realistic_dynamic_adjustment_steps(
             component=self.component,

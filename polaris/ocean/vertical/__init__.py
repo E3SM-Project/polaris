@@ -37,11 +37,16 @@ _VERT_COORD_VARS = [
 ]
 
 
-def init_vertical_coord(config, ds):
+def init_vertical_coord(config, ds, top_depth=None):
     """
     Create a vertical coordinate based on the config options in the
     ``vertical_grid`` section and the ``bottomDepth`` and ``ssh`` variables of
     the mesh data set.
+
+    With ``top_depth``, for example under ice shelves (see
+    :py:func:`polaris.ocean.vertical.ice_shelf.compute_ice_shelf_top_depth`),
+    columns start at the given depth, with a partial top level.  Only the
+    z-star coordinate supports it.
 
     The following new variables will be added to the data set:
 
@@ -86,7 +91,11 @@ def init_vertical_coord(config, ds):
 
     ds : xarray.Dataset
         A data set containing ``bottomDepth`` and ``ssh`` variables used to
-        construct the vertical coordinate
+        construct the vertical coordinate, and ``cellsOnEdge`` with
+        ``top_depth``
+
+    top_depth : xarray.DataArray, optional
+        The positive-down depth (m) at which each column starts
     """
 
     for var in ['bottomDepth', 'ssh']:
@@ -99,10 +108,15 @@ def init_vertical_coord(config, ds):
 
     coord_type = config.get('vertical_grid', 'coord_type')
 
+    if top_depth is not None and coord_type != 'z-star':
+        raise ValueError(
+            f'Only the z-star coordinate supports top_depth, not {coord_type}.'
+        )
+
     if coord_type == 'z-level':
         init_z_level_vertical_coord(config, ds)
     elif coord_type == 'z-star':
-        init_z_star_vertical_coord(config, ds)
+        init_z_star_vertical_coord(config, ds, top_depth=top_depth)
     elif coord_type == 'sigma':
         init_sigma_vertical_coord(config, ds)
     elif coord_type == 'p-star':
@@ -154,6 +168,10 @@ def update_layer_thickness(config, ds):
     already been initialized based on the ``bottomDepth`` and ``ssh``
     variables of the mesh data set.
 
+    ``ds`` is expected to be as :py:func:`init_vertical_coord` leaves it (or
+    as read from a file written from it), with one-based ``minLevelCell`` and
+    ``maxLevelCell``.  ``zMid`` and ``GeomZInterface`` are also updated.
+
     Parameters
     ----------
     config : polaris.config.PolarisConfigParser
@@ -173,6 +191,16 @@ def update_layer_thickness(config, ds):
         # drop it for now, we'll add it back at the end
         ds['ssh'] = ds.ssh.isel(Time=0)
 
+    # the coordinate-specific functions expect zero-based level indices and
+    # restingThickness without a Time dimension; we'll restore them at the end
+    min_level_cell = ds.minLevelCell
+    max_level_cell = ds.maxLevelCell
+    ds['minLevelCell'] = min_level_cell - 1
+    ds['maxLevelCell'] = max_level_cell - 1
+    resting_thickness = ds.restingThickness
+    if 'Time' in resting_thickness.dims:
+        ds['restingThickness'] = resting_thickness.isel(Time=0)
+
     coord_type = config.get('vertical_grid', 'coord_type')
 
     if coord_type == 'z-level':
@@ -191,11 +219,25 @@ def update_layer_thickness(config, ds):
     else:
         raise ValueError(f'Unknown coordinate type {coord_type}')
 
+    # mask layerThickness as in init_vertical_coord()
+    ds['layerThickness'] = ds.layerThickness.where(ds.cellMask.astype(bool))
+
     # add (back) Time dimension
     ds['ssh'] = ds.ssh.expand_dims(dim='Time', axis=0)
     ds['layerThickness'] = ds.layerThickness.expand_dims(
         dim='Time', axis=0
     ).drop_attrs()
+
+    ds['GeomZInterface'], ds['zMid'] = compute_zint_zmid_from_layer_thickness(
+        layer_thickness=ds.layerThickness,
+        bottom_depth=ds.bottomDepth,
+        min_level_cell=ds.minLevelCell,
+        max_level_cell=ds.maxLevelCell,
+    )
+
+    ds['minLevelCell'] = min_level_cell
+    ds['maxLevelCell'] = max_level_cell
+    ds['restingThickness'] = resting_thickness
 
 
 def _compute_cell_mask(minLevelCell, maxLevelCell, nVertLevels):

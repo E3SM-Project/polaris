@@ -9,6 +9,7 @@ from polaris.tasks.e3sm.init.topo.combine import (
     CubedSphereCombineTask,
     LatLonCombineTask,
 )
+from polaris.tasks.e3sm.init.topo.combine.files import ANTARCTIC_DATASETS
 from polaris.tasks.e3sm.init.topo.cull import add_cull_topo_tasks
 from polaris.tasks.e3sm.init.topo.remap import add_remap_topo_tasks
 
@@ -20,16 +21,23 @@ def add_e3sm_init_tasks(component):
     component : polaris.Component
         the e3sm/init component that the tasks will be added to
     """
-    for cubed_sphere_res in CUBED_SPHERE_RESOLUTIONS:
-        component.add_task(
-            CubedSphereCombineTask(
-                component=component, resolution=cubed_sphere_res
+    for antarctic_dataset in ANTARCTIC_DATASETS:
+        for cubed_sphere_res in CUBED_SPHERE_RESOLUTIONS:
+            component.add_task(
+                CubedSphereCombineTask(
+                    component=component,
+                    resolution=cubed_sphere_res,
+                    antarctic_dataset=antarctic_dataset,
+                )
             )
-        )
-    for lat_lon_res in LAT_LON_RESOLUTIONS:
-        component.add_task(
-            LatLonCombineTask(component=component, resolution=lat_lon_res)
-        )
+        for lat_lon_res in LAT_LON_RESOLUTIONS:
+            component.add_task(
+                LatLonCombineTask(
+                    component=component,
+                    resolution=lat_lon_res,
+                    antarctic_dataset=antarctic_dataset,
+                )
+            )
 
     add_remap_topo_tasks(component=component)
 

@@ -1,0 +1,13 @@
+# Output for the SSH adjustment that follows the step: the state at the start
+# of the step as well as at its end, with the time since the start, the
+# active levels and the land-ice pressure
+mpas-ocean:
+  io:
+    config_write_output_on_startup: true
+  streams:
+    output:
+      contents:
+      - daysSinceStartOfSim
+      - minLevelCell
+      - maxLevelCell
+      - landIcePressure

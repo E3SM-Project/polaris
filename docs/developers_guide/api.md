@@ -206,6 +206,9 @@ seaice/api
    Step.add_property_check
    Step.add_cf_check
    Step.add_dependency
+   Step.add_setup_only_option
+   Step.record_setup_only_options
+   Step.check_setup_only_options
    Step.validate_baselines
    Step.check_properties
    Step.check_cf
@@ -587,7 +590,10 @@ seaice/api
    :toctree: generated/
 
    CONVENTIONS
+   CONVENTION_SECTION
+   CONVENTION_OPTION
    COASTLINE_VALIDATE_VARS
+   add_convention_setup_only_option
    build_coastline_datasets
    build_coastline_dataset
    signed_distance_from_ocean_mask

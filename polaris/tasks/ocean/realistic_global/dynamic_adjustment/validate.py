@@ -1,6 +1,10 @@
 import os
 
 from polaris import Step
+from polaris.mesh.spherical.coastline import add_convention_setup_only_option
+from polaris.tasks.ocean.realistic_global.cavities import (
+    has_ice_shelf_cavities,
+)
 from polaris.tasks.ocean.realistic_global.dynamic_adjustment.checks import (
     check_cfl_max,
     check_salinity_max,
@@ -91,6 +95,7 @@ class StageCheck(Step):
         super().__init__(
             component=component, name=f'{stage.name}_check', subdir=subdir
         )
+        add_convention_setup_only_option(self)
         self.stage = stage
         self.sequence_start = sequence_start
         self.min_res = min_res
@@ -146,10 +151,14 @@ class StageCheck(Step):
             temperature, when = extreme_and_day(
                 ds, 'temperatureMin', 'min', exclude_days
             )
+            if has_ice_shelf_cavities(config):
+                min_option = 'cavity_temperature_min'
+            else:
+                min_option = 'temperature_min'
             check_temperature_min(
                 temperature,
                 when,
-                config.getfloat(SECTION, 'temperature_min'),
+                config.getfloat(SECTION, min_option),
                 stage_name,
                 logger,
             )

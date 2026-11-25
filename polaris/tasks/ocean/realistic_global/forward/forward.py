@@ -3,8 +3,13 @@ from typing import List, Optional
 
 import numpy as np
 
+from polaris.mesh.spherical.coastline import add_convention_setup_only_option
 from polaris.mpas.time import duration_to_seconds
+from polaris.ocean.ice_shelf import add_wetting_drying_yaml_files
 from polaris.ocean.model import OceanModelStep
+from polaris.tasks.ocean.realistic_global.cavities import (
+    has_ice_shelf_cavities,
+)
 from polaris.tasks.ocean.realistic_global.forward.initial_condition import (
     InitialCondition,
 )
@@ -140,6 +145,7 @@ class Forward(OceanModelStep):
             update_eos=update_eos,
             graph_target=init_condition.graph_target,
         )
+        add_convention_setup_only_option(self)
         self.init_condition = init_condition
         self.stage = stage
         self.package = package
@@ -255,9 +261,11 @@ class Forward(OceanModelStep):
         Compute the number of cells used to size resources.
 
         Returns the exact ``nCells`` from the mesh once it exists (at run
-        time), and otherwise the initial condition's ``approx_cell_count``
-        estimate (during setup, before the upstream initial condition has been
-        produced).
+        time).  Before that (during setup, before the upstream initial
+        condition has been produced), it returns the
+        ``[realistic_global_mesh] culled_ocean_cell_count`` config option if
+        it is set, so that a user's override is honored, and otherwise the
+        initial condition's ``approx_cell_count`` estimate.
 
         Returns
         -------
@@ -268,7 +276,15 @@ class Forward(OceanModelStep):
         if mesh_path is not None:
             ds = self.component.open_model_dataset(mesh_path, self.config)
             return int(ds.sizes['nCells'])
-        approx = self.init_condition.approx_cell_count
+        approx = None
+        if self.config is not None:
+            approx = self.config.getint(
+                'realistic_global_mesh',
+                'culled_ocean_cell_count',
+                fallback=None,
+            )
+        if approx is None:
+            approx = self.init_condition.approx_cell_count
         if approx is None:
             raise ValueError(
                 'approx_cell_count could not be determined for this mesh; '
@@ -372,6 +388,10 @@ class Forward(OceanModelStep):
                 options=stage.mpaso_physics_options(),
                 config_model='mpas-ocean',
             )
+            if has_ice_shelf_cavities(config):
+                add_land_ice_yaml_files(
+                    self, stage, replacements['time_integrator']
+                )
             options = stage.bottom_drag_options()
             if options:
                 self.add_model_config_options(
@@ -439,6 +459,50 @@ class Forward(OceanModelStep):
             float(edge_widths.min()),
             float(edge_widths.max()),
         )
+
+
+def add_land_ice_yaml_files(step, stage, time_integrator):
+    """
+    Add the MPAS-Ocean options for an ocean with ice-shelf cavities to a
+    forward step: the land-ice pressure, the stage's land-ice flux mode, top
+    drag, and wetting and drying with a thin film.
+
+    MPAS-Ocean allows implicit top drag only with its constant implicit
+    bottom drag, not with the Rayleigh damping of a damped stage, so only an
+    undamped stage has top drag.
+
+    The film is the same under every cavity convention: it fills any column
+    that the land-ice load would leave thinner than the wetting-and-drying
+    minimum, whether the ice above it is grounded or floating.
+
+    Parameters
+    ----------
+    step : polaris.ModelStep
+        The forward step
+
+    stage : polaris.tasks.ocean.realistic_global.forward.stage.ForwardStage
+        The stage the step runs, which supplies the land-ice flux mode
+
+    time_integrator : str
+        The MPAS-Ocean time integrator the step uses
+    """
+    step.add_yaml_file(
+        'polaris.tasks.ocean.realistic_global.forward',
+        'land_ice.yaml',
+        template_replacements=dict(
+            land_ice_flux_mode=stage.land_ice_flux_mode
+        ),
+    )
+    if stage.damping is None:
+        step.add_yaml_file(
+            'polaris.tasks.ocean.realistic_global.forward',
+            'land_ice_top_drag.yaml',
+        )
+    add_wetting_drying_yaml_files(
+        step,
+        thin_film=True,
+        split_explicit=(time_integrator == 'split_explicit'),
+    )
 
 
 def _log_hmix_scaling(logger, model, stage, mesh_widths, options):

@@ -8,10 +8,25 @@ from polaris import (
 from polaris import (
     Task as Task,
 )
+from polaris.ocean.ice_shelf.freeze import (
+    compute_freezing_temperature as compute_freezing_temperature,
+)
+from polaris.ocean.ice_shelf.pressure import (
+    compute_land_ice_draft_from_pressure as compute_land_ice_draft_from_pressure,  # noqa: E501
+)
+from polaris.ocean.ice_shelf.pressure import (
+    compute_land_ice_pressure_from_draft as compute_land_ice_pressure_from_draft,  # noqa: E501
+)
+from polaris.ocean.ice_shelf.pressure import (
+    compute_land_ice_pressure_from_thickness as compute_land_ice_pressure_from_thickness,  # noqa: E501
+)
 from polaris.ocean.ice_shelf.ssh_adjustment import (
     SshAdjustment as SshAdjustment,
 )
 from polaris.ocean.ice_shelf.ssh_forward import SshForward as SshForward
+from polaris.ocean.ice_shelf.wetting_drying import (
+    add_wetting_drying_yaml_files as add_wetting_drying_yaml_files,
+)
 
 
 class IceShelfTask(Task):

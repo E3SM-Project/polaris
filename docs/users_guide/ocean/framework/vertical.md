@@ -259,8 +259,12 @@ support 3 options for
 sea-surface height) are expanded so that all layers have their full thickness;
 `partial` meaning that cells adjacent to the topography are allowed to be a
 small fraction of a full layer thickness; or `None` to indicate that no
-alteration is needed for full or partial cells (typically only in cases where
-the topography is already flat).
+alteration is needed for full or partial cells.
+
+Tasks with topography should use `partial`, usually with
+`min_pc_fraction = 0.1`. `None` is for flat beds, or for tests that need the
+bed left exactly where it is configured, such as the
+{ref}`horizontal pressure gradient tests <ocean-horiz-press-grad>`.
 
 If `partial_cell_type = partial`, the option `min_pc_fraction` indicates
 the smallest fraction of a layer that a partial cell is allowed to have before
@@ -283,6 +287,45 @@ In configurations with {ref}`ocean-ice-shelf` cavities, the ice draft
 for a z-star coordinate.  This means that the initial layers are squashed
 significantly from their "resting" thickness under ice shelves as if they were
 being pressed down by the weight of the ice.
+
+(ocean-z-star-ice-shelves)=
+
+#### Columns under ice shelves
+
+Under deep ice, squashing the whole column leaves thin top layers whose
+interfaces slope steeply across calving fronts and steps in the draft.  With
+
+```cfg
+[vertical_grid]
+ice_shelf_top_level = front_draft
+```
+
+columns under ice shelves start at a top depth instead, and z-star applies
+to the reference column below it:
+
+- Each ice shelf starts at a percentile (`ice_shelf_front_percentile`) of
+  the drafts along its calving front, weighted by the length of the front.
+- A cell at a calving front that faces open water starts at its own draft,
+  so its layers line up with those of the open ocean.  Its weight as a front
+  ramps up as the open water's bed deepens below the draft and as the ice
+  cell's column thickens beyond a thin film, and the cell's top depth
+  blends its own draft with its shelf's by that weight.
+- Where neighboring columns are still steeper than `ice_shelf_max_rx1`, the
+  cell with the deeper draft starts at the shallowest deeper top depth that
+  meets it.
+
+Reference levels entirely above the top depth are dropped, and the level
+containing it becomes a partial top level, like a partial bottom cell upside
+down.  A partial top level thinner than `ice_shelf_min_top_fraction` of its
+reference thickness merges into the level below.  So does a top level that
+shares its level with fewer than two neighboring columns, since its flow
+cannot reach geostrophic balance, unless no level of the column has two such
+neighbors.  Every column keeps at least `min_vert_levels` levels, and
+thin-film cells under grounded ice start at the surface.  The ice shelves are
+numbered once, at init, by a flood fill of the floating and then the grounded
+cells, and the initial state records them in `iceShelfGroup`.  With the default, `surface`,
+every column starts at the top reference level.  The same options apply to
+the {ref}`ocean-p-star` initialization.
 
 (ocean-z-level)=
 

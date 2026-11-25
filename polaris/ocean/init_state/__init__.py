@@ -5,6 +5,9 @@ from polaris.ocean.init_state.pressure import (
     pressure_for_tracer_conversion as pressure_for_tracer_conversion,
 )
 from polaris.ocean.init_state.thickness import (
+    apply_min_max_layer_thickness as apply_min_max_layer_thickness,
+)
+from polaris.ocean.init_state.thickness import (
     layer_thickness_from_geom_interfaces as layer_thickness_from_geom_interfaces,  # noqa: E501
 )
 from polaris.ocean.init_state.velocity import (

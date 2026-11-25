@@ -64,6 +64,7 @@ class PStarInitStep(Step, ABC):
         ds_mesh: xr.Dataset,
         bottom_pressure: xr.DataArray,
         surface_pressure: xr.DataArray | None = None,
+        top_depth: xr.DataArray | None = None,
     ) -> xr.Dataset:
         """
         Build the p-star vertical coordinate dataset for one outer iteration.
@@ -82,6 +83,9 @@ class PStarInitStep(Step, ABC):
         surface_pressure : xarray.DataArray, optional
             Sea-surface pressure with dimension ``nCells`` (Pa).  Defaults to
             zero for all cells.
+        top_depth : xarray.DataArray, optional
+            The positive-down pseudo-depth (m) at which each column starts,
+            the surface by default.
 
         Returns
         -------
@@ -98,7 +102,7 @@ class PStarInitStep(Step, ABC):
         set_attrs(
             ds.SurfacePressure, long_name='sea surface pressure', units='Pa'
         )
-        init_pstar_vertical_coord(config, ds)
+        init_pstar_vertical_coord(config, ds, top_depth=top_depth)
         return ds
 
     def run_pstar_init(
@@ -107,6 +111,7 @@ class PStarInitStep(Step, ABC):
         geom_z_bot: xr.DataArray,
         surface_pressure: xr.DataArray | None = None,
         sea_surface_height: xr.DataArray | None = None,
+        top_depth: xr.DataArray | None = None,
     ) -> xr.Dataset:
         """
         Run the fixed-point iteration that determines BottomPressure (and
@@ -144,6 +149,10 @@ class PStarInitStep(Step, ABC):
             sea-surface depression that balances the surface pressure for a
             reference-density fluid.  (Being at rest does not imply
             ``ssh = 0``; surface loading depresses ``ssh`` even at rest.)
+        top_depth : xarray.DataArray, optional
+            The positive-down pseudo-depth (m) at which each column starts,
+            the surface by default.  Under ice shelves, see
+            :py:func:`polaris.ocean.vertical.ice_shelf.compute_ice_shelf_top_depth`.
 
         Returns
         -------
@@ -217,7 +226,10 @@ class PStarInitStep(Step, ABC):
 
         for iteration in range(pseudothickness_iter_count):
             ds = self._build_pstar_coord_ds(
-                ds_mesh, bottom_pressure, surface_pressure
+                ds_mesh,
+                bottom_pressure,
+                surface_pressure,
+                top_depth=top_depth,
             )
             # ds.BottomPressure is the post-partial-cell-snap value
             adjusted_bottom_pressure = ds.BottomPressure
@@ -238,22 +250,20 @@ class PStarInitStep(Step, ABC):
             assert isinstance(new_spec_vol, xr.DataArray)
             spec_vol = new_spec_vol
 
-            min_level_cell = ds.minLevelCell - 1
-            max_level_cell = ds.maxLevelCell - 1
+            top_level = ds.minLevelCell - 1
+            bottom_level = ds.maxLevelCell - 1
 
             geom_z_inter, geom_z_mid = geom_height_from_pseudo_height(
                 geom_z_bot=geom_z_bot,
                 h_tilde=ds.PseudoThickness,
                 spec_vol=spec_vol,
-                min_level_cell=min_level_cell,
-                max_level_cell=max_level_cell,
+                min_level_cell=top_level,
+                max_level_cell=bottom_level,
             )
 
-            geom_z_min = geom_z_inter.isel(
-                Time=0, nVertLevelsP1=min_level_cell
-            )
+            geom_z_min = geom_z_inter.isel(Time=0, nVertLevelsP1=top_level)
             geom_z_max = geom_z_inter.isel(
-                Time=0, nVertLevelsP1=max_level_cell + 1
+                Time=0, nVertLevelsP1=bottom_level + 1
             )
             geom_water_column_thickness = geom_z_min - geom_z_max
 

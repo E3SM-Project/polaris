@@ -2,6 +2,9 @@ from typing import TYPE_CHECKING, Dict, Optional, Tuple
 
 from polaris import Task
 from polaris.config import PolarisConfigParser
+from polaris.tasks.ocean.realistic_global.cavities import (
+    has_ice_shelf_cavities,
+)
 from polaris.tasks.ocean.realistic_global.forward.forward import Forward
 from polaris.tasks.ocean.realistic_global.forward.initial_condition import (
     InitialCondition,
@@ -21,6 +24,9 @@ from polaris.tasks.ocean.realistic_global.models import (
     DEFAULT_MODEL,
     get_configured_model,
     replace_steps,
+)
+from polaris.tasks.ocean.realistic_global.ssh_adjustment.steps import (
+    add_ssh_adjustment_steps,
 )
 
 if TYPE_CHECKING:
@@ -181,7 +187,8 @@ class RealisticGlobalForward(Task):
 
     def configure(self):
         """
-        Switch to the configured ocean model's init steps, if the task has any.
+        Switch to the configured ocean model's init steps, if the task has any,
+        and start from the adjusted SSH if the ocean has ice-shelf cavities.
         """
         super().configure()
         self._init_steps, self.model = swap_init_model(
@@ -191,6 +198,15 @@ class RealisticGlobalForward(Task):
             init_steps=self._init_steps,
             model=self.model,
         )
+        if self._init_steps is not None and has_ice_shelf_cavities(
+            self.config
+        ):
+            add_ssh_adjustment_steps(
+                task=self,
+                mesh_name=self.mesh_name,
+                model=self.model,
+                forward_step=self.forward_step,
+            )
 
 
 def swap_init_model(
