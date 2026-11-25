@@ -1283,11 +1283,12 @@ def _get_basic_config(
 
     if build is not None:
         config.set('build', 'build', str(build), user=True)
-    compiler = os.environ['POLARIS_COMPILER']
-    mpi = os.environ['POLARIS_MPI']
     config.set('build', 'machine', machine, user=True)
-    config.set('build', 'compiler', compiler, user=True)
-    config.set('build', 'mpi', mpi, user=True)
+    compiler, mpi = _get_compiler_and_mpi(config)
+    if compiler is not None:
+        config.set('build', 'compiler', compiler, user=True)
+    if mpi is not None:
+        config.set('build', 'mpi', mpi, user=True)
     if cmake_flags is not None:
         config.set('build', 'cmake_flags', cmake_flags, user=True)
     if debug is not None:
@@ -1314,6 +1315,45 @@ def _get_basic_config(
     config.set('paths', 'base_work_dir', work_dir, user=True)
 
     return config
+
+
+def _get_compiler_and_mpi(config):
+    """
+    The compiler and MPI library to build models with
+
+    A deployed environment's load script sets ``POLARIS_COMPILER`` and
+    ``POLARIS_MPI``.  Without one, as when polaris is installed from
+    conda-forge, they come from the ``[deploy]`` section of the machine
+    config if it has one, and are otherwise left unset, since only building
+    a model needs them.
+
+    Parameters
+    ----------
+    config : polaris.config.PolarisConfigParser
+        The config options so far, including the machine's
+
+    Returns
+    -------
+    compiler : str or None
+        The compiler
+
+    mpi : str or None
+        The MPI library
+    """
+    compiler = os.environ.get('POLARIS_COMPILER')
+    if compiler is None and config.has_option('deploy', 'compiler'):
+        compiler = config.get('deploy', 'compiler')
+
+    mpi = os.environ.get('POLARIS_MPI')
+    mpi_option = f'mpi_{compiler}'
+    if (
+        mpi is None
+        and compiler is not None
+        and config.has_option('deploy', mpi_option)
+    ):
+        mpi = config.get('deploy', mpi_option)
+
+    return compiler, mpi
 
 
 def add_component_model_args(parser):
@@ -1578,9 +1618,33 @@ def _build_models(components_in_use, component_configs, machine):
 
         config = component_configs[component.name]
         if config.getboolean('build', 'build'):
+            _check_build_environment(component, config)
             component.build_model(config=config, machine=machine)
 
         component.check_model_version(config=config)
+
+
+def _check_build_environment(component, config):
+    """
+    Check that polaris is running in a deployment, which building a model
+    needs for its compilers, libraries and load script
+
+    Every load script that ``./deploy.py`` writes exports
+    ``POLARIS_LOAD_SCRIPT``.  Polaris installed from conda-forge has no load
+    script, so it can only run models that have already been built.
+    """
+    if 'POLARIS_LOAD_SCRIPT' in os.environ:
+        return
+    component_path = config.get('paths', 'component_path')
+    raise ValueError(
+        f'The {component.name} model needs to be built, either because '
+        f'--build was given or because no model was found in '
+        f'{component_path}.  Building a model needs a polaris deployment '
+        f'(./deploy.py in a clone of polaris, see the Quick Start for '
+        f'Developers), but this environment was not loaded from one.  Point '
+        f'--component_path (-p) at a model that has already been built '
+        f'instead.'
+    )
 
 
 def _get_model_flags(components_in_use):
