@@ -966,9 +966,9 @@ window.runMermaid = runMermaid;</script>
 
 <span class="sd">    The WOA23 depths are the same for every column, so the source interval</span>
 <span class="sd">    holding each midpoint is found for a chunk of cells at a time.  The</span>
-<span class="sd">    result is what :py:func:`numpy.interp` gives column by column, including</span>
-<span class="sd">    the flat extrapolation above the shallowest and below the deepest WOA23</span>
-<span class="sd">    level.</span>
+<span class="sd">    result is what :py:func:`numpy.interp` gives column by column, to</span>
+<span class="sd">    rounding, including the flat extrapolation above the shallowest and below</span>
+<span class="sd">    the deepest WOA23 level.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -1012,8 +1012,10 @@ window.runMermaid = runMermaid;</script>
             <span class="n">values</span> <span class="o">=</span> <span class="n">values</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span>
             <span class="n">lower</span> <span class="o">=</span> <span class="n">values</span><span class="p">[</span><span class="n">first</span> <span class="o">+</span> <span class="n">index</span><span class="p">]</span>
             <span class="n">upper</span> <span class="o">=</span> <span class="n">values</span><span class="p">[</span><span class="n">first</span> <span class="o">+</span> <span class="n">index</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
-            <span class="c1"># the same arithmetic as numpy.interp, so the results match it</span>
-            <span class="c1"># exactly, held at the end values beyond the source heights</span>
+            <span class="c1"># the same arithmetic as numpy.interp, so the results match it to</span>
+            <span class="c1"># rounding (exactly, unless the compiler fused numpy.interp's</span>
+            <span class="c1"># multiply and add), held at the end values beyond the source</span>
+            <span class="c1"># heights</span>
             <span class="n">result</span> <span class="o">=</span> <span class="p">(</span><span class="n">upper</span> <span class="o">-</span> <span class="n">lower</span><span class="p">)</span> <span class="o">/</span> <span class="n">dz_src</span> <span class="o">*</span> <span class="n">dz</span> <span class="o">+</span> <span class="n">lower</span>
             <span class="n">result</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">below</span><span class="p">,</span> <span class="n">values</span><span class="p">[</span><span class="n">first</span><span class="p">],</span> <span class="n">result</span><span class="p">)</span>
             <span class="n">result</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">above</span><span class="p">,</span> <span class="n">values</span><span class="p">[</span><span class="n">first</span> <span class="o">+</span> <span class="n">nsrc</span> <span class="o">-</span> <span class="mi">1</span><span class="p">],</span> <span class="n">result</span><span class="p">)</span>
