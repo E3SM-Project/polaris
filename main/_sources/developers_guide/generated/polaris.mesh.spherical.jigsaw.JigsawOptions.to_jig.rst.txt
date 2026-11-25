@@ -1,0 +1,6 @@
+﻿polaris.mesh.spherical.jigsaw.JigsawOptions.to\_jig
+===================================================
+
+.. currentmodule:: polaris.mesh.spherical.jigsaw
+
+.. automethod:: JigsawOptions.to_jig

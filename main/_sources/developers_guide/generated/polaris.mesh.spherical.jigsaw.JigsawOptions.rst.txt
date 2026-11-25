@@ -1,0 +1,23 @@
+﻿polaris.mesh.spherical.jigsaw.JigsawOptions
+===========================================
+
+.. currentmodule:: polaris.mesh.spherical.jigsaw
+
+.. autoclass:: JigsawOptions
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~JigsawOptions.__init__
+      ~JigsawOptions.to_jig
+   
+   
+
+   
+   
+   

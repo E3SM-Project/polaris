@@ -475,10 +475,8 @@ window.runMermaid = runMermaid;</script>
   <h1>Source code for polaris.mesh.spherical</h1><div class="highlight"><pre>
 <span></span><span class="kn">import</span><span class="w"> </span><span class="nn">cartopy</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">cartopy.crs</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">ccrs</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">jigsawpy</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">jigsawpy.savejig</span><span class="w"> </span><span class="kn">import</span> <span class="n">savejig</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">matplotlib.figure</span><span class="w"> </span><span class="kn">import</span> <span class="n">Figure</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mpas_tools.io</span><span class="w"> </span><span class="kn">import</span> <span class="n">open_dataset</span><span class="p">,</span> <span class="n">write_netcdf</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mpas_tools.logging</span><span class="w"> </span><span class="kn">import</span> <span class="n">check_call</span>
@@ -493,6 +491,11 @@ window.runMermaid = runMermaid;</script>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.mesh.reconstruct</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">compute_reconstruction_weights</span><span class="p">,</span>
     <span class="n">get_reconstruction_validate_vars</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.mesh.spherical.jigsaw</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">JigsawOptions</span><span class="p">,</span>
+    <span class="n">import_jigsawpy</span><span class="p">,</span>
+    <span class="n">write_jigsaw_config</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.mesh.spherical.quality</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">check_cell_polygon_quality</span><span class="p">,</span>
@@ -513,7 +516,7 @@ window.runMermaid = runMermaid;</script>
 
 <span class="sd">    Attributes</span>
 <span class="sd">    ----------</span>
-<span class="sd">    opts : jigsawpy.jigsaw_jig_t</span>
+<span class="sd">    opts : polaris.mesh.spherical.jigsaw.JigsawOptions</span>
 <span class="sd">        JIGSAW options for creating the mesh</span>
 
 <span class="sd">    mesh_name : str</span>
@@ -572,7 +575,7 @@ window.runMermaid = runMermaid;</script>
         <span class="p">)</span>
 
         <span class="c1"># setup files for JIGSAW</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">opts</span> <span class="o">=</span> <span class="n">jigsawpy</span><span class="o">.</span><span class="n">jigsaw_jig_t</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">opts</span> <span class="o">=</span> <span class="n">JigsawOptions</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">mesh_name</span> <span class="o">=</span> <span class="n">mesh_name</span></div>
 
 
@@ -1018,6 +1021,7 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">        cell_width : numpy.ndarray</span>
 <span class="sd">            m x n array of cell width in km</span>
 <span class="sd">        """</span>
+        <span class="n">jigsawpy</span> <span class="o">=</span> <span class="n">import_jigsawpy</span><span class="p">()</span>
         <span class="n">logger</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">logger</span>
         <span class="n">earth_radius</span> <span class="o">=</span> <span class="n">get_constant</span><span class="p">(</span><span class="s1">'mean_radius'</span><span class="p">)</span>
         <span class="n">opts</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">opts</span>
@@ -1036,7 +1040,7 @@ window.runMermaid = runMermaid;</script>
         <span class="n">geom</span><span class="o">.</span><span class="n">radii</span> <span class="o">=</span> <span class="n">earth_radius</span> <span class="o">*</span> <span class="mf">1e-3</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="nb">float</span><span class="p">)</span>
         <span class="n">jigsawpy</span><span class="o">.</span><span class="n">savemsh</span><span class="p">(</span><span class="n">opts</span><span class="o">.</span><span class="n">geom_file</span><span class="p">,</span> <span class="n">geom</span><span class="p">)</span>
 
-        <span class="n">savejig</span><span class="p">(</span><span class="n">opts</span><span class="o">.</span><span class="n">jcfg_file</span><span class="p">,</span> <span class="n">opts</span><span class="p">)</span>
+        <span class="n">write_jigsaw_config</span><span class="p">(</span><span class="n">opts</span><span class="p">)</span>
         <span class="n">check_call</span><span class="p">([</span><span class="s1">'jigsaw'</span><span class="p">,</span> <span class="n">opts</span><span class="o">.</span><span class="n">jcfg_file</span><span class="p">],</span> <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">)</span></div>
 </div>
 
@@ -1153,6 +1157,7 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">        subdivisions : int</span>
 <span class="sd">            The number of subdivisions of the icosahedron</span>
 <span class="sd">        """</span>
+        <span class="n">jigsawpy</span> <span class="o">=</span> <span class="n">import_jigsawpy</span><span class="p">()</span>
         <span class="n">earth_radius</span> <span class="o">=</span> <span class="n">get_constant</span><span class="p">(</span><span class="s1">'mean_radius'</span><span class="p">)</span>
         <span class="n">opts</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">opts</span>
 
@@ -1162,7 +1167,7 @@ window.runMermaid = runMermaid;</script>
         <span class="n">jigsawpy</span><span class="o">.</span><span class="n">savemsh</span><span class="p">(</span><span class="n">opts</span><span class="o">.</span><span class="n">geom_file</span><span class="p">,</span> <span class="n">geom</span><span class="p">)</span>
 
         <span class="n">icos</span> <span class="o">=</span> <span class="n">jigsawpy</span><span class="o">.</span><span class="n">jigsaw_msh_t</span><span class="p">()</span>
-        <span class="n">jigsawpy</span><span class="o">.</span><span class="n">cmd</span><span class="o">.</span><span class="n">icosahedron</span><span class="p">(</span><span class="n">opts</span><span class="p">,</span> <span class="n">subdivisions</span><span class="p">,</span> <span class="n">icos</span><span class="p">)</span></div>
+        <span class="n">jigsawpy</span><span class="o">.</span><span class="n">cmd</span><span class="o">.</span><span class="n">icosahedron</span><span class="p">(</span><span class="n">opts</span><span class="o">.</span><span class="n">to_jig</span><span class="p">(),</span> <span class="n">subdivisions</span><span class="p">,</span> <span class="n">icos</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="IcosahedralMeshStep.build_subdivisions_cell_width_lat_lon">
@@ -1308,6 +1313,7 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">    either.  The triangulation's points become MPAS cell centers and its</span>
 <span class="sd">    triangles MPAS vertices, at the triangles' circumcenters.</span>
 <span class="sd">    """</span>
+    <span class="n">jigsawpy</span> <span class="o">=</span> <span class="n">import_jigsawpy</span><span class="p">()</span>
     <span class="n">mesh</span> <span class="o">=</span> <span class="n">jigsawpy</span><span class="o">.</span><span class="n">jigsaw_msh_t</span><span class="p">()</span>
     <span class="n">jigsawpy</span><span class="o">.</span><span class="n">loadmsh</span><span class="p">(</span><span class="n">jigsaw_mesh_filename</span><span class="p">,</span> <span class="n">mesh</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">mesh</span><span class="o">.</span><span class="n">vert3</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">mesh</span><span class="o">.</span><span class="n">vert3</span><span class="o">.</span><span class="n">size</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>

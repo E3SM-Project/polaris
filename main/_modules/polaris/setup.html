@@ -1853,11 +1853,12 @@ window.runMermaid = runMermaid;</script>
 
     <span class="k">if</span> <span class="n">build</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">'build'</span><span class="p">,</span> <span class="s1">'build'</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">build</span><span class="p">),</span> <span class="n">user</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-    <span class="n">compiler</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">'POLARIS_COMPILER'</span><span class="p">]</span>
-    <span class="n">mpi</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">'POLARIS_MPI'</span><span class="p">]</span>
     <span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">'build'</span><span class="p">,</span> <span class="s1">'machine'</span><span class="p">,</span> <span class="n">machine</span><span class="p">,</span> <span class="n">user</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-    <span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">'build'</span><span class="p">,</span> <span class="s1">'compiler'</span><span class="p">,</span> <span class="n">compiler</span><span class="p">,</span> <span class="n">user</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-    <span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">'build'</span><span class="p">,</span> <span class="s1">'mpi'</span><span class="p">,</span> <span class="n">mpi</span><span class="p">,</span> <span class="n">user</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">compiler</span><span class="p">,</span> <span class="n">mpi</span> <span class="o">=</span> <span class="n">_get_compiler_and_mpi</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">compiler</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">'build'</span><span class="p">,</span> <span class="s1">'compiler'</span><span class="p">,</span> <span class="n">compiler</span><span class="p">,</span> <span class="n">user</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">mpi</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">'build'</span><span class="p">,</span> <span class="s1">'mpi'</span><span class="p">,</span> <span class="n">mpi</span><span class="p">,</span> <span class="n">user</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">cmake_flags</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">'build'</span><span class="p">,</span> <span class="s1">'cmake_flags'</span><span class="p">,</span> <span class="n">cmake_flags</span><span class="p">,</span> <span class="n">user</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">debug</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -1884,6 +1885,45 @@ window.runMermaid = runMermaid;</script>
     <span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">'paths'</span><span class="p">,</span> <span class="s1">'base_work_dir'</span><span class="p">,</span> <span class="n">work_dir</span><span class="p">,</span> <span class="n">user</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">config</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_get_compiler_and_mpi</span><span class="p">(</span><span class="n">config</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    The compiler and MPI library to build models with</span>
+
+<span class="sd">    A deployed environment's load script sets ``POLARIS_COMPILER`` and</span>
+<span class="sd">    ``POLARIS_MPI``.  Without one, as when polaris is installed from</span>
+<span class="sd">    conda-forge, they come from the ``[deploy]`` section of the machine</span>
+<span class="sd">    config if it has one, and are otherwise left unset, since only building</span>
+<span class="sd">    a model needs them.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    config : polaris.config.PolarisConfigParser</span>
+<span class="sd">        The config options so far, including the machine's</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    compiler : str or None</span>
+<span class="sd">        The compiler</span>
+
+<span class="sd">    mpi : str or None</span>
+<span class="sd">        The MPI library</span>
+<span class="sd">    """</span>
+    <span class="n">compiler</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'POLARIS_COMPILER'</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">compiler</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">config</span><span class="o">.</span><span class="n">has_option</span><span class="p">(</span><span class="s1">'deploy'</span><span class="p">,</span> <span class="s1">'compiler'</span><span class="p">):</span>
+        <span class="n">compiler</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'deploy'</span><span class="p">,</span> <span class="s1">'compiler'</span><span class="p">)</span>
+
+    <span class="n">mpi</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'POLARIS_MPI'</span><span class="p">)</span>
+    <span class="n">mpi_option</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'mpi_</span><span class="si">{</span><span class="n">compiler</span><span class="si">}</span><span class="s1">'</span>
+    <span class="k">if</span> <span class="p">(</span>
+        <span class="n">mpi</span> <span class="ow">is</span> <span class="kc">None</span>
+        <span class="ow">and</span> <span class="n">compiler</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="ow">and</span> <span class="n">config</span><span class="o">.</span><span class="n">has_option</span><span class="p">(</span><span class="s1">'deploy'</span><span class="p">,</span> <span class="n">mpi_option</span><span class="p">)</span>
+    <span class="p">):</span>
+        <span class="n">mpi</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'deploy'</span><span class="p">,</span> <span class="n">mpi_option</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">compiler</span><span class="p">,</span> <span class="n">mpi</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">add_concurrent_steps_args</span><span class="p">(</span><span class="n">parser</span><span class="p">):</span>
@@ -2201,9 +2241,33 @@ window.runMermaid = runMermaid;</script>
 
         <span class="n">config</span> <span class="o">=</span> <span class="n">component_configs</span><span class="p">[</span><span class="n">component</span><span class="o">.</span><span class="n">name</span><span class="p">]</span>
         <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">getboolean</span><span class="p">(</span><span class="s1">'build'</span><span class="p">,</span> <span class="s1">'build'</span><span class="p">):</span>
+            <span class="n">_check_build_environment</span><span class="p">(</span><span class="n">component</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span>
             <span class="n">component</span><span class="o">.</span><span class="n">build_model</span><span class="p">(</span><span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span> <span class="n">machine</span><span class="o">=</span><span class="n">machine</span><span class="p">)</span>
 
         <span class="n">component</span><span class="o">.</span><span class="n">check_model_version</span><span class="p">(</span><span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_check_build_environment</span><span class="p">(</span><span class="n">component</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Check that polaris is running in a deployment, which building a model</span>
+<span class="sd">    needs for its compilers, libraries and load script</span>
+
+<span class="sd">    Every load script that ``./deploy.py`` writes exports</span>
+<span class="sd">    ``POLARIS_LOAD_SCRIPT``.  Polaris installed from conda-forge has no load</span>
+<span class="sd">    script, so it can only run models that have already been built.</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="s1">'POLARIS_LOAD_SCRIPT'</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">:</span>
+        <span class="k">return</span>
+    <span class="n">component_path</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'paths'</span><span class="p">,</span> <span class="s1">'component_path'</span><span class="p">)</span>
+    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s1">'The </span><span class="si">{</span><span class="n">component</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1"> model needs to be built, either because '</span>
+        <span class="sa">f</span><span class="s1">'--build was given or because no model was found in '</span>
+        <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">component_path</span><span class="si">}</span><span class="s1">.  Building a model needs a polaris deployment '</span>
+        <span class="sa">f</span><span class="s1">'(./deploy.py in a clone of polaris, see the Quick Start for '</span>
+        <span class="sa">f</span><span class="s1">'Developers), but this environment was not loaded from one.  Point '</span>
+        <span class="sa">f</span><span class="s1">'--component_path (-p) at a model that has already been built '</span>
+        <span class="sa">f</span><span class="s1">'instead.'</span>
+    <span class="p">)</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_get_model_flags</span><span class="p">(</span><span class="n">components_in_use</span><span class="p">):</span>

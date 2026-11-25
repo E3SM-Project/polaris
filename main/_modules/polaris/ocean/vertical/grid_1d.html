@@ -652,9 +652,10 @@ window.runMermaid = runMermaid;</script>
 <span class="w">    </span><span class="sd">"""Read the grid interfaces from a json file"""</span>
 
     <span class="n">filename</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">grid_type</span><span class="si">}</span><span class="s1">.json'</span>
-    <span class="k">with</span> <span class="n">resources</span><span class="o">.</span><span class="n">open_text</span><span class="p">(</span>
-        <span class="s1">'polaris.ocean.vertical.grid_1d'</span><span class="p">,</span> <span class="n">filename</span>
-    <span class="p">)</span> <span class="k">as</span> <span class="n">data_file</span><span class="p">:</span>
+    <span class="n">grid_file</span> <span class="o">=</span> <span class="n">resources</span><span class="o">.</span><span class="n">files</span><span class="p">(</span><span class="s1">'polaris.ocean.vertical.grid_1d'</span><span class="p">)</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span>
+        <span class="n">filename</span>
+    <span class="p">)</span>
+    <span class="k">with</span> <span class="n">grid_file</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s1">'r'</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s1">'utf-8'</span><span class="p">)</span> <span class="k">as</span> <span class="n">data_file</span><span class="p">:</span>
         <span class="n">data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">data_file</span><span class="p">)</span>
         <span class="n">interfaces</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
 

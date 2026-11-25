@@ -478,15 +478,17 @@ window.runMermaid = runMermaid;</script>
 <span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span>
 
-<span class="kn">import</span><span class="w"> </span><span class="nn">jigsawpy</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">jigsawpy.savejig</span><span class="w"> </span><span class="kn">import</span> <span class="n">savejig</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mpas_tools.logging</span><span class="w"> </span><span class="kn">import</span> <span class="n">check_call</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">scipy.spatial</span><span class="w"> </span><span class="kn">import</span> <span class="n">cKDTree</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_constant</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.mesh</span><span class="w"> </span><span class="kn">import</span> <span class="n">QuasiUniformSphericalMeshStep</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polaris.mesh.spherical.jigsaw</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">import_jigsawpy</span><span class="p">,</span>
+    <span class="n">write_jigsaw_config</span><span class="p">,</span>
+<span class="p">)</span>
 
 
 <div class="viewcode-block" id="get_unified_background_cell_width">
@@ -660,6 +662,7 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">        behavior is to add retained river geometry as explicit JIGSAW line</span>
 <span class="sd">        constraints before the standard JIGSAW-to-MPAS path runs.</span>
 <span class="sd">        """</span>
+        <span class="n">jigsawpy</span> <span class="o">=</span> <span class="n">import_jigsawpy</span><span class="p">()</span>
         <span class="n">logger</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">logger</span>
         <span class="n">earth_radius</span> <span class="o">=</span> <span class="n">get_constant</span><span class="p">(</span><span class="s1">'mean_radius'</span><span class="p">)</span>
         <span class="n">opts</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">opts</span>
@@ -682,7 +685,7 @@ window.runMermaid = runMermaid;</script>
         <span class="p">)</span>
         <span class="n">jigsawpy</span><span class="o">.</span><span class="n">savemsh</span><span class="p">(</span><span class="n">opts</span><span class="o">.</span><span class="n">geom_file</span><span class="p">,</span> <span class="n">geom</span><span class="p">)</span>
 
-        <span class="n">savejig</span><span class="p">(</span><span class="n">opts</span><span class="o">.</span><span class="n">jcfg_file</span><span class="p">,</span> <span class="n">opts</span><span class="p">)</span>
+        <span class="n">write_jigsaw_config</span><span class="p">(</span><span class="n">opts</span><span class="p">)</span>
         <span class="n">check_call</span><span class="p">([</span><span class="s1">'jigsaw'</span><span class="p">,</span> <span class="n">opts</span><span class="o">.</span><span class="n">jcfg_file</span><span class="p">],</span> <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">)</span></div>
 </div>
 
@@ -696,6 +699,7 @@ window.runMermaid = runMermaid;</script>
 <span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Build ellipsoid geometry with retained river polylines as constraints.</span>
 <span class="sd">    """</span>
+    <span class="n">jigsawpy</span> <span class="o">=</span> <span class="n">import_jigsawpy</span><span class="p">()</span>
     <span class="n">geom</span> <span class="o">=</span> <span class="n">jigsawpy</span><span class="o">.</span><span class="n">jigsaw_msh_t</span><span class="p">()</span>
     <span class="n">geom</span><span class="o">.</span><span class="n">mshID</span> <span class="o">=</span> <span class="s1">'ELLIPSOID-MESH'</span>
     <span class="n">geom</span><span class="o">.</span><span class="n">radii</span> <span class="o">=</span> <span class="n">earth_radius</span> <span class="o">*</span> <span class="mf">1e-3</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="nb">float</span><span class="p">)</span>
@@ -799,7 +803,7 @@ window.runMermaid = runMermaid;</script>
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
         <span class="k">return</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span>
 
-    <span class="n">temp</span> <span class="o">=</span> <span class="n">jigsawpy</span><span class="o">.</span><span class="n">jigsaw_msh_t</span><span class="p">()</span>
+    <span class="n">temp</span> <span class="o">=</span> <span class="n">import_jigsawpy</span><span class="p">()</span><span class="o">.</span><span class="n">jigsaw_msh_t</span><span class="p">()</span>
 
     <span class="n">raw_coords</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">([</span><span class="n">coords</span><span class="p">[:,</span> <span class="p">:</span><span class="mi">2</span><span class="p">]</span> <span class="k">for</span> <span class="n">coords</span> <span class="ow">in</span> <span class="n">lines</span><span class="p">])</span>
 
