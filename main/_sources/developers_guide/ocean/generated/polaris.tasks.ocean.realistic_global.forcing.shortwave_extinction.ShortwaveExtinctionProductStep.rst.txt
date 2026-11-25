@@ -1,0 +1,48 @@
+﻿polaris.tasks.ocean.realistic\_global.forcing.shortwave\_extinction.ShortwaveExtinctionProductStep
+==================================================================================================
+
+.. currentmodule:: polaris.tasks.ocean.realistic_global.forcing.shortwave_extinction
+
+.. autoclass:: ShortwaveExtinctionProductStep
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~ShortwaveExtinctionProductStep.__init__
+      ~ShortwaveExtinctionProductStep.add_cf_check
+      ~ShortwaveExtinctionProductStep.add_dependency
+      ~ShortwaveExtinctionProductStep.add_input_file
+      ~ShortwaveExtinctionProductStep.add_output_file
+      ~ShortwaveExtinctionProductStep.add_property_check
+      ~ShortwaveExtinctionProductStep.check_cf
+      ~ShortwaveExtinctionProductStep.check_properties
+      ~ShortwaveExtinctionProductStep.constrain_resources
+      ~ShortwaveExtinctionProductStep.process_inputs_and_outputs
+      ~ShortwaveExtinctionProductStep.run
+      ~ShortwaveExtinctionProductStep.runtime_setup
+      ~ShortwaveExtinctionProductStep.set_resources
+      ~ShortwaveExtinctionProductStep.set_shared_config
+      ~ShortwaveExtinctionProductStep.setup
+      ~ShortwaveExtinctionProductStep.validate_baselines
+      ~ShortwaveExtinctionProductStep.work_path
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~ShortwaveExtinctionProductStep.cores
+      ~ShortwaveExtinctionProductStep.gpus
+      ~ShortwaveExtinctionProductStep.may_span_nodes
+      ~ShortwaveExtinctionProductStep.min_cores
+      ~ShortwaveExtinctionProductStep.min_gpus
+   
+   

@@ -494,6 +494,15 @@ window.runMermaid = runMermaid;</script>
 <span class="kn">from</span><span class="w"> </span><span class="nn">polaris.viz</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_viz_defaults</span><span class="p">,</span> <span class="n">plot_global_mpas_field</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">.remap_jra55</span><span class="w"> </span><span class="kn">import</span> <span class="n">JRA55_ON_MESH_FILENAME</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.remap_shortwave_extinction</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">SHORTWAVE_EXTINCTION_COEFFS_FILENAME</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="c1"># the plotted band for each of Omega's extinction coefficient names</span>
+<span class="n">EXTINCTION_PLOTS</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">'ExtinctionCoeffRedCell'</span><span class="p">:</span> <span class="s1">'red'</span><span class="p">,</span>
+    <span class="s1">'ExtinctionCoeffBlueCell'</span><span class="p">:</span> <span class="s1">'blue'</span><span class="p">,</span>
+<span class="p">}</span>
 
 
 <div class="viewcode-block" id="VizInitStep">
@@ -524,6 +533,8 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">    * global native-mesh maps of temperature and salinity at several depths</span>
 <span class="sd">      plus surface and bottom, and topography/column diagnostics,</span>
 <span class="sd">    * global native-mesh maps of the wind stress components and magnitude,</span>
+<span class="sd">    * (Omega only) global native-mesh maps of the red- and blue-band</span>
+<span class="sd">      shortwave extinction coefficients,</span>
 <span class="sd">    * multi-basin vertical transects of temperature and salinity,</span>
 <span class="sd">    * (Omega only) a stratification check using the TEOS-10 in-situ density,</span>
 <span class="sd">      and</span>
@@ -540,12 +551,22 @@ window.runMermaid = runMermaid;</script>
 
 <span class="sd">    remap_jra55_step : polaris.Step</span>
 <span class="sd">        The step that produces the remapped wind stress on the mesh.</span>
+
+<span class="sd">    remap_extinction_step : polaris.Step</span>
+<span class="sd">        The step that produces the remapped shortwave extinction coefficients</span>
+<span class="sd">        on the mesh.</span>
 <span class="sd">    """</span>
 
 <div class="viewcode-block" id="VizInitStep.__init__">
 <a class="viewcode-back" href="../../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.realistic_global.init.viz.VizInitStep.html#polaris.tasks.ocean.realistic_global.init.viz.VizInitStep.__init__">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">subdir</span><span class="p">,</span> <span class="n">init_step</span><span class="p">,</span> <span class="n">cull_mesh_step</span><span class="p">,</span> <span class="n">remap_jra55_step</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">component</span><span class="p">,</span>
+        <span class="n">subdir</span><span class="p">,</span>
+        <span class="n">init_step</span><span class="p">,</span>
+        <span class="n">cull_mesh_step</span><span class="p">,</span>
+        <span class="n">remap_jra55_step</span><span class="p">,</span>
+        <span class="n">remap_extinction_step</span><span class="p">,</span>
     <span class="p">):</span>
 <span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Create the step.</span>
@@ -567,6 +588,9 @@ window.runMermaid = runMermaid;</script>
 
 <span class="sd">        remap_jra55_step : polaris.Step</span>
 <span class="sd">            The step that produces ``jra55_on_mesh.nc``.</span>
+
+<span class="sd">        remap_extinction_step : polaris.Step</span>
+<span class="sd">            The step that produces ``shortwave_extinction_coeffs.nc``.</span>
 <span class="sd">        """</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
             <span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span>
@@ -575,7 +599,8 @@ window.runMermaid = runMermaid;</script>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">init_step</span> <span class="o">=</span> <span class="n">init_step</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">cull_mesh_step</span> <span class="o">=</span> <span class="n">cull_mesh_step</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">remap_jra55_step</span> <span class="o">=</span> <span class="n">remap_jra55_step</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">remap_jra55_step</span> <span class="o">=</span> <span class="n">remap_jra55_step</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">remap_extinction_step</span> <span class="o">=</span> <span class="n">remap_extinction_step</span></div>
 
 
 <div class="viewcode-block" id="VizInitStep.setup">
@@ -620,7 +645,17 @@ window.runMermaid = runMermaid;</script>
             <span class="s1">'windStressMeridional'</span><span class="p">,</span>
             <span class="s1">'windStressMagnitude'</span><span class="p">,</span>
         <span class="p">]:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">add_output_file</span><span class="p">(</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">.png'</span><span class="p">)</span></div>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_output_file</span><span class="p">(</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">.png'</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">model</span> <span class="o">==</span> <span class="s1">'omega'</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_input_file</span><span class="p">(</span>
+                <span class="n">filename</span><span class="o">=</span><span class="n">SHORTWAVE_EXTINCTION_COEFFS_FILENAME</span><span class="p">,</span>
+                <span class="n">work_dir_target</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">remap_extinction_step</span><span class="o">.</span><span class="n">path</span><span class="p">,</span>
+                    <span class="n">SHORTWAVE_EXTINCTION_COEFFS_FILENAME</span><span class="p">,</span>
+                <span class="p">),</span>
+            <span class="p">)</span>
+            <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">EXTINCTION_PLOTS</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">add_output_file</span><span class="p">(</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">.png'</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="VizInitStep.run">
@@ -649,6 +684,8 @@ window.runMermaid = runMermaid;</script>
         <span class="n">_plot_vertical_coord</span><span class="p">(</span><span class="n">ds_init</span><span class="p">,</span> <span class="n">ds_vert_coord</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_plot_global_maps</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">ds_mesh</span><span class="p">,</span> <span class="n">ds_init</span><span class="p">,</span> <span class="n">ds_vert_coord</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_plot_forcing</span><span class="p">(</span><span class="n">ds_mesh</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">model</span> <span class="o">==</span> <span class="s1">'omega'</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_plot_extinction</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_plot_transects</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">ds_mesh</span><span class="p">,</span> <span class="n">ds_init</span><span class="p">,</span> <span class="n">ds_vert_coord</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_export_xdmf</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">ds_mesh</span><span class="p">)</span></div>
 
@@ -842,6 +879,40 @@ window.runMermaid = runMermaid;</script>
                     <span class="n">colormap_section</span><span class="o">=</span><span class="n">section_name</span><span class="p">,</span>
                     <span class="n">colorbar_label</span><span class="o">=</span><span class="s1">'N m$^{-2}$'</span><span class="p">,</span>
                     <span class="n">title</span><span class="o">=</span><span class="n">label</span><span class="p">,</span>
+                    <span class="n">plot_land</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                    <span class="n">projection_name</span><span class="o">=</span><span class="n">projection_name</span><span class="p">,</span>
+                    <span class="n">central_longitude</span><span class="o">=</span><span class="n">central_longitude</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">(</span><span class="s1">'all'</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_plot_extinction</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Plot global native-mesh maps of the remapped red- and blue-band</span>
+<span class="sd">        shortwave extinction coefficients (Omega only).</span>
+<span class="sd">        """</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span>
+        <span class="n">section_name</span> <span class="o">=</span> <span class="s1">'realistic_global_init_viz'</span>
+        <span class="n">section</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="n">section_name</span><span class="p">]</span>
+        <span class="n">projection_name</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'projection'</span><span class="p">)</span>
+        <span class="n">central_longitude</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s1">'central_longitude'</span><span class="p">)</span>
+
+        <span class="n">viz_dict</span> <span class="o">=</span> <span class="n">get_viz_defaults</span><span class="p">()</span>
+        <span class="k">with</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="n">SHORTWAVE_EXTINCTION_COEFFS_FILENAME</span><span class="p">)</span> <span class="k">as</span> <span class="n">ds_ext</span><span class="p">:</span>
+            <span class="n">ds_ext</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">map_from_native_model_vars</span><span class="p">(</span><span class="n">ds_ext</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">out_name</span><span class="p">,</span> <span class="n">band</span> <span class="ow">in</span> <span class="n">EXTINCTION_PLOTS</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="n">da</span> <span class="o">=</span> <span class="n">ds_ext</span><span class="p">[</span><span class="n">out_name</span><span class="p">]</span>
+                <span class="n">_set_colormap</span><span class="p">(</span>
+                    <span class="n">config</span><span class="p">,</span> <span class="n">section_name</span><span class="p">,</span> <span class="n">_cmap_for</span><span class="p">(</span><span class="n">viz_dict</span><span class="p">,</span> <span class="n">out_name</span><span class="p">),</span> <span class="n">da</span>
+                <span class="p">)</span>
+                <span class="n">plot_global_mpas_field</span><span class="p">(</span>
+                    <span class="n">mesh_filename</span><span class="o">=</span><span class="s1">'mesh.nc'</span><span class="p">,</span>
+                    <span class="n">da</span><span class="o">=</span><span class="n">da</span><span class="p">,</span>
+                    <span class="n">out_filename</span><span class="o">=</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">out_name</span><span class="si">}</span><span class="s1">.png'</span><span class="p">,</span>
+                    <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
+                    <span class="n">colormap_section</span><span class="o">=</span><span class="n">section_name</span><span class="p">,</span>
+                    <span class="n">colorbar_label</span><span class="o">=</span><span class="s1">'m$^{-1}$'</span><span class="p">,</span>
+                    <span class="n">title</span><span class="o">=</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">out_name</span><span class="si">}</span><span class="s1"> (</span><span class="si">{</span><span class="n">band</span><span class="si">}</span><span class="s1">-band shortwave extinction '</span>
+                    <span class="s1">'coefficient) [m$^{-1}$]'</span><span class="p">,</span>
                     <span class="n">plot_land</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                     <span class="n">projection_name</span><span class="o">=</span><span class="n">projection_name</span><span class="p">,</span>
                     <span class="n">central_longitude</span><span class="o">=</span><span class="n">central_longitude</span><span class="p">,</span>

@@ -1466,6 +1466,31 @@
 </tbody>
 </table>
 </section>
+<section id="realistic-global-forcing-shortwave-extinction">
+<h3>realistic_global.forcing.shortwave_extinction<a class="headerlink" href="#realistic-global-forcing-shortwave-extinction" title="Link to this heading"></a></h3>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.realistic_global.forcing.shortwave_extinction.get_shortwave_extinction_steps.html#polaris.tasks.ocean.realistic_global.forcing.shortwave_extinction.get_shortwave_extinction_steps" title="polaris.tasks.ocean.realistic_global.forcing.shortwave_extinction.get_shortwave_extinction_steps"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_shortwave_extinction_steps</span></code></a>(component)</p></td>
+<td><p>Get the shared steps for building the reusable shortwave extinction coefficient product.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.realistic_global.forcing.shortwave_extinction.ShortwaveExtinctionProductStep.html#polaris.tasks.ocean.realistic_global.forcing.shortwave_extinction.ShortwaveExtinctionProductStep" title="polaris.tasks.ocean.realistic_global.forcing.shortwave_extinction.ShortwaveExtinctionProductStep"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ShortwaveExtinctionProductStep</span></code></a>(component, subdir)</p></td>
+<td><p>A step for building annual, insolation-weighted red- and blue-band shortwave extinction coefficients from the GMIS monthly chlorophyll-a climatology.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.realistic_global.forcing.shortwave_extinction.ShortwaveExtinctionProductStep.setup.html#polaris.tasks.ocean.realistic_global.forcing.shortwave_extinction.ShortwaveExtinctionProductStep.setup" title="polaris.tasks.ocean.realistic_global.forcing.shortwave_extinction.ShortwaveExtinctionProductStep.setup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ShortwaveExtinctionProductStep.setup</span></code></a>()</p></td>
+<td><p>Declare the monthly GMIS files, whose URLs are built from config.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.realistic_global.forcing.shortwave_extinction.ShortwaveExtinctionProductStep.run.html#polaris.tasks.ocean.realistic_global.forcing.shortwave_extinction.ShortwaveExtinctionProductStep.run" title="polaris.tasks.ocean.realistic_global.forcing.shortwave_extinction.ShortwaveExtinctionProductStep.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ShortwaveExtinctionProductStep.run</span></code></a>()</p></td>
+<td><p>Compute the product from the monthly chlorophyll and write it.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.realistic_global.forcing.shortwave_extinction.product.compute_extinction.html#polaris.tasks.ocean.realistic_global.forcing.shortwave_extinction.product.compute_extinction" title="polaris.tasks.ocean.realistic_global.forcing.shortwave_extinction.product.compute_extinction"><code class="xref py py-obj docutils literal notranslate"><span class="pre">product.compute_extinction</span></code></a>(filenames, ...[, ...])</p></td>
+<td><p>Compute annual, insolation-weighted shortwave extinction coefficients from 12 monthly GMIS chlorophyll-a files.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.realistic_global.forcing.shortwave_extinction.product.monthly_insolation.html#polaris.tasks.ocean.realistic_global.forcing.shortwave_extinction.product.monthly_insolation" title="polaris.tasks.ocean.realistic_global.forcing.shortwave_extinction.product.monthly_insolation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">product.monthly_insolation</span></code></a>(lat)</p></td>
+<td><p>Monthly mean of the daily-mean top-of-atmosphere insolation (W m-2) as a function of latitude, averaged over every day of a 365-day year.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
 <section id="realistic-global-analysis-output">
 <h3>realistic_global.analysis_output<a class="headerlink" href="#realistic-global-analysis-output" title="Link to this heading"></a></h3>
 <table class="autosummary longtable docutils align-default">
@@ -1739,7 +1764,7 @@
 <td><p>Reindex all fields with an <code class="docutils literal notranslate"><span class="pre">nCells</span></code> dimension from the base mesh to the culled mesh and write <code class="docutils literal notranslate"><span class="pre">topography_culled.nc</span></code>.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.realistic_global.init.lat_lon_map.LatLonMapStep.html#polaris.tasks.ocean.realistic_global.init.lat_lon_map.LatLonMapStep" title="polaris.tasks.ocean.realistic_global.init.lat_lon_map.LatLonMapStep"><code class="xref py py-obj docutils literal notranslate"><span class="pre">lat_lon_map.LatLonMapStep</span></code></a>(component, name, ...)</p></td>
-<td><p>A step for building the bilinear mapping file from a global latitude-longitude source grid to the culled MPAS ocean mesh.</p></td>
+<td><p>A step for building the mapping file from a global latitude-longitude source grid to the culled MPAS ocean mesh.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.realistic_global.init.lat_lon_map.LatLonMapStep.setup.html#polaris.tasks.ocean.realistic_global.init.lat_lon_map.LatLonMapStep.setup" title="polaris.tasks.ocean.realistic_global.init.lat_lon_map.LatLonMapStep.setup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">lat_lon_map.LatLonMapStep.setup</span></code></a>()</p></td>
 <td><p>Declare input files and compute ntasks from the estimated mesh size.</p></td>
@@ -1782,6 +1807,24 @@
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.realistic_global.init.remap_jra55.cartesian_to_stress.html#polaris.tasks.ocean.realistic_global.init.remap_jra55.cartesian_to_stress" title="polaris.tasks.ocean.realistic_global.init.remap_jra55.cartesian_to_stress"><code class="xref py py-obj docutils literal notranslate"><span class="pre">remap_jra55.cartesian_to_stress</span></code></a>(ds, ...)</p></td>
 <td><p>Rotate Cartesian wind stress at MPAS cell centers back to zonal and meridional components.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.realistic_global.init.shortwave_extinction_map.ShortwaveExtinctionMapStep.html#polaris.tasks.ocean.realistic_global.init.shortwave_extinction_map.ShortwaveExtinctionMapStep" title="polaris.tasks.ocean.realistic_global.init.shortwave_extinction_map.ShortwaveExtinctionMapStep"><code class="xref py py-obj docutils literal notranslate"><span class="pre">shortwave_extinction_map.ShortwaveExtinctionMapStep</span></code></a>(...)</p></td>
+<td><p>A step for building the mapping file from the 1/12-degree shortwave extinction product to MPAS cell centers.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.realistic_global.init.shortwave_extinction_map.ShortwaveExtinctionMapStep.setup.html#polaris.tasks.ocean.realistic_global.init.shortwave_extinction_map.ShortwaveExtinctionMapStep.setup" title="polaris.tasks.ocean.realistic_global.init.shortwave_extinction_map.ShortwaveExtinctionMapStep.setup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">shortwave_extinction_map.ShortwaveExtinctionMapStep.setup</span></code></a>()</p></td>
+<td><p>Declare input files and compute ntasks from the estimated mesh size.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.realistic_global.init.shortwave_extinction_map.ShortwaveExtinctionMapStep.runtime_setup.html#polaris.tasks.ocean.realistic_global.init.shortwave_extinction_map.ShortwaveExtinctionMapStep.runtime_setup" title="polaris.tasks.ocean.realistic_global.init.shortwave_extinction_map.ShortwaveExtinctionMapStep.runtime_setup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">shortwave_extinction_map.ShortwaveExtinctionMapStep.runtime_setup</span></code></a>()</p></td>
+<td><p>Take the remapping method from the config before preparing the mapping command.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.realistic_global.init.remap_shortwave_extinction.RemapShortwaveExtinctionStep.html#polaris.tasks.ocean.realistic_global.init.remap_shortwave_extinction.RemapShortwaveExtinctionStep" title="polaris.tasks.ocean.realistic_global.init.remap_shortwave_extinction.RemapShortwaveExtinctionStep"><code class="xref py py-obj docutils literal notranslate"><span class="pre">remap_shortwave_extinction.RemapShortwaveExtinctionStep</span></code></a>(...)</p></td>
+<td><p>A step for applying the mapping weights built by <a class="reference internal" href="generated/polaris.tasks.ocean.realistic_global.init.shortwave_extinction_map.ShortwaveExtinctionMapStep.html#polaris.tasks.ocean.realistic_global.init.shortwave_extinction_map.ShortwaveExtinctionMapStep" title="polaris.tasks.ocean.realistic_global.init.shortwave_extinction_map.ShortwaveExtinctionMapStep"><code class="xref py py-class docutils literal notranslate"><span class="pre">ShortwaveExtinctionMapStep</span></code></a>, remapping the red- and blue-band shortwave extinction coefficients to MPAS cell centers.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.realistic_global.init.remap_shortwave_extinction.RemapShortwaveExtinctionStep.setup.html#polaris.tasks.ocean.realistic_global.init.remap_shortwave_extinction.RemapShortwaveExtinctionStep.setup" title="polaris.tasks.ocean.realistic_global.init.remap_shortwave_extinction.RemapShortwaveExtinctionStep.setup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">remap_shortwave_extinction.RemapShortwaveExtinctionStep.setup</span></code></a>()</p></td>
+<td><p>Declare the shortwave extinction input file.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.realistic_global.init.remap_shortwave_extinction.RemapShortwaveExtinctionStep.run.html#polaris.tasks.ocean.realistic_global.init.remap_shortwave_extinction.RemapShortwaveExtinctionStep.run" title="polaris.tasks.ocean.realistic_global.init.remap_shortwave_extinction.RemapShortwaveExtinctionStep.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">remap_shortwave_extinction.RemapShortwaveExtinctionStep.run</span></code></a>()</p></td>
+<td><p>Remap and normalize the extinction coefficients on MPAS cells.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/polaris.tasks.ocean.realistic_global.init.pstar_init.RealisticPStarInitStep.html#polaris.tasks.ocean.realistic_global.init.pstar_init.RealisticPStarInitStep" title="polaris.tasks.ocean.realistic_global.init.pstar_init.RealisticPStarInitStep"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pstar_init.RealisticPStarInitStep</span></code></a>(component, ...)</p></td>
 <td><p>A step that jointly initializes the p-star vertical coordinate and WOA23-derived tracer fields for a global MPAS mesh, writing a model-neutral intermediate product that the downstream <a class="reference internal" href="generated/polaris.tasks.ocean.realistic_global.init.initial_state.InitialStateStep.html#polaris.tasks.ocean.realistic_global.init.initial_state.InitialStateStep" title="polaris.tasks.ocean.realistic_global.init.initial_state.InitialStateStep"><code class="xref py py-class docutils literal notranslate"><span class="pre">InitialStateStep</span></code></a> can consume.</p></td>

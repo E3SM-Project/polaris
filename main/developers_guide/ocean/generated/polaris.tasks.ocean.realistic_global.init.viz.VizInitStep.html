@@ -147,7 +147,7 @@
 <h1>polaris.tasks.ocean.realistic_global.init.viz.VizInitStep<a class="headerlink" href="#polaris-tasks-ocean-realistic-global-init-viz-vizinitstep" title="Link to this heading"></a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="polaris.tasks.ocean.realistic_global.init.viz.VizInitStep">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">polaris.tasks.ocean.realistic_global.init.viz.</span></span><span class="sig-name descname"><span class="pre">VizInitStep</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">component</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subdir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">init_step</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cull_mesh_step</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">remap_jra55_step</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/polaris/tasks/ocean/realistic_global/init/viz.html#VizInitStep"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.tasks.ocean.realistic_global.init.viz.VizInitStep" title="Link to this definition"></a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">polaris.tasks.ocean.realistic_global.init.viz.</span></span><span class="sig-name descname"><span class="pre">VizInitStep</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">component</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subdir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">init_step</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cull_mesh_step</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">remap_jra55_step</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">remap_extinction_step</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/polaris/tasks/ocean/realistic_global/init/viz.html#VizInitStep"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.tasks.ocean.realistic_global.init.viz.VizInitStep" title="Link to this definition"></a></dt>
 <dd><p>A step for visualizing the realistic global ocean initial condition and
 vertical-coordinate datasets for either MPAS-Ocean or Omega.</p>
 <p>The step is model-agnostic: it reads through
@@ -169,6 +169,8 @@ models, so the two sets of plots line up.</p>
 <li><p>global native-mesh maps of temperature and salinity at several depths
 plus surface and bottom, and topography/column diagnostics,</p></li>
 <li><p>global native-mesh maps of the wind stress components and magnitude,</p></li>
+<li><p>(Omega only) global native-mesh maps of the red- and blue-band
+shortwave extinction coefficients,</p></li>
 <li><p>multi-basin vertical transects of temperature and salinity,</p></li>
 <li><p>(Omega only) a stratification check using the TEOS-10 in-situ density,
 and</p></li>
@@ -181,12 +183,14 @@ ParaView.</p></li>
 <li><p><strong>init_step</strong> (<a class="reference internal" href="../../generated/polaris.Step.html#polaris.Step" title="polaris.Step"><em>polaris.Step</em></a>) – The step that produces <code class="docutils literal notranslate"><span class="pre">init.nc</span></code> (and <code class="docutils literal notranslate"><span class="pre">vert_coord.nc</span></code> for Omega).</p></li>
 <li><p><strong>cull_mesh_step</strong> (<a class="reference internal" href="../../generated/polaris.Step.html#polaris.Step" title="polaris.Step"><em>polaris.Step</em></a>) – The cull-mesh step that produces the MPAS horizontal mesh.</p></li>
 <li><p><strong>remap_jra55_step</strong> (<a class="reference internal" href="../../generated/polaris.Step.html#polaris.Step" title="polaris.Step"><em>polaris.Step</em></a>) – The step that produces the remapped wind stress on the mesh.</p></li>
+<li><p><strong>remap_extinction_step</strong> (<a class="reference internal" href="../../generated/polaris.Step.html#polaris.Step" title="polaris.Step"><em>polaris.Step</em></a>) – The step that produces the remapped shortwave extinction coefficients
+on the mesh.</p></li>
 </ul>
 </dd>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="polaris.tasks.ocean.realistic_global.init.viz.VizInitStep.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">component</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subdir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">init_step</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cull_mesh_step</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">remap_jra55_step</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/polaris/tasks/ocean/realistic_global/init/viz.html#VizInitStep.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.tasks.ocean.realistic_global.init.viz.VizInitStep.__init__" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">component</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subdir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">init_step</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cull_mesh_step</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">remap_jra55_step</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">remap_extinction_step</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/polaris/tasks/ocean/realistic_global/init/viz.html#VizInitStep.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#polaris.tasks.ocean.realistic_global.init.viz.VizInitStep.__init__" title="Link to this definition"></a></dt>
 <dd><p>Create the step.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -197,6 +201,7 @@ ParaView.</p></li>
 Omega).</p></li>
 <li><p><strong>cull_mesh_step</strong> (<a class="reference internal" href="../../generated/polaris.Step.html#polaris.Step" title="polaris.Step"><em>polaris.Step</em></a>) – The step that produces <code class="docutils literal notranslate"><span class="pre">culled_ocean_mesh.nc</span></code>.</p></li>
 <li><p><strong>remap_jra55_step</strong> (<a class="reference internal" href="../../generated/polaris.Step.html#polaris.Step" title="polaris.Step"><em>polaris.Step</em></a>) – The step that produces <code class="docutils literal notranslate"><span class="pre">jra55_on_mesh.nc</span></code>.</p></li>
+<li><p><strong>remap_extinction_step</strong> (<a class="reference internal" href="../../generated/polaris.Step.html#polaris.Step" title="polaris.Step"><em>polaris.Step</em></a>) – The step that produces <code class="docutils literal notranslate"><span class="pre">shortwave_extinction_coeffs.nc</span></code>.</p></li>
 </ul>
 </dd>
 </dl>

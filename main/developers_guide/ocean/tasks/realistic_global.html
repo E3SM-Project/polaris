@@ -907,6 +907,23 @@ plots global maps of the stress components and magnitude plus a zonal-mean
 density are right.</p>
 </section>
 </section>
+<section id="dev-ocean-realistic-global-shortwave-extinction">
+<span id="forcing-shortwave-extinction"></span><span id="forcingshortwave_extinction"></span><h2>forcing/shortwave_extinction<a class="headerlink" href="#dev-ocean-realistic-global-shortwave-extinction" title="Link to this heading"></a></h2>
+<p>The shared steps come from
+<code class="xref py py-func docutils literal notranslate"><span class="pre">polaris.tasks.ocean.realistic_global.forcing.shortwave_extinction.steps.get_shortwave_extinction_steps()</span></code>.
+There is no standalone task; the omega <code class="docutils literal notranslate"><span class="pre">init</span></code> task and the tasks that reuse
+its steps include the <code class="docutils literal notranslate"><span class="pre">extinction_product</span></code> step.</p>
+<section id="extinction-product">
+<h3>extinction_product<a class="headerlink" href="#extinction-product" title="Link to this heading"></a></h3>
+<p><a class="reference internal" href="../generated/polaris.tasks.ocean.realistic_global.forcing.shortwave_extinction.ShortwaveExtinctionProductStep.html#polaris.tasks.ocean.realistic_global.forcing.shortwave_extinction.ShortwaveExtinctionProductStep" title="polaris.tasks.ocean.realistic_global.forcing.shortwave_extinction.product.ShortwaveExtinctionProductStep"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.tasks.ocean.realistic_global.forcing.shortwave_extinction.product.ShortwaveExtinctionProductStep</span></code></a>
+downloads the 12 monthly GMIS chlorophyll-a files through the
+<code class="docutils literal notranslate"><span class="pre">initial_condition_database</span></code> mechanism, so they are cached locally, and
+writes <code class="docutils literal notranslate"><span class="pre">shortwave_extinction.nc</span></code> on the native 1/12-degree grid.  Options are
+in <code class="docutils literal notranslate"><span class="pre">[gmis_extinction]</span></code>: the download URL, the sensor (MODIS-Aqua <code class="docutils literal notranslate"><span class="pre">A</span></code> or VIIRS
+<code class="docutils literal notranslate"><span class="pre">V</span></code>), the chlorophyll cap and the chlorophyll used where there are no
+observations.</p>
+</section>
+</section>
 <section id="dev-ocean-realistic-global-init">
 <span id="init"></span><h2>init<a class="headerlink" href="#dev-ocean-realistic-global-init" title="Link to this heading"></a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">init</span></code> task family (whose steps live under
@@ -934,11 +951,12 @@ mapping file from the 0.25-degree WOA23 lat-lon grid to the culled MPAS
 mesh.  This is the only MPI step in the WOA23 chain (it runs <code class="docutils literal notranslate"><span class="pre">mbtempest</span></code>
 or ESMF).  Its task count scales with the approximate culled ocean cell
 count via the <code class="docutils literal notranslate"><span class="pre">remap_cells_per_task</span></code> and <code class="docutils literal notranslate"><span class="pre">remap_min_cells_per_task</span></code>
-options in the <code class="docutils literal notranslate"><span class="pre">[realistic_global_init]</span></code> config section.  It and
-<strong>jra55_map</strong> are thin subclasses of
+options in the <code class="docutils literal notranslate"><span class="pre">[realistic_global_init]</span></code> config section.  It,
+<strong>jra55_map</strong> and <strong>shortwave_extinction_map</strong> are thin subclasses of
 <a class="reference internal" href="../generated/polaris.tasks.ocean.realistic_global.init.lat_lon_map.LatLonMapStep.html#polaris.tasks.ocean.realistic_global.init.lat_lon_map.LatLonMapStep" title="polaris.tasks.ocean.realistic_global.init.lat_lon_map.LatLonMapStep"><code class="xref py py-class docutils literal notranslate"><span class="pre">LatLonMapStep</span></code></a>,
-which links the source and culled mesh, sizes the task count and builds
-the weights; each subclass supplies only its source.</p></li>
+which links the source and the culled mesh, sizes the task
+count and builds the weights; each subclass supplies its source and
+method.</p></li>
 <li><p><strong>remap_woa23</strong> (<a class="reference internal" href="../generated/polaris.tasks.ocean.realistic_global.init.remap_woa23.RemapWoa23Step.html#polaris.tasks.ocean.realistic_global.init.remap_woa23.RemapWoa23Step" title="polaris.tasks.ocean.realistic_global.init.remap_woa23.RemapWoa23Step"><code class="xref py py-class docutils literal notranslate"><span class="pre">RemapWoa23Step</span></code></a>):
 a serial step that applies the weights from <strong>woa23_map</strong> with <code class="docutils literal notranslate"><span class="pre">ncremap</span></code>,
 remapping WOA23 conservative temperature and absolute salinity to the
@@ -966,6 +984,22 @@ do not reach, so
 <a class="reference internal" href="../generated/polaris.tasks.ocean.realistic_global.init.remap_jra55.check_no_missing_cells.html#polaris.tasks.ocean.realistic_global.init.remap_jra55.check_no_missing_cells" title="polaris.tasks.ocean.realistic_global.init.remap_jra55.check_no_missing_cells"><code class="xref py py-func docutils literal notranslate"><span class="pre">check_no_missing_cells()</span></code></a>
 reads each cell’s coverage (<code class="docutils literal notranslate"><span class="pre">frac_b</span></code>) from the mapping file and fails the
 step if any cell is not fully covered or has a non-finite stress.</p></li>
+<li><p><strong>shortwave_extinction_map</strong> (<a class="reference internal" href="../generated/polaris.tasks.ocean.realistic_global.init.shortwave_extinction_map.ShortwaveExtinctionMapStep.html#polaris.tasks.ocean.realistic_global.init.shortwave_extinction_map.ShortwaveExtinctionMapStep" title="polaris.tasks.ocean.realistic_global.init.shortwave_extinction_map.ShortwaveExtinctionMapStep"><code class="xref py py-class docutils literal notranslate"><span class="pre">ShortwaveExtinctionMapStep</span></code></a>, Omega only):
+builds the mapping file from the 1/12-degree product of
+<a class="reference internal" href="#dev-ocean-realistic-global-shortwave-extinction"><span class="std std-ref">forcing/shortwave_extinction</span></a> to the culled
+mesh.  The method is
+<code class="docutils literal notranslate"><span class="pre">[shortwave_extinction]</span> <span class="pre">method</span></code>, <code class="docutils literal notranslate"><span class="pre">bilinear</span></code> by default, set on the
+remapper at run time so a user edit to the config takes effect.</p></li>
+<li><p><strong>remap_shortwave_extinction</strong> (<a class="reference internal" href="../generated/polaris.tasks.ocean.realistic_global.init.remap_shortwave_extinction.RemapShortwaveExtinctionStep.html#polaris.tasks.ocean.realistic_global.init.remap_shortwave_extinction.RemapShortwaveExtinctionStep" title="polaris.tasks.ocean.realistic_global.init.remap_shortwave_extinction.RemapShortwaveExtinctionStep"><code class="xref py py-class docutils literal notranslate"><span class="pre">RemapShortwaveExtinctionStep</span></code></a>, Omega only):
+applies those weights with <code class="docutils literal notranslate"><span class="pre">ncremap</span></code>.  It normalizes coefficients by
+mapping coverage, which is slightly off one in a few cells.  The step fails
+if any cell has less than <code class="docutils literal notranslate"><span class="pre">MIN_COVERAGE</span></code> (0.9) coverage or a coefficient
+that is not finite and positive, since that means the mapping is broken.
+The output is <code class="docutils literal notranslate"><span class="pre">shortwave_extinction_coeffs.nc</span></code>, with Omega’s names
+<code class="docutils literal notranslate"><span class="pre">ExtinctionCoeffRedCell</span></code> and <code class="docutils literal notranslate"><span class="pre">ExtinctionCoeffBlueCell</span></code> on <code class="docutils literal notranslate"><span class="pre">NCells</span></code>, which
+is the default file of Omega’s <code class="docutils literal notranslate"><span class="pre">ShortwaveExtinctionIn</span></code> stream.  It is a
+separate file because Omega reads it on every startup, not just the first,
+so it is not part of the initial state.</p></li>
 <li><p><strong>pstar_init</strong> (<a class="reference internal" href="../generated/polaris.tasks.ocean.realistic_global.init.pstar_init.RealisticPStarInitStep.html#polaris.tasks.ocean.realistic_global.init.pstar_init.RealisticPStarInitStep" title="polaris.tasks.ocean.realistic_global.init.pstar_init.RealisticPStarInitStep"><code class="xref py py-class docutils literal notranslate"><span class="pre">RealisticPStarInitStep</span></code></a>):
 subclass of <a class="reference internal" href="../generated/polaris.ocean.vertical.pstar_init.PStarInitStep.html#polaris.ocean.vertical.pstar_init.PStarInitStep" title="polaris.ocean.vertical.pstar_init.PStarInitStep"><code class="xref py py-class docutils literal notranslate"><span class="pre">polaris.ocean.vertical.pstar_init.PStarInitStep</span></code></a>
 that runs the fixed-point p-star iteration jointly with the vertical
@@ -1046,6 +1080,8 @@ temperature and salinity along each transect in
 <code class="docutils literal notranslate"><span class="pre">[realistic_global_init_viz_transects]</span></code>.  Layer interfaces are not drawn,
 because the thin upper layers pack them into a band that hides the upper
 few hundred meters; <code class="docutils literal notranslate"><span class="pre">vertical_coordinate.png</span></code> shows the layer structure.</p></li>
+<li><p><strong>Omega only</strong>: global maps of <code class="docutils literal notranslate"><span class="pre">ExtinctionCoeffRedCell</span></code> and
+<code class="docutils literal notranslate"><span class="pre">ExtinctionCoeffBlueCell</span></code> from <code class="docutils literal notranslate"><span class="pre">shortwave_extinction_coeffs.nc</span></code>.</p></li>
 <li><p><strong>Omega only</strong>: a stratification check using the TEOS-10 in-situ <code class="docutils literal notranslate"><span class="pre">Density</span></code>
 (global surface/seafloor maps and transects).  Density is not plotted for
 MPAS-Ocean, whose equation of state differs and is not evaluated here.</p></li>

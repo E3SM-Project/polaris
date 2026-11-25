@@ -1,0 +1,71 @@
+﻿polaris.tasks.ocean.realistic\_global.init.remap\_shortwave\_extinction.RemapShortwaveExtinctionStep
+====================================================================================================
+
+.. currentmodule:: polaris.tasks.ocean.realistic_global.init.remap_shortwave_extinction
+
+.. autoclass:: RemapShortwaveExtinctionStep
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~RemapShortwaveExtinctionStep.__init__
+      ~RemapShortwaveExtinctionStep.add_cf_check
+      ~RemapShortwaveExtinctionStep.add_dependency
+      ~RemapShortwaveExtinctionStep.add_forcing_input_file
+      ~RemapShortwaveExtinctionStep.add_horiz_mesh_input_file
+      ~RemapShortwaveExtinctionStep.add_init_input_file
+      ~RemapShortwaveExtinctionStep.add_input_file
+      ~RemapShortwaveExtinctionStep.add_output_file
+      ~RemapShortwaveExtinctionStep.add_output_files_for_ocean_model_input
+      ~RemapShortwaveExtinctionStep.add_produced_file
+      ~RemapShortwaveExtinctionStep.add_property_check
+      ~RemapShortwaveExtinctionStep.add_vert_coord_input_file
+      ~RemapShortwaveExtinctionStep.check_cf
+      ~RemapShortwaveExtinctionStep.check_properties
+      ~RemapShortwaveExtinctionStep.constrain_resources
+      ~RemapShortwaveExtinctionStep.get_forcing_filename
+      ~RemapShortwaveExtinctionStep.get_horiz_mesh_filename
+      ~RemapShortwaveExtinctionStep.get_init_filename
+      ~RemapShortwaveExtinctionStep.get_vert_coord_filename
+      ~RemapShortwaveExtinctionStep.map_from_native_model_vars
+      ~RemapShortwaveExtinctionStep.map_to_native_model_vars
+      ~RemapShortwaveExtinctionStep.open_model_dataset
+      ~RemapShortwaveExtinctionStep.open_vert_coord_dataset
+      ~RemapShortwaveExtinctionStep.process_inputs_and_outputs
+      ~RemapShortwaveExtinctionStep.run
+      ~RemapShortwaveExtinctionStep.runtime_setup
+      ~RemapShortwaveExtinctionStep.set_resources
+      ~RemapShortwaveExtinctionStep.set_shared_config
+      ~RemapShortwaveExtinctionStep.setup
+      ~RemapShortwaveExtinctionStep.validate_baselines
+      ~RemapShortwaveExtinctionStep.work_path
+      ~RemapShortwaveExtinctionStep.write_forcing_dataset
+      ~RemapShortwaveExtinctionStep.write_horiz_mesh_dataset
+      ~RemapShortwaveExtinctionStep.write_initial_state_dataset
+      ~RemapShortwaveExtinctionStep.write_model_dataset
+      ~RemapShortwaveExtinctionStep.write_vert_coord_dataset
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~RemapShortwaveExtinctionStep.cores
+      ~RemapShortwaveExtinctionStep.gpus
+      ~RemapShortwaveExtinctionStep.may_span_nodes
+      ~RemapShortwaveExtinctionStep.min_cores
+      ~RemapShortwaveExtinctionStep.min_gpus
+      ~RemapShortwaveExtinctionStep.component
+      ~RemapShortwaveExtinctionStep.config
+      ~RemapShortwaveExtinctionStep.input_data
+      ~RemapShortwaveExtinctionStep.logger
+   
+   

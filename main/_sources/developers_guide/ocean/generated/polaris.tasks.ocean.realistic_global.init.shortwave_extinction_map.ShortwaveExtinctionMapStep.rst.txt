@@ -1,0 +1,48 @@
+﻿polaris.tasks.ocean.realistic\_global.init.shortwave\_extinction\_map.ShortwaveExtinctionMapStep
+================================================================================================
+
+.. currentmodule:: polaris.tasks.ocean.realistic_global.init.shortwave_extinction_map
+
+.. autoclass:: ShortwaveExtinctionMapStep
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~ShortwaveExtinctionMapStep.__init__
+      ~ShortwaveExtinctionMapStep.add_cf_check
+      ~ShortwaveExtinctionMapStep.add_dependency
+      ~ShortwaveExtinctionMapStep.add_input_file
+      ~ShortwaveExtinctionMapStep.add_output_file
+      ~ShortwaveExtinctionMapStep.add_property_check
+      ~ShortwaveExtinctionMapStep.check_cf
+      ~ShortwaveExtinctionMapStep.check_properties
+      ~ShortwaveExtinctionMapStep.constrain_resources
+      ~ShortwaveExtinctionMapStep.process_inputs_and_outputs
+      ~ShortwaveExtinctionMapStep.run
+      ~ShortwaveExtinctionMapStep.runtime_setup
+      ~ShortwaveExtinctionMapStep.set_resources
+      ~ShortwaveExtinctionMapStep.set_shared_config
+      ~ShortwaveExtinctionMapStep.setup
+      ~ShortwaveExtinctionMapStep.validate_baselines
+      ~ShortwaveExtinctionMapStep.work_path
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~ShortwaveExtinctionMapStep.cores
+      ~ShortwaveExtinctionMapStep.gpus
+      ~ShortwaveExtinctionMapStep.may_span_nodes
+      ~ShortwaveExtinctionMapStep.min_cores
+      ~ShortwaveExtinctionMapStep.min_gpus
+   
+   

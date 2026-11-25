@@ -772,7 +772,7 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">        How far below one the coverage of a cell may be before the cell</span>
 <span class="sd">        counts as missing</span>
 <span class="sd">    """</span>
-    <span class="n">missing</span> <span class="o">=</span> <span class="n">frac_b</span> <span class="o">&lt;</span> <span class="mf">1.0</span> <span class="o">-</span> <span class="n">tolerance</span>
+    <span class="n">missing</span> <span class="o">=</span> <span class="o">~</span><span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">frac_b</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">frac_b</span> <span class="o">&lt;</span> <span class="mf">1.0</span> <span class="o">-</span> <span class="n">tolerance</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="n">var_names</span><span class="p">:</span>
         <span class="n">missing</span> <span class="o">|=</span> <span class="o">~</span><span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">ds</span><span class="p">[</span><span class="n">var</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
 

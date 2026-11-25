@@ -1,0 +1,6 @@
+﻿polaris.tasks.ocean.realistic\_global.init.remap\_shortwave\_extinction.RemapShortwaveExtinctionStep.setup
+==========================================================================================================
+
+.. currentmodule:: polaris.tasks.ocean.realistic_global.init.remap_shortwave_extinction
+
+.. automethod:: RemapShortwaveExtinctionStep.setup

@@ -727,6 +727,24 @@
    Jra55VizStep.run
 ```
 
+### realistic_global.forcing.shortwave_extinction
+
+```{eval-rst}
+.. currentmodule:: polaris.tasks.ocean.realistic_global.forcing.shortwave_extinction
+
+.. autosummary::
+   :toctree: generated/
+
+   get_shortwave_extinction_steps
+
+   ShortwaveExtinctionProductStep
+   ShortwaveExtinctionProductStep.setup
+   ShortwaveExtinctionProductStep.run
+
+   product.compute_extinction
+   product.monthly_insolation
+```
+
 ### realistic_global.analysis_output
 
 ```{eval-rst}
@@ -895,6 +913,14 @@
    remap_jra55.check_no_missing_cells
    remap_jra55.stress_to_cartesian
    remap_jra55.cartesian_to_stress
+
+   shortwave_extinction_map.ShortwaveExtinctionMapStep
+   shortwave_extinction_map.ShortwaveExtinctionMapStep.setup
+   shortwave_extinction_map.ShortwaveExtinctionMapStep.runtime_setup
+
+   remap_shortwave_extinction.RemapShortwaveExtinctionStep
+   remap_shortwave_extinction.RemapShortwaveExtinctionStep.setup
+   remap_shortwave_extinction.RemapShortwaveExtinctionStep.run
 
    pstar_init.RealisticPStarInitStep
    pstar_init.RealisticPStarInitStep.setup

@@ -839,7 +839,9 @@ the standard Polaris colormap options described in
 <p>The <code class="docutils literal notranslate"><span class="pre">init</span></code> task creates a mesh-specific ocean initial condition (and, for
 Omega, a vertical-coordinate file) from the WOA23 hydrography and the culled
 mesh from <code class="docutils literal notranslate"><span class="pre">e3sm/init</span></code>, together with a surface forcing file from the JRA55-do
-wind stress.  There is one task for each base and unified mesh:</p>
+wind stress.  For Omega, it also writes satellite-derived shortwave extinction
+coefficients to a file of their own.  There is one task for each base and
+unified mesh:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>polaris<span class="w"> </span>setup<span class="w"> </span>-t<span class="w"> </span>ocean/spherical/realistic_global/&lt;mesh_name&gt;/init<span class="w"> </span>...
 </pre></div>
 </div>
@@ -859,6 +861,12 @@ culled ocean mesh.</p></li>
 absolute salinity to the culled mesh.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">jra55_map</span></code> and <code class="docutils literal notranslate"><span class="pre">remap_jra55</span></code> remap the JRA55-do wind stress to the culled
 mesh.  The step fails if the mapping leaves any cell uncovered.</p></li>
+<li><p>For Omega, <code class="docutils literal notranslate"><span class="pre">extinction_product</span></code> builds the 1/12-degree shortwave extinction
+product from the GMIS chlorophyll climatology.  <code class="docutils literal notranslate"><span class="pre">shortwave_extinction_map</span></code>
+and <code class="docutils literal notranslate"><span class="pre">remap_shortwave_extinction</span></code> remap it to the culled mesh,
+bilinearly by default, and write <code class="docutils literal notranslate"><span class="pre">shortwave_extinction_coeffs.nc</span></code>.
+Coefficients are normalized by the mapped coverage.  The step fails
+if any cell has poor coverage or a nonpositive coefficient.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">pstar_init</span></code> builds the p-star vertical coordinate together with the
 temperature and salinity on it, since each depends on the other through
 the equation of state.  It also fits the bathymetry to the depths the
@@ -874,10 +882,11 @@ of topography and column diagnostics, vertical transects across the major
 ocean basins, and <code class="docutils literal notranslate"><span class="pre">xdmf/</span></code> subdirectories for ParaView.  For Omega, native
 surface/bottom pressure maps and a TEOS-10 in-situ density
 (stratification) check are also produced.  Global maps of the on-mesh wind
-stress components and magnitude are also written, which is where remapping
-artifacts would show up.</p></li>
+stress components and magnitude (and, for Omega, the extinction
+coefficients) are also written, which is where remapping artifacts would
+show up.</p></li>
 </ol>
-<p>Steps 5 to 7 write files for one model and live in <code class="docutils literal notranslate"><span class="pre">init/&lt;model&gt;/</span></code>; see
+<p>Steps 6 to 8 write files for one model and live in <code class="docutils literal notranslate"><span class="pre">init/&lt;model&gt;/</span></code>; see
 <a class="reference internal" href="#ocean-realistic-global-model-directories"><span class="std std-ref">both models in one work directory</span></a>.</p>
 <p>On large meshes, <code class="docutils literal notranslate"><span class="pre">viz</span></code> is the most expensive step: it took 33 minutes of a
 run of about 1.8 hours on <code class="docutils literal notranslate"><span class="pre">u-oi6to18-lr12p5</span></code>.  It runs only in this task;
@@ -941,6 +950,21 @@ for MPAS-Ocean.  Both models take zonal and meridional components at cell
 centers and project onto edges themselves.  Surface restoring and the thermal
 and freshwater fluxes are future work.  The settings that switch the forcing on
 in the model are described under <a class="reference internal" href="#ocean-realistic-global-forward">forward</a>.</p>
+</section>
+<section id="shortwave-extinction">
+<h3>shortwave extinction<a class="headerlink" href="#shortwave-extinction" title="Link to this heading"></a></h3>
+<p>For Omega, <code class="docutils literal notranslate"><span class="pre">shortwave_extinction_coeffs.nc</span></code> holds the red- and blue-band
+shortwave extinction coefficients <code class="docutils literal notranslate"><span class="pre">ExtinctionCoeffRedCell</span></code> and
+<code class="docutils literal notranslate"><span class="pre">ExtinctionCoeffBlueCell</span></code> (m^-1) used by Omega’s shortwave penetration.  They
+are an insolation-weighted annual mean computed from the GMIS MODIS-Aqua
+monthly chlorophyll-a climatology with the Manizza et al. (2005) relations,
+with a constant chlorophyll of 0.1 mg m^-3 where there are no observations
+(perennial sea ice and the Antarctic coast).  The <code class="docutils literal notranslate"><span class="pre">extinction_product</span></code> step
+downloads the GMIS files and builds the product.</p>
+<p>The file is not part of the initial state.  It is the default file of Omega’s
+<code class="docutils literal notranslate"><span class="pre">ShortwaveExtinctionIn</span></code> stream, which reads it on every startup, including
+restarts.  MPAS-Ocean uses a different shortwave scheme and does not have
+these fields.</p>
 </section>
 <section id="id14">
 <h3>time step and run duration<a class="headerlink" href="#id14" title="Link to this heading"></a></h3>
@@ -1019,6 +1043,24 @@ in the model are described under <a class="reference internal" href="#ocean-real
 <span class="c1"># Southern Ocean zonal section near 60 S (waypoints around the globe)</span>
 <span class="na">southern_ocean_zonal</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">-180.0, -60.0, -90.0, -60.0, 0.0, -60.0, 90.0, -60.0,</span>
 <span class="w">    </span><span class="na">180.0, -60.0</span>
+
+
+<span class="c1"># Options for remapping the shortwave extinction coefficients to the MPAS mesh</span>
+<span class="k">[shortwave_extinction]</span>
+
+<span class="c1"># Remapping method, bilinear or conserve.  Conservative remapping averages</span>
+<span class="c1"># the 1/12-degree source over each cell, but its weights cover a few cells by</span>
+<span class="c1"># a fraction of a percent more or less than their area.</span>
+<span class="na">method</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">bilinear</span>
+
+<span class="c1"># Floors on the number of MPI tasks for building the mapping file.  The</span>
+<span class="c1"># 1/12-degree source has 9.3 million cells, so it, not the target mesh, sets</span>
+<span class="c1"># the cost.  On a Perlmutter CPU node, bilinear weights took 180 s to a 240 km</span>
+<span class="c1"># mesh and 137 s to a 10 km mesh with 128 tasks.  Conservative weights to</span>
+<span class="c1"># icos240km took 85 s with 128 tasks and 182 s with 32; a single task did not</span>
+<span class="c1"># finish in 26 minutes.</span>
+<span class="na">ntasks</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">128</span>
+<span class="na">min_tasks</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">32</span>
 </pre></div>
 </div>
 <p>The mapping steps use the <code class="docutils literal notranslate"><span class="pre">map_tool</span></code> option in the <code class="docutils literal notranslate"><span class="pre">[mapping]</span></code> section,

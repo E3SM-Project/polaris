@@ -487,8 +487,8 @@ window.runMermaid = runMermaid;</script>
 <a class="viewcode-back" href="../../../../../../developers_guide/ocean/generated/polaris.tasks.ocean.realistic_global.init.lat_lon_map.LatLonMapStep.html#polaris.tasks.ocean.realistic_global.init.lat_lon_map.LatLonMapStep">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">LatLonMapStep</span><span class="p">(</span><span class="n">MappingFileStep</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">"""</span>
-<span class="sd">    A step for building the bilinear mapping file from a global</span>
-<span class="sd">    latitude-longitude source grid to the culled MPAS ocean mesh.</span>
+<span class="sd">    A step for building the mapping file from a global latitude-longitude</span>
+<span class="sd">    source grid to the culled MPAS ocean mesh.</span>
 
 <span class="sd">    This is the MPI (``mbtempest`` or ESMF) half of a remapping workflow; a</span>
 <span class="sd">    serial step applies the resulting weights with ``ncremap``.  The task</span>
@@ -532,6 +532,7 @@ window.runMermaid = runMermaid;</script>
         <span class="n">source_mesh_name</span><span class="p">,</span>
         <span class="n">cull_mesh_step</span><span class="p">,</span>
         <span class="n">mesh_name</span><span class="p">,</span>
+        <span class="n">method</span><span class="o">=</span><span class="s1">'bilinear'</span><span class="p">,</span>
     <span class="p">):</span>
 <span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Create the step.</span>
@@ -566,6 +567,9 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">        mesh_name : str</span>
 <span class="sd">            Name label for the MPAS mesh (used in the remapping weight</span>
 <span class="sd">            filename).</span>
+
+<span class="sd">        method : {'bilinear', 'conserve'}, optional</span>
+<span class="sd">            The remapping method.</span>
 <span class="sd">        """</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
             <span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span>
@@ -573,7 +577,7 @@ window.runMermaid = runMermaid;</script>
             <span class="n">subdir</span><span class="o">=</span><span class="n">subdir</span><span class="p">,</span>
             <span class="n">ntasks</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
             <span class="n">min_tasks</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
-            <span class="n">method</span><span class="o">=</span><span class="s1">'bilinear'</span><span class="p">,</span>
+            <span class="n">method</span><span class="o">=</span><span class="n">method</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">source_step</span> <span class="o">=</span> <span class="n">source_step</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">source_target</span> <span class="o">=</span> <span class="n">source_target</span>

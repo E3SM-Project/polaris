@@ -796,6 +796,25 @@ plots global maps of the stress components and magnitude plus a zonal-mean
 density are right.
 
 
+(dev-ocean-realistic-global-shortwave-extinction)=
+
+## forcing/shortwave_extinction
+
+The shared steps come from
+{py:func}`polaris.tasks.ocean.realistic_global.forcing.shortwave_extinction.steps.get_shortwave_extinction_steps`.
+There is no standalone task; the omega `init` task and the tasks that reuse
+its steps include the `extinction_product` step.
+
+### extinction_product
+
+{py:class}`polaris.tasks.ocean.realistic_global.forcing.shortwave_extinction.product.ShortwaveExtinctionProductStep`
+downloads the 12 monthly GMIS chlorophyll-a files through the
+`initial_condition_database` mechanism, so they are cached locally, and
+writes `shortwave_extinction.nc` on the native 1/12-degree grid.  Options are
+in `[gmis_extinction]`: the download URL, the sensor (MODIS-Aqua `A` or VIIRS
+`V`), the chlorophyll cap and the chlorophyll used where there are no
+observations.
+
 (dev-ocean-realistic-global-init)=
 
 ## init
@@ -826,11 +845,12 @@ composes the full chain:
    mesh.  This is the only MPI step in the WOA23 chain (it runs `mbtempest`
    or ESMF).  Its task count scales with the approximate culled ocean cell
    count via the `remap_cells_per_task` and `remap_min_cells_per_task`
-   options in the `[realistic_global_init]` config section.  It and
-   **jra55_map** are thin subclasses of
+   options in the `[realistic_global_init]` config section.  It,
+   **jra55_map** and **shortwave_extinction_map** are thin subclasses of
    {py:class}`~polaris.tasks.ocean.realistic_global.init.lat_lon_map.LatLonMapStep`,
-   which links the source and culled mesh, sizes the task count and builds
-   the weights; each subclass supplies only its source.
+   which links the source and the culled mesh, sizes the task
+   count and builds the weights; each subclass supplies its source and
+   method.
 3. **remap_woa23** ({py:class}`~polaris.tasks.ocean.realistic_global.init.remap_woa23.RemapWoa23Step`):
    a serial step that applies the weights from **woa23_map** with `ncremap`,
    remapping WOA23 conservative temperature and absolute salinity to the
@@ -858,7 +878,23 @@ composes the full chain:
    {py:func}`~polaris.tasks.ocean.realistic_global.init.remap_jra55.check_no_missing_cells`
    reads each cell's coverage (`frac_b`) from the mapping file and fails the
    step if any cell is not fully covered or has a non-finite stress.
-6. **pstar_init** ({py:class}`~polaris.tasks.ocean.realistic_global.init.pstar_init.RealisticPStarInitStep`):
+6. **shortwave_extinction_map** ({py:class}`~polaris.tasks.ocean.realistic_global.init.shortwave_extinction_map.ShortwaveExtinctionMapStep`, Omega only):
+   builds the mapping file from the 1/12-degree product of
+   {ref}`dev-ocean-realistic-global-shortwave-extinction` to the culled
+   mesh.  The method is
+   `[shortwave_extinction] method`, `bilinear` by default, set on the
+   remapper at run time so a user edit to the config takes effect.
+7. **remap_shortwave_extinction** ({py:class}`~polaris.tasks.ocean.realistic_global.init.remap_shortwave_extinction.RemapShortwaveExtinctionStep`, Omega only):
+   applies those weights with `ncremap`.  It normalizes coefficients by
+   mapping coverage, which is slightly off one in a few cells.  The step fails
+   if any cell has less than `MIN_COVERAGE` (0.9) coverage or a coefficient
+   that is not finite and positive, since that means the mapping is broken.
+   The output is `shortwave_extinction_coeffs.nc`, with Omega's names
+   `ExtinctionCoeffRedCell` and `ExtinctionCoeffBlueCell` on `NCells`, which
+   is the default file of Omega's `ShortwaveExtinctionIn` stream.  It is a
+   separate file because Omega reads it on every startup, not just the first,
+   so it is not part of the initial state.
+8. **pstar_init** ({py:class}`~polaris.tasks.ocean.realistic_global.init.pstar_init.RealisticPStarInitStep`):
    subclass of {py:class}`polaris.ocean.vertical.pstar_init.PStarInitStep`
    that runs the fixed-point p-star iteration jointly with the vertical
    interpolation of the WOA23 tracers, writing a model-neutral
@@ -871,7 +907,7 @@ composes the full chain:
    instead.  Isolated bathymetry holes, cells deeper than every ocean
    neighbor, are capped at their deepest neighbor's level and re-solved via
    {py:func}`polaris.ocean.vertical.bathymetry_holes.fill_max_level_holes`.
-7. **initial_state** ({py:class}`~polaris.tasks.ocean.realistic_global.init.initial_state.InitialStateStep`):
+9. **initial_state** ({py:class}`~polaris.tasks.ocean.realistic_global.init.initial_state.InitialStateStep`):
    reads `pstar_init.nc` and the model resolved from `[ocean] model` to
    produce model-specific output files (`init.nc` for both models;
    `vert_coord.nc` additionally for Omega).  Tracer fields are kept as CT/SA
@@ -886,14 +922,14 @@ composes the full chain:
    links **cull_mesh**'s `culled_ocean_reconstruction_weights.nc` under that
    name.  The weights have to be the *culled* mesh's, not the base mesh's,
    since that is the mesh the initial condition is built on.
-8. **forcing** ({py:class}`~polaris.tasks.ocean.realistic_global.init.forcing.ForcingStep`):
-   writes the model-specific `forcing.nc` from `jra55_on_mesh.nc` via
-   {py:meth}`polaris.ocean.model.OceanIOStep.write_forcing_dataset`.  Omega
-   reads 1-D fields on `NCells`; MPAS-Ocean's Registry declares
-   `dimensions="nCells Time"`, so a `Time` dimension of one is added there.
-9. **viz** ({py:class}`~polaris.tasks.ocean.realistic_global.init.viz.VizInitStep`):
-   visualizes and sanity-checks the initial condition, vertical-coordinate and
-   forcing datasets (see below).
+10. **forcing** ({py:class}`~polaris.tasks.ocean.realistic_global.init.forcing.ForcingStep`):
+    writes the model-specific `forcing.nc` from `jra55_on_mesh.nc` via
+    {py:meth}`polaris.ocean.model.OceanIOStep.write_forcing_dataset`.  Omega
+    reads 1-D fields on `NCells`; MPAS-Ocean's Registry declares
+    `dimensions="nCells Time"`, so a `Time` dimension of one is added there.
+11. **viz** ({py:class}`~polaris.tasks.ocean.realistic_global.init.viz.VizInitStep`):
+    visualizes and sanity-checks the initial condition, vertical-coordinate and
+    forcing datasets (see below).
 
 ### viz
 
@@ -938,6 +974,8 @@ the equation of state itself.  It produces:
   `[realistic_global_init_viz_transects]`.  Layer interfaces are not drawn,
   because the thin upper layers pack them into a band that hides the upper
   few hundred meters; `vertical_coordinate.png` shows the layer structure.
+* **Omega only**: global maps of `ExtinctionCoeffRedCell` and
+  `ExtinctionCoeffBlueCell` from `shortwave_extinction_coeffs.nc`.
 * **Omega only**: a stratification check using the TEOS-10 in-situ `Density`
   (global surface/seafloor maps and transects).  Density is not plotted for
   MPAS-Ocean, whose equation of state differs and is not evaluated here.
