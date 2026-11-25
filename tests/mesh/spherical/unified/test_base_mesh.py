@@ -1,6 +1,7 @@
 import json
 
 import numpy as np
+import pytest
 
 from polaris.component import Component
 from polaris.mesh.spherical.unified import (
@@ -24,6 +25,7 @@ def test_estimate_dc_edge_from_area_cell_matches_regular_hexagon():
 
 
 def test_unified_base_mesh_step_writes_river_geometry(tmp_path, monkeypatch):
+    jigsawpy = pytest.importorskip('jigsawpy')
     step = UnifiedBaseMeshStep(
         component=Component(name='mesh'),
         subdir='spherical/unified/test/base_mesh',
@@ -66,12 +68,9 @@ def test_unified_base_mesh_step_writes_river_geometry(tmp_path, monkeypatch):
     def fake_savemsh(filename, mesh):
         saved_meshes[filename] = mesh
 
+    monkeypatch.setattr(jigsawpy, 'savemsh', fake_savemsh)
     monkeypatch.setattr(
-        'polaris.mesh.spherical.unified.base_mesh.jigsawpy.savemsh',
-        fake_savemsh,
-    )
-    monkeypatch.setattr(
-        'polaris.mesh.spherical.unified.base_mesh.savejig',
+        'polaris.mesh.spherical.unified.base_mesh.write_jigsaw_config',
         lambda *args, **kwargs: None,
     )
     monkeypatch.setattr(
@@ -103,6 +102,7 @@ def test_unified_base_mesh_step_writes_river_geometry(tmp_path, monkeypatch):
 def test_unified_base_mesh_step_uses_prepared_clipped_river_geometry(
     tmp_path, monkeypatch
 ):
+    jigsawpy = pytest.importorskip('jigsawpy')
     step = UnifiedBaseMeshStep(
         component=Component(name='mesh'),
         subdir='spherical/unified/test/base_mesh',
@@ -134,12 +134,9 @@ def test_unified_base_mesh_step_uses_prepared_clipped_river_geometry(
     def fake_savemsh(filename, mesh):
         saved_meshes[filename] = mesh
 
+    monkeypatch.setattr(jigsawpy, 'savemsh', fake_savemsh)
     monkeypatch.setattr(
-        'polaris.mesh.spherical.unified.base_mesh.jigsawpy.savemsh',
-        fake_savemsh,
-    )
-    monkeypatch.setattr(
-        'polaris.mesh.spherical.unified.base_mesh.savejig',
+        'polaris.mesh.spherical.unified.base_mesh.write_jigsaw_config',
         lambda *args, **kwargs: None,
     )
     monkeypatch.setattr(
@@ -166,6 +163,7 @@ def test_unified_base_mesh_step_uses_prepared_clipped_river_geometry(
 
 
 def test_read_geojson_line_mesh_deduplicates_shared_endpoints(tmp_path):
+    pytest.importorskip('jigsawpy')
     # Two LineString features that share the endpoint [10.0, 5.0]. Without
     # deduplication this creates two coincident vert2 entries, which causes
     # JIGSAW to produce degenerate mesh cells.
@@ -223,6 +221,7 @@ def test_read_geojson_line_mesh_deduplicates_shared_endpoints(tmp_path):
 
 
 def test_read_geojson_line_mesh_drops_degenerate_edges_after_dedup(tmp_path):
+    pytest.importorskip('jigsawpy')
     # A two-point LineString whose both points duplicate an interior vertex of
     # a longer feature. After deduplication the short feature collapses to a
     # single vertex and its constraint edge must be dropped.
