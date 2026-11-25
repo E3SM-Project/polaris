@@ -474,9 +474,9 @@ def _fill_tracer_columns(
 
     The WOA23 depths are the same for every column, so the source interval
     holding each midpoint is found for a chunk of cells at a time.  The
-    result is what :py:func:`numpy.interp` gives column by column, including
-    the flat extrapolation above the shallowest and below the deepest WOA23
-    level.
+    result is what :py:func:`numpy.interp` gives column by column, to
+    rounding, including the flat extrapolation above the shallowest and below
+    the deepest WOA23 level.
 
     Parameters
     ----------
@@ -520,8 +520,10 @@ def _fill_tracer_columns(
             values = values.ravel()
             lower = values[first + index]
             upper = values[first + index + 1]
-            # the same arithmetic as numpy.interp, so the results match it
-            # exactly, held at the end values beyond the source heights
+            # the same arithmetic as numpy.interp, so the results match it to
+            # rounding (exactly, unless the compiler fused numpy.interp's
+            # multiply and add), held at the end values beyond the source
+            # heights
             result = (upper - lower) / dz_src * dz + lower
             result = np.where(below, values[first], result)
             result = np.where(above, values[first + nsrc - 1], result)

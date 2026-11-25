@@ -150,10 +150,15 @@ def _fill_tracer_columns_with_np_interp(
 
 def test_fill_tracer_columns_matches_np_interp(monkeypatch):
     """
-    Cell by cell, the chunked interpolation gives exactly what np.interp
-    gives, across chunk boundaries, for land and partial columns, for
-    heights at, between, above and below the WOA23 levels, and with the
-    WOA23 fields passed as the transposed views init_tracers passes.
+    Cell by cell, the chunked interpolation gives what np.interp gives,
+    across chunk boundaries, for land and partial columns, for heights at,
+    between, above and below the WOA23 levels, and with the WOA23 fields
+    passed as the transposed views init_tracers passes.
+
+    The two agree to rounding rather than exactly: where the compiler fuses
+    np.interp's multiply and add, as on Apple silicon, it rounds once where
+    the chunked version rounds twice.  A mistake in the chunking would be
+    off by far more than the tolerance.
     """
     # small chunks, so the cells span several of them
     monkeypatch.setitem(
@@ -191,8 +196,8 @@ def test_fill_tracer_columns_matches_np_interp(monkeypatch):
         z_tilde_mid, woa_z, woa_ct, woa_sa, min_lev, max_lev, ct_out, sa_out
     )
 
-    np.testing.assert_array_equal(ct_out, expected_ct)
-    np.testing.assert_array_equal(sa_out, expected_sa)
+    np.testing.assert_allclose(ct_out, expected_ct, rtol=0.0, atol=1e-12)
+    np.testing.assert_allclose(sa_out, expected_sa, rtol=0.0, atol=1e-12)
 
 
 def test_fill_tracer_columns_deep_extrapolation():
