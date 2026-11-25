@@ -39,7 +39,7 @@ The design has two stages:
 The fixed-geometry stage succeeds with a `realistic_global` dynamic
 adjustment on so12to30km and qu30km, under the `grounding_line` convention,
 that runs to the end of its `simulation` stage with flow under the ice below
-0.5 m/s.  The evolving-geometry stage succeeds with ISOMIP+ runs whose ice
+0.6 m/s.  The evolving-geometry stage succeeds with ISOMIP+ runs whose ice
 geometry changes in time, and then coupled MISOMIP runs, that conserve heat
 and salt as the layers change.
 
@@ -531,7 +531,7 @@ Unit tests that z-star and p-star columns with a top depth sum to the bed
 depth, with partial top levels above and below the minimum fraction, and
 that the default leaves them unchanged.  The `realistic_global`
 dynamic adjustment on so12to30km and qu30km with `grounding_line` runs to
-the end of `simulation`, with flow under the ice below 0.5 m/s.
+the end of `simulation`, with flow under the ice below 0.6 m/s.
 
 With GM, this needs MPAS-Ocean to limit the GM bolus velocity with wetting
 and drying, as it does the submesoscale velocity.  Next to a thin film at a
