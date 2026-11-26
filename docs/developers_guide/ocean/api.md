@@ -1186,6 +1186,9 @@
    SshForward
    SshForward.compute_cell_count
    SshForward.dynamic_model_config
+
+   ssh_solve.compute_depth_mean_acceleration
+   ssh_solve.solve_for_ssh_change
 ```
 
 ### Ocean Model
