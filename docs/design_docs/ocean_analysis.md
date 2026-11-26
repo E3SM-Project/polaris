@@ -132,9 +132,9 @@ working with monthly means becomes a problem.
 
 | Phase | Target | Content |
 | --- | --- | --- |
-| 1 | September 15, 2026 | Climatology maps, ocean heat content, global-stats time series, MOC plot; run manually.  See {ref}`design-ocean-analysis-initial`. |
-| 2 | End of CY2026 | A more complete zppy/MPAS-Analysis-style workflow for Omega, including observational comparison, integration with zppy, and concurrent execution of independent analysis under Polaris task parallelism. |
-| 3 | Beyond | Regional analysis, transports and transects, run-to-run comparison, and parity with the ocean tasks E3SM developers rely on today. |
+| 1 | September 15, 2026 | Climatology maps, ocean heat content, global-stats time series, MOC plot; run manually.  See {ref}`design-ocean-analysis-initial`.  Its tail, still in progress, adds the global and Atlantic overturning from Omega's line transports and the offline basin overturning; see {ref}`design-ocean-analysis-regional-moc`. |
+| 2 | Early 2027 | Comparison with observations, including mixed-layer depth from Omega and the AMOC against RAPID (see {ref}`design-ocean-analysis-observations`); Polaris as a built-in zppy task; and analysis as the first demanding workload for task parallelism.  At lower priority, drift diagnostics: horizontally averaged temperature and salinity anomalies against depth and time, globally and then by basin. |
+| 3 | Beyond | Comparison with observations over a simulation's own period, regional analysis, transports and transects, run-to-run comparison, and parity with the ocean tasks E3SM developers rely on today. |
 
 Phase 1 explicitly does not include integration with zppy.  During Phase 1, the
 analysis of Omega output is run by hand and made available to the coupled group
@@ -217,7 +217,7 @@ against Omega output as Omega capabilities become available.
 
 ### Requirement: comparison with observations
 
-Date last modified: 2026/08/11
+Date last modified: 2026/11/26
 
 Contributors: Xylar Asay-Davis, Claude
 
@@ -231,13 +231,12 @@ onto a lat-lon comparison grid.  Model output is therefore never interpolated
 away from the grid it was computed on, and the error metrics are area-weighted
 sums over model cells.
 
-*Remaining details to be added.*  Open topics include: which observational data
-sets to support first (WOA23, and the standard MPAS-Analysis suite of SST, SSS,
-MLD, and velocity products); where the mapping files and remapped observations
-are cached, since remapping observations onto each new mesh is the expensive
-part; and how the conservative temperature and absolute salinity that Omega
-carries are converted for comparison with observational potential temperature
-and practical salinity.
+Observational datasets are chosen on scientific merit, not for comparability
+with MPAS-Analysis.  The first comparisons are designed in
+{ref}`design-ocean-analysis-observations`, which settles the topics this
+requirement left open: which datasets come first, how they are cached, and
+which side of the comparison is converted between Omega's conservative
+temperature and absolute salinity and the observations' variables.
 
 ### Requirement: regional analysis, transects, and transports
 
@@ -454,21 +453,21 @@ separable from whether it makes something the gallery shows.
 
 ### Requirement: workflow integration
 
-Date last modified: 2026/08/11
+Date last modified: 2026/11/26
 
 Contributors: Xylar Asay-Davis, Claude
 
 Analysis of Omega output shall eventually be launched by zppy as part of the
 standard E3SM post-processing workflow, in the same way MPAS-Analysis is today.
+Polaris shall be a built-in zppy task, as MPAS-Analysis is, not a zppy plugin.
 
-*Details to be added.*  In Phase 1 this requirement is explicitly deferred: the
-analysis is run by hand by the Ocean Team.  Open topics include what the zppy
-interface to Polaris looks like, how the analysis suite is chunked over
-simulation years, and how Polaris job scripts interact with zppy's.
+In Phase 1 this requirement is explicitly deferred: the analysis is run by
+hand by the Ocean Team.  Phase 2 designs the zppy task in
+{ref}`design-ocean-analysis-zppy`.
 
 ### Requirement: concurrent execution of independent analysis
 
-Date last modified: 2026/08/25
+Date last modified: 2026/11/26
 
 Contributors: Xylar Asay-Davis, Claude
 
@@ -479,13 +478,13 @@ becomes available, and shall not be written in ways that make its steps
 ineligible for it.
 
 Task parallelism is designed separately, in the `task_parallelism` family of
-design documents --- an umbrella plus one document per phase --- developed on
-the task-parallelism branch.  Its Phase 2 enables concurrent execution of
-eligible non-MPI steps across a multi-node allocation, with non-MPI steps
-eligible by default and step authors marking a step unsafe only when it relies
-on shared mutable state, external side effects, or uncontrolled process
-launching.  That phase is what analysis stands to gain from, and it lines up
-with Phase 2 of this roadmap.
+design documents --- an umbrella plus one document per phase.  Its Phase B,
+on main as `polaris parallel`, runs eligible non-MPI steps concurrently.  Its
+Phase C ([polaris#892](https://github.com/E3SM-Project/polaris/pull/892), in
+review) lets a step hand out the items of its own loop as pieces that run on
+any node of the allocation.  Analysis is Phase C's motivating workload, and
+the observational comparisons of this roadmap's Phase 2 are its first
+demanding test; see {ref}`design-ocean-analysis-observations`.
 
 Three consequences for the analysis design:
 
@@ -630,7 +629,11 @@ internal pool is not task-parallel at all, however parallel it is inside.**
 That is exactly MPAS-Analysis's ceiling --- it parallelizes with
 `multiprocessing.Process`, which cannot span nodes, and that ceiling is a known
 choke point at the resolutions Omega targets.  Rebuilding it in Polaris would
-defeat the purpose of task parallelism.
+defeat the purpose of task parallelism.  Phase C of task parallelism
+([polaris#892](https://github.com/E3SM-Project/polaris/pull/892)) lifts the
+ceiling for a step that hands out its loop as pieces, since each piece can run
+on any node.  This rule is about a pool confined to one node, not about such a
+step.
 
 The rule that follows:
 
@@ -964,13 +967,14 @@ Things that Phase 1 knowingly does the simpler way because of its September 15
 deadline, recorded here so that they are picked up rather than forgotten.  Each
 is explained in context in {ref}`design-ocean-analysis-initial`.
 
-- **Replace the offline mixed-layer depth fallback**, if it is what ships, with
-  Omega's in-situ density-threshold diagnostic.  A mixed-layer depth derived
-  from monthly-mean profiles cannot represent deep winter mixing events and
-  cannot produce a monthly maximum at all.
+- **Mixed-layer depth.**  Phase 1 shipped none: Omega does not compute it
+  yet, and the offline fallback was not built.  It arrives in Phase 2 from an
+  in-situ Omega diagnostic, compared with observations; see
+  {ref}`design-ocean-analysis-observations`.
 - **Regional overturning**, in particular the Atlantic MOC and the standard
-  maximum-AMOC-near-26.5°N metric, which arrives with the regional analysis
-  described in the requirements above.
+  maximum-AMOC-near-26.5°N metric.  It is designed in
+  {ref}`design-ocean-analysis-regional-moc`, and its Polaris side is in
+  [polaris#995](https://github.com/E3SM-Project/polaris/pull/995).
 - **A content-addressed provenance scheme for inherited caches.**  Phase 1
   stamps each cache record with the simulation identity, the config options
   that govern the product, and a hand-maintained kernel version integer, and
@@ -1046,7 +1050,7 @@ rather than dropped, and each is designed above or in
 
 ### Implementation: design documents in this family
 
-Date last modified: 2026/08/11
+Date last modified: 2026/11/26
 
 Contributors: Xylar Asay-Davis, Claude
 
@@ -1055,6 +1059,16 @@ Contributors: Xylar Asay-Davis, Claude
   selected elevations; ocean heat content over elevation ranges as maps and as
   a global time series; time series from Omega's `GlobalStats` output; and a
   latitude-elevation plot of the global MOC.
+- {ref}`design-ocean-analysis-regional-moc` --- the overturning across lines
+  in Omega, including the AMOC at 26.5°N, and the overturning of named basins
+  offline in Polaris.
+- {ref}`design-ocean-analysis-observations` --- Phase 2's comparison with
+  observations: the datasets, their cached products, remapping to the mesh,
+  and the comparisons as pieces under task parallelism.
+
+- {ref}`design-ocean-analysis-zppy` --- Phase 2's built-in zppy task: the
+  job each pair of year ranges becomes, one work directory and one gallery
+  per case, and what Polaris provides for it.
 
 *Additional documents to be added for Phases 2 and 3.*
 
