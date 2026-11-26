@@ -18,6 +18,7 @@ ocean_analysis
 ocean_analysis_initial
 ocean_analysis_observations
 ocean_analysis_regional_moc
+ocean_analysis_zppy
 omega_pr_testing
 overflow_nonlinear_eos
 polaris_update_testing
