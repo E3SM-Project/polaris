@@ -4,8 +4,9 @@
 
 The `e3sm/init` `component_inputs` tasks stage the files an E3SM run needs
 from a unified mesh: the base mesh with maps to the meshes culled from it,
-SCRIP descriptions of those culled meshes, the MPAS-Ocean and MPAS-Seaice
-meshes and initial conditions, and graph partitions for both models.
+SCRIP descriptions of those culled meshes, the MPAS-Ocean or Omega and the
+MPAS-Seaice initial conditions, the MPAS-Ocean mesh, and graph partitions for
+MPAS-Ocean and MPAS-Seaice.
 
 ```{warning}
 The staged tree is a **subset** of what E3SM needs for a new mesh.  It does
@@ -20,15 +21,17 @@ warning is staged as a `README` alongside the files.
 
 ## Tasks
 
-Three tasks per unified mesh, which share most of their steps:
+Five tasks per unified mesh, which share most of their steps: one for the
+sea-ice products, plus two per ocean model, one for its ocean products and one
+for its ocean and sea-ice products together:
 
-- `e3sm/init/<mesh>/component_inputs/tasks/ocean`
 - `e3sm/init/<mesh>/component_inputs/tasks/seaice`
-- `e3sm/init/<mesh>/component_inputs/tasks/all`
+- `e3sm/init/<mesh>/component_inputs/tasks/<model>/ocean`
+- `e3sm/init/<mesh>/component_inputs/tasks/<model>/all`
 
-For example, for `u-oi30-lr10`:
+where `<model>` is `mpas-ocean` or `omega`.  For example, for `u-oi30-lr10`:
 
-- `e3sm/init/u-oi30-lr10/component_inputs/tasks/all`
+- `e3sm/init/u-oi30-lr10/component_inputs/tasks/mpas-ocean/all`
 
 The supported unified mesh names are those listed in
 {ref}`users-mesh-unified-base-mesh`.
@@ -38,22 +41,32 @@ there is no need to set up any other task first.  The `ocean` and `all` tasks
 include the realistic-global initial condition and dynamic adjustment,
 because the ocean initial condition is the restart from the final adjustment
 stage, not the interpolated initial state.  The adjustment is a multi-hour
-model run on the finer meshes, and it needs MPAS-Ocean.  Either point
-`--ocean_path` at an existing build (`-p` does not apply, since the
-`e3sm/init` component has no model of its own):
+model run on the finer meshes, run by the task's ocean model.  Either point
+`--ocean_path` at an existing build of that model (`-p` does not apply, since
+the `e3sm/init` component has no model of its own):
 
 ```bash
-polaris setup -t e3sm/init/u-oi240-lr240/component_inputs/tasks/all \
+polaris setup -t e3sm/init/u-oi240-lr240/component_inputs/tasks/mpas-ocean/all \
     --ocean_path <path to MPAS-Ocean build> -w <work dir>
 ```
 
-or give `--ocean_model mpas-ocean` and Polaris builds MPAS-Ocean from the
-`e3sm_submodules/E3SM-Project` submodule:
+or give `--ocean_model` and Polaris builds the model from its submodule:
 
 ```bash
-polaris setup -t e3sm/init/u-oi240-lr240/component_inputs/tasks/all \
-    --ocean_model mpas-ocean -w <work dir>
+polaris setup -t e3sm/init/u-oi240-lr240/component_inputs/tasks/omega/all \
+    --ocean_model omega -w <work dir>
 ```
+
+Setup stops if the task's model is not the one the ocean component is set up
+with, for example if `tasks/omega/all` is set up with
+`--ocean_model mpas-ocean`.
+
+Both models' tasks can be set up in one work directory, one setup per model.
+The steps that do not depend on the model, from the mesh through the
+interpolated hydrography, the sea-ice products and the staged base mesh, run
+once and are shared.  Give each setup its own suite name, so the second setup
+does not replace the first setup's pickle, job script, logs and provenance, as
+described in {ref}`ocean-realistic-global-model-directories`.
 
 The `seaice` task does **not** include the ocean steps.  Every sea-ice product
 is built from the culled mesh alone, so if you only need the sea-ice files,
@@ -89,35 +102,45 @@ decide that a mesh has earned a short name.
 
 With `<short>` the mesh short name (e.g. `u04-oi6to18-lr12p5`), `<id>` its
 leading ID (`u04`), `<grid>` E3SM's name for its ocean and sea-ice grid, the
-short name without its land part (`u04-oi6to18`), and `<date>` the creation
-date, the tree under `assemble/<target>/assembled_files/` is:
+short name without its land part (`u04-oi6to18`), `<date>` the mesh's creation
+date and `<ocean_date>` the ocean model's, the tree under
+`<model>/assemble/<target>/assembled_files/` (or `assemble/seaice/` for the
+sea-ice task) is:
 
 | Product | Staged path |
 |---|---|
 | base mesh + maps | `inputdata/share/meshes/mpas/unified/<id>/<short>.base.<date>.nc` |
 | SCRIP, per region | `inputdata/share/meshes/mpas/unified/<id>/<short>.<region>.scrip.<date>.nc` |
-| ocean SCRIP, again | `inputdata/ocn/mpas-o/<grid>/<short>.scrip.<date>.nc` |
-| no-cavities SCRIP, again | `inputdata/ocn/mpas-o/<grid>/<short>.no_cavities.scrip.<date>.nc` |
-| ocean mesh | `inputdata/share/meshes/mpas/unified/<id>/<short>.ocean.<date>.nc` |
+| ocean SCRIP, again | `inputdata/ocn/<model_dir>/<grid>/<short>.scrip.<date>.nc` |
+| no-cavities SCRIP, again | `inputdata/ocn/<model_dir>/<grid>/<short>.no_cavities.scrip.<date>.nc` |
+| ocean mesh (MPAS-Ocean) | `inputdata/share/meshes/mpas/unified/<id>/<short>.ocean.<date>.nc` |
 | land mesh | `inputdata/share/meshes/mpas/unified/<id>/<short>.land.<date>.nc` |
-| ocean IC | `inputdata/ocn/mpas-o/<grid>/mpaso.<grid>.<date>.nc` |
+| MPAS-Ocean IC | `inputdata/ocn/mpas-o/<grid>/mpaso.<grid>.<ocean_date>.nc` |
+| Omega IC | `inputdata/ocn/omega/<grid>/omega.<grid>.<ocean_date>.nc` |
 | ocean graph | `inputdata/ocn/mpas-o/<grid>/partitions/mpas-o.graph.info.<date>` |
 | ocean partitions | `inputdata/ocn/mpas-o/<grid>/partitions/mpas-o.graph.info.<date>.part.<n>` |
 | MOC masks | `inputdata/ocn/mpas-o/<grid>/<short>.mocBasinsAndTransects<features_date>.<date>.nc` |
 | sea-ice IC | `inputdata/ice/mpas-seaice/<grid>/mpassi.<grid>.<date>.nc` |
 | sea-ice partitions | `inputdata/ice/mpas-seaice/<grid>/partitions/mpas-seaice.graph.info.<date>.part.<n>` |
 
-These are the directories and names E3SM reads the files from.
+These are the directories and names E3SM reads the files from.  `<model_dir>`
+is `mpas-o` or `omega`, and the ocean graph, partitions and MOC masks are
+staged for MPAS-Ocean only.
 
 The three SCRIP regions are `ocean`, `ocean_no_cavities` and `land`, matching
 the meshes the cull step produces.
 
+Every product but the ocean initial condition carries the mesh's
+`creation_date`.  Each model's initial condition carries its own
+`ocean_creation_date`, so a second model's inputs can be added to a mesh
+later without renaming files that are already staged.  Both are filled in at
+setup, with the date an earlier setup of the work directory recorded or else
+that day's (see {ref}`e3sm-init-component-inputs-config`).
+
 The assembly step deletes `assembled_files/` and rebuilds it every time it
-runs, so the tree only holds the files from the latest assembly.  This matters
-because running `polaris setup` again in the same work directory sets
-`creation_date` to that day's date (see
-{ref}`e3sm-init-component-inputs-config`).  Without the delete, files with the
-old date would remain in the tree alongside the new ones.
+runs, so the tree only holds the files from the latest assembly.  Without the
+delete, files from a changed creation date would remain in the tree alongside
+the new ones.
 
 The base mesh is filed under `share/meshes/mpas/unified/` rather than Compass'
 `share/meshes/mpas/ocean/`, because for a unified mesh it belongs to the
@@ -137,8 +160,8 @@ still says which mesh it belongs to.
 
 The two ocean SCRIP files are staged twice: in the shared mesh directory under
 their full region names, and beside the ocean products, since developers look
-for them in both places.  Everything in `ocn/mpas-o/` belongs to the ocean, so
-the `ocean` in the region name is dropped there, giving
+for them in both places.  Everything in the ocean model's directory belongs to
+the ocean, so the `ocean` in the region name is dropped there, giving
 `<short>.scrip.<date>.nc` and `<short>.no_cavities.scrip.<date>.nc`.  Both
 copies are links to the same file.  The land SCRIP file is not staged there.
 
@@ -205,7 +228,7 @@ MPAS-Analysis and post-processing, and these tasks do not produce them yet.
 The assembly step builds the tree but never writes outside its own work
 directory. Copying into a shared inputdata directory is a decision a person
 makes, so the step symlinks a script in for you to run by hand from
-`component_inputs/assemble/<target>`:
+`component_inputs/<model>/assemble/<target>` (or `component_inputs/assemble/seaice`):
 
 ```
 ./sync_to_inputdata.sh --dry-run /lcrc/group/e3sm/data/inputdata
@@ -282,10 +305,19 @@ We plan to add support for ice-shelf cavities soon.
 
 ## Omega
 
-Not supported yet.  The staged files are for whichever ocean model the
-dynamic adjustment runs, which is the one given with `--ocean_model` or
-detected from the `--ocean_path` build.  If that is Omega, setup stops with a
-message saying so, rather than staging Omega output under MPAS-Ocean names.
+The Omega tasks run Omega's own dynamic adjustment, from the same
+interpolated hydrography as MPAS-Ocean's, and stage one initial condition
+holding what Omega reads at startup in E3SM: the horizontal mesh and vertical
+coordinate from Omega's `initial_state` step, the state (`NormalVelocity`,
+`PseudoThickness`, `SurfacePressure`, `Temperature` and `Salinity`) from the
+restart of the final adjustment stage, and the shortwave extinction
+coefficients (`ExtinctionCoeffRedCell` and `ExtinctionCoeffBlueCell`) from
+the realistic-global `remap_shortwave_extinction` step.
+
+Omega partitions its mesh at run time and does not yet read region masks, so
+no graph partitions or MOC masks are staged for it.  The culled ocean mesh in
+the shared mesh directory is made from MPAS-Ocean's initial state, so only
+the MPAS-Ocean tasks stage it.
 
 (e3sm-init-component-inputs-config)=
 
@@ -303,10 +335,17 @@ These tasks create a shared config file in their work directories:
 # theirs as [unified_mesh] e3sm_short_name; setting this option overrides it.
 mesh_short_name =
 
-# The creation date the staged files are stamped with, as YYYYMMDD.  Filled in
-# with today's date at setup if left blank, so that re-running a step does not
-# rename every staged file.
+# The creation date the mesh's staged files are stamped with, as YYYYMMDD:
+# all but the ocean initial condition.  Filled in at setup if left blank,
+# with the date a previous setup of the work directory recorded or else
+# today's, so that re-running a step or setting the work directory up again
+# does not rename files that are already staged.
 creation_date =
+
+# The creation date the ocean initial condition is stamped with, as YYYYMMDD.
+# Each ocean model's initial condition has its own, filled in the same way, so
+# that a second model's inputs can join a mesh's staged files later.
+ocean_creation_date =
 
 # The approximate maximum number of cells per core, which sets the smallest
 # graph partition created
@@ -329,10 +368,14 @@ partition_min_cpus_per_task = 1
 plot_seaice_partitions = False
 ```
 
-`creation_date` is filled in during setup, so it is saved in the work
-directory's config file and rerunning a step keeps the same date.  Running
-`polaris setup` again in the same work directory, though, sets it to that
-day's date unless you set it yourself in a user config file.
+The dates are filled in during setup, so they are saved in the work
+directory's config files and rerunning a step keeps them.  Running `polaris
+setup` again in the same work directory keeps them too.  To stamp new dates,
+set them yourself in a user config file.
+
+The model-dependent steps read a copy of this file in their model's
+directory, `component_inputs/<model>/component_inputs.cfg`, and the other
+steps the one in `component_inputs/`.
 
 ## Running on a login node
 

@@ -1,51 +1,44 @@
 """
-Which ocean model the staged component inputs can be built for.
+Which ocean model a component-inputs task stages files for.
 
-The ocean initial condition is the restart of a dynamic adjustment, which runs
-whichever model the ocean component was set up with (``--ocean_model``, or
-detected from the build).  The staged files can only be for that same model,
-so the model is taken from the ocean component rather than from an option of
-this workflow's own, which could disagree with it.
-
-The gate is built now, while only MPAS-Ocean is supported, so that adding
-Omega fills a named gap rather than retrofitting model selection into steps
-that quietly assumed MPAS-Ocean.
+Each task that stages ocean products is built for one ocean model, the way an
+E3SM configuration is.  The ocean initial condition is the restart of a
+dynamic adjustment, which runs whichever model the ocean component was set up
+with (``--ocean_model``, or detected from the build), so the two have to
+agree, and setup stops when they do not rather than choosing one.
 """
 
 from polaris.tasks.ocean import ocean
+from polaris.tasks.ocean.realistic_global.models import OCEAN_MODELS
 
 
-def check_ocean_model() -> str:
+def check_ocean_model(model: str) -> None:
     """
-    The ocean model the dynamic adjustment runs, if its files can be staged.
+    Check that the ocean component is set up for a task's ocean model.
 
     Only meaningful during setup, after the ocean component has been
     configured.
 
-    Returns
-    -------
-    str
-        The ocean model.
+    Parameters
+    ----------
+    model : str
+        The ocean model the task stages files for, one of
+        :py:data:`~polaris.tasks.ocean.realistic_global.models.OCEAN_MODELS`.
 
     Raises
     ------
-    NotImplementedError
-        If it is Omega, whose packaging is not supported yet.
-
     ValueError
-        If the ocean component has no model or one this workflow does not
-        know about.
+        If the ocean component is set up for another model.
     """
-    model = ocean.model
-    if model == 'omega':
-        raise NotImplementedError(
-            'Staging component inputs for Omega is not supported yet.  Set '
-            'up with --ocean_model mpas-ocean, or point --ocean_path at an '
-            'MPAS-Ocean build.'
-        )
-    if model != 'mpas-ocean':
+    if model not in OCEAN_MODELS:
         raise ValueError(
             f'Cannot stage component inputs for ocean model {model!r}.  '
-            f'Only mpas-ocean is supported.'
+            f'Expected one of {", ".join(OCEAN_MODELS)}.'
         )
-    return model
+    if ocean.model != model:
+        raise ValueError(
+            f'This task stages component inputs for {model}, but the ocean '
+            f'component is set up for {ocean.model}.  Set up with '
+            f'--ocean_model {model}, or point --ocean_path at a {model} '
+            f'build.'
+        )

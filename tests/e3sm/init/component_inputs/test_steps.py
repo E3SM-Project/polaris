@@ -34,7 +34,9 @@ def test_the_steps_read_what_the_cull_step_writes():
     directory, which is what makes that true and keeps it true.
     """
     _reset_shared_components()
-    steps, _ = get_component_inputs_steps(mesh_name=MESH_NAME)
+    steps, _ = get_component_inputs_steps(
+        mesh_name=MESH_NAME, model='mpas-ocean'
+    )
     cull_path = steps['cull_mesh'].path
 
     base_mesh = steps['staged_base_mesh']
@@ -60,8 +62,12 @@ def test_the_steps_are_shared_between_consumers():
     back the same instances rather than a second copy of the work.
     """
     _reset_shared_components()
-    steps, config = get_component_inputs_steps(mesh_name=MESH_NAME)
-    again, config_again = get_component_inputs_steps(mesh_name=MESH_NAME)
+    steps, config = get_component_inputs_steps(
+        mesh_name=MESH_NAME, model='mpas-ocean'
+    )
+    again, config_again = get_component_inputs_steps(
+        mesh_name=MESH_NAME, model='mpas-ocean'
+    )
 
     for name in ['staged_base_mesh', 'scrip']:
         assert again[name] is steps[name]
@@ -71,7 +77,9 @@ def test_the_steps_are_shared_between_consumers():
 
 def test_the_steps_live_under_the_meshs_component_inputs_directory():
     _reset_shared_components()
-    steps, _ = get_component_inputs_steps(mesh_name=MESH_NAME)
+    steps, _ = get_component_inputs_steps(
+        mesh_name=MESH_NAME, model='mpas-ocean'
+    )
 
     base = f'{MESH_NAME}/component_inputs'
     assert steps['staged_base_mesh'].subdir == f'{base}/base_mesh'
@@ -80,7 +88,9 @@ def test_the_steps_live_under_the_meshs_component_inputs_directory():
 
 def test_a_culled_mesh_gets_the_index_maps():
     _reset_shared_components()
-    steps, _ = get_component_inputs_steps(mesh_name=MESH_NAME)
+    steps, _ = get_component_inputs_steps(
+        mesh_name=MESH_NAME, model='mpas-ocean'
+    )
 
     base_mesh = steps['staged_base_mesh']
     assert base_mesh.with_maps
@@ -94,7 +104,9 @@ def test_a_mesh_outside_the_unified_family_gets_no_index_maps():
     promise maps that are not there.
     """
     _reset_shared_components()
-    steps, _ = get_component_inputs_steps(mesh_name=SIMPLE_MESH_NAME)
+    steps, _ = get_component_inputs_steps(
+        mesh_name=SIMPLE_MESH_NAME, model='mpas-ocean'
+    )
 
     base_mesh = steps['staged_base_mesh']
     assert not base_mesh.with_maps
@@ -109,7 +121,9 @@ def test_a_registered_mesh_resolves_its_short_name(mesh_name):
     mesh needs no ceremony.
     """
     _reset_shared_components()
-    _, config = get_component_inputs_steps(mesh_name=mesh_name)
+    _, config = get_component_inputs_steps(
+        mesh_name=mesh_name, model='mpas-ocean'
+    )
     assert get_mesh_short_name(config) == SHORT_NAMES[mesh_name]
 
 
@@ -120,7 +134,9 @@ def test_the_test_only_mesh_is_marked_as_such():
     under it from being mistaken for a released mesh.
     """
     _reset_shared_components()
-    _, config = get_component_inputs_steps(mesh_name='u-oi-so12to30-lr10')
+    _, config = get_component_inputs_steps(
+        mesh_name='u-oi-so12to30-lr10', model='mpas-ocean'
+    )
     assert get_mesh_short_name(config) == 'uXX-oi-so12to30-lr10'
 
 
@@ -131,7 +147,9 @@ def test_a_mesh_with_no_registered_short_name_says_which_option_to_set():
     to name the option, since there is nothing else to go on.
     """
     _reset_shared_components()
-    _, config = get_component_inputs_steps(mesh_name=SIMPLE_MESH_NAME)
+    _, config = get_component_inputs_steps(
+        mesh_name=SIMPLE_MESH_NAME, model='mpas-ocean'
+    )
 
     with pytest.raises(ValueError) as excinfo:
         get_mesh_short_name(config)
@@ -146,19 +164,23 @@ def test_setting_up_an_unregistered_mesh_fails_before_it_runs():
     the workflow spends time on a mesh whose files cannot be named.
     """
     _reset_shared_components()
-    steps, config = get_component_inputs_steps(mesh_name=SIMPLE_MESH_NAME)
+    steps, config = get_component_inputs_steps(
+        mesh_name=SIMPLE_MESH_NAME, model='mpas-ocean'
+    )
     scrip = steps['scrip']
 
     with pytest.raises(ValueError, match='mesh_short_name'):
         get_mesh_short_name(scrip.config)
 
-    config.set('component_inputs', 'mesh_short_name', 'q01.qu240km')
+    scrip.config.set('component_inputs', 'mesh_short_name', 'q01.qu240km')
     assert get_mesh_short_name(scrip.config) == 'q01.qu240km'
 
 
 def test_the_step_classes_are_what_the_factory_builds():
     _reset_shared_components()
-    steps, _ = get_component_inputs_steps(mesh_name=MESH_NAME)
+    steps, _ = get_component_inputs_steps(
+        mesh_name=MESH_NAME, model='mpas-ocean'
+    )
     assert isinstance(steps['staged_base_mesh'], BaseMeshStep)
     assert isinstance(steps['scrip'], ScripStep)
 
