@@ -24,6 +24,7 @@ MONTHLY_FILE_VALIDATION: Dict[str, Dict[str, Any]] = {
             'Temperature_TimeMean1Month',
             'Salinity_TimeMean1Month',
             'NormalVelocity_TimeMean1Month',
+            'NormalTransportVelocity_TimeMean1Month',
             'PseudoThickness_TimeMean1Month',
             'SshCell_TimeMean1Month',
         ]

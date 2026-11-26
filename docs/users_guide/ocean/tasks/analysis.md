@@ -142,11 +142,13 @@ ocean/analysis/
 │   └── heat_content/
 ├── heat_content_series/0001-0060/
 ├── global_stats/0001-0060/
+├── moc_basin_masks/                      (shared: one per mesh)
 └── moc/0021-0040/
 ```
 
 The range in each path is the zero-padded first and last year, matching the
-convention `ncclimo` uses in its own file names.
+convention `ncclimo` uses in its own file names.  The basin masks depend only
+on the mesh, so they have no range.
 
 The **staging tree** under `output_path` is where results are published for
 browsing.  It is shallow, with descriptive file names that carry the product,
@@ -304,11 +306,12 @@ The suite is being built up product by product.  What exists so far:
 | `climatology_maps` | map-view climatologies and maps of the change in ocean heat content, one step per field group | {ref}`available <ocean-analysis-climatology-maps>` |
 | `global_stats` | time series of the simulation's global statistics | {ref}`available <ocean-analysis-global-stats>` |
 | `heat_content_series` | time series of globally integrated ocean heat content | {ref}`available <ocean-analysis-heat-content-series>` |
-| `moc` | latitude-elevation plot of the meridional overturning circulation | {ref}`available <ocean-analysis-moc>` |
+| `moc` | latitude-elevation plots of the meridional overturning circulation of the global ocean and of ocean basins | {ref}`available <ocean-analysis-moc>` |
 | `publish` | the staging tree and the {ref}`gallery <ocean-analysis-gallery>` over it | implemented |
 
-In the case of a simulation without MOC output, the step reports that no MOC
-output was written and produces nothing, rather than failing the suite.
+In the case of a simulation without MOC output, or without the monthly-mean
+fields the basins are computed from, the step reports what is missing and
+skips those plots, rather than failing the suite.
 
 (ocean-analysis-climatology-maps)=
 
@@ -597,14 +600,18 @@ resolution is the expensive one, and every run after it is nearly free.
 
 ### meridional overturning circulation
 
-The `moc` task plots the annual climatology of the global meridional
-overturning streamfunction against latitude and elevation over the climatology
-years.
+The `moc` task plots climatologies of the meridional overturning
+streamfunction against latitude and elevation over the climatology years: the
+annual mean of the global streamfunction that Omega computes in situ, and
+that of each requested ocean basin for each plotted season, which Polaris
+computes offline until Omega can.
 
-**Polaris does not compute the MOC.**  Getting the streamfunction right needs
-the full three-dimensional velocity at every time step, not a monthly mean of
-it, which is why Omega computes it in situ; Polaris computes the climatology
-of what Omega wrote and plots it.  The vertical axis is Omega's too: the streamfunction lives on
+#### global
+
+**Polaris does not compute the global MOC.**  Getting the streamfunction right
+needs the full three-dimensional velocity at every time step, not a monthly
+mean of it, which is why Omega computes it in situ; Polaris computes the
+climatology of what Omega wrote and plots it.  The vertical axis is Omega's too: the streamfunction lives on
 layer interfaces, whose elevation moves, and Omega reports the mean elevation
 of each interface over the same period alongside the streamfunction.  Polaris
 does not reconstruct it, since an axis averaged over a different period would
@@ -612,11 +619,6 @@ quietly disagree with the diagnostic it labels.  How Omega computes both is
 described in the
 [MOC section](https://docs.e3sm.org/Omega/Omega/userGuide/Analysis.html#moc)
 of Omega's User's Guide.
-
-Only the **global** streamfunction is plotted.  Omega's MOC group can compute
-the streamfunction for named regions, and regional overturning --- the
-Atlantic MOC in particular --- comes with the rest of the regional analysis
-later.
 
 The simulation has to have run with the `MOC` analysis group turned on:
 
@@ -683,7 +685,69 @@ attached to the stream, is reported rather than failed.**  Omega attaches the
 latitude bin boundaries and the interface elevations to every MOC output
 stream, but that came later than the streamfunction itself, so a file with one
 and not the other will be met.  The step names the field that is missing and
-what would have written it, and produces nothing.
+what would have written it, and makes no global plot.
+
+#### basins
+
+Omega cannot yet read the basin masks a basin's overturning needs, so Polaris
+computes it offline, from the climatology of the transport and the layer
+interfaces for each season in `[ocean_analysis_climatology] plot_seasons`.  Each line of latitude in a basin is the set of edges whose
+two cells are both in the basin and on either side of the latitude.  The
+transport across those edges is integrated up from the sea floor to fixed
+elevations using each edge's own layer interfaces, which is correct however
+the layers tilt.  A positive streamfunction is northward flow above
+southward flow, as for the Atlantic MOC.
+
+The fields come from the shared `climatology` step that the
+{ref}`climatology maps <ocean-analysis-climatology-maps>` are plotted from,
+which adds `NormalTransportVelocity` to its variables whenever `regions`
+lists a basin.  The basins are the `MOC Basins` of
+[geometric_features](https://mpas-dev.github.io/geometric_features/), whose
+masks the shared `moc_basin_masks` step computes on the simulation's mesh.
+
+The monthly means need `NormalTransportVelocity`, `PseudoThickness` and
+`GeomZInterface`:
+
+```yaml
+Omega:
+  Analysis:
+    MonthlyAverages:
+      Fields: [..., PseudoThickness, GeomZInterface, NormalTransportVelocity]
+```
+
+A simulation without them is reported and has no basin plots.  The
+transport is the product of the climatologies of the velocity and the
+pseudo-thickness, on the climatological interfaces, so it misses how the
+interfaces move and how velocity and thickness vary together over time.  In
+z-star both come only from the sea surface height, so the difference is
+small.
+
+For each basin and season, two files land in `ocean/analysis/moc/<range>/`,
+named for the basin in lower case with underscores and the season:
+`atlantic_ANN.png` and `atlantic_ANN.nc`, for example.  Each basin is one
+gallery, with a plot for each season.  The global plot is annual only.  The plot is like the global one, cropped to the basin's
+latitudes and to the deepest water it has.  Elevations below the sea floor of
+every edge on a line are masked.
+
+These options in `[ocean_analysis_moc]` govern the basins:
+
+`regions`
+: The basins, by their `geometric_features` names without the `_MOC`
+  suffix: any of `Atlantic`, `AtlanticMed`, `IndoPacific`, `Pacific` and
+  `Indian`.
+
+`dlat`
+: The spacing of the lines of latitude, in degrees.
+
+`elevation_spacing`, `spacing_break_depths`
+: The elevations go down from the sea surface every `elevation_spacing[0]` m
+  to `spacing_break_depths[0]` m, then every `elevation_spacing[1]` m, and so
+  on, to the deepest sea floor.  Each value is the whole transport below its
+  elevation, so the spacing decides only where the profile is sampled.
+
+Each basin's plot covers `min_lat` to `max_lat` in its own section,
+`[ocean_analysis_moc_<basin>]`, such as `[ocean_analysis_moc_atlantic_med]`.
+A basin without a section is plotted over every latitude it has ocean on.
 
 ## troubleshooting
 

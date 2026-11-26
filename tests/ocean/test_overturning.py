@@ -6,11 +6,16 @@ from mpas_tools.planar_hex import make_planar_hex_mesh
 from polaris.mesh.vector import compute_edge_normal_vec
 from polaris.ocean.overturning import (
     bin_line_transport,
+    compute_line_edge_interfaces,
     compute_line_transport,
     compute_overturning,
+    compute_overturning_from_edge_transport,
+    get_latitude_edges,
+    get_line_edge_level_range,
     get_line_edges,
     interp_cell_to_line_edges,
 )
+from tests.ocean.latlon_mesh import EARTH_RADIUS, latlon_mesh
 
 DC = 1000.0
 
@@ -231,3 +236,245 @@ def test_bins_must_increase(periodic_mesh):
 def test_unknown_coordinate_is_an_error(periodic_mesh):
     with pytest.raises(ValueError, match='Unexpected line coordinate'):
         get_line_edges(periodic_mesh, 'z', 0.0)  # type: ignore[arg-type]
+
+
+@pytest.fixture(scope='module')
+def sphere_mesh():
+    """A 10-degree latitude-longitude mesh of the sphere"""
+    return latlon_mesh(dlat=10.0, dlon=10.0)
+
+
+def test_a_latitude_line_crosses_the_edges_between_two_rows(sphere_mesh):
+    """A line between two rows of cells, or on the northern row's centers,
+    crosses the edges between the rows; its length is the parallel's"""
+    line = get_latitude_edges(sphere_mesh, [0.0, 5.0, 40.0])
+    assert line.sizes['nLines'] == 3
+    for index, boundary in enumerate([0.0, 0.0, 40.0]):
+        edges = line.lineIndex.values == index
+        assert np.count_nonzero(edges) == 36
+        lat_cells = np.rad2deg(
+            sphere_mesh.latCell.values[line.cellsOnLineEdge.values[edges]]
+        )
+        assert np.all(lat_cells.min(axis=1) < line.lat.values[index])
+        assert np.all(lat_cells.max(axis=1) >= line.lat.values[index])
+        expected = 2.0 * np.pi * EARTH_RADIUS * np.cos(np.deg2rad(boundary))
+        assert line.length.values[index] == pytest.approx(expected)
+
+
+def test_latitude_line_signs_point_north(sphere_mesh):
+    """An edge whose first cell is north of the line gets a negative sign"""
+    ds = sphere_mesh.copy(deep=True)
+    cells_on_edge = ds.cellsOnEdge.values.copy()
+    cells_on_edge[::2] = cells_on_edge[::2, ::-1]
+    ds['cellsOnEdge'] = (ds.cellsOnEdge.dims, cells_on_edge)
+    line = get_latitude_edges(ds, [12.0])
+    lat = ds.latCell.values[line.cellsOnLineEdge.values]
+    northward = np.where(lat[:, 0] < lat[:, 1], 1.0, -1.0)
+    np.testing.assert_array_equal(line.sign.values, northward)
+    assert np.any(line.sign.values < 0.0)
+
+
+def test_an_edge_crosses_every_line_between_its_cells(sphere_mesh):
+    """Lines closer than the cells are tall all cross the same edges"""
+    line = get_latitude_edges(sphere_mesh, [-2.5, 0.0, 2.5, 5.0, 7.5])
+    edges = [
+        set(line.edgeIndex.values[line.lineIndex.values == index])
+        for index in range(5)
+    ]
+    # the first four lines are between the rows centered at 5S and 5N
+    assert all(len(found) == 36 for found in edges)
+    assert edges[0] == edges[1] == edges[2] == edges[3]
+    assert edges[4].isdisjoint(edges[0])
+
+
+def test_latitude_lines_stay_in_the_cell_mask(sphere_mesh):
+    lon = np.rad2deg(sphere_mesh.lonCell.values)
+    mask = lon < 90.0
+    line = get_latitude_edges(sphere_mesh, [20.0], cell_mask=mask)
+    assert line.sizes['nLineEdges'] == 9
+    assert np.all(mask[line.cellsOnLineEdge.values])
+
+
+@pytest.mark.parametrize(
+    'lon_range, count',
+    [((170.0, -170.0), 2), ((-170.0, 170.0), 34), ((0.0, 360.0), 36)],
+)
+def test_a_longitude_range_runs_east_across_any_meridian(
+    sphere_mesh, lon_range, count
+):
+    line = get_latitude_edges(sphere_mesh, [20.0], lon_range=lon_range)
+    assert line.sizes['nLineEdges'] == count
+
+
+def test_latitudes_must_increase(sphere_mesh):
+    with pytest.raises(ValueError, match='increasing'):
+        get_latitude_edges(sphere_mesh, [10.0, 0.0])
+
+
+def _fraction_form(transport, z_top, z_bottom, lines, n_lines, z):
+    """The streamfunction summed directly over edges, layers and z"""
+    height = (z_top - z_bottom)[..., np.newaxis]
+    with np.errstate(invalid='ignore', divide='ignore'):
+        fraction = np.where(
+            height > 0.0,
+            np.clip((z - z_bottom[..., np.newaxis]) / height, 0.0, 1.0),
+            0.0,
+        )
+    result = np.zeros(transport.shape[:-2] + (n_lines, len(z)))
+    for line in range(n_lines):
+        edges = lines == line
+        result[..., line, :] = -np.sum(
+            transport[..., edges, :, np.newaxis] * fraction[..., edges, :, :],
+            axis=(-3, -2),
+        )
+    return result
+
+
+def test_running_sum_matches_the_fraction_form():
+    """The streamfunction summed with differences along the elevations is
+    the sum over edges, layers and elevations, for layers of any thickness
+    including none, unsorted elevations and an extra dimension"""
+    rng = np.random.default_rng(42)
+    n_time, n_edges, n_levels, n_lines = 2, 60, 8, 4
+    thickness = rng.uniform(0.0, 80.0, (n_time, n_edges, n_levels))
+    thickness[rng.uniform(size=thickness.shape) < 0.2] = 0.0
+    ssh = rng.uniform(-2.0, 1.0, (n_time, n_edges, 1))
+    z_bottom = ssh - np.cumsum(thickness, axis=-1)
+    z_top = z_bottom + thickness
+    transport = rng.normal(size=thickness.shape) * 1.0e5
+    lines = rng.integers(0, n_lines - 1, n_edges)
+    z = rng.permutation(np.linspace(-700.0, 5.0, 31))
+
+    dims = ('Time', 'nLineEdges', 'nVertLevels')
+    psi = compute_overturning_from_edge_transport(
+        xr.DataArray(transport, dims=dims),
+        xr.DataArray(z_top, dims=dims),
+        xr.DataArray(z_bottom, dims=dims),
+        z,
+        line_index=xr.DataArray(lines, dims=('nLineEdges',)),
+        n_lines=n_lines,
+        chunk_size=7,
+    )
+    assert psi.dims == ('Time', 'nLines', 'nZInterfaces')
+    np.testing.assert_allclose(psi.zInterface.values, z)
+    expected = _fraction_form(transport, z_top, z_bottom, lines, n_lines, z)
+    np.testing.assert_allclose(
+        psi.values, expected, rtol=0.0, atol=1.0e-9 * np.abs(expected).max()
+    )
+    # a line with no edges has no transport
+    np.testing.assert_array_equal(psi.values[:, -1, :], 0.0)
+
+
+def _two_layer_state(ds_mesh, upper, lower, thickness=100.0):
+    """Northward flow in the upper layer and the lower one, layers of equal
+    thickness from the sea surface, and the vertical coordinate of every
+    cell"""
+    lat1, lat2 = (
+        ds_mesh.latCell.values[ds_mesh.cellsOnEdge.values[:, i] - 1]
+        for i in range(2)
+    )
+    northward = np.where(lat2 > lat1, 1.0, np.where(lat2 < lat1, -1.0, 0.0))
+    velocity = xr.DataArray(
+        northward[:, np.newaxis] * np.array([upper, lower]),
+        dims=('nEdges', 'nVertLevels'),
+    )
+    n_cells = ds_mesh.sizes['nCells']
+    layer_thickness = xr.DataArray(
+        np.full((n_cells, 2), thickness), dims=('nCells', 'nVertLevels')
+    )
+    z_interface = xr.DataArray(
+        np.tile([0.0, -thickness, -2.0 * thickness], (n_cells, 1)),
+        dims=('nCells', 'nVertLevelsP1'),
+    )
+    levels = xr.DataArray(np.zeros(n_cells, dtype=int), dims=('nCells',))
+    return velocity, layer_thickness, z_interface, levels, levels + 1
+
+
+def _latitude_overturning(ds_mesh, state, lat, z, mask=None):
+    """The streamfunction across lines of latitude for a state"""
+    velocity, thickness, z_interface, min_level, max_level = state
+    line = get_latitude_edges(ds_mesh, lat, cell_mask=mask)
+    min_edge, max_edge = get_line_edge_level_range(line, min_level, max_level)
+    transport = compute_line_transport(line, velocity, thickness)
+    z_top, z_bottom = compute_line_edge_interfaces(
+        line, z_interface, min_edge, max_edge
+    )
+    return compute_overturning_from_edge_transport(
+        transport,
+        z_top,
+        z_bottom,
+        z,
+        line_index=line.lineIndex,
+        n_lines=len(lat),
+    )
+
+
+def test_northward_flow_above_southward_flow_is_positive(sphere_mesh):
+    """A positive overturning is northward flow above its maximum, as the
+    AMOC is"""
+    u = 0.1
+    state = _two_layer_state(sphere_mesh, upper=u, lower=-u)
+    psi = _latitude_overturning(
+        sphere_mesh, state, [0.0], [-200.0, -100.0, 0.0]
+    )
+    length = 2.0 * np.pi * EARTH_RADIUS
+    np.testing.assert_allclose(
+        psi.values[0], [0.0, u * 100.0 * length, 0.0], atol=1.0e-3
+    )
+
+
+def test_basins_that_tile_sum_to_the_whole(sphere_mesh):
+    """Where two basins hold every edge across a latitude, their
+    streamfunctions sum to that of the whole sphere"""
+    rng = np.random.default_rng(7)
+    state = list(_two_layer_state(sphere_mesh, upper=0.0, lower=0.0))
+    state[0] = state[0].copy(data=rng.normal(size=state[0].shape) * 0.1)
+    lat = np.arange(-80.0, 81.0, 5.0)
+    z = np.linspace(-200.0, 0.0, 9)
+    lon = np.rad2deg(sphere_mesh.lonCell.values)
+    lat_cell = np.rad2deg(sphere_mesh.latCell.values)
+    # a basin boundary along a meridian, so no edge across a latitude joins
+    # the two basins
+    west = lon < 180.0
+    whole = _latitude_overturning(sphere_mesh, state, lat, z)
+    parts = sum(
+        _latitude_overturning(sphere_mesh, state, lat, z, mask=mask)
+        for mask in (west, ~west)
+    )
+    np.testing.assert_allclose(
+        parts.values, whole.values, atol=1.0e-6 * np.abs(whole).max()
+    )
+    # a basin of the northern cells has no edges across southern lines
+    north = _latitude_overturning(
+        sphere_mesh, state, lat, z, mask=lat_cell > 0.0
+    )
+    np.testing.assert_array_equal(north.values[lat <= 0.0], 0.0)
+
+
+def test_edge_interfaces_collapse_outside_the_valid_layers(sphere_mesh):
+    """An edge carries flow only in the layers both of its cells have, and
+    reads nothing the model wrote below either sea floor"""
+    line = get_latitude_edges(sphere_mesh, [0.0])
+    n_cells = sphere_mesh.sizes['nCells']
+    cells = line.cellsOnLineEdge.values
+    z_interface = np.tile([0.0, -10.0, -30.0, -60.0], (n_cells, 1))
+    # the deeper cell of the first edge has a bogus value below its floor
+    z_interface[cells[0, 1], 3] = np.nan
+    max_level = np.full(n_cells, 2)
+    max_level[cells[0, 1]] = 1
+    min_level = np.zeros(n_cells, dtype=int)
+    min_edge, max_edge = get_line_edge_level_range(
+        line,
+        xr.DataArray(min_level, dims=('nCells',)),
+        xr.DataArray(max_level, dims=('nCells',)),
+    )
+    assert max_edge.values[0] == 1
+    z_top, z_bottom = compute_line_edge_interfaces(
+        line,
+        xr.DataArray(z_interface, dims=('nCells', 'nVertLevelsP1')),
+        min_edge,
+        max_edge,
+    )
+    np.testing.assert_array_equal(z_top.values[0], [0.0, -10.0, -30.0])
+    np.testing.assert_array_equal(z_bottom.values[0], [-10.0, -30.0, -30.0])
+    np.testing.assert_array_equal(z_bottom.values[1], [-10.0, -30.0, -60.0])

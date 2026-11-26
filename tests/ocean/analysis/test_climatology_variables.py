@@ -33,6 +33,21 @@ def test_normal_velocity_is_not_added_without_them():
     assert 'normalVelocity' not in variables
 
 
+def test_the_transport_velocity_is_added_for_the_basins():
+    config = _config('temperature')
+    config.set('ocean_analysis_moc', 'regions', 'Atlantic', user=True)
+    variables = get_climatology_variables(config)
+    assert 'normalTransportVelocity' in variables
+    assert 'GeomZInterface' in variables
+
+
+def test_the_transport_velocity_is_not_added_without_basins():
+    config = _config('temperature')
+    config.set('ocean_analysis_moc', 'regions', '', user=True)
+    variables = get_climatology_variables(config)
+    assert 'normalTransportVelocity' not in variables
+
+
 def test_components_that_can_be_reconstructed_are_not_missing():
     pairs = _drop_unneeded_for_reconstruction(
         PAIRS, _written('Temperature', 'NormalVelocity'), SUFFIX

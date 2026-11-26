@@ -1086,6 +1086,24 @@ the transport and thickness on each edge into tracer classes, for
 overturning in density coordinates.  The mixed-layer eddies tasks
 ({ref}`dev-ocean-mixed-layer-eddies`) use these for their eddy overturning.
 
+On the sphere, {py:func}`polaris.ocean.overturning.get_latitude_edges()`
+finds the edges across many lines of constant latitude at once, within a
+cell mask and an optional longitude range, with signs toward the north.  An
+edge between cells farther apart than the lines are is listed once for each
+line it crosses, with the line's index in `lineIndex`.
+{py:func}`polaris.ocean.overturning.compute_line_edge_interfaces()` gives
+each edge's layer interfaces from its two cells', collapsing the layers that
+are not valid in both cells, from
+{py:func}`polaris.ocean.overturning.get_line_edge_level_range()`, to zero
+thickness.
+{py:func}`polaris.ocean.overturning.compute_overturning_from_edge_transport()`
+then integrates the transport up from the sea floor to fixed elevations with
+each edge's own interfaces, which is correct however the layers tilt, and
+sums it over each line's edges.  It accumulates each layer as differences
+along the sorted elevations, so its cost is the number of layers plus the
+number of elevations rather than their product.  The ocean analysis uses
+these for the overturning of ocean basins ({ref}`ocean-analysis-moc`).
+
 (dev-ocean-analysis)=
 
 ## Analysis of completed simulations

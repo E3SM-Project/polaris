@@ -70,8 +70,12 @@ def test_steps_land_at_range_keyed_subdirectories():
     assert _step_subdirs(component, 'analysis/heat_content_series') == [
         'analysis/heat_content_series/0001-0060'
     ]
+    # the basin masks depend on the mesh alone, so they are not keyed by the
+    # range, and the basins are computed from the climatology the maps share
     assert _step_subdirs(component, 'analysis/moc') == [
-        'analysis/moc/0021-0040'
+        'analysis/moc_basin_masks',
+        'analysis/climatology/0021-0040',
+        'analysis/moc/0021-0040',
     ]
 
 
@@ -82,8 +86,8 @@ def test_changing_the_range_moves_the_steps():
     before = _step_subdirs(component, 'analysis/moc')
     _set_range(component, 'ocean_analysis_climatology', 21, 40)
     after = _step_subdirs(component, 'analysis/moc')
-    assert before == ['analysis/moc/0001-0010']
-    assert after == ['analysis/moc/0021-0040']
+    assert 'analysis/moc/0001-0010' in before
+    assert 'analysis/moc/0021-0040' in after
     assert 'analysis/moc/0001-0010' not in component.steps
 
 
@@ -158,3 +162,24 @@ def test_heat_content_is_a_group_even_though_it_is_derived():
     groups = get_field_groups(['temperature'])
     assert list(groups) == ['temperature', 'heat_content']
     assert groups['heat_content'] == ['heat_content_anomaly']
+
+
+def test_the_moc_shares_the_climatology_of_the_maps():
+    """The basins are computed from the climatology the maps are plotted
+    from, so the two tasks hold the same step rather than two passes over
+    the monthly means"""
+    component = _make_component()
+    _set_range(component, 'ocean_analysis_climatology', 21, 40)
+    maps = component.tasks['analysis/climatology_maps'].steps['climatology']
+    moc = component.tasks['analysis/moc'].steps['climatology']
+    assert maps is moc
+
+
+def test_without_basins_the_moc_needs_no_climatology_or_masks():
+    component = _make_component()
+    config = component.tasks['analysis/moc'].config
+    config.set('ocean_analysis_moc', 'regions', '', user=True)
+    _set_range(component, 'ocean_analysis_climatology', 21, 40)
+    assert _step_subdirs(component, 'analysis/moc') == [
+        'analysis/moc/0021-0040'
+    ]
