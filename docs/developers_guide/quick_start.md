@@ -547,7 +547,9 @@ Use the same approach with `polaris suite`.  After a first build, repeated
 
 #### Manual build (advanced/optional)
 
-To build Omega manually,
+Omega's [Standalone Build](https://docs.e3sm.org/Omega/Omega/develop/userGuide/build/Standalone.html)
+and [Build Options](https://docs.e3sm.org/Omega/Omega/develop/userGuide/build/Options.html) pages describe the
+CMake build and its options. To build Omega manually,
 ```bash
 source ./load_<env_name>_<machine>_<compiler>_<mpi>.sh
 git submodule update --init e3sm_submodules/Omega
