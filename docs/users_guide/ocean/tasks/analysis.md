@@ -610,8 +610,8 @@ of each interface over the same period alongside the streamfunction.  Polaris
 does not reconstruct it, since an axis averaged over a different period would
 quietly disagree with the diagnostic it labels.  How Omega computes both is
 described in the
-[MOC section](https://docs.e3sm.org/Omega/Omega/userGuide/Analysis.html#moc)
-of Omega's User's Guide.
+[MOC section](https://docs.e3sm.org/Omega/Omega/develop/userGuide/io/Analysis.html#moc)
+of Omega's User Guide.
 
 Only the **global** streamfunction is plotted.  Omega's MOC group can compute
 the streamfunction for named regions, and regional overturning --- the
